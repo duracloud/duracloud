@@ -7,14 +7,20 @@
  */
 package org.duracloud.security.vote;
 
+import org.duracloud.StorageTaskConstants;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
+import org.duracloud.snapshot.SnapshotConstants;
+import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
+import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.domain.impl.StorageAccountImpl;
 import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.provider.TaskProvider;
+import org.duracloud.storage.provider.TaskProviderFactory;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -33,7 +39,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.FilterInvocation;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
+import static org.easymock.EasyMock.*;
 import static org.springframework.security.access.AccessDecisionVoter.ACCESS_ABSTAIN;
 import static org.springframework.security.access.AccessDecisionVoter.ACCESS_DENIED;
 import static org.springframework.security.access.AccessDecisionVoter.ACCESS_GRANTED;
@@ -58,6 +69,8 @@ public class SpaceWriteAccessVoterTest {
     private final String OPEN_SPACE_ID = "open-space";
     private Map<String, AclType> acls;
     private final String groupWrite = "group-curators-w";
+    private final String groupRead = "group-curators-r";
+
     private final String storeId = "5";
 
     private StorageProviderFactory providerFactory;
@@ -83,7 +96,9 @@ public class SpaceWriteAccessVoterTest {
                                        FilterInvocation.class);
         request = EasyMock.createMock("HttpServletRequest",
                                       HttpServletRequest.class);
-        voter = new SpaceWriteAccessVoter(providerFactory, userDetailsService);
+        voter =
+            new SpaceWriteAccessVoter(providerFactory,
+                                      userDetailsService);
         
     }
 
@@ -124,10 +139,12 @@ public class SpaceWriteAccessVoterTest {
         String spaceId = "task";
         String contentId = "/a-test";
         Authentication caller = registeredUser(login, "none");
-        createMockInvocation(HttpVerb.POST, spaceId, contentId,3);
+        EasyMock.expect(request.getPathInfo()).andReturn(spaceId + contentId).atLeastOnce();
+        EasyMock.expect(request.getMethod()).andReturn(HttpVerb.POST.name()).atLeastOnce();
+        EasyMock.expect(resource.getHttpRequest()).andReturn(request);
+
         createUserDetailsServiceMock(login);
         Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
-        expectGetSpaceAcls();
 
         replayMocks();
 
@@ -409,7 +426,7 @@ public class SpaceWriteAccessVoterTest {
         Authentication auth = registeredUser(login, "none");
         verifyVote(auth, securedSpace, ACCESS_GRANTED);
     }
-
+    
     private void verifyVote(Authentication caller,
                             boolean securedSpace,
                             int expected) {
@@ -469,6 +486,7 @@ public class SpaceWriteAccessVoterTest {
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
         return resource;
     }
+
 
     private FilterInvocation createMockInvocationVerifyVote(Authentication caller,
                                                             boolean securedSpace,
@@ -540,6 +558,31 @@ public class SpaceWriteAccessVoterTest {
         return resource;
     }
 
+    
+    private FilterInvocation createMockInvocation(Authentication caller,
+                                                  boolean securedSpace,
+                                                  HttpVerb method, String pathInfo) {
+        String spaceId = OPEN_SPACE_ID;
+        if(pathInfo != null){
+            spaceId = pathInfo;
+        }else{
+            if (securedSpace) {
+                spaceId = "some-closed-space";
+            }
+        }
+
+        expect(request.getMethod()).andReturn(method.name());
+
+        if (!method.isRead()) {
+            expect(request.getQueryString()).andReturn(
+                "storeID=" + storeId + "&attachment=true").atLeastOnce();
+            expect(request.getPathInfo()).andReturn(spaceId).atLeastOnce();
+        }
+
+        expect(resource.getHttpRequest()).andReturn(request);
+        return resource;
+    }
+    
     private FilterInvocation createMockInvocation(HttpVerb method,
                                                   String contentId) {
         return createMockInvocation(method, OPEN_SPACE_ID, contentId,4);
@@ -554,7 +597,7 @@ public class SpaceWriteAccessVoterTest {
         
         addGetQueryStringInvocation(2);
         EasyMock.expect(request.getPathInfo()).andReturn(path).atLeastOnce();
-        EasyMock.expect(request.getMethod()).andReturn(method.name()).times(4);
+        EasyMock.expect(request.getMethod()).andReturn(method.name()).atLeastOnce();
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
         return resource;
     }

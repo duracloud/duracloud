@@ -7,14 +7,12 @@
  */
 package org.duracloud.durastore.rest;
 
+import javax.ws.rs.core.Response;
+
 import org.duracloud.common.rest.RestUtil;
-import org.duracloud.durastore.util.TaskProviderFactory;
-import org.easymock.EasyMock;
-import org.junit.Assert;
+import org.duracloud.storage.provider.TaskProviderFactory;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.ws.rs.core.Response;
 
 /**
  * This class tests top-level error handling of TaskRest.

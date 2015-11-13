@@ -14,12 +14,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.duracloud.common.model.AclType;
-import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
-import org.duracloud.storage.error.NotFoundException;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.security.util.AuthorizationHelper;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,19 +37,18 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
 
     private final Logger log = LoggerFactory.getLogger(SpaceAccessVoter.class);
 
-    private StorageProviderFactory storageProviderFactory;
     private UserDetailsService userDetailsService;
-   
+    private AuthorizationHelper authHelper;
+    private StorageProviderFactory storageProviderFactory;
     
     public SpaceAccessVoter(StorageProviderFactory storageProviderFactory,
                             UserDetailsService userDetailsService) {
         this.storageProviderFactory = storageProviderFactory;
         this.userDetailsService = userDetailsService;
+        this.authHelper = new AuthorizationHelper(storageProviderFactory);
     }
 
-    protected StorageProviderFactory getStorageProviderFactory(){
-        return this.storageProviderFactory;
-    }
+
     protected boolean isOpenResource(HttpServletRequest httpRequest) {
         String spaceId = getSpaceId(httpRequest);
         if (null == spaceId) {
@@ -64,7 +60,8 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
             || spaceId.equals("bit-integrity")
             || spaceId.equals("stores")
             || spaceId.equals("acl")
-            || spaceId.equals("init");
+            || spaceId.equals("init")
+            || spaceId.equals("task");
     }
 
     protected String getStoreId(HttpServletRequest httpRequest) {
@@ -128,33 +125,9 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
      * @return ACLs, empty-map, or null
      */
     protected Map<String, AclType> getSpaceACLs(HttpServletRequest request) {
-        Map<String, AclType> emptyACLs = new HashMap<String, AclType>();
         String storeId = getStoreId(request);
         String spaceId = getSpaceId(request);
-        if (null == spaceId) {
-            return emptyACLs;
-        }
-
-        if (spaceId.equals("security") || spaceId.equals("init")) {
-            return emptyACLs;
-        }
-
-        StorageProvider store = getStorageProvider(storeId);
-        if (null == store) {
-            return emptyACLs;
-        }
-
-        try {
-            return store.getSpaceACLs(spaceId);
-
-        } catch (NotFoundException nfe) {
-            log.info("Space !exist: {}, exception: {}", spaceId, nfe);
-            return emptyACLs;
-
-        } catch (StorageException e) {
-            log.warn("Error getting space ACLs: {}, exception: {}", spaceId, e);
-            return emptyACLs;
-        }
+        return this.authHelper.getSpaceACLs(storeId, spaceId);
     }
 
     protected HttpVerb getHttpVerb(HttpServletRequest httpRequest) {
@@ -176,60 +149,20 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
 
     protected boolean groupsHaveReadAccess(List<String> userGroups,
                                            Map<String, AclType> acls) {
-        return groupsHaveAccess(userGroups, acls, true);
+        return this.authHelper.groupsHaveReadAccess(userGroups, acls);
     }
 
     protected boolean groupsHaveWriteAccess(List<String> userGroups,
                                             Map<String, AclType> acls) {
-        return groupsHaveAccess(userGroups, acls, false);
-    }
-
-    private boolean groupsHaveAccess(List<String> userGroups,
-                                     Map<String, AclType> acls,
-                                     boolean isRead) {
-        if (null != userGroups) {
-            for (String group : userGroups) {
-                if (isRead && hasReadAccess(group, acls)) {
-                    return true;
-
-                } else if (!isRead && hasWriteAccess(group, acls)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return this.authHelper.groupsHaveAccess(userGroups, acls, false);
     }
 
     protected boolean hasReadAccess(String name, Map<String, AclType> acls) {
-        return hasAccess(name, acls, true);
+        return this.authHelper.hasReadAccess(name, acls);
     }
 
     protected boolean hasWriteAccess(String name, Map<String, AclType> acls) {
-        return hasAccess(name, acls, false);
-    }
-
-    private boolean hasAccess(String name,
-                              Map<String, AclType> acls,
-                              boolean isRead) {
-        if (RootUserCredential.getRootUsername().equals(name)) {
-            return true;
-        }
-
-        if (null == acls) {
-            return false;
-        }
-
-        String aclName = StorageProvider.PROPERTIES_SPACE_ACL + name;
-        if (acls.containsKey(aclName)) {
-            AclType acl = acls.get(aclName);
-            if (isRead) {
-                return AclType.READ.equals(acl) || AclType.WRITE.equals(acl);
-
-            } else {
-                return AclType.WRITE.equals(acl);
-            }
-        }
-        return false;
+        return this.authHelper.hasWriteAccess(name, acls);
     }
 
     protected boolean isAdmin(String name) {
@@ -250,12 +183,8 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         return false;
     }
 
-    /**
-     * This method provides entry-point for alternate implementations of
-     * StorageProvider.
-     */
-    protected StorageProvider getStorageProvider(String storeId) {
-        return storageProviderFactory.getStorageProvider(storeId);
+    public StorageProviderFactory getStorageProviderFactory() {
+        return storageProviderFactory;
     }
 
     protected HttpServletRequest getHttpServletRequest(Object resource) {

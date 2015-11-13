@@ -12,6 +12,10 @@ package org.duracloud;
  */
 public class StorageTaskConstants {
 
+    //Base
+    public static final String TASK_BASE_PATH = "/task";
+
+    
     // Streaming
     public static final String ENABLE_STREAMING_TASK_NAME = "enable-streaming";
     public static final String DISABLE_STREAMING_TASK_NAME = "disable-streaming";

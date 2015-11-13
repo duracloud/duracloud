@@ -7,6 +7,14 @@
  */
 package org.duracloud.security.vote;
 
+import static org.duracloud.security.vote.VoterUtil.*;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
@@ -20,15 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import static org.duracloud.security.vote.VoterUtil.debugText;
 
 /**
  * This class decides if a caller has WRITE access to a given resource. If the
@@ -42,6 +42,7 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
 
     private final Logger log =
         LoggerFactory.getLogger(SpaceReadAccessVoter.class);
+
 
     public SpaceWriteAccessVoter(StorageProviderFactory storageProviderFactory,
                                  UserDetailsService userDetailsService) {
@@ -96,6 +97,13 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }
+        
+        if(isTask(httpRequest)){
+            log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
+            //task configuration rules are defined in durastore's security-config.xml
+            //so if the call has made it this far, then we allow it.
+            return ACCESS_GRANTED;
+        }
 
         // Do not allow deletions from or of the snapshot metadata space
         if (isSnapshotMetadataSpace(httpRequest) && isDeleteAction(httpRequest)) {
@@ -145,12 +153,6 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             return ACCESS_GRANTED;
         }
         
-        if(isTask(httpRequest)){
-            log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
-            //task configuration rules are defined in durastore's security-config.xml
-            //so if the call has made it this far, then we allow it.
-            return ACCESS_GRANTED;
-        }
 
         int grant = ACCESS_DENIED;
         log.debug(debugText(label, auth, config, resource, grant));
@@ -231,5 +233,4 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
         }
         return false;
     }
-
 }

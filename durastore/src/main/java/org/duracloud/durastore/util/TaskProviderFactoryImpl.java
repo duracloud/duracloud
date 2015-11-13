@@ -23,7 +23,10 @@ import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProvider;
+import org.duracloud.storage.provider.TaskProviderFactory;
 import org.duracloud.storage.util.StorageProviderFactory;
+import org.springframework.aop.framework.AopProxy;
+import org.springframework.aop.framework.ProxyFactoryBean;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -34,12 +37,13 @@ import com.amazonaws.services.s3.AmazonS3Client;
  * @author Bill Branan
  * Date: May 20, 2010
  */
-public class TaskProviderFactory extends ProviderFactoryBase {
+public class TaskProviderFactoryImpl extends ProviderFactoryBase
+    implements TaskProviderFactory {
 
     private StorageProviderFactory storageProviderFactory;
     private ManifestStore manifestStore;
     
-    public TaskProviderFactory(StorageAccountManager storageAccountManager,
+    public TaskProviderFactoryImpl(StorageAccountManager storageAccountManager,
                                StorageProviderFactory storageProviderFactory,
                                ManifestStore manifestStore) {
         super(storageAccountManager);
@@ -47,22 +51,12 @@ public class TaskProviderFactory extends ProviderFactoryBase {
         this.manifestStore = manifestStore;
     }
 
-    /**
-     * Retrieves the primary task provider for a given customer.
-     *
-     * @return
-     * @throws org.duracloud.storage.error.StorageException
-     */
+    @Override
     public TaskProvider getTaskProvider() {
         return getTaskProvider(null);
     }
-
-    /**
-     * Retrieves a particular task provider based on the storage account ID.
-     *
-     * @param storageAccountId - the ID of the provider account
-     * @return
-     */
+    
+    @Override
     public TaskProvider getTaskProvider(String storageAccountId)
             throws TaskException {
         StorageAccountManager storageAccountManager = getAccountManager();
@@ -149,7 +143,7 @@ public class TaskProviderFactory extends ProviderFactoryBase {
         } else {
             throw new TaskException("No TaskProvider is available for " + type);
         }
-
+        
         return taskProvider;
     }
 

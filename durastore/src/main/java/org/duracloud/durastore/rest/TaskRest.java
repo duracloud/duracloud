@@ -19,35 +19,38 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.duracloud.common.queue.TaskQueue;
+import org.duracloud.StorageTaskConstants;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.util.SerializationUtil;
-import org.duracloud.durastore.util.TaskProviderFactory;
 import org.duracloud.storage.error.StorageStateException;
 import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.TaskProvider;
+import org.duracloud.storage.provider.TaskProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
 /**
  * Allows for calling storage provider specific tasks
  *
  * @author Bill Branan
  *         Date: May 20, 2010
  */
-@Path("/task")
+@Path(StorageTaskConstants.TASK_BASE_PATH)
 @Component
 public class TaskRest extends BaseRest {
+
     private final Logger log = LoggerFactory.getLogger(TaskRest.class);
 
     private TaskProviderFactory taskProviderFactory;
     private RestUtil restUtil;
 
     @Autowired
-    public TaskRest(TaskProviderFactory taskProviderFactory, RestUtil restUtil) {
+    
+    public TaskRest(@Qualifier("taskProviderFactory") TaskProviderFactory taskProviderFactory,
+                    RestUtil restUtil) {
         this.taskProviderFactory = taskProviderFactory;
         this.restUtil = restUtil;
     }

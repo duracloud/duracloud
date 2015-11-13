@@ -57,6 +57,7 @@ public class SnapshotTaskClientImplTest {
     private String host = "snapshot-host";
     private int port = 8080;
     private String storeId = "0";
+    private String memberId = "member-id";
     private int contentExpirationDays = 42;
     private String restoreId = "restore-id";
     private RestoreStatus restoreStatus = RestoreStatus.WAITING_FOR_DPN;
@@ -117,7 +118,7 @@ public class SnapshotTaskClientImplTest {
         preparedResult.setSourceSpaceId(spaceId);
         preparedResult.setSourceStoreId(storeId);
         preparedResult.setStatus(snapshotStatus);
-
+        preparedResult.setMemberId(memberId);
         setupMock(taskName, preparedResult.serialize());
         replayMocks();
 
@@ -129,6 +130,8 @@ public class SnapshotTaskClientImplTest {
         assertThat(spaceId, equalTo(result.getSourceSpaceId()));
         assertThat(storeId, equalTo(result.getSourceStoreId()));
         assertThat(snapshotStatus, equalTo(result.getStatus()));
+        assertThat(memberId, equalTo(result.getMemberId()));
+
     }
 
     @Test
@@ -167,7 +170,7 @@ public class SnapshotTaskClientImplTest {
 
         List<SnapshotSummary> summaries = new ArrayList<>();
         summaries.add(
-            new SnapshotSummary(snapshotId, snapshotStatus, description));
+            new SnapshotSummary(snapshotId, snapshotStatus, description, storeId,spaceId));
         GetSnapshotListTaskResult preparedResult =
             new GetSnapshotListTaskResult();
         preparedResult.setSnapshots(summaries);
@@ -181,6 +184,9 @@ public class SnapshotTaskClientImplTest {
         assertThat(snapshotId, equalTo(resultSummary.getSnapshotId()));
         assertThat(description, equalTo(resultSummary.getDescription()));
         assertThat(snapshotStatus, equalTo(resultSummary.getStatus()));
+        assertThat(storeId, equalTo(resultSummary.getSourceStoreId()));
+        assertThat(spaceId, equalTo(resultSummary.getSourceSpaceId()));
+
     }
 
     @Test

@@ -7,17 +7,17 @@
  */
 package org.duracloud.durastore.rest;
 
+import javax.ws.rs.core.Response;
+
 import org.duracloud.audit.reader.AuditLogReader;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.durastore.error.ResourceException;
-import org.duracloud.storage.domain.AuditConfig;
-import org.duracloud.storage.util.StorageProviderFactory;
-import org.duracloud.durastore.util.TaskProviderFactory;
 import org.duracloud.security.DuracloudUserDetailsService;
+import org.duracloud.storage.domain.AuditConfig;
+import org.duracloud.storage.provider.TaskProviderFactory;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.easymock.EasyMock;
 import org.junit.Assert;
-
-import javax.ws.rs.core.Response;
 
 /**
  * @author Andrew Woods

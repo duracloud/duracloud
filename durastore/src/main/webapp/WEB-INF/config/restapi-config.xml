@@ -36,7 +36,7 @@
     <constructor-arg ref="storageProviderFactory"/>
   </bean>
 
-  <bean id="taskProviderFactory" class="org.duracloud.durastore.util.TaskProviderFactory">
+  <bean id="taskProviderFactoryImpl" class="org.duracloud.durastore.util.TaskProviderFactoryImpl">
     <constructor-arg ref="storageAcctManager"/>
     <constructor-arg ref="storageProviderFactory"/>
     <constructor-arg ref="manifestStore"/>
@@ -47,6 +47,10 @@
     <constructor-arg ref="storageAcctManager" />
     <constructor-arg ref="securityContextUtil"/>
     <constructor-arg value="true" />
+  </bean>
+
+  <bean id="authorizationHelper" class="org.duracloud.security.util.AuthorizationHelper">
+    <constructor-arg ref="storageProviderFactory"/>
   </bean>
 
   <bean id="statelessStoragePvdr" class="org.duracloud.storage.provider.StatelessStorageProviderImpl"/>
