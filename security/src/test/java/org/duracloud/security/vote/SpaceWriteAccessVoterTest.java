@@ -283,7 +283,7 @@ public class SpaceWriteAccessVoterTest {
         Authentication caller = registeredUser(login, "none");
         
         EasyMock.expect(request.getPathInfo()).andReturn("test").atLeastOnce();
-        EasyMock.expect(request.getMethod()).andReturn(HttpVerb.POST.name());
+        EasyMock.expect(request.getMethod()).andReturn(HttpVerb.POST.name()).atLeastOnce();
             
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
         addGetQueryStringInvocation(1);

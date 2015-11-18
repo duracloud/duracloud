@@ -111,8 +111,8 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             return ACCESS_DENIED;
         }
 
-        // Do not allow changes to spaces which are in the middle of the snapshot process
-        if (isSnapshotInProgress(httpRequest)) {
+        // Do not allow changes other than acl update calls to spaces which are in the middle of the snapshot process
+        if (isSnapshotInProgress(httpRequest) && !isSpaceAclUpdate(httpRequest)) {
             log.debug(debugText(label, auth, config, resource, ACCESS_DENIED));
             return ACCESS_DENIED;
         }
