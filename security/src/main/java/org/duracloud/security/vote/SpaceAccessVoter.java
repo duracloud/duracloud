@@ -13,6 +13,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
@@ -108,14 +109,19 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
     }
 
     protected boolean hasContentId(HttpServletRequest httpRequest) {
+        return getContentId(httpRequest) != null;
+    }
+
+    protected String getContentId(HttpServletRequest httpRequest) {
         String spaceId = getSpaceId(httpRequest);
         if (null != spaceId) {
             String path = httpRequest.getPathInfo();
-            return !path.endsWith(spaceId);
+            if(!path.endsWith(spaceId)){
+                return path.substring(path.indexOf(spaceId)+spaceId.length()+1);
+            }
         }
-        return false;
+        return null;
     }
-
     /**
      * This method returns the ACLs of the requested space, or an empty-map if
      * there is an error or for certain 'keyword' spaces, or null if the space
@@ -127,6 +133,12 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
     protected Map<String, AclType> getSpaceACLs(HttpServletRequest request) {
         String storeId = getStoreId(request);
         String spaceId = getSpaceId(request);
+        return getSpaceACLs(storeId, spaceId);
+    }
+
+
+    protected Map<String, AclType> getSpaceACLs(String storeId,
+                                                String spaceId) {
         return this.authHelper.getSpaceACLs(storeId, spaceId);
     }
 
@@ -219,6 +231,12 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
      */
     public boolean supports(Class aClass) {
         return FilterInvocation.class.isAssignableFrom(aClass);
+    }
+
+
+    protected boolean isSnapshotMetadataSpace(HttpServletRequest httpRequest) {
+        String spaceId = getSpaceId(httpRequest);
+        return(Constants.SNAPSHOT_METADATA_SPACE.equals(spaceId));
     }
 
 }

@@ -24,12 +24,14 @@ import java.util.Map;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
+import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProvider;
 import org.duracloud.storage.provider.TaskProviderFactory;
@@ -243,6 +245,42 @@ public class SpaceReadAccessVoterTest {
         Assert.assertEquals(ACCESS_GRANTED, decision);
     }
 
+    @Test
+    public void testVoteUserSnapshotMetadataContentSuccess() {
+        testVoteUserSnapshotMetadataContent(true);
+    }
+
+    @Test
+    public void testVoteUserSnapshotMetadataContentFailure() {
+        testVoteUserSnapshotMetadataContent(false);
+    }
+
+    protected void testVoteUserSnapshotMetadataContent(boolean success) {
+        boolean securedSpace = true;
+        String sourceSpaceRead = "source-read";
+        int outcome = success ? ACCESS_GRANTED : ACCESS_DENIED;
+        
+        Authentication caller = registeredUser("joe", success ? sourceSpaceRead : "none");
+        String spaceId = "source-space";
+        long timestamp = System.currentTimeMillis();
+        SnapshotIdentifier snapshotId = new SnapshotIdentifier("test", storeId, spaceId, timestamp);
+        createMockInvocation(caller,
+                             securedSpace,
+                             HttpVerb.GET,
+                             "/" + Constants.SNAPSHOT_METADATA_SPACE
+                                           + "/"
+                                           + snapshotId.getSnapshotId()+".zip",
+                             3);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
+        Map<String,AclType> sourceSpaceAcls = new HashMap<String, AclType>();
+        sourceSpaceAcls.put(PROPERTIES_SPACE_ACL + sourceSpaceRead, AclType.READ);
+        setupGetSpaceAcls();
+        setupGetSpaceAcls(spaceId, sourceSpaceAcls);
+        replayMocks();
+        int decision = voter.vote(caller, resource, config);
+        Assert.assertEquals(outcome, decision);
+    }
+
     
     @Test
     public void testVoteOpenAuthenticated() {
@@ -413,13 +451,13 @@ public class SpaceReadAccessVoterTest {
     }
     
     private void setupGetSpaceAcls(){
-        setupGetSpaceAcls(isA(String.class));
+        setupGetSpaceAcls(isA(String.class), acls);
 
     }
 
-    private void setupGetSpaceAcls(String spaceId){
+    private void setupGetSpaceAcls(String spaceId, Map<String,AclType> acls){
         expect(provider.getSpaceACLs(spaceId))
-                .andAnswer(getACLs());
+                .andAnswer(getACLs(acls));
 
     }
 
@@ -430,6 +468,10 @@ public class SpaceReadAccessVoterTest {
      * @return Map of ACLs
      */
     private IAnswer<? extends Map<String, AclType>> getACLs() {
+        return getACLs(acls);
+    }
+
+    private IAnswer<? extends Map<String, AclType>> getACLs(final Map<String, AclType> acls) {
         return new IAnswer<Map<String, AclType>>() {
             public Map<String, AclType> answer() throws Throwable {
                 Object[] args = getCurrentArguments();

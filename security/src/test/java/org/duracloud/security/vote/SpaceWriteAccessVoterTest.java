@@ -64,12 +64,11 @@ import static org.springframework.security.access.AccessDecisionVoter.ACCESS_GRA
  */
 public class SpaceWriteAccessVoterTest {
 
-    private SpaceWriteAccessVoter voter;
+    private SpaceAccessVoter voter;
 
     private final String OPEN_SPACE_ID = "open-space";
     private Map<String, AclType> acls;
     private final String groupWrite = "group-curators-w";
-    private final String groupRead = "group-curators-r";
 
     private final String storeId = "5";
 
