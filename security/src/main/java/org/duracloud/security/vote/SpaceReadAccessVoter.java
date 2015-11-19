@@ -135,8 +135,8 @@ public class SpaceReadAccessVoter extends SpaceAccessVoter {
             return ACCESS_GRANTED;
         }
         
-        //allow reads from snapshot metadata space for files 
-        //that metadata files of snapshots that the user has access to .
+        //allow users to read snapshot metadata files for snapshots to which the 
+        //user has access
         if(isSnapshotMetadataSpace(httpRequest) && hasContentId(httpRequest)){
             return hasSnapshotSpacePermissions(httpRequest,
                                                username,
