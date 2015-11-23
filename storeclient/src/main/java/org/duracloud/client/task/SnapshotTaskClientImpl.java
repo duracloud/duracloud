@@ -22,11 +22,12 @@ import org.duracloud.snapshot.dto.task.GetRestoreTaskParameters;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskParameters;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
-import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskParameters;
 import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
+import org.duracloud.snapshot.dto.task.RequestRestoreSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
 
@@ -186,6 +187,25 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
                                      taskParams.serialize());
 
         return RestoreSnapshotTaskResult.deserialize(taskResult);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RequestRestoreSnapshotTaskResult requestRestoreSnapshot(String snapshotId,
+                                                     String userEmail)
+        throws ContentStoreException {
+        RestoreSnapshotTaskParameters taskParams =
+            new RestoreSnapshotTaskParameters();
+        taskParams.setSnapshotId(snapshotId);
+        taskParams.setUserEmail(userEmail);
+
+        String taskResult =
+            contentStore.performTask(SnapshotConstants.REQUEST_RESTORE_SNAPSHOT_TASK_NAME,
+                                     taskParams.serialize());
+
+        return RequestRestoreSnapshotTaskResult.deserialize(taskResult);
     }
 
     /**

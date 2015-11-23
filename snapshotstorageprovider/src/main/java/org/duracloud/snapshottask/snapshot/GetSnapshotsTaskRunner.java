@@ -7,13 +7,23 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import java.text.MessageFormat;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.SnapshotConstants;
+import org.duracloud.snapshot.dto.SnapshotSummary;
+import org.duracloud.snapshot.dto.bridge.GetSnapshotListBridgeResult;
 import org.duracloud.storage.error.TaskException;
+import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.MessageFormat;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Get a listing of snapshots which are accessible to this account.
@@ -26,14 +36,20 @@ public class GetSnapshotsTaskRunner extends AbstractSnapshotTaskRunner {
     private Logger log = LoggerFactory.getLogger(GetSnapshotsTaskRunner.class);
 
     private String dcHost;
+    private String dcStoreId;
+    private StorageProvider storageProvider;
 
     public GetSnapshotsTaskRunner(String dcHost,
+                                  String dcStoreId,
                                   String bridgeAppHost,
                                   String bridgeAppPort,
                                   String bridgeAppUser,
-                                  String bridgeAppPass) {
+                                  String bridgeAppPass,
+                                  StorageProvider storageProvider) {
         super(bridgeAppHost, bridgeAppPort, bridgeAppUser, bridgeAppPass);
         this.dcHost = dcHost;
+        this.dcStoreId = dcStoreId;
+        this.storageProvider = storageProvider;
     }
 
     @Override
@@ -43,16 +59,45 @@ public class GetSnapshotsTaskRunner extends AbstractSnapshotTaskRunner {
 
     @Override
     public String performTask(String taskParameters) {
-        return callBridge(createRestHelper(), buildBridgeURL());
+        //get bridge results
+        String result =  callBridge(createRestHelper(), buildBridgeURL());
+        
+        //if the caller has only user privs
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(!auth.getAuthorities().contains("ROLE_ADMIN")){
+            //deserialize results
+            GetSnapshotListBridgeResult list = GetSnapshotListBridgeResult.deserialize(result);
+            List<SnapshotSummary> filteredSnapshots = new LinkedList<>();
+
+            //create space set
+            Iterator<String> it = this.storageProvider.getSpaces();
+            Set<String> spaceSet = new HashSet<>();
+            while(it.hasNext()){
+                spaceSet.add(it.next());
+            }
+
+            //filter out all snapshots of spaces not in the set.
+            for(SnapshotSummary snapshot : list.getSnapshots()){
+                if(spaceSet.contains(snapshot.getSourceSpaceId())){
+                    filteredSnapshots.add(snapshot);
+                }
+            }
+
+            list.setSnapshots(filteredSnapshots);
+            result = list.serialize();
+        }
+        
+        return result;
     }
 
     /*
      * Create URL to call bridge app
      */
     protected String buildBridgeURL() {
-        return MessageFormat.format("{0}/snapshot?host={1}",
+        return MessageFormat.format("{0}/snapshot?host={1}&storeId={2}",
                                     buildBridgeBaseURL(),
-                                    dcHost);
+                                    dcHost,
+                                    dcStoreId);
     }
 
     /*

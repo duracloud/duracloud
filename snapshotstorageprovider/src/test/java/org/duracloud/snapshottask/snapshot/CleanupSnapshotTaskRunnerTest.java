@@ -59,16 +59,19 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
         s3Client = createMock("AmazonS3Client", AmazonS3Client.class);
         manifestStore = createMock("ManifestStore", ManifestStore.class);
         auditQueue = createMock("TaskQueue", TaskQueue.class);
-        taskRunner = new CleanupSnapshotTaskRunner(unwrappedSnapshotProvider,
-                                                   s3Client, 
-                                                   auditQueue, manifestStore, account, storeId);
+        taskRunner =
+            new CleanupSnapshotTaskRunner(unwrappedSnapshotProvider,
+                                          s3Client,
+                                          auditQueue,
+                                          manifestStore,
+                                          account,
+                                          storeId);
     }
 
 
     @After
     public void tearDown(){
         verifyAll();
-        verify(snapshotProvider, unwrappedSnapshotProvider, s3Client);
     }
 
     @Test
@@ -78,7 +81,7 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
     }
 
     @Test
-    public void testPerformTask() {
+    public void testPerformTask() throws Exception {
         String spaceId = "space-id";
         String bucketName = "bucket-name";
 
@@ -122,6 +125,8 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
         assertEquals(1, rule.getExpirationInDays());
         assertEquals("clear-content-rule", rule.getId());
         assertEquals("Enabled", rule.getStatus());
+        Thread.sleep(500);
+
         Set<Task> tasks = taskCapture.getValue();
         assertEquals(manifestItems.size(), tasks.size());
         

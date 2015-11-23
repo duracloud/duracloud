@@ -3359,6 +3359,7 @@ $(function() {
                     [ "Source Store", snapshot.sourceStoreId ], 
                     [ "Source Space", snapshot.sourceSpaceId ], 
                     [ "Status", snapshot.status ],
+                    [ "Preservation Network Member ID", snapshot.memberId],
                     [ "Content Item Count", snapshot.contentItemCount ],
                     [ "Total Size", dc.formatBytes(snapshot.totalSizeInBytes,true) ]
                     
@@ -3382,7 +3383,9 @@ $(function() {
                               
       that._getMetadataLink().hide();
       
-      that._getRestoreButton().disable(true);
+      that._getRequestRestoreButton().hide();
+
+      that._getRestoreButton().hide();
 
       that._getRestoreLink().hide();
 
@@ -3401,6 +3404,8 @@ $(function() {
         }else{
           if(that._isRoot()){
             that._enableRestoreButton();
+          }else if(that._isAdmin()){
+            that._enableRequestRestoreButton();
           }
         }
       }).error(function(jqXHR, textStatus, errorThrown) {
@@ -3412,6 +3417,10 @@ $(function() {
 
     _getRestoreButton : function() {
       return $(this.element).find("#restoreButton");
+    },
+
+    _getRequestRestoreButton : function() {
+      return $(this.element).find("#requestRestoreButton");
     },
 
     _getMetadataLink : function() {
@@ -3427,7 +3436,14 @@ $(function() {
       that._getRestoreLink().hide();
       that._getRestoreButton().unbind("click").click(function() {
         that._restoreSnapshot();
-      }).disable(false);
+      }).show();
+    },
+
+    _enableRequestRestoreButton : function() {
+      var that = this;
+      that._getRequestRestoreButton().unbind("click").click(function() {
+        that._requestRestoreSnapshot();
+      }).show();
     },
 
     _restoreSnapshot : function() {
@@ -3440,6 +3456,18 @@ $(function() {
         }).error(function(){
            dc.done();
         });
+      }).error(function(jqXHR, textStatus, errorThrown) {
+        dc.done();
+        displaySnapshotErrorDialog(jqXHR);
+      });
+    },
+
+    _requestRestoreSnapshot : function() {
+      var that = this;
+      dc.busy("Requesting restore...");
+      dc.store.RequestRestoreSnapshot(that._storeId, that._snapshot.snapshotId).success(function(data) {
+        dc.busy("Restore successfully requested.");
+        setInterval(dc.done, 3000);
       }).error(function(jqXHR, textStatus, errorThrown) {
         dc.done();
         displaySnapshotErrorDialog(jqXHR);

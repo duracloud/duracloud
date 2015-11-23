@@ -59,7 +59,7 @@ public class CreateSnapshotTaskRunnerTest {
     private String bridgePort = "bridge-port";
     private String bridgeUser = "bridge-user";
     private String bridgePass = "bridge-pass";
-
+    private String bridgeMemberId = "bridge-member-id";
     @Before
     public void setup() {
         snapshotProvider = EasyMock.createMock("StorageProvider",
@@ -72,7 +72,7 @@ public class CreateSnapshotTaskRunnerTest {
             new CreateSnapshotTaskRunner(snapshotProvider, unwrappedSnapshotProvider,
                                          dcHost, dcPort, dcStoreId, dcAccountName,
                                          dcSnapshotUser, bridgeHost,
-                                         bridgePort, bridgeUser, bridgePass);
+                                         bridgePort, bridgeUser, bridgePass,bridgeMemberId);
     }
 
     private void replayMocks() {
@@ -124,6 +124,8 @@ public class CreateSnapshotTaskRunnerTest {
         assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId+"\""));
         assertThat(cleanResult, containsString("\"description\":\""+description+"\""));
         assertThat(cleanResult, containsString("\"userEmail\":\""+userEmail+"\""));
+        assertThat(cleanResult, containsString("\"memberId\":\""+bridgeMemberId+"\""));
+
     }
 
     @Test

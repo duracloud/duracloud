@@ -7,24 +7,24 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
-import org.duracloud.common.util.IOUtil;
-import org.duracloud.common.web.RestHttpHelper;
-import org.duracloud.snapshot.dto.bridge.GetSnapshotListBridgeResult;
-import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
-import org.duracloud.snapshot.dto.SnapshotStatus;
-import org.duracloud.snapshot.dto.SnapshotSummary;
-import org.duracloud.storage.error.TaskException;
-import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.duracloud.common.util.IOUtil;
+import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.snapshot.dto.SnapshotStatus;
+import org.duracloud.snapshot.dto.SnapshotSummary;
+import org.duracloud.snapshot.dto.bridge.GetSnapshotListBridgeResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
+import org.duracloud.storage.error.TaskException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.easymock.EasyMock;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Bill Branan
@@ -34,8 +34,9 @@ public class GetSnapshotsTaskRunnerTest {
 
     private RestHttpHelper restHelper;
     private GetSnapshotsTaskRunner taskRunner;
-
+    private StorageProvider storageProvider;
     private String dcHost = "dc-host";
+    private String dcStoreId = "dc-store-id";
     private String bridgeHost = "bridge-host";
     private String bridgePort = "bridge-port";
     private String bridgeUser = "bridge-user";
@@ -44,12 +45,13 @@ public class GetSnapshotsTaskRunnerTest {
     @Before
     public void setup() {
         restHelper = EasyMock.createMock("RestHttpHelper", RestHttpHelper.class);
-        taskRunner = new GetSnapshotsTaskRunner(dcHost, bridgeHost, bridgePort,
-                                                bridgeUser, bridgePass);
+        storageProvider = EasyMock.createMock("StorageProvider", StorageProvider.class);
+        taskRunner = new GetSnapshotsTaskRunner(dcHost, dcStoreId, bridgeHost, bridgePort,
+                                                bridgeUser, bridgePass, storageProvider);
     }
 
     private void replayMocks() {
-        EasyMock.replay(restHelper);
+        EasyMock.replay(restHelper, storageProvider);
     }
 
     @After
@@ -63,16 +65,17 @@ public class GetSnapshotsTaskRunnerTest {
 
         String snapshotUrl = taskRunner.buildBridgeURL();
         String expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
-                             "/bridge/snapshot?host="+ dcHost;
+                             "/bridge/snapshot?host="+ dcHost + "&storeId=" + dcStoreId;
         assertEquals(expectedUrl, snapshotUrl);
     }
 
     @Test
     public void testCallBridgeSuccess() throws Exception {
         String bridgeURL = "bridge-url";
-
+        String storeId = "store-id";
+        String spaceId = "space-id";
         SnapshotSummary summary1 =
-            new SnapshotSummary("id-1", SnapshotStatus.SNAPSHOT_COMPLETE, "desc-1");
+            new SnapshotSummary("id-1", SnapshotStatus.SNAPSHOT_COMPLETE, "desc-1", storeId, spaceId);
         List<SnapshotSummary> summaries = new ArrayList<>();
         summaries.add(summary1);
 

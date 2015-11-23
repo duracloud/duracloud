@@ -16,10 +16,8 @@
       various servlet filters (including basic-auth, anonymous, and exception-translation)
    -->
   <http access-decision-manager-ref="duraAccessDecisionManager"
-        realm="DuraCloud:DuraStore">
-
+        realm="DuraCloud:DuraStore" >
     <intercept-url pattern="/security" access="ROLE_ROOT"/>
-
     <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS, ROLE_USER"/>
     <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
 
@@ -37,6 +35,7 @@
     <intercept-url pattern="/task/get-snapshot" access="ROLE_USER"/>
     <intercept-url pattern="/task/get-snapshots" access="ROLE_USER"/>
     <intercept-url pattern="/task/get-snapshot-history" access="ROLE_USER"/>
+    <intercept-url pattern="/task/get-snapshot-contents" access="ROLE_USER"/>
     <intercept-url pattern="/task/get-restore"  access="ROLE_USER"/>
     <intercept-url pattern="/task/*" access="ROLE_ADMIN"/>
     <intercept-url pattern="/stores" method="GET" access="ROLE_USER"/>

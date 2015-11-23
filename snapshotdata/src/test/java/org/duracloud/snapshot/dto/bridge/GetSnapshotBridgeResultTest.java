@@ -35,6 +35,7 @@ public class GetSnapshotBridgeResultTest {
     private Long contentItemCount = 424242l;
     private Long totalSizeInBytes = 111111l;
     private String alternateId1 = "alternate-1", alternateId2 = "alternate-2";
+    private String memberId = "member-id";
     private List<String> alternateIds = new ArrayList<String>();
     {
         alternateIds.add(alternateId1);
@@ -56,6 +57,7 @@ public class GetSnapshotBridgeResultTest {
         params.setContentItemCount(contentItemCount);
         params.setTotalSizeInBytes(totalSizeInBytes);
         params.setAlternateIds(alternateIds);
+        params.setMemberId(memberId);
         
         String result = params.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
@@ -77,6 +79,9 @@ public class GetSnapshotBridgeResultTest {
                    containsString("\"contentItemCount\":"+contentItemCount));
         assertThat(cleanResult,
                    containsString("\"totalSizeInBytes\":"+totalSizeInBytes));
+        assertThat(cleanResult,
+                   containsString("\"memberId\":\""+memberId+"\""));
+
         assertThat(cleanResult,
                 containsString("\"alternateIds\":[\"" + alternateId1 + "\",\"" + alternateId2 + "\"]"));
 

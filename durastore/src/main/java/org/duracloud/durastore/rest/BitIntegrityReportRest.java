@@ -79,13 +79,7 @@ public class BitIntegrityReportRest extends BaseRest {
     private Response getReport(String spaceId,
                                  String storeId,
                                  boolean headOnly) {
-        String account =
-            request.getHeader(org.duracloud.common.rest.HttpHeaders.X_FORWARDED_HOST);
-        if(account == null){
-            account = request.getServerName();
-        }
-        
-        account = account.split("[.]")[0];
+        String account = getSubdomain();
         
         log.info("getting bit integrity report log for account:{}, storeId:{}, spaceId:{}",
                  new Object[]{account, storeId, spaceId});

@@ -11,6 +11,7 @@
     <property name="waitTime" value="3000" /> <!-- Milliseconds between attempts -->
     <property name="order" value="1" /> <!-- Advice ordering, retry has highest precedence -->
   </bean>
+  
 
   <bean id="retryAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
     <property name="advice" ref="retryAdvice"/>
@@ -40,6 +41,24 @@
     <property name="advice" ref="verifySpaceDeletionAdvice"/>
     <property name="pattern" value=".*StatelessStorageProvider.deleteSpace"/>
   </bean>
+  
+  <!-- AOP Advice- Snapshot Access -->
+  <bean id="snapshotAccessAdvice" class="org.duracloud.durastore.aop.SnapshotAccessAdvice">
+    <constructor-arg ref="authorizationHelper"/>
+    <property name="order" value="3" />    
+  </bean>
+
+  <bean id="snapshotAccessAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="snapshotAccessAdvice"/>
+    <property name="pattern" value=".*TaskProvider.*[.]performTask"/>
+  </bean>
+
+  <bean id="taskProviderFactory" class="org.duracloud.durastore.aop.AOPTaskProviderFactoryDecorator">
+    <constructor-arg ref="taskProviderFactoryImpl"/>
+    <constructor-arg ref="snapshotAccessAdvisor"/>
+  </bean>
+  
+  
 
   <!-- Enables Auto-AOP Proxy Creation -->
   <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>

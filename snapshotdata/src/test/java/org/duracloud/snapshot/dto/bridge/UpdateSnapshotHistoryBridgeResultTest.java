@@ -25,8 +25,15 @@ public class UpdateSnapshotHistoryBridgeResultTest {
      private String history = "history";
      private String snapshotId = "id-1";
      private String description = "desc-1";
-     SnapshotSummary snapshot =
-             new SnapshotSummary(snapshotId, SnapshotStatus.SNAPSHOT_COMPLETE, description);
+     private String sourceSpaceId = "sourceSpaceId";
+     private String sourceStoreId = "sourceStoreId";
+     
+    SnapshotSummary snapshot =
+        new SnapshotSummary(snapshotId,
+                            SnapshotStatus.SNAPSHOT_COMPLETE,
+                            description,
+                            sourceStoreId,
+                            sourceSpaceId);
 
     @Test
     public void testSerialize() {

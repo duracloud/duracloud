@@ -20,7 +20,7 @@ import java.io.InputStream;
  * @author: Bill Branan
  * Date: May 20, 2010
  */
-public abstract class ProviderFactoryBase {
+public abstract class ProviderFactoryBase  {
 
     private Logger log =
         LoggerFactory.getLogger(ProviderFactoryBase.class);

@@ -51,6 +51,12 @@ public class CreateSnapshotBridgeParameters extends BaseDTO {
     private String description;
 
     /**
+     * The Preservation Network Member UUID of associated with the storage provider account.
+     */
+    @XmlValue
+    private String memberId;
+
+    /**
      * The email address of the user, will be used for snapshot notifications
      */
     @XmlValue
@@ -63,13 +69,15 @@ public class CreateSnapshotBridgeParameters extends BaseDTO {
                                           String storeId,
                                           String spaceId,
                                           String description,
-                                          String userEmail) {
+                                          String userEmail,
+                                          String memberId) {
         this.host = host;
         this.port = port;
         this.storeId = storeId;
         this.spaceId = spaceId;
         this.description = description;
         this.userEmail = userEmail;
+        this.memberId = memberId;
     }
 
     public String getHost() {
@@ -90,6 +98,10 @@ public class CreateSnapshotBridgeParameters extends BaseDTO {
 
     public String getStoreId() {
         return storeId;
+    }
+    
+    public String getMemberId() {
+        return memberId;
     }
 
     public void setStoreId(String storeId) {
@@ -120,6 +132,9 @@ public class CreateSnapshotBridgeParameters extends BaseDTO {
         this.userEmail = userEmail;
     }
 
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
+    }
     /**
      * Creates a serialized version of bridge parameters
      *

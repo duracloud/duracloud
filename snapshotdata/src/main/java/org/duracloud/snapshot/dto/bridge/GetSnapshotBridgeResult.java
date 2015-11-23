@@ -52,6 +52,9 @@ public class GetSnapshotBridgeResult extends BaseDTO {
     private Long totalSizeInBytes;
     
     @XmlValue
+    private String memberId;
+    
+    @XmlValue
     private List<String> alternateIds;
         
     public GetSnapshotBridgeResult(){}
@@ -167,6 +170,16 @@ public class GetSnapshotBridgeResult extends BaseDTO {
             throw new SnapshotDataException(
                 "Unable to deserialize result due to: " + e.getMessage());
         }
+    }
+
+
+    public String getMemberId() {
+        return memberId;
+    }
+
+
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
     }
     
 }

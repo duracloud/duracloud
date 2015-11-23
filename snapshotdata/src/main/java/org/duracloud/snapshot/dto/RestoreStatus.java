@@ -19,5 +19,6 @@ public enum RestoreStatus {
     CLEANING_UP,
     ERROR,
     RESTORATION_COMPLETE,
-    RESTORATION_EXPIRED;
+    RESTORATION_EXPIRED,
+    CANCELLED;
 }

@@ -387,6 +387,21 @@ public class SnapshotController {
         
     }
 
+    @RequestMapping(value = "/spaces/restores/request", method = RequestMethod.POST)
+    @ResponseBody
+    public String requestRestore(HttpServletRequest request,
+                          @RequestParam String storeId,
+                          @RequestParam String snapshotId) throws Exception {
+        try {
+            
+            String userEmail = getUserEmail(getUsername(request));
+            return getTaskClient(storeId).requestRestoreSnapshot(snapshotId, userEmail).serialize();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+        
+    }
     private boolean isSnapshotInProgress(ContentStore store, String spaceId) {
         try {
             return store.getSpaceProperties(spaceId)

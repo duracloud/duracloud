@@ -321,6 +321,10 @@
                 class="featured">
                 <i class="pre copy"></i>Restore Snapshot
               </button>
+              <button 
+                id="requestRestoreButton">
+                <i class="pre copy"></i>Request Restore
+              </button>
 
             </div>
           </div>
