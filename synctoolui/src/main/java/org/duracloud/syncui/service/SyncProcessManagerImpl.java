@@ -54,6 +54,8 @@ import org.springframework.stereotype.Component;
 @Component("syncProcessManager")
 public class SyncProcessManagerImpl implements SyncProcessManager {
     private static final int CHANGE_LIST_MONITOR_FREQUENCY = 5000;
+    private static final int BACKUP_FREQUENCY = 5*60*1000;
+
     private static Logger log =
         LoggerFactory.getLogger(SyncProcessManagerImpl.class);
     private InternalState currentState;
@@ -124,7 +126,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
         syncBackupManager =
             new SyncBackupManager(syncConfigurationManager.getWorkDirectory(),
-                                  CHANGE_LIST_MONITOR_FREQUENCY,
+                                  BACKUP_FREQUENCY,
                                   syncConfigurationManager.retrieveDirectoryConfigs().toFileList());
 
         ChangedList.getInstance()
