@@ -21,5 +21,10 @@ public interface TaskProvider {
     public List<String> getSupportedTasks();    
 
     public String performTask(String taskName, String taskParameters);
+    /**
+     * The storeId with which the TaskProvider is associated.
+     * @return The storeId
+     */
+    public String getStoreId();
 
 }

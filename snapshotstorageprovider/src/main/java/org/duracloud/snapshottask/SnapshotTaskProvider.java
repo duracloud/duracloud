@@ -50,6 +50,7 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                 String bridgeMemberId,
                                 TaskQueue auditQueue,
                                 ManifestStore manifestStore) {
+        super(dcStoreId);
         log = LoggerFactory.getLogger(SnapshotTaskProvider.class);
 
         taskList.add(new CreateSnapshotTaskRunner(snapshotProvider,

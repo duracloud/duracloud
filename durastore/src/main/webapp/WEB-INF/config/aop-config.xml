@@ -53,9 +53,24 @@
     <property name="pattern" value=".*TaskProvider.*[.]performTask"/>
   </bean>
 
+  <bean id="streamingAccessAdvice" class="org.duracloud.durastore.aop.StreamingAccessAdvice">
+    <constructor-arg ref="authorizationHelper"/>
+    <property name="order" value="3" />    
+  </bean>
+
+  <bean id="streamingAccessAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="streamingAccessAdvice"/>
+    <property name="pattern" value=".*TaskProvider.*[.]performTask"/>
+  </bean>
+
   <bean id="taskProviderFactory" class="org.duracloud.durastore.aop.AOPTaskProviderFactoryDecorator">
     <constructor-arg ref="taskProviderFactoryImpl"/>
-    <constructor-arg ref="snapshotAccessAdvisor"/>
+    <constructor-arg>
+        <list>
+            <ref bean="snapshotAccessAdvisor"/>
+            <ref bean="streamingAccessAdvisor"/>
+        </list>
+    </constructor-arg>
   </bean>
   
   

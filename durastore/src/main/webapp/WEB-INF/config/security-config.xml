@@ -37,6 +37,7 @@
     <intercept-url pattern="/task/get-snapshot-history" access="ROLE_USER"/>
     <intercept-url pattern="/task/get-snapshot-contents" access="ROLE_USER"/>
     <intercept-url pattern="/task/get-restore"  access="ROLE_USER"/>
+    <intercept-url pattern="/task/get-url"  access="ROLE_USER"/>
     <intercept-url pattern="/task/*" access="ROLE_ADMIN"/>
     <intercept-url pattern="/stores" method="GET" access="ROLE_USER"/>
     <intercept-url pattern="/stores" method="POST" access="ROLE_ROOT"/>

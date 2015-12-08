@@ -27,12 +27,12 @@ import org.springframework.aop.framework.ProxyFactoryBean;
  */
 public class AOPTaskProviderFactoryDecorator implements TaskProviderFactory {
     private TaskProviderFactory factory;
-    private PointcutAdvisor advisor;
+    private PointcutAdvisor[] advisors;
     private Map<String, TaskProvider> providerMap;
     
-    public AOPTaskProviderFactoryDecorator(TaskProviderFactory factory, PointcutAdvisor advisor) {
+    public AOPTaskProviderFactoryDecorator(TaskProviderFactory factory, PointcutAdvisor... advisors) {
         this.factory = factory;
-        this.advisor = advisor;
+        this.advisors = advisors;
         this.providerMap = new HashMap<>();
     }
     
@@ -52,7 +52,9 @@ public class AOPTaskProviderFactoryDecorator implements TaskProviderFactory {
             ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
             proxyFactoryBean.setTargetClass(TaskProvider.class);
             proxyFactoryBean.setTarget(provider);
-            proxyFactoryBean.addAdvisor(advisor);
+            for(PointcutAdvisor advisor : advisors){
+                proxyFactoryBean.addAdvisor(advisor);
+            }
             provider = (TaskProvider)proxyFactoryBean.getObject();
             providerMap.put(storageAccountId, provider);
         }
