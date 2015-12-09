@@ -51,4 +51,11 @@ public class Constants {
      */
     public static final String RESTORE_ID_PROP = "restore-id";
 
+    
+    /**
+     * The name of the http request attribute containing the account id (ie subdomain)
+     * indicated in the caller's URL.
+     */
+    public static final String ACCOUNT_ID_ATTRIBUTE = "org.duracloud.accountid";
+
 }
