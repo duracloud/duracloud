@@ -7,7 +7,9 @@
  */
 package org.duracloud.durastore.rest;
 
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.rest.AccountIdExtractingFilter;
 import org.duracloud.storage.provider.StorageProvider;
 
 import javax.servlet.http.HttpServletRequest;
@@ -152,15 +154,12 @@ public abstract class BaseRest {
     }
 
     protected String getSubdomain() {
-        String subdomain = request.getHeader("X-FORWARDED-HOST");
-        if(subdomain == null){
-            subdomain = request.getServerName();
-        }
-        
-        subdomain = subdomain.split("[.]")[0];
-        return subdomain;
+        return (String)request.getAttribute(Constants.ACCOUNT_ID_ATTRIBUTE);
     }
 
+    protected String getAccountId() {
+        return getSubdomain();
+    }
 
 
 
