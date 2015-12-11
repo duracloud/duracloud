@@ -7,20 +7,22 @@
  */
 package org.duracloud.durastore.rest;
 
+import static org.duracloud.security.xml.SecurityUsersDocumentBinding.*;
+
+import java.util.List;
+
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
+
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import static org.duracloud.security.xml.SecurityUsersDocumentBinding.createSecurityUsersFrom;
-
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
-import java.util.List;
 
 /**
  * @author Andrew Woods
@@ -35,7 +37,7 @@ public class SecurityRest extends BaseRest {
     private RestUtil restUtil;
 
     @Autowired
-    public SecurityRest(DuracloudUserDetailsService userDetailsService, RestUtil restUtil) {
+    public SecurityRest(@Qualifier("userDetailsSvc")DuracloudUserDetailsService userDetailsService, RestUtil restUtil) {
         this.userDetailsService = userDetailsService;
         this.restUtil = restUtil;
     }

@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:aop="http://www.springframework.org/schema/aop"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
            http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd" >
 
 
   <!--manifest-->
@@ -42,14 +45,23 @@
     <constructor-arg ref="manifestStore"/>
   </bean>
   
-  <bean id="storageProviderFactory" class="org.duracloud.durastore.util.StorageProviderFactoryImpl">
+  <bean id="localStorageProviderFactory" class="org.duracloud.durastore.util.StorageProviderFactoryImpl">
     <constructor-arg ref="statelessStoragePvdr" />
     <constructor-arg ref="storageAcctManager" />
     <constructor-arg ref="securityContextUtil"/>
     <constructor-arg value="true" />
   </bean>
 
-  <bean id="authorizationHelper" class="org.duracloud.security.util.AuthorizationHelper">
+  <bean id="globalAccountStore" class="org.duracloud.security.impl.GlobalAccountStore">
+  </bean>
+  
+  <bean id="storageProviderFactory"  class="org.duracloud.durastore.rest.StorageProviderFactoryBean" lazy-init="true" scope="request">
+    <property name="globalAccountStore" ref="globalAccountStore" />
+    <property name="localStorageProviderFactory" ref="localStorageProviderFactory" />
+    <aop:scoped-proxy />
+  </bean>
+
+  <bean id="authorizationHelper" class="org.duracloud.security.util.AuthorizationHelper" > 
     <constructor-arg ref="storageProviderFactory"/>
   </bean>
 

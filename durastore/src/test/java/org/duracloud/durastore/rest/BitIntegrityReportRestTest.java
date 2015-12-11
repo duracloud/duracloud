@@ -22,6 +22,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
 import org.duracloud.client.HttpHeaders;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.mill.db.model.BitIntegrityReport;
 import org.duracloud.mill.db.repo.JpaBitIntegrityReportRepo;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReportResult;
@@ -137,7 +138,7 @@ public class BitIntegrityReportRestTest extends EasyMockSupport {
     }
 
     protected void setupHeader() {
-        expect(request.getHeader(org.duracloud.common.rest.HttpHeaders.X_FORWARDED_HOST)).andReturn("test.duracloud.org");
+        expect(request.getAttribute(Constants.ACCOUNT_ID_ATTRIBUTE)).andReturn("test");
     }
 
     protected void setupContentProperties() {
