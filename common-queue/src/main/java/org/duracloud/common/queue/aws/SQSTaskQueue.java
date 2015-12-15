@@ -19,11 +19,14 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.queue.TaskException;
 import org.duracloud.common.queue.TaskNotFoundException;
 import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.common.queue.TimeoutException;
 import org.duracloud.common.queue.task.Task;
+import org.duracloud.common.retry.Retriable;
+import org.duracloud.common.retry.Retrier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,11 +143,26 @@ public class SQSTaskQueue implements TaskQueue {
     }
 
     @Override
-    public void put(Task task) {
-        String msgBody = unmarshallTask(task);
-        sqsClient.sendMessage(new SendMessageRequest(queueUrl, msgBody));
-        log.info("SQS message successfully placed {} on queue - queue: {}",
-                task, queueName);
+    public void put(final Task task) {
+        try {
+            final String msgBody = unmarshallTask(task);
+            
+             new Retrier(4, 10000, 2).execute(new Retriable(){
+                 @Override
+                 public Object retry() throws Exception {
+                     sqsClient.sendMessage(new SendMessageRequest(queueUrl, msgBody));
+                     return null;
+                 }
+             });
+
+             log.info("SQS message successfully placed {} on queue - queue: {}",
+                      task, queueName);
+
+         }catch(Exception ex){
+             log.error("failed to place {} on {} due to {}", task, queueName, ex.getMessage());
+             throw new DuraCloudRuntimeException(ex);
+         }
+
     }
 
     /**
@@ -191,12 +209,26 @@ public class SQSTaskQueue implements TaskQueue {
     }
 
     private void sendBatchMessages(Set<SendMessageBatchRequestEntry> msgEntries) {
-        SendMessageBatchRequest sendMessageBatchRequest = new SendMessageBatchRequest()
-            .withQueueUrl(queueUrl)
-            .withEntries(msgEntries);
-        sqsClient.sendMessageBatch(sendMessageBatchRequest);
-        log.debug("{} SQS messages successfully placed on queue: {}",
-                 msgEntries.size(), queueName);
+        try {
+           final  SendMessageBatchRequest sendMessageBatchRequest = new SendMessageBatchRequest()
+                .withQueueUrl(queueUrl)
+                .withEntries(msgEntries);
+           
+            new Retrier(4, 5000, 2).execute(new Retriable(){
+                @Override
+                public Object retry() throws Exception {
+                    sqsClient.sendMessageBatch(sendMessageBatchRequest);
+                    return null;
+                }
+            });
+
+            log.info("{} SQS messages successfully placed on queue: {}",
+                     msgEntries.size(), queueName);
+        
+        }catch(Exception ex){
+            log.error("failed to place {} on {} due to {}", msgEntries, queueName, ex.getMessage());
+            throw new DuraCloudRuntimeException(ex);
+        }
     }
 
     @Override
