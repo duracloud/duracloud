@@ -56,6 +56,10 @@ public class Constants {
      * The name of the http request attribute containing the account id (ie subdomain)
      * indicated in the caller's URL.
      */
-    public static final String ACCOUNT_ID_ATTRIBUTE = "org.duracloud.accountid";
+    public static final String ACCOUNT_ID_ATTRIBUTE = "org.duracloud.account.id";
+
+    public static final String SERVER_HOST = "org.duracloud.request.host";
+
+    public static final String SERVER_PORT = "org.duracloud.request.port";
 
 }

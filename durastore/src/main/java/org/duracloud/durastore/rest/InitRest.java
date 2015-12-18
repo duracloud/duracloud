@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.duracloud.audit.reader.AuditLogReader;
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.InitUtil;
 import org.duracloud.storage.domain.AuditConfig;
@@ -28,6 +29,7 @@ import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -45,16 +47,21 @@ public class InitRest extends BaseRest {
     private AuditLogReader auditLogReader;
     private BasicDataSource datasource;
     private ManifestRest manifestRest;
+    private DuraCloudRequestContextUtil contextUtil;
     
     @Autowired
     public InitRest(StorageProviderFactory storageProviderFactory,
-                    RestUtil restUtil, BasicDataSource datasource, 
-                    AuditLogReader auditLogReader, ManifestRest manifestRest) {
+                    RestUtil restUtil,
+                    @Qualifier("millRepoDataSource") BasicDataSource datasource,
+                    AuditLogReader auditLogReader,
+                    ManifestRest manifestRest,
+                    DuraCloudRequestContextUtil contextUtil) {
         this.storageProviderFactory = storageProviderFactory;
         this.restUtil = restUtil;
         this.datasource = datasource;
         this.auditLogReader = auditLogReader;
         this.manifestRest = manifestRest;
+        this.contextUtil = contextUtil;
     }
 
     /**
@@ -70,16 +77,20 @@ public class InitRest extends BaseRest {
 
         RestUtil.RequestContent content = null;
         try {
-            String instanceHost = request.getServerName();
-            String instancePort = String.valueOf(request.getServerPort());
-            log.info("Initializing DuraStore on host: " + instanceHost +
-                     " and port: " + instancePort);
+            String instanceHost = contextUtil.getHost();
+            String instancePort = String.valueOf(this.contextUtil.getPort());
+            String accountId = contextUtil.getAccountId();
+            log.info("Initializing DuraStore on host: {} and port: {} and account: {}",
+                     instanceHost,
+                     instancePort,
+                     accountId);
 
             content = restUtil.getRequestContent(request, headers);
             DuraStoreInitConfig initConfig = InitConfigParser.parseInitXml(content.getContentStream());
             storageProviderFactory.initialize(initConfig,
-                                              instanceHost,
-                                              instancePort);
+                                              this.contextUtil.getHost(),
+                                              instancePort+"",
+                                              accountId);
             AuditConfig auditConfig = initConfig.getAuditConfig();
             this.auditLogReader.initialize(auditConfig);
             configureMillDatabase(initConfig);

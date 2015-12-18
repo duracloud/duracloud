@@ -15,15 +15,28 @@ import org.springframework.web.context.request.RequestContextHolder;
  * @author Daniel Bernstein
  *
  */
-public class AccountIdUtil {
+public class DuraCloudRequestContextUtil {
     /**
      * Retrieves the account associated with the current thread.
      * @return
      */
     public String getAccountId(){
-        String accountId = (String)RequestContextHolder.currentRequestAttributes()
-            .getAttribute(Constants.ACCOUNT_ID_ATTRIBUTE,
-                          RequestAttributes.SCOPE_REQUEST);
-        return accountId;
+        return (String)getAttribute(Constants.ACCOUNT_ID_ATTRIBUTE);
     }
+    
+    private Object getAttribute(String attributeName){
+        return RequestContextHolder.currentRequestAttributes()
+        .getAttribute(attributeName,
+                      RequestAttributes.SCOPE_REQUEST);
+    }
+
+
+    public int  getPort(){
+        return (Integer)getAttribute(Constants.SERVER_PORT);
+    }
+
+    public String  getHost(){
+        return (String)getAttribute(Constants.SERVER_HOST);
+    }
+
 }

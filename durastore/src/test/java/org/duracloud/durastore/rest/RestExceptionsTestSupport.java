@@ -10,6 +10,7 @@ package org.duracloud.durastore.rest;
 import javax.ws.rs.core.Response;
 
 import org.duracloud.audit.reader.AuditLogReader;
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.security.DuracloudUserDetailsService;
@@ -125,6 +126,12 @@ public class RestExceptionsTestSupport {
         ManifestRest manifest = EasyMock.createMock("ManifestRest", ManifestRest.class);
         EasyMock.replay(manifest);
         return manifest;
+    }
+
+    public DuraCloudRequestContextUtil createDuracloudRequestContextUtil() {
+        DuraCloudRequestContextUtil util = EasyMock.createMock("DuraCloudRequestContextUtil", DuraCloudRequestContextUtil.class);
+        EasyMock.replay(util);
+        return util;
     }
 
 

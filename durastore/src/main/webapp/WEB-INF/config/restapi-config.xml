@@ -6,9 +6,26 @@
            http://www.springframework.org/schema/aop
            http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
            http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd" >
+           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
 
+  <bean  depends-on="systemPropertiesReader" class="org.duracloud.common.db.DataSourceConfigurer">
+    <constructor-arg ref="accountRepoDataSource"/>
+    <constructor-arg value="${db.name}"/>
+    <constructor-arg value="${db.host}"/>
+    <constructor-arg value="${db.port}"/>
+    <constructor-arg value="${db.user}"/>
+    <constructor-arg value="${db.pass}"/>
+  </bean>
 
+  <bean  depends-on="systemPropertiesReader" class="org.duracloud.common.db.DataSourceConfigurer">
+    <constructor-arg ref="millRepoDataSource"/>
+    <constructor-arg value="${mill.db.name}"/>
+    <constructor-arg value="${mill.host}"/>
+    <constructor-arg value="${mill.port}"/>
+    <constructor-arg value="${mill.user}"/>
+    <constructor-arg value="${mill.pass}"/>
+  </bean>
+ 
   <!--manifest-->
   <bean id="manifestResource" class="org.duracloud.durastore.rest.ManifestResource">
     <constructor-arg ref="manifestGenerator"/>
@@ -51,12 +68,22 @@
     <constructor-arg ref="securityContextUtil"/>
     <constructor-arg value="true" />
   </bean>
+  
+  <bean id="contextUtil" class="org.duracloud.common.rest.DuraCloudRequestContextUtil"/>
 
-  <bean id="globalAccountStore" class="org.duracloud.security.impl.GlobalAccountStore">
+  <bean id="globalStorageProviderStore" class="org.duracloud.durastore.util.GlobalStorageProviderStore">
+    <constructor-arg ref="accountRepo" />
+    <constructor-arg ref="contextUtil"/>
+    <constructor-arg ref="statelessStoragePvdr" />
+    <constructor-arg ref="securityContextUtil"/>
+  </bean>
+  
+  <bean id="userFinderUtil" class="org.duracloud.account.db.repo.UserFinderUtil">
+    <constructor-arg ref="repoMgr"/>
   </bean>
   
   <bean id="storageProviderFactory"  class="org.duracloud.durastore.rest.StorageProviderFactoryBean" lazy-init="true" scope="request">
-    <property name="globalAccountStore" ref="globalAccountStore" />
+    <property name="globalStorageProviderStore" ref="globalStorageProviderStore" />
     <property name="localStorageProviderFactory" ref="localStorageProviderFactory" />
     <aop:scoped-proxy />
   </bean>

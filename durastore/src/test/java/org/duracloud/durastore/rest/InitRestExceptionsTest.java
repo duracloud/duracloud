@@ -11,8 +11,10 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.duracloud.audit.reader.AuditLogReader;
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.storage.util.StorageProviderFactory;
+import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,21 +30,34 @@ public class InitRestExceptionsTest {
     private BasicDataSource datasource;
     private AuditLogReader auditLogReader;
     private ManifestRest manifest;
+    private DuraCloudRequestContextUtil contextUtil;
     private RestExceptionsTestSupport support = new RestExceptionsTestSupport();
-
     @Before
     public void setUp() throws Exception {
         storageProviderFactory = support.createStorageProviderFactory();
         auditLogReader = support.createAuditLogReader();
         manifest = support.createManifestRest();
         restUtil = support.createRestUtil();
-        initRest = new InitRest(storageProviderFactory, restUtil, datasource, auditLogReader, manifest);
+        contextUtil = EasyMock.createMock(DuraCloudRequestContextUtil.class);
+        initRest =
+            new InitRest(storageProviderFactory,
+                         restUtil,
+                         datasource,
+                         auditLogReader,
+                         manifest,
+                         contextUtil);
     }
 
     @Test
     public void testInitialize() throws Exception {
+        EasyMock.expect(contextUtil.getHost()).andReturn("host");
+        EasyMock.expect(contextUtil.getPort()).andReturn(8080);
+        EasyMock.expect(contextUtil.getAccountId()).andReturn("account");
+
+        EasyMock.replay(contextUtil);
         Response response = initRest.initialize();
         support.verifyErrorResponse(response);
+        EasyMock.verify(contextUtil);
     }
 
     @Test

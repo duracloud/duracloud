@@ -23,11 +23,11 @@ public class StorageAccountManagerTest {
         String port = "9999";
 
         StorageAccountManager accountManager = new StorageAccountManager();
-        accountManager.setEnvironment(host, port);
+        accountManager.setEnvironment(host, port, "account");
 
         assertEquals(host, accountManager.getInstanceHost());
         assertEquals(port, accountManager.getInstancePort());
-        assertEquals("check", accountManager.getAccountName());
+        assertEquals("account", accountManager.getAccountName());
     }
 
 }

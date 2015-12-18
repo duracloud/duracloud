@@ -11,6 +11,7 @@ import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.common.util.UserUtil;
 import org.duracloud.durastore.util.StorageProviderFactoryImpl;
+import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -18,6 +19,7 @@ import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProviderImpl;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
+import org.duracloud.storage.xml.DuraStoreInitDocumentBinding;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -66,8 +68,8 @@ public class StorageProviderUtilsTest {
             new StorageProviderFactoryImpl(acctManager,
                                            new StatelessStorageProviderImpl(),
                                            new TestUserUtil());
-
-        storageProviderFactory.initialize(is, "host", "port");
+        DuraStoreInitConfig config = new DuraStoreInitDocumentBinding().createFromXml(is);
+        storageProviderFactory.initialize(config, "host", "port", "accountid");
         StorageProvider storage =
             storageProviderFactory.getStorageProvider();
 

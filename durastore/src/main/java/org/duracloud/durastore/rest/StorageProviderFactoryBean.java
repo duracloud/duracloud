@@ -7,9 +7,9 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.duracloud.common.rest.AccountIdUtil;
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.util.AccountStoreConfig;
-import org.duracloud.security.impl.GlobalAccountStore;
+import org.duracloud.durastore.util.GlobalStorageProviderStore;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
@@ -20,8 +20,8 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
  */
 public class StorageProviderFactoryBean extends AbstractFactoryBean<StorageProviderFactory>{
     private StorageProviderFactory localStorageProviderFactory;
-    private GlobalAccountStore globalAccountStore;
-    private AccountIdUtil accountIdUtil = new AccountIdUtil();
+    private GlobalStorageProviderStore globalStorageAccountManager;
+    private DuraCloudRequestContextUtil accountIdUtil = new DuraCloudRequestContextUtil();
     
     public StorageProviderFactoryBean(){
         super();
@@ -41,7 +41,7 @@ public class StorageProviderFactoryBean extends AbstractFactoryBean<StorageProvi
         if(AccountStoreConfig.accountStoreIsLocal()){
             return this.localStorageProviderFactory;
         }else{
-            return this.globalAccountStore.getStorageProviderFactory(accountIdUtil.getAccountId());
+            return this.globalStorageAccountManager.getStorageProviderFactory(accountIdUtil.getAccountId());
         }
     }
 
@@ -50,19 +50,19 @@ public class StorageProviderFactoryBean extends AbstractFactoryBean<StorageProvi
         return StorageProviderFactory.class;
     }
 
-    public GlobalAccountStore getGlobalAccountStore() {
-        return globalAccountStore;
+    public GlobalStorageProviderStore getGlobalStorageProviderStore() {
+        return globalStorageAccountManager;
     }
 
-    public void setGlobalAccountStore(GlobalAccountStore globalAccountStore) {
-        this.globalAccountStore = globalAccountStore;
+    public void setGlobalStorageProviderStore(GlobalStorageProviderStore globalStorageProviderStore) {
+        this.globalStorageAccountManager = globalStorageProviderStore;
     }
 
-    public AccountIdUtil getAccountIdUtil() {
+    public DuraCloudRequestContextUtil getAccountIdUtil() {
         return accountIdUtil;
     }
 
-    public void setAccountIdUtil(AccountIdUtil accountIdUtil) {
+    public void setAccountIdUtil(DuraCloudRequestContextUtil accountIdUtil) {
         this.accountIdUtil = accountIdUtil;
     }
 

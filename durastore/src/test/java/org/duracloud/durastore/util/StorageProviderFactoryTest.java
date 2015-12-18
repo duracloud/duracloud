@@ -9,6 +9,7 @@ package org.duracloud.durastore.util;
 
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.common.util.UserUtil;
+import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -17,6 +18,7 @@ import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
+import org.duracloud.storage.xml.DuraStoreInitDocumentBinding;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -200,15 +202,19 @@ public class StorageProviderFactoryTest {
         mockSAM.initialize(EasyMock.isA(List.class));
         EasyMock.expectLastCall();
 
-        mockSAM.setEnvironment(instanceHost, instancePort);
+        mockSAM.setEnvironment(instanceHost, instancePort, "account");
         EasyMock.expectLastCall();
 
         replayMocks();
         factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, mockUserUtil);
-        factory.initialize(inputStream, instanceHost, instancePort);
+        factory.initialize(getConfig(), instanceHost, instancePort, "account");
 
         //Test retrieving from accountManager now that the cache has been cleared
         getProvider();
+    }
+
+    private DuraStoreInitConfig getConfig() {
+        return new DuraStoreInitDocumentBinding().createFromXml(inputStream);
     }
 
     @Test
@@ -225,7 +231,7 @@ public class StorageProviderFactoryTest {
 
         EasyMock.expect(mockSAM.getAccountName()).andReturn(acct1Name);
 
-        mockSAM.setEnvironment(instanceHost, instancePort);
+        mockSAM.setEnvironment(instanceHost, instancePort, "account");
         EasyMock.expectLastCall();
 
         replayMocks();
@@ -233,7 +239,7 @@ public class StorageProviderFactoryTest {
         factory = new StorageProviderFactoryImpl(mockSAM, mockSSP,
                                                  mockUserUtil, true);
 
-        factory.initialize(inputStream, instanceHost, instancePort);
+        factory.initialize(getConfig(), instanceHost, instancePort,"account");
     }
     
     private StorageAccountManager getProvider() {

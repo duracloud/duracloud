@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.duracloud.audit.reader.AuditLogReader;
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.easymock.EasyMock;
@@ -33,6 +34,7 @@ public class InitRestTest {
     private BasicDataSource datasource;
     private AuditLogReader reader;
     private ManifestRest manifestRest;
+    private DuraCloudRequestContextUtil contextUtil;
 
     @Before
     public void setup() {
@@ -42,16 +44,34 @@ public class InitRestTest {
         datasource = EasyMock.createMock(BasicDataSource.class);
         reader =  EasyMock.createMock(AuditLogReader.class);
         manifestRest = EasyMock.createMock(ManifestRest.class);
-        initRest = new InitRest(storageProviderFactory, restUtil, datasource, reader, manifestRest);
+        contextUtil = EasyMock.createMock(DuraCloudRequestContextUtil.class);
+        
+        initRest =
+            new InitRest(storageProviderFactory,
+                         restUtil,
+                         datasource,
+                         reader,
+                         manifestRest,
+                         contextUtil);
     }
 
     private void replayMocks() {
-        EasyMock.replay(storageProviderFactory, restUtil, datasource, reader, manifestRest);
+        EasyMock.replay(storageProviderFactory,
+                        restUtil,
+                        datasource,
+                        reader,
+                        manifestRest,
+                        contextUtil);
     }
 
     @After
     public void teardown() {
-        EasyMock.verify(storageProviderFactory, restUtil, datasource, reader, manifestRest);
+        EasyMock.verify(storageProviderFactory,
+                        restUtil,
+                        datasource,
+                        reader,
+                        manifestRest,
+                        contextUtil);
     }
 
     @Test

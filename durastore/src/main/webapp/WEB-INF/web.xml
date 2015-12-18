@@ -40,12 +40,12 @@
   </filter-mapping>
 
   <filter>
-    <filter-name>accountIdExtractingFilter</filter-name>
-    <filter-class>org.duracloud.common.rest.AccountIdExtractingFilter</filter-class>
+    <filter-name>duraCloudRequestContextFilter</filter-name>
+    <filter-class>org.duracloud.common.rest.DuraCloudRequestContextFilter</filter-class>
   </filter>
 
   <filter-mapping>
-    <filter-name>accountIdExtractingFilter</filter-name>
+    <filter-name>duraCloudRequestContextFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 

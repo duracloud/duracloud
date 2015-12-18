@@ -7,7 +7,6 @@
  */
 package org.duracloud.storage.util;
 
-import java.io.InputStream;
 import java.util.List;
 
 import org.duracloud.common.queue.TaskQueue;
@@ -22,14 +21,10 @@ import org.duracloud.storage.provider.StorageProvider;
  */
 public interface StorageProviderFactory {
 
-    @Deprecated
-    public void initialize(InputStream accountXml,
-                           String instanceHost,
-                           String instancePort);
-
     public void initialize(DuraStoreInitConfig initConfig,
                            String instanceHost,
-                           String instancePort);
+                           String instancePort,
+                           String accountId);
 
     public boolean isInitialized();
 

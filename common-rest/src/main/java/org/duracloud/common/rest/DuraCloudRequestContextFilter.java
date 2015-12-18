@@ -29,7 +29,7 @@ import org.duracloud.common.constant.Constants;
  * @author Daniel Bernstein
  *
  */
-public class AccountIdExtractingFilter implements Filter {
+public class DuraCloudRequestContextFilter implements Filter {
     
     static final String X_FORWARDED_HOST_HEADER = "X-FORWARDED-HOST";
     static final String ACCOUNT_ID_OVERRIDE_SYSTEM_PROP_KEY =
@@ -52,15 +52,17 @@ public class AccountIdExtractingFilter implements Filter {
                                  ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest)request;
         String accountId = accountIdOverride;
-        if(accountId == null) {
-            String host = httpRequest.getHeader(X_FORWARDED_HOST_HEADER);
+        String host = httpRequest.getHeader(X_FORWARDED_HOST_HEADER);
+        if(host == null){
+            host = request.getServerName();
+        }
 
-            if(host == null){
-                host = request.getServerName();
-            }
+        if(accountId == null) {
             accountId = host.split("[.]")[0];
         }
         httpRequest.setAttribute(Constants.ACCOUNT_ID_ATTRIBUTE, accountId);
+        httpRequest.setAttribute(Constants.SERVER_HOST, host);
+        httpRequest.setAttribute(Constants.SERVER_PORT, httpRequest.getServerPort());
         chain.doFilter(request, response);
     }
     

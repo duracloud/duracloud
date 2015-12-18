@@ -7,7 +7,7 @@
  */
 package org.duracloud.security.impl;
 
-import org.duracloud.common.rest.AccountIdUtil;
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.util.AccountStoreConfig;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
@@ -20,15 +20,15 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 public class UserDetailsServiceFactoryBean
     extends AbstractFactoryBean<DuracloudUserDetailsService> {
     private DuracloudUserDetailsService localUserDetailsService;
-    private AccountIdUtil accountIdUtil = new AccountIdUtil();
-    private GlobalAccountStore globalAccountStore;
+    private DuraCloudRequestContextUtil accountIdUtil = new DuraCloudRequestContextUtil();
+    private GlobalUserDetailsStore globalUserDetailsStore;
     
     @Override
     protected DuracloudUserDetailsService createInstance() throws Exception {
         if(AccountStoreConfig.accountStoreIsLocal()){
             return this.localUserDetailsService;
         }else{
-            return this.globalAccountStore.getUserDetailsService(accountIdUtil.getAccountId());
+            return this.globalUserDetailsStore.getUserDetailsService(accountIdUtil.getAccountId());
         }
     }
 
@@ -45,19 +45,19 @@ public class UserDetailsServiceFactoryBean
         this.localUserDetailsService = localUserDetailsService;
     }
 
-    public AccountIdUtil getAccountIdUtil() {
+    public DuraCloudRequestContextUtil getAccountIdUtil() {
         return accountIdUtil;
     }
 
-    public void setAccountIdUtil(AccountIdUtil accountIdUtil) {
+    public void setAccountIdUtil(DuraCloudRequestContextUtil accountIdUtil) {
         this.accountIdUtil = accountIdUtil;
     }
 
-    public GlobalAccountStore getGlobalAccountStore() {
-        return globalAccountStore;
+    public GlobalUserDetailsStore getGlobalUserDetailsStore() {
+        return globalUserDetailsStore;
     }
 
-    public void setGlobalAccountStore(GlobalAccountStore globalAccountStore) {
-        this.globalAccountStore = globalAccountStore;
+    public void setGlobalUserDetailsStore(GlobalUserDetailsStore globalUserDetailsStore) {
+        this.globalUserDetailsStore = globalUserDetailsStore;
     }
 }

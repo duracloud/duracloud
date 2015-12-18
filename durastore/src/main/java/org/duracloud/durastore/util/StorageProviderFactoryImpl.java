@@ -81,9 +81,10 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
     @Override
     public void initialize(DuraStoreInitConfig initConfig,
                            String instanceHost,
-                           String instancePort)
+                           String instancePort,
+                           String accountId)
             throws StorageException {
-        super.initialize(initConfig, instanceHost, instancePort);
+        super.initialize(initConfig, instanceHost, instancePort, accountId);
         configureAuditQueue();
         initializeStorageProviders();
     }

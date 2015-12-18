@@ -9,7 +9,7 @@ package org.duracloud.durastore.rest;
 
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
-import org.duracloud.common.rest.AccountIdExtractingFilter;
+import org.duracloud.common.rest.DuraCloudRequestContextFilter;
 import org.duracloud.storage.provider.StorageProvider;
 
 import javax.servlet.http.HttpServletRequest;
