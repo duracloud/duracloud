@@ -52,33 +52,39 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         StatusManager status = StatusManager.getInstance();
         status.reset();
 
+        Map<String, String> props;
+
         // Local file does not exist
-        worker.retrieveFile();
+        props = worker.retrieveFile();
         checkFile(localFile, contentValue);
         checkStatus(status, 1, 0, 0);
+        assertNotNull(props);
 
         // Local file exists, and is the same
-        worker.retrieveFile();
+        props = worker.retrieveFile();
         checkFile(localFile, contentValue);
         checkStatus(status, 0, 1, 0);
+        assertNotNull(props);
 
         // Local file exists, but is different, overwrite on
         String newValue = "new-value";
         FileUtils.writeStringToFile(localFile, newValue);
-        worker.retrieveFile();
+        props = worker.retrieveFile();
         checkFile(localFile, contentValue);
         checkStatus(status, 1, 0, 0);
         File copyFile = new File(localFile.getAbsolutePath() + "-copy");
         assertFalse(copyFile.exists());
+        assertNotNull(props);
 
         // Local file exists, but is different, overwrite off
         worker = createRetrievalWorker(false);
         FileUtils.writeStringToFile(localFile, newValue);
-        worker.retrieveFile();
+        props = worker.retrieveFile();
         checkFile(localFile, contentValue);
         checkStatus(status, 1, 0, 0);
         assertTrue(copyFile.exists());
         checkFile(copyFile, newValue);
+        assertNotNull(props);
     }
 
     private void checkFile(File file, String value) throws IOException {
@@ -95,6 +101,24 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         assertEquals(noChange, status.getNoChange());
         assertEquals(failure, status.getFailed());
         status.reset();
+    }
+
+    @Test
+    public void testRetryRetrieveFile() throws Exception {
+        RetrievalWorker worker = createInconsistentRetrievalWorker(true);
+        File localFile = worker.getLocalFile();
+        assertFalse(localFile.exists());
+
+        StatusManager status = StatusManager.getInstance();
+        status.reset();
+
+        // This call should fail the first time and succeed
+        // on the second attempt
+        Map<String, String> fileProps = worker.retrieveFile();
+        checkFile(localFile, contentValue);
+        checkStatus(status, 1, 0, 0);
+
+        assertNotNull(fileProps);
     }
 
     @Test
@@ -274,6 +298,16 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
                                    false);
     }
 
+    private RetrievalWorker createInconsistentRetrievalWorker(boolean overwrite) {
+        return new RetrievalWorker(new ContentItem(spaceId, contentId),
+                                   new InconsistentMockRetrievalSource(),
+                                   tempDir,
+                                   overwrite,
+                                   createMockOutputWriter(),
+                                   true,
+                                   true);
+    }
+
     private class MockRetrievalSource implements RetrievalSource {
         @Override
         public ContentItem getNextContentItem() {
@@ -324,6 +358,23 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
             props.put(ContentStore.CONTENT_CHECKSUM,
                       "invalid-checksum");
             return new ContentStream(stream, props);
+        }
+    }
+
+    /*
+     * Create a retrieval source that will throw an exception on the first
+     * call to getSourceContent(), then succeed in subsequent attempts.
+     */
+    private class InconsistentMockRetrievalSource extends MockRetrievalSource {
+        private boolean firstAttempt = true;
+        @Override
+        public ContentStream getSourceContent(ContentItem contentItem) {
+            if(firstAttempt) {
+                firstAttempt = false;
+                throw new RuntimeException("Some unexpected failure.");
+            } else {
+                return super.getSourceContent(contentItem);
+            }
         }
     }
 

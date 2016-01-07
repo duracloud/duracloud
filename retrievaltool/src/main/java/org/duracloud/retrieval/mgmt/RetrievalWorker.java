@@ -117,7 +117,7 @@ public class RetrievalWorker implements Runnable {
                          contentItem.getContentId() + " as local file " +
                          localFile.getAbsolutePath() + ": " + e.getMessage(), e);
             if(attempts < MAX_ATTEMPTS) {
-                retrieveFile();
+                props = retrieveFile();
             } else {
                 fail(e.getMessage());
             }
