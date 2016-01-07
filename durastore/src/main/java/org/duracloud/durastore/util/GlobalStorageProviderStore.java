@@ -29,7 +29,7 @@ import org.duracloud.storage.util.StorageProviderFactory;
  * from a remote data store.
  * @author Daniel Bernstein
  */
-public class GlobalStorageProviderStore {
+public class GlobalStorageProviderStore  {
     private Map<String,StorageProviderFactory> factoryMap;
     private DuracloudAccountRepo accountRepo;
     private DuraCloudRequestContextUtil contextUtil  = null;
