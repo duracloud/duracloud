@@ -65,6 +65,7 @@
         <module>common-json</module>
         <module>common-notification</module>
         <module>common-queue</module>
+	<module>common-aop</module>
         <module>storageprovider</module>
         <module>unit-test-db</module>
         <module>storeclient</module>

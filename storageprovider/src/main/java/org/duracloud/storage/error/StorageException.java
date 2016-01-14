@@ -8,45 +8,40 @@
 package org.duracloud.storage.error;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.error.RetryFlaggableException;
 
 /**
  * Exception thrown by StorageProvider implementations.
  *
  * @author Bill Branan
  */
-public class StorageException extends DuraCloudRuntimeException {
+public class StorageException extends RetryFlaggableException {
 
     private static final long serialVersionUID = 1L;
 
-    public static final boolean RETRY = true;
-    public static final boolean NO_RETRY = false;
-
-    protected boolean retry;
 
     public StorageException(String message) {
-        this(message, NO_RETRY);
+        this(message, RetryFlaggableException.NO_RETRY);
     }
 
     public StorageException(String message, boolean retry) {
-        super(message);
-        this.retry = retry;
+        super(message, null, retry);
     }
 
     public StorageException(String message, Throwable throwable) {
-        this(message, throwable, NO_RETRY);
+        this(message, throwable, RetryFlaggableException.NO_RETRY);
     }
 
     public StorageException(String message, Throwable throwable, boolean retry) {
-        super(message, throwable);
-        this.retry = retry;
+        super(message, throwable, retry);
     }
 
     public StorageException(Throwable throwable) {
-        this(throwable, NO_RETRY);
+        this(throwable, RetryFlaggableException.NO_RETRY);
     }
 
     public StorageException(Throwable throwable, boolean retry) {
-        super(throwable);
+        this(null, throwable,retry);
         this.retry = retry;
     }
 

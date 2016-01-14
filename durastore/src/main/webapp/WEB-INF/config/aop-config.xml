@@ -6,7 +6,7 @@
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
   
   <!-- AOP Advice - Retry -->
-  <bean id="retryAdvice" class="org.duracloud.durastore.aop.RetryAdvice" >
+  <bean id="retryAdvice" class="org.duracloud.common.aop.RetryAdvice" >
     <property name="maxRetries" value="3" />
     <property name="waitTime" value="3000" /> <!-- Milliseconds between attempts -->
     <property name="order" value="1" /> <!-- Advice ordering, retry has highest precedence -->

@@ -9,6 +9,7 @@ package org.duracloud.client;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.retry.ExceptionHandler;
@@ -1251,5 +1252,10 @@ public class ContentStoreImpl implements ContentStore {
 
         return properties;
     }
-
+    
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this);
+    }
+    
 }
