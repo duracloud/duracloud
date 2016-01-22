@@ -3325,6 +3325,16 @@ $(function() {
       $.each(item.contentProperties, function(key, value) {
         props.push([ key, value ]);
       });
+     
+      props.sort(function(a,b) {
+         if (a[0] < b[0])
+           return -1;
+         else if (a[0] > b[0])
+           return 1;
+         else 
+           return 0;
+      });
+
 
       this._loadProperties(props);
     },
