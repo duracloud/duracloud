@@ -307,7 +307,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             backupDir.mkdirs();
 
             syncBackupManager = new SyncBackupManager(backupDir, 
-                                                      CHANGE_LIST_MONITOR_FREQUENCY, 
+                                                      BACKUP_FREQUENCY, 
                                                       dirs);
             
             long backup = -1;
