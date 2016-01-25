@@ -105,12 +105,16 @@ public class SyncManager implements ChangeHandler {
      */
     public boolean handleChangedFile(ChangedFile changedFile) {
         File watchDir = getWatchDir(changedFile.getFile());
+        SyncWorker worker = new SyncWorker(changedFile, watchDir, endpoint);
+
         try {
-            SyncWorker worker = new SyncWorker(changedFile, watchDir, endpoint);
             addToWorkerList(worker);
             workerPool.execute(worker);
             return true;
         } catch(RejectedExecutionException e) {
+            synchronized(workerList){
+                workerList.remove(worker);
+            }
             return false;
         }
     }
