@@ -37,7 +37,7 @@ public class StoreClientUtil {
                 contentStore = storeManager.getPrimaryContentStore();
             }
         } catch(ContentStoreException e) {
-            String prefix = "Could not create connection to DuraCloud due to ";
+            String prefix = "Could not create connection to DuraCloud (" + host + ":" + port + "/"+context + "). Cause: ";
             if(e.getMessage().contains("Response code was 401")) {
                 throw new RuntimeException(prefix + "invalid credentials. " +
                     "Check your username and password and try again.");
@@ -48,5 +48,4 @@ public class StoreClientUtil {
 
         return contentStore;
     }
-
 }
