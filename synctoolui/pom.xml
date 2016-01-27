@@ -443,8 +443,8 @@
       <exclusions>
         <exclusion>
           <groupId>org.duracloud</groupId>
-	  <artifactId>storageprovider</artifactId>
-	</exclusion>
+          <artifactId>common-queue</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 
