@@ -440,6 +440,12 @@
       <groupId>org.duracloud</groupId>
       <artifactId>storeclient</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.duracloud</groupId>
+	  <artifactId>storageprovider</artifactId>
+	</exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
