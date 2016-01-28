@@ -7,13 +7,18 @@
  */
 package org.duracloud.syncui.service;
 
+import static org.easymock.EasyMock.*;
+import static org.junit.Assert.*;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
@@ -27,11 +32,9 @@ import org.duracloud.syncui.domain.DuracloudConfiguration;
 import org.duracloud.syncui.domain.SyncProcessState;
 import org.duracloud.syncui.domain.SyncProcessStats;
 import org.easymock.IAnswer;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
 /**
  * 
  * @author Daniel Bernstein
@@ -43,6 +46,8 @@ public class SyncProcessManagerImplTest extends AbstractTest {
     private ContentStore contentStore;
     private ContentStoreManagerFactory contentStoreManagerFactory;
     private SyncOptimizeManager syncOptimizeManager;
+    private File contentDir = null;
+    private File workDir = null;
     
     class TestSyncStateListener implements SyncStateChangeListener {
         private CountDownLatch latch = new CountDownLatch(1);
@@ -79,6 +84,24 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         setupWorkingDirectory();
         setupContentDirectories();
 
+
+    }
+    
+    
+    @After
+    public void tearDown(){
+        super.tearDown();
+        try {
+            FileUtils.deleteDirectory(this.contentDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            FileUtils.deleteDirectory(this.workDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -153,30 +176,30 @@ public class SyncProcessManagerImplTest extends AbstractTest {
     }
     
     protected void setupContentDirectories(){
-        File directory =
+        this.contentDir =
             new File(System.getProperty("java.io.tmpdir") + File.separator
                      + "test-"
                      + System.currentTimeMillis());
-        directory.mkdirs();
-        directory.deleteOnExit();
+        this.contentDir.mkdirs();
+        this.contentDir.deleteOnExit();
 
 
         DirectoryConfigs dconfigs = new DirectoryConfigs();
-        dconfigs.add(new DirectoryConfig(directory.getAbsolutePath()));
+        dconfigs.add(new DirectoryConfig(this.contentDir.getAbsolutePath()));
         expect(this.syncConfigurationManager.retrieveDirectoryConfigs())
                 .andReturn(dconfigs).atLeastOnce();
     }
 
     protected void setupWorkingDirectory() {
-        File workDir =
+        this.workDir =
             new File(System.getProperty("java.io.tmpdir") + File.separator
                      + "workdir-"
                      + System.currentTimeMillis());
-        workDir.mkdirs();
-        workDir.deleteOnExit();
+        this.workDir.mkdirs();
+        this.workDir.deleteOnExit();
 
 
-        expect(this.syncConfigurationManager.getWorkDirectory()).andReturn(workDir)
+        expect(this.syncConfigurationManager.getWorkDirectory()).andReturn(this.workDir)
                                                                 .anyTimes();
     }
     
