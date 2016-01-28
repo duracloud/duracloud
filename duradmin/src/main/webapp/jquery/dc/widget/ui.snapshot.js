@@ -103,6 +103,7 @@ $.widget("ui.snapshot",
                                         response.snapshot = false;
                                         response.storeId = s.storeId;
                                         response.spaceId = s.spaceId;
+                                        response.forceRefresh = true;
                                         $(document).trigger("staleSpace", response);
                                         dc.done("The snapshot is being generated!");
 
