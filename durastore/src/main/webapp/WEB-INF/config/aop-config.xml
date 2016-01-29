@@ -6,7 +6,7 @@
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
   
   <!-- AOP Advice - Retry -->
-  <bean id="retryAdvice" class="org.duracloud.durastore.aop.RetryAdvice" >
+  <bean id="retryAdvice" class="org.duracloud.common.aop.RetryAdvice" >
     <property name="maxRetries" value="3" />
     <property name="waitTime" value="3000" /> <!-- Milliseconds between attempts -->
     <property name="order" value="1" /> <!-- Advice ordering, retry has highest precedence -->
@@ -53,9 +53,24 @@
     <property name="pattern" value=".*TaskProvider.*[.]performTask"/>
   </bean>
 
+  <bean id="streamingAccessAdvice" class="org.duracloud.durastore.aop.StreamingAccessAdvice">
+    <constructor-arg ref="authorizationHelper"/>
+    <property name="order" value="3" />    
+  </bean>
+
+  <bean id="streamingAccessAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="streamingAccessAdvice"/>
+    <property name="pattern" value=".*TaskProvider.*[.]performTask"/>
+  </bean>
+
   <bean id="taskProviderFactory" class="org.duracloud.durastore.aop.AOPTaskProviderFactoryDecorator">
     <constructor-arg ref="taskProviderFactoryImpl"/>
-    <constructor-arg ref="snapshotAccessAdvisor"/>
+    <constructor-arg>
+        <list>
+            <ref bean="snapshotAccessAdvisor"/>
+            <ref bean="streamingAccessAdvisor"/>
+        </list>
+    </constructor-arg>
   </bean>
   
   

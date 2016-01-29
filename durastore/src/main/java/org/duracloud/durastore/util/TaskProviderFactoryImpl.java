@@ -93,7 +93,8 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                                               cfClient,
                                               cfAccountId,
                                               cfKeyId,
-                                              cfKeyPath);
+                                              cfKeyPath,
+                                              storageAccountId);
         } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
             GlacierStorageProvider unwrappedGlacierProvider =
                 new GlacierStorageProvider(username, password);
@@ -101,7 +102,8 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                 S3ProviderUtil.getAmazonS3Client(username, password);
             taskProvider = new GlacierTaskProvider(storageProvider,
                                                    unwrappedGlacierProvider,
-                                                   s3Client);
+                                                   s3Client, 
+                                                   storageAccountId);
         } else if (type.equals(StorageProviderType.SNAPSHOT)) {
             SnapshotStorageProvider unwrappedSnapshotProvider =
                 new SnapshotStorageProvider(username, password);

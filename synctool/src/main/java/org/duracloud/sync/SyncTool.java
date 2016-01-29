@@ -301,7 +301,7 @@ public class SyncTool {
         backupDir.mkdirs();
         syncBackupManager =
             new SyncBackupManager(backupDir,
-                                  syncConfig.getPollFrequency(),
+                                  syncConfig.getBackupFrequency(),
                                   syncConfig.getContentDirs());
 
         boolean hasABackupFile = this.syncBackupManager.hasBackups();

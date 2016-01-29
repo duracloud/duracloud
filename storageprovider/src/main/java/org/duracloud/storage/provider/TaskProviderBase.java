@@ -24,6 +24,20 @@ public abstract class TaskProviderBase implements TaskProvider {
 
     protected List<TaskRunner> taskList = new ArrayList<>();
 
+    private String storeId;
+
+    public TaskProviderBase(String storeId) {
+        if(storeId == null){
+            throw new IllegalArgumentException("storeId must be non-null");
+        }
+        this.storeId = storeId;
+    }
+    
+    @Override
+    public String getStoreId() {
+        return this.storeId;
+    }
+    
     @Override
     public List<String> getSupportedTasks() {
         log.debug("getSupportedTasks()");

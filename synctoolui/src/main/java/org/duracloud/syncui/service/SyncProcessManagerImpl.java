@@ -54,6 +54,8 @@ import org.springframework.stereotype.Component;
 @Component("syncProcessManager")
 public class SyncProcessManagerImpl implements SyncProcessManager {
     private static final int CHANGE_LIST_MONITOR_FREQUENCY = 5000;
+    private static final int BACKUP_FREQUENCY = 5*60*1000;
+
     private static Logger log =
         LoggerFactory.getLogger(SyncProcessManagerImpl.class);
     private InternalState currentState;
@@ -79,6 +81,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     private Date syncStartedDate = null;
     private ChangedListListener changedListListener;
     private SyncBackupManager syncBackupManager;
+    private File backupDir;
 
     private class InternalChangedListListener implements ChangedListListener {
         @Override
@@ -121,10 +124,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
         this.contentStoreManagerFactory = contentStoreManagerFactory;
         this.syncOptimizeManager = syncOptimizeManager;
-
+        this.backupDir = new File(syncConfigurationManager.getWorkDirectory(), "backup");
         syncBackupManager =
-            new SyncBackupManager(syncConfigurationManager.getWorkDirectory(),
-                                  CHANGE_LIST_MONITOR_FREQUENCY,
+            new SyncBackupManager(this.backupDir,
+                                  BACKUP_FREQUENCY,
                                   syncConfigurationManager.retrieveDirectoryConfigs().toFileList());
 
         ChangedList.getInstance()
@@ -301,11 +304,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             
             syncEndpoint.addEndPointListener(new EndPointLogger());
             
-            File backupDir = new File(this.syncConfigurationManager.getWorkDirectory(), "backup");
-            backupDir.mkdirs();
+            this.backupDir.mkdirs();
 
-            syncBackupManager = new SyncBackupManager(backupDir, 
-                                                      CHANGE_LIST_MONITOR_FREQUENCY, 
+            syncBackupManager = new SyncBackupManager(this.backupDir, 
+                                                      BACKUP_FREQUENCY, 
                                                       dirs);
             
             long backup = -1;

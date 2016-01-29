@@ -21,7 +21,9 @@ public class GlacierTaskProvider extends TaskProviderBase {
 
     public GlacierTaskProvider(StorageProvider glacierProvider,
                                GlacierStorageProvider unwrappedGlacierProvider,
-                               AmazonS3Client s3Client) {
+                               AmazonS3Client s3Client,
+                               String storeId) {
+        super(storeId);
         log = LoggerFactory.getLogger(GlacierTaskProvider.class);
 
         taskList.add(new RestoreContentTaskRunner(glacierProvider,

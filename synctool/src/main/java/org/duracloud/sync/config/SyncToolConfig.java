@@ -20,6 +20,7 @@ import java.util.List;
 public class SyncToolConfig implements Serializable {
 
     public static final String DEFAULT_UPDATE_SUFFIX = ".orig";
+    private static final long DEFAULT_BACKUP_FREQUENCY = 5*60*1000;
     private String host;
     private int port;
     private String context;
@@ -30,6 +31,7 @@ public class SyncToolConfig implements Serializable {
     private File workDir;
     private List<File> contentDirs;
     private long pollFrequency;
+    private long backupFrequency = DEFAULT_BACKUP_FREQUENCY;
     private int numThreads = 5;
     private long maxFileSize;
     private boolean syncDeletes;
@@ -279,6 +281,10 @@ public class SyncToolConfig implements Serializable {
 
     public void setJumpStart(boolean jumpStart) {
         this.jumpStart = jumpStart;
+    }
+
+    public long getBackupFrequency() {
+        return backupFrequency;
     }
 
 }

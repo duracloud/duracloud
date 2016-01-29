@@ -5,11 +5,11 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.durastore.aop;
+package org.duracloud.common.aop;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.duracloud.storage.error.StorageException;
+import org.duracloud.common.error.RetryFlaggableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -30,7 +30,7 @@ public class RetryAdvice implements MethodInterceptor, Ordered {
             numAttempts++;
             try {
                 return invocation.proceed();
-            } catch (StorageException se) {
+            } catch (RetryFlaggableException se) {
                 if (se.isRetry()) {
                     if (numAttempts <= maxRetries) {
                         logRetry(invocation, se.getMessage());

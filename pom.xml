@@ -4,7 +4,7 @@
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
     <packaging>pom</packaging>
-    <version>3.6.0</version>
+    <version>3.7.0</version>
     <name>DuraCloud</name>
     <description>Cloud-based digital content preservation system</description>
     <url>http://duracloud.org</url>
@@ -65,6 +65,7 @@
         <module>common-json</module>
         <module>common-notification</module>
         <module>common-queue</module>
+	<module>common-aop</module>
         <module>storageprovider</module>
         <module>unit-test-db</module>
         <module>storeclient</module>
@@ -248,12 +249,13 @@
         <log.level>${log.level.default}</log.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <duracloud.db.version>3.4.0</duracloud.db.version>
+        <duracloud.db.version>3.5.1</duracloud.db.version>
         <org.springframework.version>4.0.5.RELEASE</org.springframework.version>
         <org.springframework.security.version>3.2.3.RELEASE</org.springframework.security.version>
         <org.springframework.webflow.version>2.3.3.RELEASE</org.springframework.webflow.version>
         <mysql.driver.version>5.1.28</mysql.driver.version>
         <hibernate.version>4.3.2.Final</hibernate.version>
+        <aws.sdk.version>1.10.20</aws.sdk.version>
         <jclouds.version>1.8.0</jclouds.version>
         <jersey.version>2.5.1</jersey.version>
         <tiles.version>2.2.2</tiles.version>
@@ -1130,7 +1132,19 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk</artifactId>
-                <version>1.10.20</version>
+		<version>${aws.sdk.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+	    
+	    <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-sqs</artifactId>
+		<version>${aws.sdk.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>

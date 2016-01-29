@@ -162,7 +162,7 @@ public class ChangedList {
      * @param persistFile file to write state to
      * @return the version ID of the ChangedList which was persisted
      */
-    public synchronized long persist(File persistFile) {
+    public  long persist(File persistFile) {
         try {
             FileOutputStream fileStream = new FileOutputStream(persistFile);
             ObjectOutputStream oStream = new ObjectOutputStream((fileStream));
@@ -170,9 +170,8 @@ public class ChangedList {
             long persistVersion;
             Map<String, ChangedFile> fileListCopy;
             synchronized(this) {
-                fileListCopy = new LinkedHashMap<>(reservedFiles);
-                fileListCopy.putAll(fileList);
-
+                fileListCopy = (Map<String, ChangedFile>)fileList.clone();
+                fileListCopy.putAll(reservedFiles);
                 persistVersion = listVersion;
             }
 

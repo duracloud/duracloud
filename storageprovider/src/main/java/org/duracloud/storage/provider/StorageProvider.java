@@ -268,5 +268,6 @@ public interface StorageProvider {
      */
     public Map<String, String> getContentProperties(String spaceId,
                                                     String contentId);
+    
 
 }
