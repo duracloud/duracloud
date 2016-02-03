@@ -215,18 +215,11 @@ public class RetrievalWorker implements Runnable {
     protected Map<String, String> retrieveToFile(File localFile) throws IOException {
         contentStream = source.getSourceContent(contentItem);
 
-        InputStream inStream = contentStream.getStream();
-        OutputStream outStream = new FileOutputStream(localFile);
-        try {
+        try (
+            InputStream inStream = contentStream.getStream();
+            OutputStream outStream = new FileOutputStream(localFile);
+        ) {
             IOUtils.copyLarge(inStream, outStream);
-        } finally {
-            if(inStream != null) {
-                inStream.close();
-            }
-
-            if(outStream != null) {
-                outStream.close();
-            }
         }
 
         if(! checksumsMatch(localFile, contentStream.getChecksum())) {
