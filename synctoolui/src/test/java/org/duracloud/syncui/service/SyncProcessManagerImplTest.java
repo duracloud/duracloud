@@ -160,6 +160,9 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         expect(this.syncConfigurationManager.getUpdateSuffix())
         .andReturn(null).times(times);
 
+        expect(this.syncConfigurationManager.getMaxFileSizeInBytes())
+        .andReturn(SyncConfigurationManager.GIGABYTES).times(times);
+
         expect(this.syncConfigurationManager.getPrefix())
         .andReturn(null).times(times);
 

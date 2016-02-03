@@ -163,6 +163,22 @@
                 </form:form>
               </fieldset>
               <fieldset>
+                <legend>Max File Size</legend>
+                <form:form
+                  method="post"
+                  modelAttribute="maxFileSizeForm"
+                  action="${pageContext.request.contextPath}/configuration/max-file-size">
+
+                    <label >The maximum size of a stored file in GB.</label>
+                    <form:select path="maxFileSizeInGB">
+                        <c:forEach items="${maxFileSizeForm.values}" var="val">
+                            <form:option value="${val}">${val} GB</form:option>
+                        </c:forEach>
+                    </form:select>
+                </form:form>
+              </fieldset>
+
+              <fieldset>
                 <legend>Transfer Rate (Thread count)</legend>
               
                 <form:form

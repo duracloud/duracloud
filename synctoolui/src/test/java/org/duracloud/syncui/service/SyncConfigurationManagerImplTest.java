@@ -89,6 +89,19 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
     }
 
     @Test
+    public void testGetSetMaxFileSize() {
+        long mfs = SyncConfigurationManager.GIGABYTES;
+        long mfs2 = 2*SyncConfigurationManager.GIGABYTES;
+
+        this.syncConfigurationManager.setMaxFileSizeInBytes(mfs);
+        setupConfigurationManager();
+        assertEquals(mfs,this.syncConfigurationManager.getMaxFileSizeInBytes());
+        this.syncConfigurationManager.setMaxFileSizeInBytes(mfs2);
+        setupConfigurationManager();
+        assertEquals(mfs2,this.syncConfigurationManager.getMaxFileSizeInBytes());
+    }
+
+    @Test
     public void testPurgeWorkDirectory() {
         File workDir = this.syncConfigurationManager.getWorkDirectory();
         if(workDir != null){

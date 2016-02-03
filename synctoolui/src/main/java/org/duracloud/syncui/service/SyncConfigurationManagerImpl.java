@@ -7,7 +7,6 @@
  */
 package org.duracloud.syncui.service;
 
-import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.event.EventListenerSupport;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.duracloud.syncui.config.SyncUIConfig;
 import org.duracloud.syncui.domain.DirectoryConfig;
@@ -73,6 +71,7 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         this.syncToolConfig.setSyncDeletes(false);
         List<File> dirs = new ArrayList<File>();
         this.syncToolConfig.setContentDirs(dirs);
+        this.syncToolConfig.setMaxFileSize(SyncConfigurationManager.GIGABYTES);
     }
 
     private String getSyncToolConfigXmlPath() {
@@ -277,5 +276,24 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
             this.syncToolConfig.setExitOnCompletion(newValue.equals(RunMode.SINGLE_PASS) ? true : false);
             persistSyncToolConfig();
         }
+    }
+    
+    @Override
+    public void setMaxFileSizeInBytes(long maxFileSize) {
+        int gigs =(int)(maxFileSize/SyncConfigurationManager.GIGABYTES);
+        if(maxFileSize % SyncConfigurationManager.GIGABYTES != 0  || gigs < 1  || gigs > 5 ){
+            throw new RuntimeException("Max file size must be divisible by 1000 and between 1 and 5 GBs inclusive");
+        }
+        long oldValue = getMaxFileSizeInBytes();
+        if(oldValue != maxFileSize){
+            this.syncToolConfig.setMaxFileSize(maxFileSize);
+            persistSyncToolConfig();
+        }
+        
+    }
+    
+    @Override
+    public long getMaxFileSizeInBytes() {
+         return this.syncToolConfig.getMaxFileSize();
     }
 }
