@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class SyncToolConfigParser {
 
-    protected static final long GIGABYTE = 1073741824;
+    protected static final long GIGABYTE = 1000*1000*1000;
 
     protected static final String BACKUP_FILE_NAME = "synctool.config";
     protected static final String PREV_BACKUP_FILE_NAME = "synctool.config.bak";

@@ -21,6 +21,7 @@ import org.duracloud.syncui.domain.SyncProcessState;
 import org.duracloud.syncui.domain.ThreadCountForm;
 import org.duracloud.syncui.service.RunMode;
 import org.duracloud.syncui.service.SyncConfigurationManager;
+import org.duracloud.syncui.service.SyncConfigurationManagerImpl;
 import org.duracloud.syncui.service.SyncOptimizeManager;
 import org.duracloud.syncui.service.SyncProcessException;
 import org.duracloud.syncui.service.SyncProcessManager;
@@ -79,6 +80,14 @@ public class ConfigurationController {
     @ModelAttribute("duracloudCredentialsForm")
     public DuracloudCredentialsForm duracloudCredentials() {
         return new DuracloudCredentialsForm();
+    }
+
+    @ModelAttribute("maxFileSizeForm")
+    public MaxFileSizeForm maxFileSizeForm() {
+        MaxFileSizeForm form =  new MaxFileSizeForm();
+        form.setMaxFileSizeInGB((int) (this.syncConfigurationManager.getMaxFileSizeInBytes()
+                                       / SyncConfigurationManager.GIGABYTES));
+        return form;
     }
 
     @ModelAttribute("modeForm")
@@ -154,6 +163,18 @@ public class ConfigurationController {
         this.syncConfigurationManager.setMode(mode);
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
+
+    @RequestMapping(value = { "/max-file-size" }, method = RequestMethod.POST)
+    public View updateMaxFileSize(
+                                MaxFileSizeForm form,
+                                RedirectAttributes redirectAttributes) {
+
+        long maxFileSize = form.getMaxFileSizeInGB()*SyncConfigurationManager.GIGABYTES;
+        log.debug("maxFileSize  to : {}", maxFileSize);
+        this.syncConfigurationManager.setMaxFileSizeInBytes(maxFileSize);
+        return createConfigUpdatedRedirectView(redirectAttributes);
+    }
+
     
     @ModelAttribute("threadCountForm")
     public ThreadCountForm threadCountForm(){

@@ -21,6 +21,8 @@ import java.io.File;
 public interface SyncConfigurationManager {
 
     
+    long GIGABYTES = 1000*1000*1000;
+
     /**
      * 
      * @param username
@@ -93,5 +95,9 @@ public interface SyncConfigurationManager {
     public void setMode(RunMode mode);
     
     public RunMode getMode();
+
+    public long getMaxFileSizeInBytes();
+    
+    public void setMaxFileSizeInBytes(long maxFileSize);
     
 }

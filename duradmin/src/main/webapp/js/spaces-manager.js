@@ -1165,6 +1165,8 @@ $(function() {
       var retrieveSnapshot = dc.store.GetSnapshot(params).success(function(snapshot) {
         var snapshot = snapshot;
         that._displaySnapshot(snapshot, params);
+        that._spacesListPane.spaceslistpane("setCurrentById", snapshot.snapshotId);
+        that._spacesListPane.spaceslistpane("scrollToCurrentSpace");
         that._loadSnapshotContentItems(snapshot);
 
       }).error(function(jqXHR, textStatus, errorThrown) {
@@ -1191,6 +1193,7 @@ $(function() {
       retrieveSpace = dc.store.GetSpace2(params).success(function(data) {
         var space = data.space;
         that._spacesListPane.spaceslistpane("setCurrentById", space.spaceId);
+        that._spacesListPane.spaceslistpane("scrollToCurrentSpace");
         that._loadContentItems(space);
 
         if (showDetail) {
@@ -1609,7 +1612,9 @@ $(function() {
       var current = this._spacesList.selectablelist("currentItem");
 
       if (current != null && current != undefined && current.data != null && current.data != undefined) {
-        this._spacesList.closest(".dc-item-list-wrapper").scrollTo(current.item);
+        if(!$(current.item).isVisibleInViewPort()){
+            this._spacesList.closest(".dc-item-list-wrapper").scrollTo(current.item);
+        }
       }
     },
 
@@ -3325,6 +3330,16 @@ $(function() {
       $.each(item.contentProperties, function(key, value) {
         props.push([ key, value ]);
       });
+     
+      props.sort(function(a,b) {
+         if (a[0] < b[0])
+           return -1;
+         else if (a[0] > b[0])
+           return 1;
+         else 
+           return 0;
+      });
+
 
       this._loadProperties(props);
     },

@@ -81,6 +81,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     private Date syncStartedDate = null;
     private ChangedListListener changedListListener;
     private SyncBackupManager syncBackupManager;
+    private File backupDir;
 
     private class InternalChangedListListener implements ChangedListListener {
         @Override
@@ -123,9 +124,9 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
         this.contentStoreManagerFactory = contentStoreManagerFactory;
         this.syncOptimizeManager = syncOptimizeManager;
-
+        this.backupDir = new File(syncConfigurationManager.getWorkDirectory(), "backup");
         syncBackupManager =
-            new SyncBackupManager(syncConfigurationManager.getWorkDirectory(),
+            new SyncBackupManager(this.backupDir,
                                   BACKUP_FREQUENCY,
                                   syncConfigurationManager.retrieveDirectoryConfigs().toFileList());
 
@@ -293,7 +294,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                                                username,
                                                spaceId,
                                                syncDeletes,
-                                               1073741824, // 1GB chunk size
+                                               this.syncConfigurationManager.getMaxFileSizeInBytes(), // 1GB chunk size
                                                this.syncConfigurationManager.isSyncUpdates(),
                                                this.syncConfigurationManager.isRenameUpdates(),
                                                this.syncConfigurationManager.isJumpStart(),
@@ -303,11 +304,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             
             syncEndpoint.addEndPointListener(new EndPointLogger());
             
-            File backupDir = new File(this.syncConfigurationManager.getWorkDirectory(), "backup");
-            backupDir.mkdirs();
+            this.backupDir.mkdirs();
 
-            syncBackupManager = new SyncBackupManager(backupDir, 
-                                                      CHANGE_LIST_MONITOR_FREQUENCY, 
+            syncBackupManager = new SyncBackupManager(this.backupDir, 
+                                                      BACKUP_FREQUENCY, 
                                                       dirs);
             
             long backup = -1;

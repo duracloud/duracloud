@@ -75,8 +75,8 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
               updateSuffix,
               prefix);
 
-        if (maxFileSize % 1024 != 0) {
-            throw new RuntimeException("Max file size must be factor of 1024");
+        if (maxFileSize % 1000 != 0) {
+            throw new RuntimeException("Max file size must be factor of 1000");
         }
 
         DuracloudContentWriter contentWriter =

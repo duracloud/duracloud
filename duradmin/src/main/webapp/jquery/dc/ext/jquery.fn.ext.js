@@ -71,10 +71,21 @@ $(function(){
 		 * @param DOM node or jquery object
 		 */
 		$.fn.scrollTo = function(element){
-			var top = $(element).position().top;
+			var top = $(element).offset().top;
 			this.animate({scrollTop: top}, {duration:"slow", easing:"swing", queue:true});
 		};
 
+		/**
+		 * Returns true if the element is in the viewport
+		 */
+ 		$.fn.isVisibleInViewPort = function() {
+ 		        var rect = this.get(0).getBoundingClientRect();
+
+ 		        return rect.bottom > 0 &&
+ 		            rect.right > 0 &&
+ 		            rect.left < (window.innerWidth || document. documentElement.clientWidth) /*or $(window).width() */ &&
+ 		            rect.top < (window.innerHeight || document. documentElement.clientHeight) /*or $(window).height() */;
+ 		}
 
 		/**
 		 * this method loads the children of the new contents

@@ -77,7 +77,7 @@ public class SyncUIDriver {
             port = SyncUIConfig.getPort();
             contextPath = SyncUIConfig.getContextPath();
             Server srv = new Server(port);
-
+            
             ProtectionDomain protectionDomain =
                 org.duracloud.syncui.SyncUIDriver.class.getProtectionDomain();
             String warFile =
@@ -85,6 +85,7 @@ public class SyncUIDriver {
             log.debug("warfile: {}", warFile);
             WebAppContext context = new WebAppContext();
             context.setContextPath(contextPath);
+            context.setAttribute("extractWAR", Boolean.FALSE);
             context.setWar(warFile);
             srv.setHandler(context);
 

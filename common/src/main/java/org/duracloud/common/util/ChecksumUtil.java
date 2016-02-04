@@ -36,14 +36,9 @@ public class ChecksumUtil {
     }
 
     public String generateChecksum(File file) throws IOException {
-        FileInputStream stream = new FileInputStream(file);
-        String checksum;
-        try {
-            checksum = generateChecksum(stream);
-        } finally {
-            stream.close();
+        try (FileInputStream stream = new FileInputStream(file)) {
+            return generateChecksum(stream);
         }
-        return checksum;
     }
 
     /**

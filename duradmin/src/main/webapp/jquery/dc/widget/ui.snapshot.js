@@ -99,12 +99,14 @@ $.widget("ui.snapshot",
                                         dc.done();
                                     })
                                     .done(function(response){
-                                        dc.done("The snapshot is being generated!");
                                         that._displayProperties(response,panel);
-                                        response.snapshot = true;
+                                        response.snapshot = false;
                                         response.storeId = s.storeId;
-                                        response.spaceId = response.snapshotId;
-                                        $(document).trigger("reloadSpaceList", response);
+                                        response.spaceId = s.spaceId;
+                                        response.forceRefresh = true;
+                                        $(document).trigger("staleSpace", response);
+                                        dc.done("The snapshot is being generated!");
+
                                     })
                                     .error(function( jqXHR, 
                                                     textStatus, 
