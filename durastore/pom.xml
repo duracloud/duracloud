@@ -51,6 +51,12 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
+      <artifactId>common-aop</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
       <artifactId>common-db</artifactId>
       <version>${project.version}</version>
     </dependency>
