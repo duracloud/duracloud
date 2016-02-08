@@ -10,20 +10,20 @@
 
   <bean  depends-on="systemPropertiesReader" class="org.duracloud.common.db.DataSourceConfigurer">
     <constructor-arg ref="accountRepoDataSource"/>
-    <constructor-arg value="${db.name}"/>
-    <constructor-arg value="${db.host}"/>
-    <constructor-arg value="${db.port}"/>
-    <constructor-arg value="${db.user}"/>
-    <constructor-arg value="${db.pass}"/>
+    <constructor-arg value="#{systemProperties['db.name']}"/>
+    <constructor-arg value="#{systemProperties['db.host']}"/>
+    <constructor-arg value="#{systemProperties['db.port']}"/>
+    <constructor-arg value="#{systemProperties['db.user']}"/>
+    <constructor-arg value="#{systemProperties['db.pass']}"/>
   </bean>
 
   <bean  depends-on="systemPropertiesReader" class="org.duracloud.common.db.DataSourceConfigurer">
     <constructor-arg ref="millRepoDataSource"/>
-    <constructor-arg value="${mill.db.name}"/>
-    <constructor-arg value="${mill.host}"/>
-    <constructor-arg value="${mill.port}"/>
-    <constructor-arg value="${mill.user}"/>
-    <constructor-arg value="${mill.pass}"/>
+    <constructor-arg value="#{systemProperties['mill.db.name']}"/>
+    <constructor-arg value="#{systemProperties['mill.db.host']}"/>
+    <constructor-arg value="#{systemProperties['mill.db.port']}"/>
+    <constructor-arg value="#{systemProperties['mill.db.user']}"/>
+    <constructor-arg value="#{systemProperties['mill.db.pass']}"/>
   </bean>
  
   <!--manifest-->
