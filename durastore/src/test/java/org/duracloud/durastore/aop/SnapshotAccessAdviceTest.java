@@ -10,9 +10,7 @@ package org.duracloud.durastore.aop;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 import org.duracloud.common.model.AclType;
@@ -26,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 /**
