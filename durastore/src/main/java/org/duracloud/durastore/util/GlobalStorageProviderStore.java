@@ -18,6 +18,7 @@ import org.duracloud.account.db.model.StorageProviderAccount;
 import org.duracloud.account.db.repo.DuracloudAccountRepo;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.util.UserUtil;
+import org.duracloud.security.impl.GlobalStore;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.impl.StorageAccountImpl;
@@ -29,7 +30,7 @@ import org.duracloud.storage.util.StorageProviderFactory;
  * from a remote data store.
  * @author Daniel Bernstein
  */
-public class GlobalStorageProviderStore  {
+public class GlobalStorageProviderStore implements GlobalStore {
     private Map<String,StorageProviderFactory> factoryMap;
     private DuracloudAccountRepo accountRepo;
     private DuraCloudRequestContextUtil contextUtil  = null;
@@ -47,14 +48,23 @@ public class GlobalStorageProviderStore  {
         this.userUtil = userUtil;
     }
     
+    
+    
     public StorageProviderFactory getStorageProviderFactory(String accountId){
         ensureStorageProviderFactoryIsLoaded(accountId);
         return this.factoryMap.get(accountId);
     }
     
-    public void removeAccount(String accountId){
+    @Override
+    public void remove(String accountId){
         this.factoryMap.remove(accountId);
     }
+
+    @Override
+    public void removeAll(){
+        this.factoryMap.clear();
+    }
+
 
     private void ensureStorageProviderFactoryIsLoaded(String accountId) {
         if(!this.factoryMap.containsKey(accountId)){

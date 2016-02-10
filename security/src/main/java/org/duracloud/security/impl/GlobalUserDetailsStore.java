@@ -24,7 +24,7 @@ import org.duracloud.security.domain.SecurityUserBean;
  * from a remote data store.
  * @author Daniel Bernstein
  */
-public class GlobalUserDetailsStore {
+public class GlobalUserDetailsStore implements GlobalStore{
     private Map<String,DuracloudUserDetailsService> userDetailsMap;
     private DuracloudAccountRepo accountRepo;
     private UserFinderUtil userFinderUtil;
@@ -36,11 +36,15 @@ public class GlobalUserDetailsStore {
         this.userFinderUtil = userFinderUtil;
     }
     
-    
-    public void removeAccount(String accountId){
+    @Override
+    public void remove(String accountId){
         this.userDetailsMap.remove(accountId);
     }
 
+    @Override
+    public void removeAll(){
+        this.userDetailsMap.clear();
+    }
 
     public DuracloudUserDetailsService getUserDetailsService(String accountId){
         ensureUserDetailsServiceIsLoaded(accountId);

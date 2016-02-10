@@ -34,13 +34,10 @@
   <bean id="manifestGenerator" class="org.duracloud.manifest.impl.ManifestGeneratorImpl">
     <constructor-arg ref="manifestStore"/>
     <constructor-arg ref="storageProviderFactory"/>
-
   </bean>
-
 
   <bean id="auditLogReader" class="org.duracloud.audit.reader.impl.AuditLogReaderImpl" >
   </bean>
-
 
   <!-- Support beans -->
   <bean id="storageAccountsDocumentBinding"

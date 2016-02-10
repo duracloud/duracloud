@@ -20,11 +20,13 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.SubscribeResult;
 import com.amazonaws.services.sqs.AmazonSQSClient;
+import com.amazonaws.services.sqs.model.AddPermissionRequest;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.CreateQueueResult;
 import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import com.amazonaws.services.sqs.model.SetQueueAttributesRequest;
 
 
 public class SnsSubscriptionManager {
@@ -70,11 +72,19 @@ public class SnsSubscriptionManager {
             sqsClient.getQueueAttributes(this.queueUrl,
                                          Arrays.asList(queueArnKey));
         log.info("subscribing {} to {}", queueUrl, topicArn);
+        
+        String queueArn = getQueueAttrResult.getAttributes().get(queueArnKey);
+        
         SubscribeResult subscribeResult = this.snsClient.subscribe(topicArn,
                                  "sqs",
-                                 getQueueAttrResult.getAttributes()
-                                                   .get(queueArnKey));
+                                 queueArn);
         this.subscriptionArn = subscribeResult.getSubscriptionArn();
+        
+        Map<String, String> queueAttributes = new HashMap<String, String>(); 
+        queueAttributes.put("Policy", generateSqsPolicyForTopic(queueArn, topicArn)); 
+        
+        sqsClient.setQueueAttributes(new SetQueueAttributesRequest(queueUrl, queueAttributes)); 
+      
         log.info("subscription complete: {}", this.subscriptionArn);
         
         //subscribe queue to topic
@@ -84,6 +94,29 @@ public class SnsSubscriptionManager {
         
         
     }
+    
+    private  String generateSqsPolicyForTopic(String queueArn, String topicArn) { 
+        String policy = 
+            "{ " + 
+            "  \"Version\":\"2008-10-17\"," + 
+            "  \"Id\":\"" + queueArn + "/policyId\"," + 
+            "  \"Statement\": [" + 
+            "    {" + 
+            "        \"Sid\":\"" + queueArn + "/statementId\"," + 
+            "        \"Effect\":\"Allow\"," + 
+            "        \"Principal\":{\"AWS\":\"*\"}," + 
+            "        \"Action\":\"SQS:SendMessage\"," + 
+            "        \"Resource\": \"" + queueArn + "\"," + 
+            "        \"Condition\":{" + 
+            "            \"StringEquals\":{\"aws:SourceArn\":\"" + topicArn + "\"}" + 
+            "        }" + 
+            "    }" + 
+            "  ]" + 
+            "}"; 
+ 
+        return policy; 
+    } 
+
     
     private void startPolling() {
         new Thread(new Runnable(){
@@ -95,9 +128,13 @@ public class SnsSubscriptionManager {
                         List<Message> messages = result.getMessages();
                         for(Message message : messages){
                             dispatch(message);
+                            log.debug("{} dispatched", message);
+                            sqsClient.deleteMessage(queueUrl,message.getReceiptHandle());
+                            log.debug("{} deleted", message);
                         }
+                        
                     }catch(Exception ex){
-                        log.warn("failed to receive messages: " + ex.getMessage(), ex);
+                        log.warn("failed to poll queue: " + ex.getMessage(), ex);
                     }
                 }
             }
@@ -106,6 +143,7 @@ public class SnsSubscriptionManager {
     }
 
     private void dispatch(Message message) {
+        log.debug("dispatching message {}", message);
         for(MessageListener listener : messageListeners){
             try{
                 listener.onMessage(message);
