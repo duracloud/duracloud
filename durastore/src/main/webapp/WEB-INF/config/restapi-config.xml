@@ -5,7 +5,6 @@
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
 
-
   <!--manifest-->
   <bean id="manifestResource" class="org.duracloud.durastore.rest.ManifestResource">
     <constructor-arg ref="manifestGenerator"/>

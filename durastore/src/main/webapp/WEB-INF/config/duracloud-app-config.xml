@@ -10,8 +10,18 @@
            http://www.springframework.org/schema/tx
            http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
 
+  <context:property-placeholder properties-ref="properties"/>
+
+  <bean id="properties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="locations">
+      <list>
+        <value>file:///#{systemProperties['duracloud.config.file']}</value>
+      </list>
+    </property>
+  </bean>
+
   <context:annotation-config/>
-  <context:component-scan base-package="org.duracloud" />
+  <context:component-scan base-package="org.duracloud"/>
   
   <import resource="restapi-config.xml" />
   <import resource="aop-config.xml" />
