@@ -7,25 +7,7 @@
            http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
-
-  <bean  depends-on="systemPropertiesReader" class="org.duracloud.common.db.DataSourceConfigurer">
-    <constructor-arg ref="accountRepoDataSource"/>
-    <constructor-arg value="#{systemProperties['db.name']}"/>
-    <constructor-arg value="#{systemProperties['db.host']}"/>
-    <constructor-arg value="#{systemProperties['db.port']}"/>
-    <constructor-arg value="#{systemProperties['db.user']}"/>
-    <constructor-arg value="#{systemProperties['db.pass']}"/>
-  </bean>
-
-  <bean  depends-on="systemPropertiesReader" class="org.duracloud.common.db.DataSourceConfigurer">
-    <constructor-arg ref="millRepoDataSource"/>
-    <constructor-arg value="#{systemProperties['mill.db.name']}"/>
-    <constructor-arg value="#{systemProperties['mill.db.host']}"/>
-    <constructor-arg value="#{systemProperties['mill.db.port']}"/>
-    <constructor-arg value="#{systemProperties['mill.db.user']}"/>
-    <constructor-arg value="#{systemProperties['mill.db.pass']}"/>
-  </bean>
- 
+  
   <!--manifest-->
   <bean id="manifestResource" class="org.duracloud.durastore.rest.ManifestResource">
     <constructor-arg ref="manifestGenerator"/>
