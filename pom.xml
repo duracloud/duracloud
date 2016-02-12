@@ -249,7 +249,7 @@
         <log.level>${log.level.default}</log.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <duracloud.db.version>3.5.1</duracloud.db.version>
+        <duracloud.db.version>3.5.3</duracloud.db.version>
         <org.springframework.version>4.0.5.RELEASE</org.springframework.version>
         <org.springframework.security.version>3.2.3.RELEASE</org.springframework.security.version>
         <org.springframework.webflow.version>2.3.3.RELEASE</org.springframework.webflow.version>
