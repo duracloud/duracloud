@@ -10,10 +10,8 @@
            http://www.springframework.org/schema/tx
            http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
 
-  <bean id="systemPropertiesReader" class="org.duracloud.common.util.SystemPropertiesReader" >
-    <constructor-arg value="file:///#{systemProperties['duracloud.config.file']}" />
-  </bean> 
-
+  <context:property-placeholder />
+  
   <context:annotation-config/>
   <context:component-scan base-package="org.duracloud" />
   
