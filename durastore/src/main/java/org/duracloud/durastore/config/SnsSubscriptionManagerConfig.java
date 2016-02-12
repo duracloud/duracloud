@@ -7,8 +7,11 @@
  */
 package org.duracloud.durastore.config;
 
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.duracloud.account.db.model.GlobalProperties;
 import org.duracloud.account.db.repo.GlobalPropertiesRepo;
@@ -25,6 +28,9 @@ import org.springframework.context.annotation.Configuration;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.Message;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 
@@ -55,10 +61,37 @@ public class SnsSubscriptionManagerConfig {
                 public void onMessage(Message message) {
                     log.info("message received: " + message);
                     log.info("message body: " + message.getBody());
-                    userDetails.removeAll();
-                    providerStore.removeAll();
                     
-                    
+                    JsonFactory factory = new JsonFactory(); 
+                    ObjectMapper mapper = new ObjectMapper(factory); 
+                    TypeReference<HashMap<String,String>> typeRef 
+                            = new TypeReference<HashMap<String,String>>() {};
+                    String body = message.getBody();
+                    try {
+                        Map<String,String> map = mapper.readValue(body, typeRef);
+                        //unmarsh the message field.
+                        map = mapper.readValue(map.get("Message"), typeRef);
+                        String accountId = map.get("accountId");
+                        String eventType = map.get("eventType");
+                        if(eventType.equals("USER_DETAILS_CHANGED")){
+                            if(accountId != null){
+                                userDetails.remove(accountId);
+                            }else{
+                                userDetails.removeAll();
+                            }
+                        }else if(eventType.equals("STORAGE_PROVIDER_CHANGED")){
+                            if(accountId != null){
+                                providerStore.remove(accountId);
+                            }else{
+                                providerStore.removeAll();
+                            }
+                        }else{
+                            log.warn("Event of type  {} not recognized. Ignoring...", eventType);
+                        }
+
+                    } catch (IOException e) {
+                        log.error("failed to handle message: " + e.getMessage(), e);
+                    } 
                     
                 }
             });
