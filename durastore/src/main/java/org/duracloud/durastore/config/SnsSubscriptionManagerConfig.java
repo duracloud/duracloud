@@ -13,6 +13,8 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.duracloud.account.db.model.AccountChangeEvent;
+import org.duracloud.account.db.model.AccountChangeEvent.EventType;
 import org.duracloud.account.db.model.GlobalProperties;
 import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.error.DuraCloudRuntimeException;
@@ -61,7 +63,6 @@ public class SnsSubscriptionManagerConfig {
                 public void onMessage(Message message) {
                     log.info("message received: " + message);
                     log.info("message body: " + message.getBody());
-                    
                     JsonFactory factory = new JsonFactory(); 
                     ObjectMapper mapper = new ObjectMapper(factory); 
                     TypeReference<HashMap<String,String>> typeRef 
@@ -69,26 +70,28 @@ public class SnsSubscriptionManagerConfig {
                     String body = message.getBody();
                     try {
                         Map<String,String> map = mapper.readValue(body, typeRef);
-                        //unmarsh the message field.
-                        map = mapper.readValue(map.get("Message"), typeRef);
-                        String accountId = map.get("accountId");
-                        String eventType = map.get("eventType");
-                        if(eventType.equals("USER_DETAILS_CHANGED")){
+                        AccountChangeEvent event = AccountChangeEvent.deserialize(map.get("Message"));
+                        String accountId = event.getAccountId();
+                        EventType eventType = event.getEventType();
+                        if(eventType.equals(EventType.USERS_CHANGED)){
                             if(accountId != null){
                                 userDetails.remove(accountId);
                             }else{
                                 userDetails.removeAll();
                             }
-                        }else if(eventType.equals("STORAGE_PROVIDER_CHANGED")){
-                            if(accountId != null){
-                                providerStore.remove(accountId);
-                            }else{
-                                providerStore.removeAll();
-                            }
+                        }else if(eventType.equals(EventType.STORAGE_PROVIDERS_CHANGED)){
+                            providerStore.remove(accountId);
+                        }else if(eventType.equals(EventType.ACCOUNT_CHANGED)){
+                            providerStore.remove(accountId);
+                        }else if(eventType.equals(EventType.ACCOUNT_CHANGED)){
+                            providerStore.remove(accountId);
+                            userDetails.remove(accountId);
+                        }else if(eventType.equals(EventType.ALL_ACCOUNTS_CHANGED)){
+                            userDetails.removeAll();
+                            providerStore.removeAll();
                         }else{
                             log.warn("Event of type  {} not recognized. Ignoring...", eventType);
                         }
-
                     } catch (IOException e) {
                         log.error("failed to handle message: " + e.getMessage(), e);
                     } 
