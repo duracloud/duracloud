@@ -13,14 +13,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.account.db.model.AccountInfo;
-import org.duracloud.account.db.model.ServerDetails;
+import org.duracloud.account.db.model.GlobalProperties;
 import org.duracloud.account.db.model.StorageProviderAccount;
 import org.duracloud.account.db.repo.DuracloudAccountRepo;
+import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.util.UserUtil;
 import org.duracloud.security.impl.GlobalStore;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.domain.impl.StorageAccountImpl;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
@@ -33,15 +35,18 @@ import org.duracloud.storage.util.StorageProviderFactory;
 public class GlobalStorageProviderStore implements GlobalStore {
     private Map<String,StorageProviderFactory> factoryMap;
     private DuracloudAccountRepo accountRepo;
+    private GlobalPropertiesRepo globalPropertiesRepo;
     private DuraCloudRequestContextUtil contextUtil  = null;
     private StatelessStorageProvider statelessStorageProvider;
     private UserUtil userUtil;
     
     public GlobalStorageProviderStore(DuracloudAccountRepo accountRepo,
+                                      GlobalPropertiesRepo globalPropertiesRepo,
                               DuraCloudRequestContextUtil contextUtil,
                               StatelessStorageProvider statelessStorageProvider,
                               UserUtil userUtil) {
         this.accountRepo = accountRepo;
+        this.globalPropertiesRepo = globalPropertiesRepo;
         this.contextUtil = contextUtil;
         this.factoryMap = new HashMap<>();
         this.statelessStorageProvider = statelessStorageProvider;
@@ -76,13 +81,12 @@ public class GlobalStorageProviderStore implements GlobalStore {
         
         //retrieve account info from db
         AccountInfo info = this.accountRepo.findBySubdomain(accountId);
-        ServerDetails details = info.getServerDetails();
 
         //build a storage account manager
         List<StorageAccount> sps = new LinkedList<>();
-        sps.add(createStorageAccount(details.getPrimaryStorageProviderAccount(), true));
+        sps.add(createStorageAccount(info.getPrimaryStorageProviderAccount(), true));
         StorageAccountManager storageAccountManager = new StorageAccountManager();
-        for(StorageProviderAccount spa : details.getSecondaryStorageProviderAccounts()){
+        for(StorageProviderAccount spa : info.getSecondaryStorageProviderAccounts()){
             sps.add(createStorageAccount(spa, false));
          }
         
@@ -112,6 +116,17 @@ public class GlobalStorageProviderStore implements GlobalStore {
         if(props != null){
             for(String key : props.keySet()){
                 storageAccount.setOption(key, props.get(key));
+            }
+        }
+
+        List<GlobalProperties> propslist = globalPropertiesRepo.findAll();
+        if(propslist != null && propslist.size() > 0){
+            GlobalProperties globalProps = propslist.get(0);
+            StorageProviderType spType = spa.getProviderType();
+            if(spType.equals(StorageProviderType.AMAZON_S3)){
+                storageAccount.setOption(StorageAccount.OPTS.CF_ACCOUNT_ID.name(), globalProps.getCloudFrontAccountId());
+                storageAccount.setOption(StorageAccount.OPTS.CF_KEY_ID.name(), globalProps.getCloudFrontKeyId());
+                storageAccount.setOption(StorageAccount.OPTS.CF_KEY_PATH.name(), globalProps.getCloudFrontKeyPath());
             }
         }
         return storageAccount;
