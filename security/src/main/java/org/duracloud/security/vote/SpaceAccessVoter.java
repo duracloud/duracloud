@@ -62,7 +62,9 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
             || spaceId.equals("stores")
             || spaceId.equals("acl")
             || spaceId.equals("init")
+            || spaceId.equals("storagestats")
             || spaceId.equals("task");
+
     }
 
     protected String getStoreId(HttpServletRequest httpRequest) {

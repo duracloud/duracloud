@@ -115,6 +115,10 @@ public abstract class BaseRest {
         return Response.ok(text, TEXT_PLAIN).build();
     }
 
+    protected Response responseOk(Object entity) {
+        return Response.ok(entity).build();
+    }
+
     protected Response responseOkStream(InputStream text) {
         return Response.ok(text, TEXT_PLAIN).build();
     }

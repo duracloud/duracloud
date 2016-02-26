@@ -52,6 +52,7 @@
 
   <bean id="globalStorageProviderStore" class="org.duracloud.durastore.util.GlobalStorageProviderStore">
     <constructor-arg ref="accountRepo" />
+    <constructor-arg ref="globalPropertiesRepo" />
     <constructor-arg ref="contextUtil"/>
     <constructor-arg ref="statelessStoragePvdr" />
     <constructor-arg ref="securityContextUtil"/>

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.util.WaitUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,6 +171,9 @@ public class SnsSubscriptionManager {
         this.sqsClient.deleteQueue(this.queueUrl);
         log.info("deleted queue {}", this.subscriptionArn);
         this.initialized = false;
+        //Redeploys will fail due to amazon sqs requirement to wait
+        //60 seconds before recreating a queue exit without waiting.
+        WaitUtil.wait(60);
         log.info("disconnection complete");
     }
 }
