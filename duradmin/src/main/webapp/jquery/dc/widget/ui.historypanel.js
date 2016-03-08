@@ -58,9 +58,7 @@
         },
 
         _getSummaries: function(){
-            return dc.store.GetStorageReportSummaries(
-                    this.options.storeId, 
-                    this.options.spaceId);
+            return [];
         },
         
         _initTimeSeriesGraph: function(summaries){

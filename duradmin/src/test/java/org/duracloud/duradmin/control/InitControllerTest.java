@@ -49,8 +49,7 @@ public class InitControllerTest {
     private String amaUrl = "http://a.com";
     private HttpServletRequest request;
     private HttpServletResponse response;
-    private StorageSummaryCache storageSummaryCache;
-
+    
     
     @Before
     public void setUp() throws Exception {
@@ -66,14 +65,14 @@ public class InitControllerTest {
                                                         ControllerSupport.class);
         
         EasyMock.expect(support.getContentStoreManager()).andReturn(contentStoreManager);
-        controller = new InitController(support, storageSummaryCache);
+        controller = new InitController(support);
         EasyMock.replay(support, contentStoreManager);
 
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(request, response, storageSummaryCache);
+        EasyMock.verify(request, response);
     }
 
     private void resetDuradminConfig() {
@@ -141,15 +140,7 @@ public class InitControllerTest {
         response.setStatus(status);
         EasyMock.expectLastCall();
 
-        storageSummaryCache = EasyMock.createMock("StorageSummaryCache", StorageSummaryCache.class);
-        if(status == SC_OK){
-            storageSummaryCache.init();
-            EasyMock.expectLastCall();
-        }
-        controller.setStorageSummaryCache(storageSummaryCache);
-
-        
-        EasyMock.replay(request, response, storageSummaryCache);
+        EasyMock.replay(request, response);
     }
 
     private ServletInputStream createConfigStream(int status) {

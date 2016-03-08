@@ -9,7 +9,6 @@ package org.duracloud.appconfig;
 
 import org.duracloud.appconfig.domain.Application;
 import org.duracloud.appconfig.domain.DuradminConfig;
-import org.duracloud.appconfig.domain.DurabossConfig;
 import org.duracloud.appconfig.domain.DurastoreConfig;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,8 +28,6 @@ public class ApplicationInitializerTest {
     private String duradminContext = "duradminContext";
     private String durastorePort = "durastorePort";
     private String durastoreContext = "durastoreContext";
-    private String durabossPort = "durabossPort";
-    private String durabossContext = "durabossContext";
     private String allHost = "allHost";
 
     @Test
@@ -52,7 +49,6 @@ public class ApplicationInitializerTest {
         String p = ApplicationInitializer.QUALIFIER + dot;
         String pAdm = p + DuradminConfig.QUALIFIER + dot;
         String pStr = p + DurastoreConfig.QUALIFIER + dot;
-        String pRpt = p + DurabossConfig.QUALIFIER + dot;
         String pWild = p + ApplicationInitializer.wildcardKey + dot;
 
         String host = ApplicationInitializer.hostKey;
@@ -61,10 +57,8 @@ public class ApplicationInitializerTest {
 
         props.put(pAdm + port, duradminPort);
         props.put(pStr + port, durastorePort);
-        props.put(pRpt + port, durabossPort);
         props.put(pAdm + context, duradminContext);
         props.put(pStr + context, durastoreContext);
-        props.put(pRpt + context, durabossContext);
         props.put(pWild + host, allHost);
 
         return props;
@@ -73,11 +67,9 @@ public class ApplicationInitializerTest {
     private void verifyApplicationInitializer(ApplicationInitializer config) {
         Application duradmin = config.getDuradmin();
         Application durastore = config.getDurastore();
-        Application duraboss = config.getDuraboss();
 
         Assert.assertNotNull(duradmin);
         Assert.assertNotNull(durastore);
-        Assert.assertNotNull(duraboss);
 
         String adminHost = duradmin.getHost();
         String adminPort = duradmin.getPort();
@@ -85,9 +77,6 @@ public class ApplicationInitializerTest {
         String storeHost = durastore.getHost();
         String storePort = durastore.getPort();
         String storeContext = durastore.getContext();
-        String reportHost = duraboss.getHost();
-        String reportPort = duraboss.getPort();
-        String reportContext = duraboss.getContext();
 
         Assert.assertNotNull(adminHost);
         Assert.assertNotNull(adminPort);
@@ -95,19 +84,13 @@ public class ApplicationInitializerTest {
         Assert.assertNotNull(storeHost);
         Assert.assertNotNull(storePort);
         Assert.assertNotNull(storeContext);
-        Assert.assertNotNull(reportHost);
-        Assert.assertNotNull(reportPort);
-        Assert.assertNotNull(reportContext);
-
+        
         Assert.assertEquals(allHost, adminHost);
         Assert.assertEquals(duradminPort, adminPort);
         Assert.assertEquals(duradminContext, adminContext);
         Assert.assertEquals(allHost, storeHost);
         Assert.assertEquals(durastorePort, storePort);
         Assert.assertEquals(durastoreContext, storeContext);
-        Assert.assertEquals(allHost, reportHost);
-        Assert.assertEquals(durabossPort, reportPort);
-        Assert.assertEquals(durabossContext, reportContext);
     }
 
 }

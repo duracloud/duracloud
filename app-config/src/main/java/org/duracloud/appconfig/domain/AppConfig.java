@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * This interface defines the contract of a configuration set used for
- * initializing the duracloud applications: duradmin, durastore, duraboss.
+ * initializing the duracloud applications: duradmin and durastore.
  *
  * @author Andrew Woods
  *         Date: Apr 20, 2010

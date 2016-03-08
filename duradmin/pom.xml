@@ -208,12 +208,6 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>reportclient</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
       <artifactId>reportdata</artifactId>
       <version>${project.version}</version>
     </dependency>

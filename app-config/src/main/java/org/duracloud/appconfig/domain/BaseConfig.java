@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  * This class collects the common functionality needed by durastore,
- * duradmin, duraboss, and security configurations.
+ * duradmin, and security configurations.
  *
  * @author Andrew Woods
  *         Date: Apr 20, 2010

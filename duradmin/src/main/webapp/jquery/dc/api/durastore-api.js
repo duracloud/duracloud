@@ -541,54 +541,6 @@ var dc;
       return "/duradmin/spaces/snapshots/" + storeId + "/" + snapshotId
       + "/history?page=" + page + "&attachment=" + attachment;
     };
-    /**
-     * 
-     */
-    dc.store.GetStorageReportIds = function(callback){
-        var ids = null;
-        
-        dc.ajax({
-            url: "/duradmin/storagereport/list",
-            type:"GET",
-            success: function(result){
-                var storageReportList = [];
-                $.each(result.storageReportList, function(i,item){
-                    var s = item.substring(item.length-3);
-                    if(s == "xml") storageReportList.push(item);
-                });
-                callback.success(storageReportList);
-            },
-            
-            failure: function(textStatus){
-                alert("failed to get report ids: " + textStatus);
-            },
-        }); 
-    };
-    
-    dc.store.GetStorageReportSummaries = function(storeId, spaceId){
-        
-        return dc.ajax2({
-            url: "/duradmin/storagereport/summaries?storeId="+storeId + 
-                    (spaceId ? "&spaceId="+spaceId : ""),
-            type:"GET",
-        });
-    };
-    
-    dc.store.GetStorageReportDetail = function(storeId, /*optional*/spaceId, /*optional*/ reportId){
-        
-        return dc.ajax2({
-            url: "/duradmin/storagereport/detail?"+(reportId ? "reportId="+reportId : "")+
-                    "&storeId="+storeId+ (spaceId ? "&spaceId="+spaceId :"") ,
-            type:"GET",
-        });
-    };
-
-    dc.store.GetStorageReport = function(storageReportId){
-       return  dc.ajax2({
-            url: "/duradmin/storagereport/get?reportId=" + storageReportId,
-            type:"GET",
-        }); 
-    };
 
 })();
 

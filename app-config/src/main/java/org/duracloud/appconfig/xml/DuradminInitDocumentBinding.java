@@ -44,7 +44,6 @@ public class DuradminInitDocumentBinding {
             config.setDurastoreHost(root.getChildText("durastoreHost"));
             config.setDurastorePort(root.getChildText("durastorePort"));
             config.setDurastoreContext(root.getChildText("durastoreContext"));
-            config.setDurabossContext(root.getChildText("durabossContext"));
             config.setAmaUrl(root.getChildText("amaUrl"));
             config.setMillDbEnabled(Boolean.valueOf(root.getChildText("millDbEnabled")));
 

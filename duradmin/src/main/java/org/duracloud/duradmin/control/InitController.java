@@ -41,15 +41,11 @@ public class InitController {
 
     private final Logger log = LoggerFactory.getLogger(InitController.class);
 
-    private StorageSummaryCache storageSummaryCache; 
-    
     private ControllerSupport controllerSupport;
     
     @Autowired
     public InitController(
-        ControllerSupport controllerSupport,
-        StorageSummaryCache storageSummaryCache) {
-        this.storageSummaryCache = storageSummaryCache;
+        ControllerSupport controllerSupport) {
         this.controllerSupport = controllerSupport;
     }
     
@@ -81,7 +77,6 @@ public class InitController {
         init.setDuraStorePort(config.getDurastorePort());
         init.setDuraStoreContext(config.getDurastoreContext());
         init.setAmaUrl(config.getAmaUrl());
-        init.setDuraBossContext(config.getDurabossContext());
         init.setMillDbEnabled(config.isMillDbEnabled());
         DuradminConfig.setConfig(init);
         
@@ -89,10 +84,6 @@ public class InitController {
         this.controllerSupport.getContentStoreManager().reinitialize(DuradminConfig.getDuraStoreHost(), 
                                               DuradminConfig.getDuraStorePort(), 
                                               DuradminConfig.getDuraStoreContext());
-        
-        this.storageSummaryCache.init();
-
-        
     }
     
     @RequestMapping(value="",method=RequestMethod.GET)
@@ -110,9 +101,5 @@ public class InitController {
         response.setStatus(status);
         log.info("writing response: status = " + status + "; msg = " + msg);
         return new ModelAndView("jsonView", "response", msg);
-    }
-
-    public void setStorageSummaryCache(StorageSummaryCache storageSummaryCache){
-        this.storageSummaryCache = storageSummaryCache;
     }
 }

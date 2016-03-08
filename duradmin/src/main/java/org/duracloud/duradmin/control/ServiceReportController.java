@@ -18,12 +18,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
-import org.duracloud.client.report.error.NotFoundException;
-import org.duracloud.client.report.error.ReportException;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.LineParsingIterator;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.error.NotFoundException;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReport;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +54,7 @@ public class ServiceReportController {
             @RequestParam(required=false, value="storeId" ) String storeId,            
             @RequestParam(required=true, value="spaceId" ) String spaceId)
 
-                throws ReportException,NotFoundException, ContentStoreException, IOException {
+                throws ContentStoreException, IOException {
        
         ContentStore store = contentStoreManager.getPrimaryContentStore();
         
@@ -86,7 +85,7 @@ public class ServiceReportController {
         getInfo(@RequestParam(required = false, value = "storeId") String storeId,
                 @RequestParam(required = true, value = "spaceId") String spaceId)
 
-            throws ReportException,
+            throws 
                 NotFoundException,
                 ContentStoreException,
                 IOException {

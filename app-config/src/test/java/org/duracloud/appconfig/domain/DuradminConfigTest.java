@@ -25,7 +25,6 @@ public class DuradminConfigTest {
     private String durastoreHost = "durastoreHost";
     private String durastorePort = "durastorePort";
     private String durastoreContext = "durastoreContext";
-    private String durabossContext = "durabossContext";
 
     private String amaUrl = "amaUrl";
 
@@ -44,7 +43,6 @@ public class DuradminConfigTest {
         props.put(p + DuradminConfig.duraStoreHostKey, durastoreHost);
         props.put(p + DuradminConfig.duraStorePortKey, durastorePort);
         props.put(p + DuradminConfig.duraStoreContextKey, durastoreContext);
-        props.put(p + DuradminConfig.duraBossContextKey, durabossContext);
         props.put(p + DuradminConfig.amaUrlKey, amaUrl);
 
         return props;
@@ -55,14 +53,12 @@ public class DuradminConfigTest {
         Assert.assertNotNull(config.getDurastoreHost());
         Assert.assertNotNull(config.getDurastorePort());
         Assert.assertNotNull(config.getDurastoreContext());
-        Assert.assertNotNull(config.getDurabossContext());
 
         Assert.assertNotNull(config.getAmaUrl());
 
         Assert.assertEquals(durastoreHost, config.getDurastoreHost());
         Assert.assertEquals(durastorePort, config.getDurastorePort());
         Assert.assertEquals(durastoreContext, config.getDurastoreContext());
-        Assert.assertEquals(durabossContext, config.getDurabossContext());
         Assert.assertEquals(amaUrl, config.getAmaUrl());
     }
     

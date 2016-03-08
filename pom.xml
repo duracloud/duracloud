@@ -83,10 +83,7 @@
         <module>manifest</module>
         <module>durastore</module>
         <module>reportdata</module>
-        <module>reporter</module>
         <module>auditor</module>
-        <module>duraboss</module>
-        <module>reportclient</module>
         <module>app-config</module>
         <module>chunk</module>
         <module>stitch</module>

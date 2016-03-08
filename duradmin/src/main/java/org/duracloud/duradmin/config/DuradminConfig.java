@@ -35,8 +35,6 @@ public class DuradminConfig
 
     private static String duraserviceContextKey = "duraserviceContext";
 
-    private static String durabossContextKey = "durabossContext";
-    
     private static String millDbEnabledKey = "millDbEnabled";
 
     private static boolean initialized = false;
@@ -122,26 +120,7 @@ public class DuradminConfig
         config.setDuraStoreHost(getPropsHost());
         config.setDuraStorePort(getPropsPort());
         config.setDuraStoreContext(getPropsDuraStoreContext());
-        config.setDuraBossContext(getPropsDuraBossContext());
         config.setAmaUrl(null); // default is null.
         config.setMillDbEnabled(isPropsMillDbEnabled());
     }
-
-
-    private static String getPropsDuraBossContext() {
-        return getProps().getProperty(durabossContextKey, "duraboss");
-    }
-
-    public static String getDuraBossHost() {
-        return getPropsHost();
-    }
-
-    public static String getDuraBossPort() {
-        return getPropsPort();
-    }
-
-    public static String getDuraBossContext() {
-        return getPropsDuraBossContext();
-    }
-
 }

@@ -25,14 +25,12 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
     public static final String duraStoreHostKey = "durastore-host";
     public static final String duraStorePortKey = "durastore-port";
     public static final String duraStoreContextKey = "durastore-context";
-    public static final String duraBossContextKey = "duraboss-context";
     public static final String millDbEnabledKey = "milldb.enabled";
     public static final String amaUrlKey = "ama-url";
 
     private String durastoreHost;
     private String durastorePort;
     private String durastoreContext;
-    private String durabossContext;
     private boolean millDbEnabled = false;
     private String amaUrl;
 
@@ -58,10 +56,6 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
 
         } else if (key.equalsIgnoreCase(duraStoreContextKey)) {
             this.durastoreContext = value;
-
-        } else if (key.equalsIgnoreCase(duraBossContextKey)) {
-            this.durabossContext = value;
-            this.durabossContext = value;
         } else if (key.equalsIgnoreCase(amaUrlKey)) {
             this.amaUrl = value;
         } else if (key.equalsIgnoreCase(millDbEnabledKey)) {
@@ -111,14 +105,6 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
         this.amaUrl = amaUrl;
     }
 
-    public String getDurabossContext() {
-        return durabossContext;
-    }
-
-    public void setDurabossContext(String durabossContext) {
-        this.durabossContext = durabossContext;
-    }
-    
     public Boolean isMillDbEnabled() {
         return millDbEnabled;
     }
