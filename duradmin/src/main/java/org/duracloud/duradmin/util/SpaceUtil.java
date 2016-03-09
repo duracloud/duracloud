@@ -79,7 +79,6 @@ public class SpaceUtil {
         }
         space.setCallerAcl(aclName);
 
-        
         space.setMillDbEnabled(DuradminConfig.isMillDbEnabled());
         
         return space;

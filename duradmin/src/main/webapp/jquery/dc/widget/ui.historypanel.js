@@ -44,6 +44,7 @@
         
         _initSummariesGraph: function(){
             var that = this;
+            /*
             $.when(this._getSummaries())
                 .done(function(result){
                     var summaries = result.summaries;
@@ -55,12 +56,14 @@
                 }).fail(function(err){
                     alert("failed to retrieve time series");
                 });
+            */
         },
 
         _getSummaries: function(){
-            return [];
+            return dc.store.GetStorageStats(
+                    this.options.storeId, 
+                    this.options.spaceId);
         },
-        
         _initTimeSeriesGraph: function(summaries){
             var that = this;
             var min = null;
@@ -71,21 +74,21 @@
             var countMin = null;
             $.each(summaries, function(i,summary){
                 
-                if (summary.date > max){
-                    max = summary.date;
+                if (summary.timestamp > max){
+                    max = summary.timestamp;
                 }
                 
-                if(min == null || min > summary.date){
-                    min = summary.date;
+                if(min == null || min > summary.timestamp){
+                    min = summary.timestamp;
                 }
                 
-                if(countMin == null || countMin > summary.totalItems){
-                    countMin = summary.totalItems;
+                if(countMin == null || countMin > summary.objectCount){
+                    countMin = summary.objectCount;
                 }
                 
                 
-                sizeData.push([summary.date, summary.totalSize, summary.reportId]);
-                countData.push([summary.date, summary.totalItems, summary.reportId]);
+                sizeData.push([summary.timestamp, summary.byteCount]);
+                countData.push([summary.timestamp, summary.objectCount]);
 
             });
             
@@ -143,7 +146,7 @@
             });
             
             var previousPoint = null;
-            
+            /*
             summariesGraph.bind("plothover", function (event, pos, item) {
                 $("#x").text(pos.x.toFixed(2));
                 $("#y").text(pos.y.toFixed(2));
@@ -167,9 +170,11 @@
                     previousPoint = null;            
                 }
             });
-            
+            */
+            /*
             summariesGraph.unbind("plotclick");
-            
+            */
+            /*
             summariesGraph.bind("plotclick", function (event, pos, item) {
                 if (item) {
                     plot.unhighlight();
@@ -186,24 +191,27 @@
                         });
                 }
             });
-            
+            */
+            /*
             if(summaries.length > 0){
                 var summary = summaries[0];
                 this._loadDetail(
                         that.options.storeId, 
                         that.options.spaceId, 
-                        summary.reportId, 
-                        new Date(summary.date));
+                        new Date(summary.timestamp));
             }
+            */
         },
         
         
-        _loadDetail: function(storeId, spaceId, reportId, date){
+        _loadDetail: function(storeId, spaceId, date){
             var that = this;
-            return $.when(dc.store.GetStorageReportDetail(
+            /*
+            return $.when(dc.store.GetSpaceStats(
                     storeId, 
                     spaceId, 
-                    reportId)
+                    date,
+                    date)
              ).done(function(response){
                  var detail = $("#"+that._DETAIL_GRAPH_ELEMENT);
                  detail.empty();
@@ -225,10 +233,8 @@
                          }
                      });
                  }
-                 dc.chart.loadMimetypeMetricsPanel(detail, metrics);
              }); 
-            
-                
+             */
         }
     }));
 })();

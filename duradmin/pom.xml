@@ -207,6 +207,17 @@
     </dependency>
 
     <dependency>
+      <groupId>org.duracloud.db</groupId>
+      <artifactId>account-management-db-repo</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-rest</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>reportdata</artifactId>
       <version>${project.version}</version>

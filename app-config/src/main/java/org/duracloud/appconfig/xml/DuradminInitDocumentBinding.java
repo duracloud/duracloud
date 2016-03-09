@@ -40,10 +40,6 @@ public class DuradminInitDocumentBinding {
             SAXBuilder builder = new SAXBuilder();
             Document doc = builder.build(xml);
             Element root = doc.getRootElement();
-
-            config.setDurastoreHost(root.getChildText("durastoreHost"));
-            config.setDurastorePort(root.getChildText("durastorePort"));
-            config.setDurastoreContext(root.getChildText("durastoreContext"));
             config.setAmaUrl(root.getChildText("amaUrl"));
             config.setMillDbEnabled(Boolean.valueOf(root.getChildText("millDbEnabled")));
 

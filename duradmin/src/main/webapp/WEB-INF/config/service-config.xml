@@ -12,9 +12,15 @@
     Imports the configurations of the different infrastructure systems
     of the application
   -->
-  <bean id="contentStoreManagerFactory" class="org.duracloud.duradmin.contentstore.ContentStoreManagerFactoryImpl"/>
+  <bean id="contextUtil" class="org.duracloud.common.rest.DuraCloudRequestContextUtil"/>
+
+  <bean id="contentStoreManagerFactory" class="org.duracloud.duradmin.contentstore.ContentStoreManagerFactoryImpl">
+    <constructor-arg ref="contextUtil"/>
+  </bean>
   
-  <bean id="contentStoreManagerTarget"  factory-bean="contentStoreManagerFactory" factory-method="create" />
+  <bean id="contentStoreManagerTarget"  factory-bean="contentStoreManagerFactory" factory-method="create" scope="request">
+    <aop:scoped-proxy />
+  </bean>
 
   <bean id="snapshotTaskClientManager"  class="org.duracloud.client.task.SnapshotTaskClientManager">
     <constructor-arg ref="contentStoreManager"></constructor-arg>
@@ -23,7 +29,4 @@
   <bean id="controllerSupport" class="org.duracloud.duradmin.control.ControllerSupport">
     <constructor-arg ref="contentStoreManager"/>
   </bean>
-
-  <bean class="org.duracloud.duradmin.report.DuradminStorageReportManagerImpl"/>
-  
 </beans>

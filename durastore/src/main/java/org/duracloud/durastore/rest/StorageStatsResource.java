@@ -45,14 +45,7 @@ public class StorageStatsResource {
                                                              Date end) {
         
         
-        double daysBetweenStartAndEnd = (end.getTime()-start.getTime())/(24*60*60*1000);
-        
-        String interval = JpaSpaceStatsRepo.INTERVAL_DAY;
-        if(daysBetweenStartAndEnd > 120){
-            interval = JpaSpaceStatsRepo.INTERVAL_WEEK;
-        }else if(daysBetweenStartAndEnd > (2*365)){
-            interval = JpaSpaceStatsRepo.INTERVAL_MONTH;
-        }
+        String interval = getInterval(start, end);
         List<Object[]> list = this.spaceStatsRepo.getByAccountIdAndStoreIdAndSpaceIdGroupByDay(accountId, storeId, spaceId, start, end, interval);
         List<SpaceStatsDTO> dtos = new ArrayList<>(list.size());
         for(Object[] s : list){
@@ -62,6 +55,37 @@ public class StorageStatsResource {
                                        s[3].toString(),
                                        ((BigDecimal) s[4]).longValue(),
                                        ((BigDecimal) s[5]).longValue()));
+        }
+        
+        return dtos;
+    }
+
+    protected String getInterval(Date start, Date end) {
+        double daysBetweenStartAndEnd = (end.getTime()-start.getTime())/(24*60*60*1000);
+        
+        String interval = JpaSpaceStatsRepo.INTERVAL_DAY;
+        if(daysBetweenStartAndEnd > 120){
+            interval = JpaSpaceStatsRepo.INTERVAL_WEEK;
+        }else if(daysBetweenStartAndEnd > (2*365)){
+            interval = JpaSpaceStatsRepo.INTERVAL_MONTH;
+        }
+        return interval;
+    }
+
+    public List<SpaceStatsDTO> getStorageProviderStats(String account,
+                                                       String storeId,
+                                                       Date start,
+                                                       Date end) {
+        String interval = getInterval(start, end);
+        List<Object[]> list = this.spaceStatsRepo.getByAccountIdAndStoreIdGroupByDay(account, storeId, start, end, interval);
+        List<SpaceStatsDTO> dtos = new ArrayList<>(list.size());
+        for(Object[] s : list){
+            dtos.add(new SpaceStatsDTO(new Date(((BigInteger)s[0]).longValue()*1000),
+                                       s[1].toString(),
+                                       s[2].toString(),
+                                       null,
+                                       ((BigDecimal) s[3]).longValue(),
+                                       ((BigDecimal) s[4]).longValue()));
         }
         
         return dtos;

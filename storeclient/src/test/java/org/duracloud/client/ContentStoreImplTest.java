@@ -7,18 +7,39 @@
  */
 package org.duracloud.client;
 
+import static org.junit.Assert.*;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.lang.Character.UnicodeScript;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.duracloud.common.constant.ManifestFormat;
+import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.retry.Retriable;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.domain.Content;
 import org.duracloud.domain.Space;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.InvalidIdException;
+import org.duracloud.reportdata.storage.SpaceStatsDTO;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
@@ -27,17 +48,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Andrew Woods
@@ -779,5 +789,40 @@ public class ContentStoreImplTest {
         String result = contentStore.performTask(taskName, taskParams);
         Assert.assertEquals("success", result);
     }
+    
+    
+    @Test
+    public void testGetSpaceStats() throws Exception {
+       
+        Date start = new Date();
+        Date end = new Date();
+        String startStr = formatDate(start);
+        String endStr = formatDate(end);
+        
+        SpaceStatsDTOList list = new SpaceStatsDTOList();
+        list.add(new SpaceStatsDTO(new Date(), "account-id", storeId, spaceId, 1000l, 10l));
+        String json = new JaxbJsonSerializer<>(SpaceStatsDTOList.class).serialize(list);
+        String fullURL =
+            baseURL + "/storagestats?"
+                         + "spaceId="+spaceId+"&start="
+                         + startStr
+                         + "&end="
+                         + endStr
+                         + "&storeID="
+                         + storeId;
+        EasyMock.expect(response.getStatusCode()).andReturn(200);
+        EasyMock.expect(response.getResponseBody()).andReturn(json);
+        EasyMock.expect(restHelper.get(fullURL)).andReturn(response);
+        replayMocks();
+        List<SpaceStatsDTO> stats = contentStore.getSpaceStats(spaceId, start, end);
+        assertEquals(list, stats);
+        
+    }
+
+    protected String formatDate(Date date)
+        throws UnsupportedEncodingException {
+        return URLEncoder.encode(DateUtil.convertToString(date.getTime()),"UTF-8" );
+    }
+
 
 }

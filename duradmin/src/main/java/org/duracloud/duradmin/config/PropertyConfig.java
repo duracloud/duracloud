@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.durastore.config;
+package org.duracloud.duradmin.config;
 
 import java.io.IOException;
 

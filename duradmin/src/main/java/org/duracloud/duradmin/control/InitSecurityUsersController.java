@@ -7,11 +7,9 @@
  */
 package org.duracloud.duradmin.control;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.duracloud.common.util.ExceptionUtil.getStackTraceAsString;
-import static org.duracloud.security.xml.SecurityUsersDocumentBinding.createSecurityUsersFrom;
+import static javax.servlet.http.HttpServletResponse.*;
+import static org.duracloud.common.util.ExceptionUtil.*;
+import static org.duracloud.security.xml.SecurityUsersDocumentBinding.*;
 
 import java.util.List;
 
@@ -24,6 +22,7 @@ import org.duracloud.security.domain.SecurityUserBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -45,7 +44,7 @@ public class InitSecurityUsersController {
     private DuracloudUserDetailsService userDetailsService;
     
     @Autowired
-    public InitSecurityUsersController(DuracloudUserDetailsService userDetailsService) {
+    public InitSecurityUsersController(@Qualifier("userDetailsSvc") DuracloudUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 

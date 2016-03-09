@@ -1,8 +1,12 @@
 <beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/security"
+               xmlns:aop="http://www.springframework.org/schema/aop"
+  
   xsi:schemaLocation="
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
            http://www.springframework.org/schema/security
            http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
@@ -42,7 +46,24 @@
     <beans:constructor-arg ref="passwordEncoder"/>
   </beans:bean>
 
-  <beans:bean id="userDetailsSvc" class="org.duracloud.security.impl.UserDetailsServiceImpl"/>
+  <beans:bean id="userFinderUtil" class="org.duracloud.account.db.repo.UserFinderUtil">
+    <beans:constructor-arg ref="repoMgr"/>
+  </beans:bean>
+
+  <beans:bean id="localUserDetailsSvc" class="org.duracloud.security.impl.UserDetailsServiceImpl">
+  </beans:bean>
+  
+  <beans:bean id="globalUserDetailsStore" class="org.duracloud.security.impl.GlobalUserDetailsStore">
+    <beans:constructor-arg ref="accountRepo" />
+    <beans:constructor-arg ref="userFinderUtil"/>
+  </beans:bean>
+  
+  <beans:bean id="userDetailsSvc"  class="org.duracloud.security.impl.UserDetailsServiceFactoryBean" lazy-init="true" scope="request">
+    <beans:property name="globalUserDetailsStore" ref="globalUserDetailsStore" />
+    <beans:property name="localUserDetailsService" ref="localUserDetailsSvc" />
+    <aop:scoped-proxy />
+  </beans:bean>
+
 
   <beans:bean id="passwordEncoder"
     class="org.springframework.security.authentication.encoding.ShaPasswordEncoder" >

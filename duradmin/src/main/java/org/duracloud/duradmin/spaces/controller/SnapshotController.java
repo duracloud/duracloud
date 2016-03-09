@@ -65,7 +65,7 @@ public class SnapshotController {
     @Autowired(required = true)
     public SnapshotController(
         @Qualifier("contentStoreManager") ContentStoreManager contentStoreManager,
-        DuracloudUserDetailsService userDetailsService, 
+        @Qualifier("userDetailsSvc") DuracloudUserDetailsService userDetailsService, 
         SnapshotTaskClientManager snapshotTaskClientManager) {
         this.contentStoreManager = contentStoreManager;
         this.userDetailsService = userDetailsService;

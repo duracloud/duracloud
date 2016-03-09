@@ -7,14 +7,30 @@
  */
 package org.duracloud.client;
 
+import static org.duracloud.storage.provider.StorageProvider.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.duracloud.common.constant.ManifestFormat;
+import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.retry.ExceptionHandler;
 import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.DateUtil.DateFormat;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.EncodeUtil;
@@ -32,6 +48,7 @@ import org.duracloud.error.UnsupportedTaskException;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReport;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReportResult;
+import org.duracloud.reportdata.storage.SpaceStatsDTO;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.IdUtil;
@@ -40,19 +57,6 @@ import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 
 /**
  * Provides access to a content store
@@ -1253,6 +1257,45 @@ public class ContentStoreImpl implements ContentStore {
         return properties;
     }
     
+    
+    @Override
+    public SpaceStatsDTOList getSpaceStats(String spaceId, Date start, Date end)
+        throws ContentStoreException {
+        String url = buildSpaceStatsURL(spaceId, start, end);
+        try {
+            HttpResponse response = restHelper.get(url);
+            checkResponse(response, HttpStatus.SC_OK);
+            String body = response.getResponseBody();
+            JaxbJsonSerializer<SpaceStatsDTOList> serializer = new JaxbJsonSerializer<>(SpaceStatsDTOList.class);
+            return serializer.deserialize(body);
+        } catch(NotFoundException e) {
+            throw new NotFoundException("spaceId = " + spaceId);
+        } catch(UnauthorizedException e) {
+            throw new UnauthorizedException(spaceId, e);
+        } catch (Exception e) {
+            throw new ContentStoreException("failed to retrieve space stats for " + spaceId, e);
+        }
+    }
+    
+    private String buildSpaceStatsURL(String spaceId, Date start, Date end) {
+        String url = buildURL("/storagestats");
+
+        if(spaceId != null){
+            url = addQueryParameter(url, "spaceId",spaceId);
+        }
+        
+        if(start != null){
+            url = addQueryParameter(url, "start", DateUtil.convertToString(start.getTime()));
+        }
+        
+        if(end != null){
+            url = addQueryParameter(url, "end", DateUtil.convertToString(end.getTime()));
+        }
+        
+        url = addStoreIdQueryParameter(url);
+        return url;
+    }
+
     @Override
     public String toString() {
         return ReflectionToStringBuilder.toString(this);

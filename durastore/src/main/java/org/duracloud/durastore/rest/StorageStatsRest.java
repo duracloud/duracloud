@@ -49,10 +49,10 @@ public class StorageStatsRest extends BaseRest {
         this.storageProviderFactory = storageProviderFactory;
     }
 
-    @Path("/{spaceId}")
+    @Path("/storagestats")
     @GET
     @Produces(MediaType.APPLICATION_JSON_VALUE)
-    public Response getSpaceStats(@PathParam("spaceId") String spaceId,
+    public Response getSpaceStats(@QueryParam("spaceId") String spaceId,
                                   @QueryParam("storeID") String storeId,
                                   @QueryParam("start") String start,
                                   @QueryParam("end") String end) {
@@ -100,9 +100,15 @@ public class StorageStatsRest extends BaseRest {
                 
             }
             
-            List<SpaceStatsDTO> stats =
-                resource.getSpaceStats(account, storeId, spaceId, startDate , endDate);
-
+            List<SpaceStatsDTO> stats; 
+            
+            if(spaceId == null) {
+                stats =
+                    resource.getStorageProviderStats(account, storeId, startDate , endDate);
+            }else{
+                stats =
+                    resource.getSpaceStats(account, storeId, spaceId, startDate , endDate);
+            }
             
             return responseOk(stats);
 

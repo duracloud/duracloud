@@ -73,9 +73,6 @@ public class InitController {
     private void updateInit(org.duracloud.appconfig.domain.DuradminConfig config)
         throws Exception {
         AdminInit init = new AdminInit();
-        init.setDuraStoreHost(config.getDurastoreHost());
-        init.setDuraStorePort(config.getDurastorePort());
-        init.setDuraStoreContext(config.getDurastoreContext());
         init.setAmaUrl(config.getAmaUrl());
         init.setMillDbEnabled(config.isMillDbEnabled());
         DuradminConfig.setConfig(init);

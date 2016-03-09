@@ -422,6 +422,28 @@ var dc;
     };
     
     
+   /**
+    * @param storeId
+    * @param spaceId
+    */
+    dc.store.GetSpaceStats = function(storeId,spaceId){
+        return dc.ajax2({
+            url: "/duradmin/storagestats?storeId="+storeId+"&spaceId="+spaceId, 
+            dataType: 'json',
+            async: false,
+            cache: false});
+    };
+  
+
+    dc.store.GetStorageStats = function(storeId){
+      return dc.ajax2({
+          url: "/duradmin/storagestats?storeId="+storeId, 
+          dataType: 'json',
+          async: false,
+          cache: false});
+  };
+
+    
     dc.store.CreateSnapshot = function(/*serialized form data*/formData){
         return dc.ajax2({
             url: "/duradmin/spaces/snapshot", 

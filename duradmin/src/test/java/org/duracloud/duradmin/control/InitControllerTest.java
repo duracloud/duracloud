@@ -7,9 +7,7 @@
  */
 package org.duracloud.duradmin.control;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static javax.servlet.http.HttpServletResponse.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,17 +20,19 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.appconfig.domain.DuradminConfig;
 import org.duracloud.appconfig.xml.DuradminInitDocumentBinding;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.duradmin.domain.AdminInit;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -49,7 +49,7 @@ public class InitControllerTest {
     private String amaUrl = "http://a.com";
     private HttpServletRequest request;
     private HttpServletResponse response;
-    
+    private RequestAttributes requestAttributes;
     
     @Before
     public void setUp() throws Exception {
@@ -59,6 +59,8 @@ public class InitControllerTest {
         contentStoreManager.reinitialize((String)EasyMock.anyObject(), (String)EasyMock.anyObject(), (String)EasyMock.anyObject());
         EasyMock.expectLastCall();
 
+        this.requestAttributes = EasyMock.createMock(RequestAttributes.class);
+        RequestContextHolder.setRequestAttributes(this.requestAttributes);
         resetDuradminConfig();
 
         ControllerSupport support = EasyMock.createMock("ControllerSupport",
@@ -72,7 +74,7 @@ public class InitControllerTest {
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(request, response);
+        EasyMock.verify(request, response, requestAttributes);
     }
 
     private void resetDuradminConfig() {
@@ -103,26 +105,14 @@ public class InitControllerTest {
 
         org.duracloud.duradmin.config.DuradminConfig config = new org.duracloud.duradmin.config.DuradminConfig();
 
-        String storeHost = config.getDuraStoreHost();
-        String storePort = config.getDuraStorePort();
-        String storeCtxt = config.getDuraStoreContext();
         String url = config.getAmaUrl();
 
         if (status == SC_OK) {
-            Assert.assertNotNull(storeHost);
-            Assert.assertNotNull(storePort);
-            Assert.assertNotNull(storeCtxt);
             Assert.assertNotNull(url);
 
-            Assert.assertEquals(durastoreHost, storeHost);
-            Assert.assertEquals(durastorePort, storePort);
-            Assert.assertEquals(durastoreContext, storeCtxt);
             Assert.assertEquals(amaUrl, url);
 
         } else {
-            Assert.assertNull(storeHost);
-            Assert.assertNull(storePort);
-            Assert.assertNull(storeCtxt);
             Assert.assertNull(url);
         }
 
@@ -140,7 +130,20 @@ public class InitControllerTest {
         response.setStatus(status);
         EasyMock.expectLastCall();
 
-        EasyMock.replay(request, response);
+        
+        if(status == SC_OK){
+            EasyMock.expect(requestAttributes.getAttribute(Constants.SERVER_HOST,
+                                                           RequestAttributes.SCOPE_REQUEST))
+                    .andReturn("localhost");
+            EasyMock.expect(requestAttributes.getAttribute(Constants.SERVER_PORT,
+                                                           RequestAttributes.SCOPE_REQUEST))
+                    .andReturn(8080);
+
+        }
+
+        
+        EasyMock.replay(request, response, requestAttributes);
+        
     }
 
     private ServletInputStream createConfigStream(int status) {
