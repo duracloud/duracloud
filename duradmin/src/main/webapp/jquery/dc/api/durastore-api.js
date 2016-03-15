@@ -424,24 +424,21 @@ var dc;
     
    /**
     * @param storeId
-    * @param spaceId
+    * @param spaceId (optional)
     */
-    dc.store.GetSpaceStats = function(storeId,spaceId){
+    dc.store.GetStorageStats = function(storeId,spaceId){
+      var url =  "/duradmin/storagestats?storeId="+storeId;
+      if(spaceId){
+        url = url + "&spaceId="+spaceId;
+      }
         return dc.ajax2({
-            url: "/duradmin/storagestats?storeId="+storeId+"&spaceId="+spaceId, 
+            url: url, 
             dataType: 'json',
             async: false,
             cache: false});
     };
   
 
-    dc.store.GetStorageStats = function(storeId){
-      return dc.ajax2({
-          url: "/duradmin/storagestats?storeId="+storeId, 
-          dataType: 'json',
-          async: false,
-          cache: false});
-  };
 
     
     dc.store.CreateSnapshot = function(/*serialized form data*/formData){

@@ -46,7 +46,7 @@ public class StorageStatsResource {
         
         
         String interval = getInterval(start, end);
-        List<Object[]> list = this.spaceStatsRepo.getByAccountIdAndStoreIdAndSpaceIdGroupByDay(accountId, storeId, spaceId, start, end, interval);
+        List<Object[]> list = this.spaceStatsRepo.getByAccountIdAndStoreIdAndSpaceId(accountId, storeId, spaceId, start, end, interval);
         List<SpaceStatsDTO> dtos = new ArrayList<>(list.size());
         for(Object[] s : list){
             dtos.add(new SpaceStatsDTO(new Date(((BigInteger)s[0]).longValue()*1000),
@@ -77,7 +77,7 @@ public class StorageStatsResource {
                                                        Date start,
                                                        Date end) {
         String interval = getInterval(start, end);
-        List<Object[]> list = this.spaceStatsRepo.getByAccountIdAndStoreIdGroupByDay(account, storeId, start, end, interval);
+        List<Object[]> list = this.spaceStatsRepo.getByAccountIdAndStoreId(account, storeId, start, end, interval);
         List<SpaceStatsDTO> dtos = new ArrayList<>(list.size());
         for(Object[] s : list){
             dtos.add(new SpaceStatsDTO(new Date(((BigInteger)s[0]).longValue()*1000),

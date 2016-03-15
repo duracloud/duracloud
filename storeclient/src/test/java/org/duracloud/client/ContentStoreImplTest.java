@@ -804,7 +804,7 @@ public class ContentStoreImplTest {
         String json = new JaxbJsonSerializer<>(SpaceStatsDTOList.class).serialize(list);
         String fullURL =
             baseURL + "/storagestats?"
-                         + "spaceId="+spaceId+"&start="
+                         + "spaceID="+spaceId+"&start="
                          + startStr
                          + "&end="
                          + endStr

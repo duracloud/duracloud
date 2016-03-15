@@ -44,10 +44,9 @@
         
         _initSummariesGraph: function(){
             var that = this;
-            /*
             $.when(this._getSummaries())
                 .done(function(result){
-                    var summaries = result.summaries;
+                    var summaries = result;
                     if(summaries.length > 0){
                         that.toggle();
                     }
@@ -56,7 +55,6 @@
                 }).fail(function(err){
                     alert("failed to retrieve time series");
                 });
-            */
         },
 
         _getSummaries: function(){
@@ -146,7 +144,6 @@
             });
             
             var previousPoint = null;
-            /*
             summariesGraph.bind("plothover", function (event, pos, item) {
                 $("#x").text(pos.x.toFixed(2));
                 $("#y").text(pos.y.toFixed(2));
@@ -170,7 +167,6 @@
                     previousPoint = null;            
                 }
             });
-            */
             /*
             summariesGraph.unbind("plotclick");
             */

@@ -1281,7 +1281,7 @@ public class ContentStoreImpl implements ContentStore {
         String url = buildURL("/storagestats");
 
         if(spaceId != null){
-            url = addQueryParameter(url, "spaceId",spaceId);
+            url = addQueryParameter(url, "spaceID",spaceId);
         }
         
         if(start != null){
