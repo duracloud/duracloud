@@ -18,6 +18,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.duracloud.common.constant.Constants;
+import org.duracloud.common.util.AccountIdUtil;
 
 /**
  * This  http request filter parses the account id from X-FORWARDED-HOST attribute
@@ -58,7 +59,7 @@ public class DuraCloudRequestContextFilter implements Filter {
         }
 
         if(accountId == null) {
-            accountId = host.split("[.]")[0];
+            accountId = AccountIdUtil.extractAccountIdFromHost(host);
         }
         httpRequest.setAttribute(Constants.ACCOUNT_ID_ATTRIBUTE, accountId);
         httpRequest.setAttribute(Constants.SERVER_HOST, host);
