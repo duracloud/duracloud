@@ -6,10 +6,6 @@
 		<div id="dc-tabs-panel">
 		    <ul class="horizontal-list dc-main-tabs flex clearfix">
 		    	<tiles:importAttribute name="mainTab" />
-                <sec:authorize ifAnyGranted="ROLE_ROOT">
-		        <li id="dashboard-tab" class="${mainTab == 'dashboard' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/dashboard"><span>Dashboard</span></a></li>
-                </sec:authorize>
-
                 <sec:authorize ifAnyGranted="ROLE_ADMIN,ROLE_ROOT">
     	        <li id="spaces-tab" class="${mainTab == 'spaces' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/spaces"><span>Spaces</span></a></li>
                 </sec:authorize>

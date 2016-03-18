@@ -49,13 +49,6 @@ public abstract class SeleniumTestBase
         assertTrue(selenium.isElementPresent("css=#provider-logo"));
     }
 
-    protected void navigateToDashboardPage() {
-        clickAndWait("css=#dashboard-tab a");
-        assertTrue(selenium.isElementPresent("css=#tabs-storage"));
-        
-    }
-
-    
     
     protected void login() throws Exception{
         log.debug("source"+selenium.getHtmlSource());

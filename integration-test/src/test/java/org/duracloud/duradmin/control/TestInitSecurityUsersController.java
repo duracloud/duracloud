@@ -58,7 +58,7 @@ public class TestInitSecurityUsersController extends DuradminTestBase {
         // check access to user
         HttpCaller caller = new HttpCaller() {
             protected RestHttpHelper.HttpResponse call() throws Exception {
-                return userRestHelper.get(getBaseUrl() + "/dashboard");
+                return userRestHelper.get(getBaseUrl());
             }
         };
         caller.makeCall(status);
