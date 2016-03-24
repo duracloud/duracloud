@@ -225,7 +225,7 @@ var dc;
                 ];
             dt.rows = [];
             $.each(metrics, function(i,val){
-                dt.rows.push([val[firstColumnFieldName], val["totalSize"], val["totalItems"]]);
+                dt.rows.push([val[firstColumnFieldName], val["byteCount"], val["objectCount"]]);
             });
             
             return dt;
@@ -257,19 +257,21 @@ var dc;
             });            
         };
         
-        chart.loadSpacesMetricsPanel = function(panel, metrics, admin){
+        chart.loadSpacesMetricsPanel = function(panel, metrics, date){
             var p = $.fn.create("div");
             panel.append(p);
-            p.piemetricspanel({metrics: metrics.spaceMetrics, title:"Spaces as of ", field:"spaceName", admin:admin, date: metrics.date});
+            p.piemetricspanel({metrics: metrics, title:"Spaces as of ", field:"spaceId", date: date});
             return p;
-        }
+        };
 
+        /*
         chart.loadMimetypeMetricsPanel = function(panel, metrics, admin){
             var p = $.fn.create("div");
             panel.append(p);
             p.piemetricspanel({metrics: metrics.mimetypeMetrics, title:"Mime Types as of ", field:"mimetype", admin:admin, date: metrics.date});
             return p;
         }
+        */
 
         //assign to the package.
         dc.chart = chart;
@@ -373,7 +375,7 @@ var dc;
             data = dc.chart.formatPieChartData(
                     metrics, 
                     field, 
-                    "totalSize");
+                    "byteCount");
             
             var bytesTotal = dc.chart.sum(data);
             bytesHolder.append("<p>Total: "+dc.formatGB(bytesTotal,2)+"</p>");
@@ -393,7 +395,7 @@ var dc;
             data = dc.chart.formatPieChartData(
                     metrics,
                     field, 
-                    "totalItems");
+                    "objectCount");
 
             var fileTotal = dc.chart.sum(data);
             filesHolder.append("<p>Total: "+fileTotal+"</p>");

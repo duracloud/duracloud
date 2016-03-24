@@ -49,13 +49,13 @@ public class StorageStatsRest extends BaseRest {
         this.storageProviderFactory = storageProviderFactory;
     }
 
-    @Path("")
+    @Path("/timeseries")
     @GET
     @Produces(MediaType.APPLICATION_JSON_VALUE)
-    public Response getSpaceStats(@QueryParam("spaceID") String spaceId,
+    public Response getSpaceStatsOverTime(@QueryParam("spaceID") String spaceId,
                                   @QueryParam("storeID") String storeId,
-                                  @QueryParam("start") String start,
-                                  @QueryParam("end") String end) {
+                                  @QueryParam("start") String startMs,
+                                  @QueryParam("end") String endMs) {
 
         String account = getSubdomain();
 
@@ -63,13 +63,13 @@ public class StorageStatsRest extends BaseRest {
                  account,
                  storeId,
                  spaceId,
-                 start,
-                 end);
+                 startMs,
+                 endMs);
 
         try {
             
             Date startDate;
-            if(null == start){
+            if(null == startMs){
                 Calendar c = Calendar.getInstance();
                 c.add(Calendar.DATE, -90);
                 c.set(Calendar.HOUR, 0);
@@ -77,28 +77,15 @@ public class StorageStatsRest extends BaseRest {
                 c.set(Calendar.SECOND, 0);
                 startDate = c.getTime();
             }else{
-                startDate = DateUtil.convertToDate(start);
+                startDate = toDateFromMs(startMs);
             }
 
             Date endDate = new Date();
-            if(null != end){
-                endDate = DateUtil.convertToDate(end);
+            if(null != endMs){
+                endDate = toDateFromMs(endMs);
             }
 
-            if(storeId == null){
-                List<StorageAccount> accounts = this.storageProviderFactory.getStorageAccounts();
-                for(StorageAccount sa : accounts){
-                    if(sa.isPrimary()){
-                        storeId = sa.getId();
-                        break;
-                    }
-                }
-                
-                if(storeId == null){
-                    throw new DuraCloudRuntimeException("unable to resolve primary store id");
-                }
-                
-            }
+            storeId = getStoreId(storeId);
             
             List<SpaceStatsDTO> stats; 
             
@@ -117,10 +104,60 @@ public class StorageStatsRest extends BaseRest {
                      account,
                      storeId,
                      spaceId,
-                     start,
-                     end), e);
+                     startMs,
+                     endMs), e);
             return responseBad(e);
         }
     }
 
+    protected Date toDateFromMs(String endMs) {
+        return new Date(Long.parseLong(endMs));
+    }
+
+    
+    @Path("/snapshot-by-day")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON_VALUE)
+    public Response getStorageStatsByDay(@QueryParam("storeID") String storeId,
+                                  @QueryParam("date") String dateMs) {
+
+        String account = getSubdomain();
+
+        log.info("getting storage stats, {}:{}:{} [{}]",
+                 account,
+                 storeId,
+                 dateMs);
+
+        try {
+            Date theDate =  toDateFromMs(dateMs);
+            storeId = getStoreId(storeId);
+            List<SpaceStatsDTO> stats =
+                resource.getStorageProviderByDay(account, storeId, theDate);
+            return responseOk(stats);
+        } catch (Exception e) {
+            log.error(MessageFormat.format("error getting storage stats, {0}:{1}:{2} [{3}]",
+                     account,
+                     storeId,
+                     dateMs), e);
+            return responseBad(e);
+        }
+    }
+
+    protected String getStoreId(String storeId) {
+        if(storeId == null){
+            List<StorageAccount> accounts = this.storageProviderFactory.getStorageAccounts();
+            for(StorageAccount sa : accounts){
+                if(sa.isPrimary()){
+                    storeId = sa.getId();
+                    break;
+                }
+            }
+            
+            if(storeId == null){
+                throw new DuraCloudRuntimeException("unable to resolve primary store id");
+            }
+            
+        }
+        return storeId;
+    }
 }

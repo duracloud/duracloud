@@ -58,7 +58,7 @@
         },
 
         _getSummaries: function(){
-            return dc.store.GetStorageStats(
+            return dc.store.GetStorageStatsTimeline(
                     this.options.storeId, 
                     this.options.spaceId);
         },
@@ -167,70 +167,48 @@
                     previousPoint = null;            
                 }
             });
-            /*
             summariesGraph.unbind("plotclick");
-            */
-            /*
             summariesGraph.bind("plotclick", function (event, pos, item) {
                 if (item) {
                     plot.unhighlight();
                     plot.highlight(item.series, item.datapoint);
                     var datum = item.series.data[item.dataIndex];
                     var date = new Date(datum[0]);
-                    var reportId = datum[2];
                     var message = "Loading...";
                     dc.busy(message, {modal: true});
 
-                    that._loadDetail(that.options.storeId, that.options.spaceId, reportId, date)
+                    that._loadDetail(that.options.storeId, date)
                         .done(function(){
                             dc.done();
                         });
                 }
             });
-            */
-            /*
             if(summaries.length > 0){
                 var summary = summaries[0];
                 this._loadDetail(
-                        that.options.storeId, 
-                        that.options.spaceId, 
-                        new Date(summary.timestamp));
+                                 that.options.storeId, 
+                                 new Date(summary.timestamp));
             }
-            */
         },
         
         
-        _loadDetail: function(storeId, spaceId, date){
+        _loadDetail: function(storeId, date){
             var that = this;
-            /*
-            return $.when(dc.store.GetSpaceStats(
+            if(that.options.spaceId){
+              return;
+            }            
+            return $.when(dc.store.GetStorageStatsSnapshot(
                     storeId, 
-                    spaceId, 
-                    date,
                     date)
              ).done(function(response){
                  var detail = $("#"+that._DETAIL_GRAPH_ELEMENT);
                  detail.empty();
-                 var metrics = response.metrics;
-                 metrics.date = date;
-                 if(!spaceId){
-                    var p = dc.chart.loadSpacesMetricsPanel(detail, metrics);
-                    p.bind("plotclick", function (event, pos, item) {
-                        //alert("clicked space not yet implemented!");
-                    });
-                    
-                 }else{
-                     $.each(response.metrics.spaceMetrics, function(i,sm){
-                         if(spaceId == sm.spaceName){
-                             metrics = sm;
-                             metrics.reportId = reportId;
-                             metrics.date = date;
-                             return false;
-                         }
-                     });
-                 }
+                  var p = dc.chart.loadSpacesMetricsPanel(detail, response, date);
+                  p.bind("plotclick", function (event, pos, item) {
+                      //alert("clicked space not yet implemented!");
+                  });
              }); 
-             */
+             
         }
     }));
 })();

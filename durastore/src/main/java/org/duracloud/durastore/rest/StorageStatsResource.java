@@ -10,8 +10,10 @@ package org.duracloud.durastore.rest;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.duracloud.mill.db.repo.JpaSpaceStatsRepo;
 import org.duracloud.reportdata.storage.SpaceStatsDTO;
@@ -90,14 +92,41 @@ public class StorageStatsResource {
         
         return dtos;
     }
+    
+    public List<SpaceStatsDTO> getStorageProviderByDay(String account,
+                                                       String storeId,
+                                                       Date date) {
 
-//  @Transactional(MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN)
-//  public void addSpaceStats(String accountId,
-//                            String storeId,
-//                            String spaceId, 
-//                            long byteCount,
-//                            long objectCount){
-//     
-//      this.spaceStatsRepo.save(new SpaceStats(new Date(), accountId, storeId, spaceId, byteCount, objectCount));
-//  }
+        
+        //Set Range for the entire day
+        Calendar c  = Calendar.getInstance();
+        c.setTimeZone(TimeZone.getTimeZone("UTC"));
+        c.setTimeInMillis(date.getTime());
+        c.set(Calendar.HOUR, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        
+        Date start = c.getTime();
+        
+        c.setTimeInMillis(date.getTime());
+        c.set(Calendar.HOUR, 23);
+        c.set(Calendar.MINUTE, 59);
+        c.set(Calendar.SECOND, 59);
+        
+        Date end = c.getTime();
+
+        List<Object[]> list = this.spaceStatsRepo.getByAccountIdAndStoreIdAndDay(account, storeId, start, end);
+        List<SpaceStatsDTO> dtos = new ArrayList<>(list.size());
+        for(Object[] s : list){
+            dtos.add(new SpaceStatsDTO(start,
+                                       s[1].toString(),
+                                       s[2].toString(),
+                                       s[3].toString(),
+                                       ((BigDecimal) s[4]).longValue(),
+                                       ((BigDecimal) s[5]).longValue()));
+        }
+        
+        return dtos;
+    }
+
 }

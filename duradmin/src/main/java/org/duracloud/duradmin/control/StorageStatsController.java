@@ -46,7 +46,7 @@ public class StorageStatsController {
         this.contentStoreManager = contentStoreManager;
     }
 
-    @RequestMapping(value = "")
+    @RequestMapping(value = "/timeseries")
     @ResponseBody 
     public String getSpaceStats(HttpServletResponse response,
                                       @RequestParam(required = false, value = "spaceId") String spaceId,
@@ -66,12 +66,28 @@ public class StorageStatsController {
                                                                       convertDate(start),
                                                                       convertDate(end)));
     }
-    
+
+    @RequestMapping(value = "/snapshot-by-day")
+    @ResponseBody 
+    public String getStorageProviderStats(HttpServletResponse response,
+                                      @RequestParam(required = false, value = "storeId") String storeId,
+                                      @RequestParam(required = true, value = "date") String date)
+                                          throws ContentStoreException,
+                                              IOException,
+                                                ParseException {
+
+        ContentStore store = contentStoreManager.getPrimaryContentStore();
+        if (storeId != null) {
+            store = contentStoreManager.getContentStore(storeId);
+        }
+        return spaceStatsListSerializer.serialize(store.getStorageProviderStatsByDay(convertDate(date)));
+    }
+
     private Date convertDate(String date) throws ParseException{
         if(date == null){
             return null;
         }
-        return DateUtil.convertToDate(date, DateUtil.DateFormat.SHORT_FORMAT);
+        return new Date(Long.parseLong(date));
     }
 
 }

@@ -1278,18 +1278,45 @@ public class ContentStoreImpl implements ContentStore {
     }
     
     private String buildSpaceStatsURL(String spaceId, Date start, Date end) {
-        String url = buildURL("/storagestats");
+        String url = buildURL("/storagestats/timeseries");
 
         if(spaceId != null){
             url = addQueryParameter(url, "spaceID",spaceId);
         }
         
         if(start != null){
-            url = addQueryParameter(url, "start", DateUtil.convertToString(start.getTime()));
+            url = addQueryParameter(url, "start", start.getTime()+"");
         }
         
         if(end != null){
-            url = addQueryParameter(url, "end", DateUtil.convertToString(end.getTime()));
+            url = addQueryParameter(url, "end", end.getTime()+"");
+        }
+        
+        url = addStoreIdQueryParameter(url);
+        return url;
+    }
+    
+    @Override
+    public SpaceStatsDTOList getStorageProviderStatsByDay(Date date)
+        throws ContentStoreException {
+        String url = buildStorageProviderStatsURL(date);
+        try {
+            HttpResponse response = restHelper.get(url);
+            checkResponse(response, HttpStatus.SC_OK);
+            String body = response.getResponseBody();
+            JaxbJsonSerializer<SpaceStatsDTOList> serializer = new JaxbJsonSerializer<>(SpaceStatsDTOList.class);
+            return serializer.deserialize(body);
+        } catch(UnauthorizedException e) {
+            throw new UnauthorizedException(storeId, e);
+        } catch (Exception e) {
+            throw new ContentStoreException("failed to retrieve storage provider stats for " + storeId, e);
+        }
+    }
+    
+    private String buildStorageProviderStatsURL(Date date) {
+        String url = buildURL("/storagestats/snapshot-by-day");
+        if(date != null){
+            url = addQueryParameter(url, "date", date.getTime()+"");
         }
         
         url = addStoreIdQueryParameter(url);

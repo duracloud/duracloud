@@ -426,18 +426,37 @@ var dc;
     * @param storeId
     * @param spaceId (optional)
     */
-    dc.store.GetStorageStats = function(storeId,spaceId){
-      var url =  "/duradmin/storagestats?storeId="+storeId;
+    dc.store.GetStorageStatsTimeline = function(storeId,spaceId, start, end){
+
+      var url =  "/duradmin/storagestats/timeseries?storeId="+storeId;
       if(spaceId){
         url = url + "&spaceId="+spaceId;
       }
-        return dc.ajax2({
+
+      if(start){
+        url = url + "&start="+start.getTime();
+      }
+
+      if(end){
+        url = url + "&end="+end.getTime();
+      }
+
+      return dc.ajax2({
             url: url, 
             dataType: 'json',
             async: false,
             cache: false});
     };
   
+    dc.store.GetStorageStatsSnapshot = function(storeId,date){
+      var url =  "/duradmin/storagestats/snapshot-by-day?storeId="+storeId;
+      url = url + "&date="+date.getTime();
+        return dc.ajax2({
+            url: url, 
+            dataType: 'json',
+            async: false,
+            cache: false});
+    };
 
 
     
@@ -489,7 +508,6 @@ var dc;
     };
     
     dc.store.GetSnapshotRestoreSpaceId = function(params){
-      
       return dc.ajax2({
           url: "/duradmin/spaces/snapshots/" + params.storeId + "/" + params.snapshotId + "/restore-space-id", 
           async: true,

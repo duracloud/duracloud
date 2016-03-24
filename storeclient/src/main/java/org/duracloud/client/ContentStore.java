@@ -475,4 +475,15 @@ public interface ContentStore {
      * @throws ContentStoreException
      */
     public SpaceStatsDTOList getSpaceStats(String spaceId,  Date from,  Date to) throws ContentStoreException;
+
+    /**
+     * Returns stats for all spaces within a storage provider for a particular
+     * day, averaging bit and object counts between 0:00:00 and 23:59:59.
+     * 
+     * @param date
+     * @return
+     * @throws ContentStoreException
+     */
+    public SpaceStatsDTOList getStorageProviderStatsByDay(Date date)
+                          throws ContentStoreException;
 }

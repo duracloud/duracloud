@@ -803,7 +803,7 @@ public class ContentStoreImplTest {
         list.add(new SpaceStatsDTO(new Date(), "account-id", storeId, spaceId, 1000l, 10l));
         String json = new JaxbJsonSerializer<>(SpaceStatsDTOList.class).serialize(list);
         String fullURL =
-            baseURL + "/storagestats?"
+            baseURL + "/storagestats/timeseries?"
                          + "spaceID="+spaceId+"&start="
                          + startStr
                          + "&end="
@@ -819,9 +819,33 @@ public class ContentStoreImplTest {
         
     }
 
+    @Test
+    public void testGetStorageStats() throws Exception {
+       
+        Date date = new Date();
+        String dateStr = formatDate(date);
+        
+        SpaceStatsDTOList list = new SpaceStatsDTOList();
+        list.add(new SpaceStatsDTO(new Date(), "account-id", storeId, spaceId, 1000l, 10l));
+        String json = new JaxbJsonSerializer<>(SpaceStatsDTOList.class).serialize(list);
+        String fullURL =
+            baseURL + "/storagestats/snapshot-by-day?"
+                         + "date="
+                         + dateStr
+                         + "&storeID="
+                         + storeId;
+        EasyMock.expect(response.getStatusCode()).andReturn(200);
+        EasyMock.expect(response.getResponseBody()).andReturn(json);
+        EasyMock.expect(restHelper.get(fullURL)).andReturn(response);
+        replayMocks();
+        List<SpaceStatsDTO> stats = contentStore.getStorageProviderStatsByDay(date);
+        assertEquals(list, stats);
+        
+    }
+
     protected String formatDate(Date date)
         throws UnsupportedEncodingException {
-        return URLEncoder.encode(DateUtil.convertToString(date.getTime()),"UTF-8" );
+        return date.getTime()+"";
     }
 
 
