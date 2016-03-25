@@ -16,6 +16,8 @@ import java.util.List;
  */
 public class Constants {
 
+    public static final String HEADER_PREFIX = "x-dura-meta-";
+
     /**
      * Content ID used to define a space snapshot
      */

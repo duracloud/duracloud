@@ -59,7 +59,21 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>chunk</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
     
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>app-config</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common-queue</artifactId>
@@ -98,6 +112,13 @@
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>storageprovider</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>synctool</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

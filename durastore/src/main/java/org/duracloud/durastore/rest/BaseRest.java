@@ -48,7 +48,7 @@ public abstract class BaseRest {
 
     public static final String DEFAULT_MIME = MediaType.APPLICATION_OCTET_STREAM;
 
-    public static final String HEADER_PREFIX = "x-dura-meta-";
+    public static final String HEADER_PREFIX = Constants.HEADER_PREFIX;
     public static final String SPACE_ACL_HEADER =
         HEADER_PREFIX + StorageProvider.PROPERTIES_SPACE_ACL;
     public static final String CONTENT_MIMETYPE_HEADER =
