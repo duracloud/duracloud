@@ -193,8 +193,8 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                                             String marker) {
         int limit = new Long(maxResults).intValue();
         ListContainerOptions containerOptions = ListContainerOptions.Builder.maxResults(limit);
-        if(marker != null) containerOptions.afterMarker(marker);
-        if(prefix != null) containerOptions.withPrefix(prefix);
+        if(marker != null) containerOptions.afterMarker(sanitizeForURI(marker));
+        if(prefix != null) containerOptions.withPrefix(sanitizeForURI(prefix));
         return swiftClient.listObjects(containerName, containerOptions);
     }
 
