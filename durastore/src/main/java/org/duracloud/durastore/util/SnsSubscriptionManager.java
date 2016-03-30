@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.util.AccountStoreConfig;
 import org.duracloud.common.util.WaitUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,15 +22,20 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.SubscribeResult;
 import com.amazonaws.services.sqs.AmazonSQSClient;
-import com.amazonaws.services.sqs.model.AddPermissionRequest;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.CreateQueueResult;
 import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
+import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.services.sqs.model.QueueNameExistsException;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SetQueueAttributesRequest;
 
-
+/**
+ * 
+ * @author Daniel Bernstein
+ *
+ */
 public class SnsSubscriptionManager {
     private Logger log = LoggerFactory.getLogger(SnsSubscriptionManager.class);
 
@@ -59,15 +65,28 @@ public class SnsSubscriptionManager {
         if(initialized){
             throw new DuraCloudRuntimeException("this manager is already connected");
         }
+        
+        if(AccountStoreConfig.accountStoreIsLocal()){
+            return;
+        }
         //create sqs queue
         log.info("creating sqs queue");
         CreateQueueRequest request = new CreateQueueRequest(this.queueName);
         Map<String,String> attributes = new HashMap<String,String>();
         attributes.put("ReceiveMessageWaitTimeSeconds", "20");
         request.setAttributes(attributes);
-        CreateQueueResult result = sqsClient.createQueue(request);
-        this.queueUrl = result.getQueueUrl();
-        log.info("sqs queue created: {}", this.queueUrl);
+        CreateQueueResult result;
+        try { 
+            result = sqsClient.createQueue(request);
+            this.queueUrl = result.getQueueUrl();
+            log.info("sqs queue created: {}", this.queueUrl);
+        }catch(QueueNameExistsException ex){
+            log.info("queue with name {} already exists.");
+            GetQueueUrlResult queueUrlResult = sqsClient.getQueueUrl(this.queueName);
+            this.queueUrl = queueUrlResult.getQueueUrl();
+            log.info("sqs queue url retrieved: {}", this.queueUrl);
+        }
+        
         String queueArnKey = "QueueArn";
         GetQueueAttributesResult getQueueAttrResult =
             sqsClient.getQueueAttributes(this.queueUrl,
@@ -163,6 +182,11 @@ public class SnsSubscriptionManager {
         if(!this.initialized){
             throw new DuraCloudRuntimeException("this manager is already disconnected");
         }
+        
+        if(AccountStoreConfig.accountStoreIsLocal()){
+            return;
+        }
+
         log.info("disconnecting");
         log.info("unsubscribing {}", this.subscriptionArn);
         this.snsClient.unsubscribe(this.subscriptionArn);

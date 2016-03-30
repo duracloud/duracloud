@@ -41,7 +41,7 @@ public class StorageProviderFactoryBean extends AbstractFactoryBean<StorageProvi
         if(AccountStoreConfig.accountStoreIsLocal()){
             return this.localStorageProviderFactory;
         }else{
-            return this.globalStorageAccountManager.getStorageProviderFactory(accountIdUtil.getAccountId());
+            return this.globalStorageAccountManager.get(accountIdUtil.getAccountId());
         }
     }
 

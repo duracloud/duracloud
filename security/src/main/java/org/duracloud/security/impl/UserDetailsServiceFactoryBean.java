@@ -28,7 +28,7 @@ public class UserDetailsServiceFactoryBean
         if(AccountStoreConfig.accountStoreIsLocal()){
             return this.localUserDetailsService;
         }else{
-            return this.globalUserDetailsStore.getUserDetailsService(accountIdUtil.getAccountId());
+            return this.globalUserDetailsStore.get(accountIdUtil.getAccountId());
         }
     }
 

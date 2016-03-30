@@ -8,55 +8,53 @@
 package org.duracloud.security.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.NotImplementedException;
+import org.duracloud.account.db.model.AccountChangeEvent;
 import org.duracloud.account.db.model.AccountInfo;
 import org.duracloud.account.db.model.DuracloudUser;
+import org.duracloud.account.db.model.AccountChangeEvent.EventType;
 import org.duracloud.account.db.repo.DuracloudAccountRepo;
 import org.duracloud.account.db.repo.UserFinderUtil;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 
 /**
- * This class is responsible for loading and caching global account information 
+ * This class is responsible for loading and caching global user details information 
  * from a remote data store.
  * @author Daniel Bernstein
  */
-public class GlobalUserDetailsStore implements GlobalStore{
-    private Map<String,DuracloudUserDetailsService> userDetailsMap;
+public class GlobalUserDetailsStore extends AbstractGlobalAccountStore<DuracloudUserDetailsService>{
     private DuracloudAccountRepo accountRepo;
     private UserFinderUtil userFinderUtil;
     
     public GlobalUserDetailsStore(DuracloudAccountRepo accountRepo,
                               UserFinderUtil userFinderUtil) {
+        super();
         this.accountRepo = accountRepo;
-        this.userDetailsMap = new HashMap<>();
         this.userFinderUtil = userFinderUtil;
     }
     
     @Override
-    public void remove(String accountId){
-        this.userDetailsMap.remove(accountId);
-    }
-
-    @Override
-    public void removeAll(){
-        this.userDetailsMap.clear();
-    }
-
-    public DuracloudUserDetailsService getUserDetailsService(String accountId){
-        ensureUserDetailsServiceIsLoaded(accountId);
-        return this.userDetailsMap.get(accountId);
-    }
-
-    private void ensureUserDetailsServiceIsLoaded(String accountId) {
-        if(!this.userDetailsMap.containsKey(accountId)){
-            UserDetailsServiceImpl userDetails = new UserDetailsServiceImpl();
-            initializeUserDetails(userDetails, accountId);
-            this.userDetailsMap.put(accountId, userDetails);
+    public void onEvent(AccountChangeEvent event) {
+        String accountId = event.getAccountId();
+        EventType eventType = event.getEventType();
+        if(accountId != null){
+            if(eventType.equals(EventType.USERS_CHANGED)|| 
+                eventType.equals(EventType.ACCOUNT_CHANGED)){
+                remove(accountId);
+            }
+        }else if(eventType.equals(EventType.ALL_ACCOUNTS_CHANGED)){
+            removeAll();
         }
+    }
+    
+    @Override
+    protected DuracloudUserDetailsService createInstance(String accountId) {
+        UserDetailsServiceImpl userDetails = new UserDetailsServiceImpl();
+        initializeUserDetails(userDetails, accountId);
+        return userDetails;
     }
 
     private void initializeUserDetails(UserDetailsServiceImpl userDetails,

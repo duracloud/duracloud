@@ -11,17 +11,17 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.duracloud.account.db.model.AccountChangeEvent;
-import org.duracloud.account.db.model.AccountChangeEvent.EventType;
 import org.duracloud.account.db.model.GlobalProperties;
 import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.durastore.util.GlobalStorageProviderStore;
+import org.duracloud.common.util.AccountStoreConfig;
 import org.duracloud.durastore.util.MessageListener;
 import org.duracloud.durastore.util.SnsSubscriptionManager;
-import org.duracloud.security.impl.GlobalUserDetailsStore;
+import org.duracloud.security.impl.GlobalStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -45,63 +45,53 @@ public class SnsSubscriptionManagerConfig {
     @Bean(destroyMethod="disconnect", initMethod="connect")
     public SnsSubscriptionManager
            snsSubscriptionManager(GlobalPropertiesRepo globalPropertiesRepo,
-                                  final GlobalUserDetailsStore userDetails,
-                                  final GlobalStorageProviderStore providerStore) {
+                                  final List<GlobalStore<?>> globalStores, 
+                                  String appName) {
         try {
 
             GlobalProperties props = globalPropertiesRepo.findAll().get(0);
             String queueName =
-                "node-queue-" + Inet4Address.getLocalHost().getHostName().replace(".", "_");
+                "node-queue-" + appName
+                               + "-"
+                               + Inet4Address.getLocalHost()
+                                             .getHostName()
+                                             .replace(".", "_");
             SnsSubscriptionManager subscriptionManager =
                 new SnsSubscriptionManager(new AmazonSQSClient(),
                                            new AmazonSNSClient(),
                                            props.getInstanceNotificationTopicArn(),
                                            queueName);
 
-            subscriptionManager.addListener(new MessageListener() {
-                @Override
-                public void onMessage(Message message) {
-                    log.info("message received: " + message);
-                    log.info("message body: " + message.getBody());
-                    JsonFactory factory = new JsonFactory(); 
-                    ObjectMapper mapper = new ObjectMapper(factory); 
-                    TypeReference<HashMap<String,String>> typeRef 
-                            = new TypeReference<HashMap<String,String>>() {};
-                    String body = message.getBody();
-                    try {
-                        Map<String,String> map = mapper.readValue(body, typeRef);
-                        AccountChangeEvent event = AccountChangeEvent.deserialize(map.get("Message"));
-                        String accountId = event.getAccountId();
-                        EventType eventType = event.getEventType();
-                        if(eventType.equals(EventType.USERS_CHANGED)){
-                            if(accountId != null){
-                                userDetails.remove(accountId);
-                            }else{
-                                userDetails.removeAll();
+            if(!AccountStoreConfig.accountStoreIsLocal()){
+                subscriptionManager.addListener(new MessageListener() {
+                    @Override
+                    public void onMessage(Message message) {
+                        log.info("message received: " + message);
+                        log.info("message body: " + message.getBody());
+                        JsonFactory factory = new JsonFactory(); 
+                        ObjectMapper mapper = new ObjectMapper(factory); 
+                        TypeReference<HashMap<String,String>> typeRef 
+                                = new TypeReference<HashMap<String,String>>() {};
+                        String body = message.getBody();
+                        try {
+                            Map<String,String> map = mapper.readValue(body, typeRef);
+                            AccountChangeEvent event = AccountChangeEvent.deserialize(map.get("Message"));
+                            for(GlobalStore<?> store : globalStores){
+                                store.onEvent(event);
                             }
-                        }else if(eventType.equals(EventType.STORAGE_PROVIDERS_CHANGED)){
-                            providerStore.remove(accountId);
-                        }else if(eventType.equals(EventType.ACCOUNT_CHANGED)){
-                            providerStore.remove(accountId);
-                        }else if(eventType.equals(EventType.ACCOUNT_CHANGED)){
-                            providerStore.remove(accountId);
-                            userDetails.remove(accountId);
-                        }else if(eventType.equals(EventType.ALL_ACCOUNTS_CHANGED)){
-                            userDetails.removeAll();
-                            providerStore.removeAll();
-                        }else{
-                            log.warn("Event of type  {} not recognized. Ignoring...", eventType);
-                        }
-                    } catch (IOException e) {
-                        log.error("failed to handle message: " + e.getMessage(), e);
-                    } 
-                    
-                }
-            });
+                        } catch (IOException e) {
+                            log.error("failed to handle message: " + e.getMessage(), e);
+                        } 
+                    }
+                });
+            }
+
             
             return subscriptionManager;
         } catch (UnknownHostException e) {
             throw new DuraCloudRuntimeException(e);
         }
     }
+    
+ 
 }

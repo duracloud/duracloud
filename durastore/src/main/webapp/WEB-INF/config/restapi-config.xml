@@ -35,15 +35,21 @@
     <constructor-arg ref="storageProviderFactory"/>
   </bean>
 
-  <bean id="taskProviderFactoryImpl" class="org.duracloud.durastore.util.TaskProviderFactoryImpl">
-    <constructor-arg ref="storageAcctManager"/>
-    <constructor-arg ref="storageProviderFactory"/>
+
+  <bean id="globalTaskProviderFactoryStore" class="org.duracloud.durastore.util.TaskProviderFactoryStore">
+    <constructor-arg ref="storageAccountManagerFactory" />
+    <constructor-arg ref="storageProviderFactory" />
     <constructor-arg ref="manifestStore"/>
+  </bean>
+
+  <bean id="taskProviderFactoryImpl" factory-bean="globalTaskProviderFactoryStore"
+    factory-method="createInstance" lazy-init="true" scope="request">
+    <aop:scoped-proxy />
   </bean>
   
   <bean id="localStorageProviderFactory" class="org.duracloud.durastore.util.StorageProviderFactoryImpl">
     <constructor-arg ref="statelessStoragePvdr" />
-    <constructor-arg ref="storageAcctManager" />
+    <constructor-arg ref="storageAccountManager" />
     <constructor-arg ref="securityContextUtil"/>
     <constructor-arg value="true" />
   </bean>
@@ -51,11 +57,20 @@
   <bean id="contextUtil" class="org.duracloud.common.rest.DuraCloudRequestContextUtil"/>
 
   <bean id="globalStorageProviderStore" class="org.duracloud.durastore.util.GlobalStorageProviderStore">
+    <constructor-arg ref="storageAccountManagerFactory" />
+    <constructor-arg ref="statelessStoragePvdr" />
+    <constructor-arg ref="securityContextUtil"/>
+  </bean>
+
+  <bean id="storageAccountManagerFactory" class="org.duracloud.durastore.util.StorageAccountManagerFactory">
     <constructor-arg ref="accountRepo" />
     <constructor-arg ref="globalPropertiesRepo" />
     <constructor-arg ref="contextUtil"/>
-    <constructor-arg ref="statelessStoragePvdr" />
-    <constructor-arg ref="securityContextUtil"/>
+  </bean>
+
+  <bean id="storageAccountManager" factory-bean="storageAccountManagerFactory"
+    factory-method="createInstance" lazy-init="true" scope="request">
+    <aop:scoped-proxy />
   </bean>
   
   <bean id="userFinderUtil" class="org.duracloud.account.db.repo.UserFinderUtil">
@@ -74,7 +89,6 @@
 
   <bean id="statelessStoragePvdr" class="org.duracloud.storage.provider.StatelessStorageProviderImpl"/>
 
-  <bean id="storageAcctManager" class="org.duracloud.storage.domain.StorageAccountManager"/>
 
   <bean id="restUtil" class="org.duracloud.common.rest.RestUtilImpl"/>
 
