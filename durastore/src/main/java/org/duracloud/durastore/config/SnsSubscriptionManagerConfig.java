@@ -51,7 +51,7 @@ public class SnsSubscriptionManagerConfig {
 
             GlobalProperties props = globalPropertiesRepo.findAll().get(0);
             String queueName =
-                "node-queue-" + Inet4Address.getLocalHost().getHostName();
+                "node-queue-" + Inet4Address.getLocalHost().getHostName().replace(".", "_");
             SnsSubscriptionManager subscriptionManager =
                 new SnsSubscriptionManager(new AmazonSQSClient(),
                                            new AmazonSNSClient(),
