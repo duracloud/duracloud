@@ -24,9 +24,9 @@ public class AccountComponentCacheConfig {
     }
 
     @Bean
-    public List<AccountComponentCache<?>>
+    public List<AccountComponentCache>
            globalStores(UserDetailsServiceCache userDetailsStore) {
-        return Arrays.asList((AccountComponentCache<?>)userDetailsStore);
+        return Arrays.asList((AccountComponentCache)userDetailsStore);
     }
 
 }
