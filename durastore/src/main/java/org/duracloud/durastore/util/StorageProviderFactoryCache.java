@@ -7,10 +7,10 @@
  */
 package org.duracloud.durastore.util;
 
-import org.duracloud.account.db.model.AccountChangeEvent;
-import org.duracloud.account.db.model.AccountChangeEvent.EventType;
+import org.duracloud.common.cache.AbstractAccountComponentCache;
+import org.duracloud.common.event.AccountChangeEvent;
+import org.duracloud.common.event.AccountChangeEvent.EventType;
 import org.duracloud.common.util.UserUtil;
-import org.duracloud.security.impl.AbstractGlobalAccountStore;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
@@ -20,12 +20,12 @@ import org.duracloud.storage.util.StorageProviderFactory;
  * from a remote data store.
  * @author Daniel Bernstein
  */
-public class GlobalStorageProviderStore extends AbstractGlobalAccountStore<StorageProviderFactory> {
+public class StorageProviderFactoryCache extends AbstractAccountComponentCache<StorageProviderFactory> {
     private StorageAccountManagerFactory storageAccountManagerFactory;
     private StatelessStorageProvider statelessStorageProvider;
     private UserUtil userUtil;
     
-    public GlobalStorageProviderStore(StorageAccountManagerFactory storageAccountManagerFactory,
+    public StorageProviderFactoryCache(StorageAccountManagerFactory storageAccountManagerFactory,
                               StatelessStorageProvider statelessStorageProvider,
                               UserUtil userUtil) {
         super();

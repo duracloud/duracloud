@@ -9,7 +9,7 @@ package org.duracloud.durastore.rest;
 
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.util.AccountStoreConfig;
-import org.duracloud.durastore.util.GlobalStorageProviderStore;
+import org.duracloud.durastore.util.StorageProviderFactoryCache;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
@@ -20,7 +20,7 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
  */
 public class StorageProviderFactoryBean extends AbstractFactoryBean<StorageProviderFactory>{
     private StorageProviderFactory localStorageProviderFactory;
-    private GlobalStorageProviderStore globalStorageAccountManager;
+    private StorageProviderFactoryCache storageProviderFactoryCache;
     private DuraCloudRequestContextUtil accountIdUtil = new DuraCloudRequestContextUtil();
     
     public StorageProviderFactoryBean(){
@@ -41,7 +41,7 @@ public class StorageProviderFactoryBean extends AbstractFactoryBean<StorageProvi
         if(AccountStoreConfig.accountStoreIsLocal()){
             return this.localStorageProviderFactory;
         }else{
-            return this.globalStorageAccountManager.get(accountIdUtil.getAccountId());
+            return this.storageProviderFactoryCache.get(accountIdUtil.getAccountId());
         }
     }
 
@@ -50,12 +50,12 @@ public class StorageProviderFactoryBean extends AbstractFactoryBean<StorageProvi
         return StorageProviderFactory.class;
     }
 
-    public GlobalStorageProviderStore getGlobalStorageProviderStore() {
-        return globalStorageAccountManager;
+    public StorageProviderFactoryCache getStorageProviderFactoryCache() {
+        return storageProviderFactoryCache;
     }
 
-    public void setGlobalStorageProviderStore(GlobalStorageProviderStore globalStorageProviderStore) {
-        this.globalStorageAccountManager = globalStorageProviderStore;
+    public void setStorageProviderFactoryCache(StorageProviderFactoryCache storageProviderFactoryCache) {
+        this.storageProviderFactoryCache = storageProviderFactoryCache;
     }
 
     public DuraCloudRequestContextUtil getAccountIdUtil() {

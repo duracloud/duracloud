@@ -179,6 +179,17 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
+      <artifactId>common-sns</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-cache</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.duracloud</groupId>
       <artifactId>storageprovider</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -220,6 +231,12 @@
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>reportdata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-notification</artifactId>
       <version>${project.version}</version>
     </dependency>
 

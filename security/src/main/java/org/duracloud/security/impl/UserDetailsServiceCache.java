@@ -10,13 +10,13 @@ package org.duracloud.security.impl;
 import java.util.ArrayList;
 import java.util.Set;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.duracloud.account.db.model.AccountChangeEvent;
 import org.duracloud.account.db.model.AccountInfo;
 import org.duracloud.account.db.model.DuracloudUser;
-import org.duracloud.account.db.model.AccountChangeEvent.EventType;
 import org.duracloud.account.db.repo.DuracloudAccountRepo;
 import org.duracloud.account.db.repo.UserFinderUtil;
+import org.duracloud.common.event.AccountChangeEvent;
+import org.duracloud.common.event.AccountChangeEvent.EventType;
+import org.duracloud.common.cache.AbstractAccountComponentCache;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 
@@ -25,11 +25,11 @@ import org.duracloud.security.domain.SecurityUserBean;
  * from a remote data store.
  * @author Daniel Bernstein
  */
-public class GlobalUserDetailsStore extends AbstractGlobalAccountStore<DuracloudUserDetailsService>{
+public class UserDetailsServiceCache extends AbstractAccountComponentCache<DuracloudUserDetailsService>{
     private DuracloudAccountRepo accountRepo;
     private UserFinderUtil userFinderUtil;
     
-    public GlobalUserDetailsStore(DuracloudAccountRepo accountRepo,
+    public UserDetailsServiceCache(DuracloudAccountRepo accountRepo,
                               UserFinderUtil userFinderUtil) {
         super();
         this.accountRepo = accountRepo;

@@ -63,8 +63,11 @@
         <module>common-rest</module>
         <module>common-xml</module>
         <module>common-json</module>
+        <module>common-event</module>
+        <module>common-cache</module>
         <module>common-notification</module>
         <module>common-queue</module>
+        <module>common-sns</module>
 	<module>common-aop</module>
         <module>storageprovider</module>
         <module>unit-test-db</module>
@@ -1155,6 +1158,17 @@
 	    <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-sqs</artifactId>
+		<version>${aws.sdk.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+	    <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-sns</artifactId>
 		<version>${aws.sdk.version}</version>
                 <exclusions>
                     <exclusion>

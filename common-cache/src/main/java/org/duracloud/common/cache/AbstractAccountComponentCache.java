@@ -1,12 +1,25 @@
-package org.duracloud.security.impl;
+/*
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
+ */
+package org.duracloud.common.cache;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractGlobalAccountStore<T> implements GlobalStore<T> {
+/**
+ * 
+ * @author Daniel Bernstein
+ *
+ * @param <T>
+ */
+public abstract class AbstractAccountComponentCache<T> implements AccountComponentCache<T> {
     private Map<String, T> cache;
 
-    public AbstractGlobalAccountStore() {
+    public AbstractAccountComponentCache() {
         this.cache = new HashMap<>();
     }
 

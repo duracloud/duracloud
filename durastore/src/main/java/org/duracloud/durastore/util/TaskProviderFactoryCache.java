@@ -7,12 +7,11 @@
  */
 package org.duracloud.durastore.util;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.duracloud.account.db.model.AccountChangeEvent;
-import org.duracloud.account.db.model.AccountChangeEvent.EventType;
+import org.duracloud.common.cache.AbstractAccountComponentCache;
+import org.duracloud.common.event.AccountChangeEvent;
+import org.duracloud.common.event.AccountChangeEvent.EventType;
 import org.duracloud.common.util.AccountStoreConfig;
 import org.duracloud.mill.manifest.ManifestStore;
-import org.duracloud.security.impl.AbstractGlobalAccountStore;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.provider.TaskProviderFactory;
 import org.duracloud.storage.util.StorageProviderFactory;
@@ -22,13 +21,13 @@ import org.duracloud.storage.util.StorageProviderFactory;
  * from a remote data store.
  * @author Daniel Bernstein
  */
-public class TaskProviderFactoryStore extends AbstractGlobalAccountStore<TaskProviderFactory> {
+public class TaskProviderFactoryCache extends AbstractAccountComponentCache<TaskProviderFactory> {
     private StorageAccountManagerFactory storageAccountManagerFactory;
     private StorageProviderFactory storageProviderFactory;
     private ManifestStore manifestStore;
     private TaskProviderFactoryImpl localFactory;
      
-    public TaskProviderFactoryStore(StorageAccountManagerFactory storageAccountManagerFactory,
+    public TaskProviderFactoryCache(StorageAccountManagerFactory storageAccountManagerFactory,
                                     StorageProviderFactory storageProviderFactory,
                               ManifestStore manifestStore) {
         super();

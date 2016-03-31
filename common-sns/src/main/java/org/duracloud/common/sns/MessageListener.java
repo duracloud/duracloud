@@ -5,18 +5,14 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.security.impl;
+package org.duracloud.common.sns;
 
-import org.duracloud.account.db.model.AccountChangeEvent;
+import com.amazonaws.services.sqs.model.Message;
 /**
  * 
  * @author Daniel Bernstein
  *
- * @param <T>
  */
-public interface GlobalStore<T> {
-
-    public T get(String accountId);
-    
-    void onEvent(AccountChangeEvent event);
+public interface MessageListener {
+    void onMessage(Message message);
 }

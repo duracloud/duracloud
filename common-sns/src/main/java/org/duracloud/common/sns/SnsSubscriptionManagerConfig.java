@@ -5,7 +5,8 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.durastore.config;
+
+package org.duracloud.common.sns;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -14,14 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.duracloud.account.db.model.AccountChangeEvent;
 import org.duracloud.account.db.model.GlobalProperties;
 import org.duracloud.account.db.repo.GlobalPropertiesRepo;
+import org.duracloud.common.cache.AccountComponentCache;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.event.AccountChangeEvent;
 import org.duracloud.common.util.AccountStoreConfig;
-import org.duracloud.durastore.util.MessageListener;
-import org.duracloud.durastore.util.SnsSubscriptionManager;
-import org.duracloud.security.impl.GlobalStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -45,7 +44,7 @@ public class SnsSubscriptionManagerConfig {
     @Bean(destroyMethod="disconnect", initMethod="connect")
     public SnsSubscriptionManager
            snsSubscriptionManager(GlobalPropertiesRepo globalPropertiesRepo,
-                                  final List<GlobalStore<?>> globalStores, 
+                                  final List<AccountComponentCache<?>> componentCaches, 
                                   String appName) {
         try {
 
@@ -76,8 +75,8 @@ public class SnsSubscriptionManagerConfig {
                         try {
                             Map<String,String> map = mapper.readValue(body, typeRef);
                             AccountChangeEvent event = AccountChangeEvent.deserialize(map.get("Message"));
-                            for(GlobalStore<?> store : globalStores){
-                                store.onEvent(event);
+                            for(AccountComponentCache<?> cache : componentCaches){
+                                cache.onEvent(event);
                             }
                         } catch (IOException e) {
                             log.error("failed to handle message: " + e.getMessage(), e);

@@ -21,14 +21,14 @@ public class UserDetailsServiceFactoryBean
     extends AbstractFactoryBean<DuracloudUserDetailsService> {
     private DuracloudUserDetailsService localUserDetailsService;
     private DuraCloudRequestContextUtil accountIdUtil = new DuraCloudRequestContextUtil();
-    private GlobalUserDetailsStore globalUserDetailsStore;
+    private UserDetailsServiceCache userDetailsServiceCache;
     
     @Override
     protected DuracloudUserDetailsService createInstance() throws Exception {
         if(AccountStoreConfig.accountStoreIsLocal()){
             return this.localUserDetailsService;
         }else{
-            return this.globalUserDetailsStore.get(accountIdUtil.getAccountId());
+            return this.userDetailsServiceCache.get(accountIdUtil.getAccountId());
         }
     }
 
@@ -53,11 +53,11 @@ public class UserDetailsServiceFactoryBean
         this.accountIdUtil = accountIdUtil;
     }
 
-    public GlobalUserDetailsStore getGlobalUserDetailsStore() {
-        return globalUserDetailsStore;
+    public UserDetailsServiceCache getUserDetailsServiceCache() {
+        return userDetailsServiceCache;
     }
 
-    public void setGlobalUserDetailsStore(GlobalUserDetailsStore globalUserDetailsStore) {
-        this.globalUserDetailsStore = globalUserDetailsStore;
+    public void setUserDetailsServiceCache(UserDetailsServiceCache userDetailsServiceCache) {
+        this.userDetailsServiceCache = userDetailsServiceCache;
     }
 }

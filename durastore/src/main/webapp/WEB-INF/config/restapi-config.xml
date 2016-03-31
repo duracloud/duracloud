@@ -36,13 +36,13 @@
   </bean>
 
 
-  <bean id="globalTaskProviderFactoryStore" class="org.duracloud.durastore.util.TaskProviderFactoryStore">
+  <bean id="taskProviderFactoryCache" class="org.duracloud.durastore.util.TaskProviderFactoryCache">
     <constructor-arg ref="storageAccountManagerFactory" />
     <constructor-arg ref="storageProviderFactory" />
     <constructor-arg ref="manifestStore"/>
   </bean>
 
-  <bean id="taskProviderFactoryImpl" factory-bean="globalTaskProviderFactoryStore"
+  <bean id="taskProviderFactoryImpl" factory-bean="taskProviderFactoryCache"
     factory-method="createInstance" lazy-init="true" scope="request">
     <aop:scoped-proxy />
   </bean>
@@ -56,7 +56,7 @@
   
   <bean id="contextUtil" class="org.duracloud.common.rest.DuraCloudRequestContextUtil"/>
 
-  <bean id="globalStorageProviderStore" class="org.duracloud.durastore.util.GlobalStorageProviderStore">
+  <bean id="storageProviderFactoryCache" class="org.duracloud.durastore.util.StorageProviderFactoryCache">
     <constructor-arg ref="storageAccountManagerFactory" />
     <constructor-arg ref="statelessStoragePvdr" />
     <constructor-arg ref="securityContextUtil"/>
@@ -78,7 +78,7 @@
   </bean>
   
   <bean id="storageProviderFactory"  class="org.duracloud.durastore.rest.StorageProviderFactoryBean" lazy-init="true" scope="request">
-    <property name="globalStorageProviderStore" ref="globalStorageProviderStore" />
+    <property name="storageProviderFactoryCache" ref="storageProviderFactoryCache" />
     <property name="localStorageProviderFactory" ref="localStorageProviderFactory" />
     <aop:scoped-proxy />
   </bean>
@@ -88,7 +88,6 @@
   </bean>
 
   <bean id="statelessStoragePvdr" class="org.duracloud.storage.provider.StatelessStorageProviderImpl"/>
-
 
   <bean id="restUtil" class="org.duracloud.common.rest.RestUtilImpl"/>
 

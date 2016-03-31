@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.durastore.util;
+package org.duracloud.common.sns;
 
 import java.util.ArrayList;
 import java.util.Arrays;
