@@ -64,7 +64,7 @@
   </bean>
 
   <bean id="taskProviderFactory" class="org.duracloud.durastore.aop.AOPTaskProviderFactoryDecorator">
-    <constructor-arg ref="taskProviderFactoryImpl"/>
+    <constructor-arg ref="taskProviderFactoryTarget"/>
     <constructor-arg>
         <list>
             <ref bean="snapshotAccessAdvisor"/>

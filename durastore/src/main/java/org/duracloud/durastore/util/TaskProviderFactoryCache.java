@@ -10,6 +10,7 @@ package org.duracloud.durastore.util;
 import org.duracloud.common.cache.AbstractAccountComponentCache;
 import org.duracloud.common.event.AccountChangeEvent;
 import org.duracloud.common.event.AccountChangeEvent.EventType;
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.util.AccountStoreConfig;
 import org.duracloud.mill.manifest.ManifestStore;
 import org.duracloud.storage.domain.StorageAccountManager;
@@ -26,11 +27,14 @@ public class TaskProviderFactoryCache extends AbstractAccountComponentCache<Task
     private StorageProviderFactory storageProviderFactory;
     private ManifestStore manifestStore;
     private TaskProviderFactoryImpl localFactory;
-     
-    public TaskProviderFactoryCache(StorageAccountManagerFactory storageAccountManagerFactory,
+    private DuraCloudRequestContextUtil contextUtil;
+    
+    public TaskProviderFactoryCache(DuraCloudRequestContextUtil contextUtil,
+                                    StorageAccountManagerFactory storageAccountManagerFactory,
                                     StorageProviderFactory storageProviderFactory,
                               ManifestStore manifestStore) {
         super();
+        this.contextUtil = contextUtil;
         this.storageAccountManagerFactory = storageAccountManagerFactory;
         this.storageProviderFactory = storageProviderFactory;
         this.manifestStore = manifestStore;
@@ -50,6 +54,11 @@ public class TaskProviderFactoryCache extends AbstractAccountComponentCache<Task
             removeAll();
         }
     }
+    
+    public TaskProviderFactory getObject() throws Exception {
+        return get(this.contextUtil.getAccountId());
+    }
+
     
     @Override
     protected TaskProviderFactory createInstance (String accountId) {

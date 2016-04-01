@@ -37,13 +37,14 @@
 
 
   <bean id="taskProviderFactoryCache" class="org.duracloud.durastore.util.TaskProviderFactoryCache">
+    <constructor-arg ref="contextUtil"/>
     <constructor-arg ref="storageAccountManagerFactory" />
     <constructor-arg ref="storageProviderFactory" />
     <constructor-arg ref="manifestStore"/>
   </bean>
 
-  <bean id="taskProviderFactoryImpl" factory-bean="taskProviderFactoryCache"
-    factory-method="createInstance" lazy-init="true" scope="request">
+  <bean id="taskProviderFactoryTarget" factory-bean="taskProviderFactoryCache" factory-method="getObject"
+    lazy-init="true" scope="request">
     <aop:scoped-proxy />
   </bean>
   
