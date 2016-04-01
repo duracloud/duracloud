@@ -7,10 +7,15 @@
  */
 package org.duracloud.durastore.util;
 
+import org.duracloud.account.db.model.DuracloudMill;
+import org.duracloud.account.db.model.GlobalProperties;
+import org.duracloud.account.db.repo.DuracloudMillRepo;
+import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.cache.AbstractAccountComponentCache;
 import org.duracloud.common.event.AccountChangeEvent;
 import org.duracloud.common.event.AccountChangeEvent.EventType;
 import org.duracloud.common.util.UserUtil;
+import org.duracloud.storage.domain.AuditConfig;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
@@ -24,14 +29,17 @@ public class StorageProviderFactoryCache extends AbstractAccountComponentCache<S
     private StorageAccountManagerFactory storageAccountManagerFactory;
     private StatelessStorageProvider statelessStorageProvider;
     private UserUtil userUtil;
+    private DuracloudMillRepo millRepo;
     
     public StorageProviderFactoryCache(StorageAccountManagerFactory storageAccountManagerFactory,
                               StatelessStorageProvider statelessStorageProvider,
-                              UserUtil userUtil) {
+                              UserUtil userUtil,
+                              DuracloudMillRepo millRepo) {
         super();
         this.storageAccountManagerFactory = storageAccountManagerFactory;
         this.statelessStorageProvider = statelessStorageProvider;
         this.userUtil = userUtil;
+        this.millRepo = millRepo;
     }
     
     
@@ -56,10 +64,18 @@ public class StorageProviderFactoryCache extends AbstractAccountComponentCache<S
         StorageAccountManager storageAccountManager =
             this.storageAccountManagerFactory.createInstance();
         
+        DuracloudMill millProps = millRepo.findAll().get(0);
+            
+        AuditConfig auditConfig = new AuditConfig();
+        auditConfig.setAuditLogSpaceId(millProps.getAuditLogSpaceId());
+        auditConfig.setAuditQueueName(millProps.getAuditQueue());
+        
         StorageProviderFactoryImpl factory =
             new StorageProviderFactoryImpl(storageAccountManager,
                                            statelessStorageProvider,
-                                           userUtil);
+                                           userUtil, 
+                                           auditConfig);
+        
         return factory;
     }
    

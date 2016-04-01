@@ -78,6 +78,14 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
         this.cacheStorageProvidersOnInit = cacheStorageProvidersOnInit;
     }
 
+    public StorageProviderFactoryImpl(StorageAccountManager storageAccountManager,
+                                      StatelessStorageProvider statelessStorageProvider,
+                                      UserUtil userUtil,
+                                      AuditConfig auditConfig) {
+        this(storageAccountManager, statelessStorageProvider, userUtil);
+        configureAuditQueue(auditConfig);
+    }
+
     @Override
     public void initialize(DuraStoreInitConfig initConfig,
                            String instanceHost,
@@ -101,7 +109,10 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
     }
 
     private void configureAuditQueue() {
-        AuditConfig auditConfig = getInitConfig().getAuditConfig();
+        configureAuditQueue(getInitConfig().getAuditConfig());
+    }
+    
+    private void configureAuditQueue(AuditConfig auditConfig) {
         if(null == auditConfig) {
             // If no audit config defined, turn off auditing
             this.auditQueue = new NoopTaskQueue();
@@ -115,14 +126,17 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
                 // for the SQS client to pick up
                 String auditUsername = auditConfig.getAuditUsername();
                 String auditPassword = auditConfig.getAuditPassword();
+                
                 if(null != auditUsername && null != auditPassword) {
                     System.setProperty("aws.accessKeyId", auditUsername);
                     System.setProperty("aws.secretKey", auditPassword);
                 }
+
                 this.auditQueue = new SQSTaskQueue(queueName);
             }
         }
     }
+
 
     @Override
     public TaskQueue getAuditQueue() {
