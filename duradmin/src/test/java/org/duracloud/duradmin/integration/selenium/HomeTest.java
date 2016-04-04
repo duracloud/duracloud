@@ -7,8 +7,10 @@
  */
 package org.duracloud.duradmin.integration.selenium;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +32,11 @@ public class HomeTest extends SeleniumTestBase {
     }
 
     public void testForFavicon() throws Exception {
-        HttpClient client = new HttpClient();
-        GetMethod get = new GetMethod(getBaseURL() + "favicon.ico");
-        get.setFollowRedirects(false);
-        assertEquals(200, client.executeMethod(get));
-        assertTrue(get.getResponseHeaders("Content-Type").length == 0);
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpGet get = new HttpGet(getBaseURL() + "favicon.ico");
+        HttpResponse response = client.execute(get);
+        assertEquals(200, response.getStatusLine().getStatusCode());
+        assertTrue(response.getHeaders("Content-Type").length  == 0);
     }
 
 }

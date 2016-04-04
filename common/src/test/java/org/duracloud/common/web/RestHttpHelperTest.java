@@ -7,9 +7,15 @@
  */
 package org.duracloud.common.web;
 
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.eclipse.jetty.server.Server;
@@ -20,13 +26,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -61,7 +60,7 @@ public class RestHttpHelperTest {
     @Before
     public void setUp() throws Exception {
         helper = new RestHttpHelper();
-        headers = new HashMap<String, String>();
+        headers = new HashMap<>();
         headers.put("header-key0", "header-value0");
     }
 
@@ -118,11 +117,12 @@ public class RestHttpHelperTest {
     public void testMultipartPost() throws Exception {
         File file = createTmpFile();
 
-        Part[] parts =
-                {new StringPart("param_name", "value"),
-                        new FilePart(file.getName(), file)};
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.addTextBody("name", "text");
+        builder.addBinaryBody(file.getName(), file);
+        HttpEntity reqEntity = builder.build();
 
-        HttpResponse response = helper.multipartPost(getUrl(), parts);
+        HttpResponse response = helper.multipartPost(getUrl(), reqEntity);
         verifyResponse(response);
         file.delete();
     }
@@ -142,8 +142,7 @@ public class RestHttpHelperTest {
         HttpResponse response =
                 helper.multipartFileStreamPost(getUrl(),
                         file.getName(),
-                        fileStream,
-                        fileStream.available());
+                        fileStream);
         verifyResponse(response);
         file.delete();
     }

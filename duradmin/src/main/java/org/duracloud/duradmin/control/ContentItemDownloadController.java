@@ -10,7 +10,7 @@ package org.duracloud.duradmin.control;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStateException;

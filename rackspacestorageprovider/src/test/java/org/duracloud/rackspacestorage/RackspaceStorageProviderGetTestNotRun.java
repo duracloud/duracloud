@@ -8,11 +8,10 @@
 package org.duracloud.rackspacestorage;
 
 import junit.framework.Assert;
-import org.duracloud.common.model.Credential;
+import org.duracloud.common.model.SimpleCredential;
+import org.duracloud.common.test.StorageProviderCredential;
+import org.duracloud.common.test.TestConfigUtil;
 import org.duracloud.openstackstorage.OpenStackStorageProvider;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.unittestdb.UnitTestDatabaseUtil;
-import org.duracloud.unittestdb.domain.ResourceType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,27 +26,26 @@ public class RackspaceStorageProviderGetTestNotRun {
     private OpenStackStorageProvider rackspaceProvider = null;
     private int attempts = 10;
 
+    private String username;
+    private String password;
+
     @Before
-    public void setUp() throws Exception {
-        if(null == rackspaceProvider) {
-            Credential rackspaceCredential = getCredential();
-            Assert.assertNotNull(rackspaceCredential);
+    public void setup() throws Exception {
+        TestConfigUtil configUtil = new TestConfigUtil();
+        SimpleCredential credential = configUtil.getCredential(
+            StorageProviderCredential.ProviderType.RACKSPACE);
+        Assert.assertNotNull(credential);
 
-            String username = rackspaceCredential.getUsername();
-            String password = rackspaceCredential.getPassword();
-            Assert.assertNotNull(username);
-            Assert.assertNotNull(password);
+        this.username = credential.getUsername();
+        this.password = credential.getPassword();
+        Assert.assertNotNull(username);
+        Assert.assertNotNull(password);
 
-            rackspaceProvider =
-                new RackspaceStorageProvider(username, password);
-        }
+        rackspaceProvider = getFreshStorageProvider();
     }
 
-    private Credential getCredential() throws Exception {
-        UnitTestDatabaseUtil dbUtil = new UnitTestDatabaseUtil();
-        return dbUtil.findCredentialForResource(
-            ResourceType.fromStorageProviderType(
-            StorageProviderType.RACKSPACE));
+    private RackspaceStorageProvider getFreshStorageProvider() {
+        return new RackspaceStorageProvider(username, password);
     }
 
     @Test

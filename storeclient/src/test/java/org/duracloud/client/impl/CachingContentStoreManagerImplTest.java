@@ -7,16 +7,16 @@
  */
 package org.duracloud.client.impl;
 
-import org.apache.commons.httpclient.HttpStatus;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import org.apache.http.HttpStatus;
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 /**
  * @author Andrew Woods
@@ -63,7 +63,7 @@ public class CachingContentStoreManagerImplTest {
     private HttpResponse createHttpResponse() throws Exception {
         String xml = getAccountXml();
         InputStream stream = new ByteArrayInputStream(xml.getBytes());
-        return new HttpResponse(HttpStatus.SC_OK, null, null, stream);
+        return new HttpResponse(HttpStatus.SC_OK, null, stream);
     }
 
     private String getAccountXml() throws Exception {

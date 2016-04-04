@@ -9,7 +9,7 @@ package org.duracloud.s3storage;
 
 import com.amazonaws.services.s3.Headers;
 import junit.framework.Assert;
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.ChecksumUtil;

@@ -7,9 +7,21 @@
  */
 package org.duracloud.client;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpStatus;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpStatus;
+import org.apache.http.message.BasicHeader;
 import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.retry.Retriable;
@@ -27,17 +39,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Andrew Woods
@@ -238,8 +239,8 @@ public class ContentStoreImplTest {
     @Test
     public void testGetSpaceProperties() throws Exception {
         Header[] headers =
-            new Header[]{new Header("x-dura-meta-space-count", "65"),
-                         new Header("x-dura-meta-custom-property", "custom")};
+            new Header[]{new BasicHeader("x-dura-meta-space-count", "65"),
+                         new BasicHeader("x-dura-meta-custom-property", "custom")};
         String fullURL = baseURL + "/" + spaceId + "?storeID=" + storeId;
         EasyMock.expect(response.getStatusCode()).andReturn(200);
         EasyMock.expect(restHelper.head(fullURL)).andReturn(response);
@@ -279,10 +280,9 @@ public class ContentStoreImplTest {
                          "?storeID=" + storeId;
         EasyMock.expect(response.getStatusCode()).andReturn(201);
         EasyMock.expect(response.getResponseHeader(HttpHeaders.CONTENT_MD5))
-                .andReturn(new Header(HttpHeaders.CONTENT_MD5, checksum));
+                .andReturn(new BasicHeader(HttpHeaders.CONTENT_MD5, checksum));
         EasyMock.expect(restHelper.put(EasyMock.eq(fullURL),
                                        EasyMock.eq(content),
-                                       EasyMock.eq("7"),
                                        EasyMock.eq(mime),
                                        EasyMock.capture(headersCapture)))
                 .andReturn(response);
@@ -359,8 +359,8 @@ public class ContentStoreImplTest {
         EasyMock.expect(response.getStatusCode()).andReturn(200);
 
         Header[] headers =
-            new Header[]{new Header("Content-Type", "text/xml"),
-                         new Header("x-dura-meta-custom-property", "custom")};
+            new Header[]{new BasicHeader("Content-Type", "text/xml"),
+                         new BasicHeader("x-dura-meta-custom-property", "custom")};
         EasyMock.expect(response.getResponseHeaders())
                 .andReturn(headers).times(2);
         EasyMock.expect(restHelper.head(fullURL)).andReturn(response);
@@ -732,7 +732,7 @@ public class ContentStoreImplTest {
         Header[] headers = new Header[acls.size()];
         int i = 0;
         for (String acl : acls.keySet()) {
-            headers[i++] = new Header(acl, acls.get(acl).name());
+            headers[i++] = new BasicHeader(acl, acls.get(acl).name());
         }
 
         EasyMock.expect(response.getStatusCode()).andReturn(status);

@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.duracloud.durastore.rest.RestTestHelper;
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 
 import junit.framework.TestCase;
 

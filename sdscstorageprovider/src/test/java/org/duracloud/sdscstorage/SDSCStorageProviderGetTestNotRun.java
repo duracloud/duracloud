@@ -7,23 +7,22 @@
  */
 package org.duracloud.sdscstorage;
 
-import junit.framework.Assert;
-import org.duracloud.common.model.Credential;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.unittestdb.UnitTestDatabaseUtil;
-import org.duracloud.unittestdb.domain.ResourceType;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import junit.framework.Assert;
+import org.duracloud.common.model.SimpleCredential;
+import org.duracloud.common.test.StorageProviderCredential;
+import org.duracloud.common.test.TestConfigUtil;
+import org.duracloud.storage.error.StorageException;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is used to test the SDSCStorageProvider GET calls.
@@ -36,31 +35,32 @@ public class SDSCStorageProviderGetTestNotRun {
     private final Logger log = LoggerFactory.getLogger(
         SDSCStorageProviderGetTestNotRun.class);
 
-    private SDSCStorageProvider sdscProvider = null;
+    SDSCStorageProvider sdscProvider;
 
     private String spaceId = "integration-test-space-id";
     private String contentId = "content-id";
     private int attempts = 10;
 
+    private String username;
+    private String password;
+
     @Before
-    public void setUp() throws Exception {
-        if (null == sdscProvider) {
-            Credential credential = getCredential();
-            Assert.assertNotNull(credential);
+    public void setup() throws Exception {
+        TestConfigUtil configUtil = new TestConfigUtil();
+        SimpleCredential credential = configUtil.getCredential(
+            StorageProviderCredential.ProviderType.SDSC);
+        Assert.assertNotNull(credential);
 
-            String username = credential.getUsername();
-            String password = credential.getPassword();
-            Assert.assertNotNull(username);
-            Assert.assertNotNull(password);
+        this.username = credential.getUsername();
+        this.password = credential.getPassword();
+        Assert.assertNotNull(username);
+        Assert.assertNotNull(password);
 
-            sdscProvider = new SDSCStorageProvider(username, password);
-        }
+        sdscProvider = getFreshStorageProvider();
     }
 
-    private Credential getCredential() throws Exception {
-        UnitTestDatabaseUtil dbUtil = new UnitTestDatabaseUtil();
-        return dbUtil.findCredentialForResource(ResourceType.fromStorageProviderType(
-            StorageProviderType.SDSC));
+    private SDSCStorageProvider getFreshStorageProvider() {
+        return new SDSCStorageProvider(username, password);
     }
 
     @Test
