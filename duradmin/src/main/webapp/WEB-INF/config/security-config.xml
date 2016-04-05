@@ -76,5 +76,9 @@
     <beans:property name="interceptorNames" value="securityAdvisor"/>
   </beans:bean>
 
+  <beans:bean id="webexpressionHandler"
+    class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" /> 
+  
+
 
 </beans:beans>
