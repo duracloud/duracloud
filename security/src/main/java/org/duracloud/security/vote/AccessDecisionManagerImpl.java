@@ -7,9 +7,9 @@
  */
 package org.duracloud.security.vote;
 
-
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
@@ -25,6 +25,10 @@ import org.springframework.security.core.Authentication;
  *         Date: Mar 12, 2010
  */
 public class AccessDecisionManagerImpl extends AbstractAccessDecisionManager {
+
+    public AccessDecisionManagerImpl(List<AccessDecisionVoter<? extends Object>> decisionVoters) {
+        super(decisionVoters);
+    }
 
     /**
      * <pre>
@@ -75,7 +79,6 @@ public class AccessDecisionManagerImpl extends AbstractAccessDecisionManager {
 
         // To get this far, every AccessDecisionVoter abstained
         checkAllowIfAllAbstainDecisions();
-
     }
 
 }

@@ -6,7 +6,7 @@
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
            http://www.springframework.org/schema/security
-           http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+           http://www.springframework.org/schema/security/spring-security-4.0.xsd">
 
   <!--
     A lot of Spring conventions here.
@@ -16,11 +16,12 @@
       various servlet filters (including basic-auth, anonymous, and exception-translation)
    -->
   <http access-decision-manager-ref="duraAccessDecisionManager"
-        realm="DuraCloud:DuraBoss">
+        realm="DuraCloud:DuraBoss" use-expressions="false">
+    <csrf disabled="true"/>
 
     <intercept-url pattern="/security" access="ROLE_ROOT"/>
 
-    <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS, ROLE_USER"/>
+    <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS,ROLE_USER"/>
     <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
 
     <intercept-url pattern="/**" method="GET" access="ROLE_ADMIN"/>
@@ -35,12 +36,12 @@
   <!-- The decision-voters here contribute to the AuthZ decision -->
   <beans:bean id="duraAccessDecisionManager" class="org.duracloud.security.vote.AccessDecisionManagerImpl">
     <beans:property name="allowIfAllAbstainDecisions" value="false"/>
-    <beans:property name="decisionVoters">
+    <beans:constructor-arg name="decisionVoters">
       <beans:list>
         <beans:bean class="org.duracloud.security.vote.RoleVoterImpl" />
         <beans:bean class="org.duracloud.security.vote.UserIpLimitsAccessVoter" />
       </beans:list>
-    </beans:property>
+    </beans:constructor-arg>
   </beans:bean>
 
   <!-- AuthN Manager-->

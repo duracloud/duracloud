@@ -7,8 +7,6 @@
  */
 package org.duracloud.durastore.util;
 
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,9 +25,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 
 /**
  * @author Andrew Woods
@@ -55,7 +55,7 @@ public class ACLStorageProviderErrorTest {
         mockProvider = createMockStorageProvider();
         context = EasyMock.createMock("SecurityContext", SecurityContext.class);
 
-        authorities = new GrantedAuthority[]{new GrantedAuthorityImpl(
+        authorities = new GrantedAuthority[]{new SimpleGrantedAuthority(
             "ROLE_USER")};
         groups = new ArrayList<String>();
         groups.add(group);

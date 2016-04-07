@@ -7,7 +7,7 @@
  */
 package org.duracloud.client.report;
 
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.duracloud.client.report.error.NotFoundException;
 import org.duracloud.client.report.error.ReportException;
 import org.duracloud.common.web.RestHttpHelper;

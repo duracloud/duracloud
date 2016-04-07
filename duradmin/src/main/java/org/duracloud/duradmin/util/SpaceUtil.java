@@ -7,7 +7,7 @@
  */
 package org.duracloud.duradmin.util;
 
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.constant.Constants;

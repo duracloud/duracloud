@@ -4,7 +4,7 @@
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
            http://www.springframework.org/schema/security
-           http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+           http://www.springframework.org/schema/security/spring-security-4.0.xsd">
 
   <beans:bean id="authenticationProcessingFilter"
               class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
@@ -12,7 +12,8 @@
     <beans:property name="filterProcessesUrl" value="/j_spring_security_check" />
   </beans:bean>
 
-  <http entry-point-ref="authenticationProcessingFilterEntryPoint">
+  <http entry-point-ref="authenticationProcessingFilterEntryPoint" use-expressions="false">
+    <csrf disabled="true"/>
     <intercept-url pattern="/init" method="GET" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
     <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
     <intercept-url pattern="/security" access="ROLE_ROOT"/>
@@ -50,7 +51,7 @@
   </beans:bean>
 
   <beans:bean id="authenticationProcessingFilterEntryPoint"	class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-		<beans:property name="loginFormUrl" value="/login" />
+		<beans:constructor-arg value="/login" />
 		<beans:property name="useForward" value="true" />
 	</beans:bean>
 
@@ -74,6 +75,10 @@
     <beans:property name="target" ref="contentStoreManagerTarget"/>
     <beans:property name="interceptorNames" value="securityAdvisor"/>
   </beans:bean>
+
+  <beans:bean id="webexpressionHandler"
+    class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" /> 
+  
 
 
 </beans:beans>

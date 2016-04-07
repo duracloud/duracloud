@@ -13,7 +13,7 @@ import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.duracloud.durastore.rest.RestTestHelper;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 
 /**
  * Tests the Retry AOP over storage providers

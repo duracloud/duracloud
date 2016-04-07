@@ -7,7 +7,7 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;

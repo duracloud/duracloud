@@ -37,7 +37,7 @@ public class ReportManagerTestBase {
     protected void setResponse(String value) {
         InputStream stream = new ByteArrayInputStream(value.getBytes());
         successResponse =
-            new RestHttpHelper.HttpResponse(200, null, null, stream);
+            RestHttpHelper.HttpResponse.buildMock(200, null, stream);
     }
 
     protected void replayMocks() {

@@ -15,7 +15,7 @@ import java.util.Collection;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.appconfig.domain.NotificationConfig;
 import org.duracloud.client.ContentStoreManager;

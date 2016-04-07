@@ -246,7 +246,7 @@ a.button {
 				<div id="main-content-panel">
 				<div id="main-content-tabs">
 				<ul>
-                    <sec:authorize ifAnyGranted="ROLE_ADMIN">
+                    <sec:authorize access="hasRole('ROLE_ADMIN')">
                         <li><a id="storage-tab-link" href="#tabs-storage"><span>Storage</span></a></li>
                     </sec:authorize>
                     <li><a id="tools-tab-link" href="#tabs-tools"><span>Tools</span></a></li>
@@ -287,7 +287,7 @@ a.button {
                     </div>
                 </div>
 
-                <sec:authorize ifAnyGranted="ROLE_ADMIN">
+                <sec:authorize access="hasRole('ROLE_ADMIN')">
 				<div id="tabs-storage" class="ui-corner-all">
 				  <div class="north">
                     <div id="report-breadcrumb" class="dc-breadcrumb"></div>
