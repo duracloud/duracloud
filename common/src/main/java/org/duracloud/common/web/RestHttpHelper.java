@@ -7,11 +7,9 @@
  */
 package org.duracloud.common.web;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
@@ -20,11 +18,12 @@ import java.util.Map;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -32,14 +31,18 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicStatusLine;
+import org.apache.http.util.EntityUtils;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.IOUtil;
 import org.slf4j.Logger;
@@ -253,7 +256,7 @@ public class RestHttpHelper {
                                         Method method,
                                         HttpEntity requestEntity,
                                         Map<String, String> headers)
-            throws Exception {
+            throws IOException {
         if (url == null || url.length() == 0) {
             throw new IllegalArgumentException("URL must be a non-empty value");
         }
@@ -268,8 +271,8 @@ public class RestHttpHelper {
             log.debug(loggingRequestText(url, method, requestEntity, headers));
         }
 
-        HttpResponse response;
-        if(null != credsProvider) {
+        org.apache.http.HttpResponse response;
+        if (null != credsProvider) {
             CloseableHttpClient httpClient =
                 HttpClients.custom().setDefaultCredentialsProvider(credsProvider).build();
 
@@ -284,17 +287,19 @@ public class RestHttpHelper {
             HttpClientContext localContext = HttpClientContext.create();
             localContext.setAuthCache(authCache);
 
-            response = httpClient.execute(httpRequest, buildResponseHandler(), localContext);
+            response = httpClient.execute(httpRequest, localContext);
         } else {
             CloseableHttpClient httpClient = HttpClients.createDefault();
-            response = httpClient.execute(httpRequest, buildResponseHandler());
+            response = httpClient.execute(httpRequest);
         }
+
+        HttpResponse httpResponse = new HttpResponse(response);
 
         if (log.isDebugEnabled()) {
-            log.debug(loggingResponseText(response));
+            log.debug(loggingResponseText(httpResponse));
         }
 
-        return response;
+        return httpResponse;
     }
 
     private void addHeaders(HttpRequestBase httpRequest, Map<String, String> headers) {
@@ -308,54 +313,26 @@ public class RestHttpHelper {
         }
     }
 
-    private ResponseHandler<HttpResponse> buildResponseHandler() {
-        return new ResponseHandler<HttpResponse>() {
-            @Override
-            public HttpResponse handleResponse(final org.apache.http.HttpResponse httpResponse)
-                throws IOException {
-                return new HttpResponse(httpResponse.getStatusLine().getStatusCode(),
-                                        httpResponse.getAllHeaders(),
-                                        httpResponse.getEntity().getContent());
-            }
-        };
-    }
-
     public static class HttpResponse {
 
-        private final int statusCode;
+        protected final org.apache.http.HttpResponse response;
 
-        private final InputStream responseStream;
-
-        private final Header[] responseHeaders;
-
-        public HttpResponse(int statusCode,
-                            Header[] responseHeaders,
-                            InputStream responseStream) {
-            this.statusCode = statusCode;
-            this.responseHeaders = responseHeaders;
-            this.responseStream = responseStream;
+        public HttpResponse(org.apache.http.HttpResponse response) {
+            this.response = response;
         }
 
         public int getStatusCode() {
-            return statusCode;
+            return response.getStatusLine().getStatusCode();
         }
 
-        public InputStream getResponseStream() {
-            return responseStream;
+        public InputStream getResponseStream() throws IOException {
+            return response.getEntity().getContent();
         }
 
         public String getResponseBody() throws IOException {
-            if (responseStream != null) {
-                BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(responseStream,
-                                                             "UTF-8"));
-                StringBuilder builder = new StringBuilder();
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line);
-                }
-                responseStream.close();
-                return builder.toString();
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                return EntityUtils.toString(entity);
             } else {
                 // No response body will be available for HEAD requests
                 return null;
@@ -363,16 +340,35 @@ public class RestHttpHelper {
         }
 
         public Header[] getResponseHeaders() {
-            return responseHeaders;
+            return response.getAllHeaders();
         }
 
         public Header getResponseHeader(String headerName) {
-            for (Header header : responseHeaders) {
+            for (Header header : response.getAllHeaders()) {
                 if (header.getName().equalsIgnoreCase(headerName)) {
                     return header;
                 }
             }
             return null;
+        }
+
+        /**
+         * Provided for testing of Http responses
+         */
+        public static HttpResponse buildMock(int statusCode,
+                                             Header[] responseHeaders,
+                                             InputStream responseStream) {
+            ProtocolVersion pVersion = new ProtocolVersion("HTTP", 1, 1);
+            StatusLine statusLine = new BasicStatusLine(pVersion, statusCode, "");
+
+            org.apache.http.HttpResponse response =
+                new DefaultHttpResponseFactory().newHttpResponse(statusLine, null);
+            response.setHeaders(responseHeaders);
+            BasicHttpEntity entity = new BasicHttpEntity();
+            entity.setContent(responseStream);
+            response.setEntity(entity);
+
+            return new HttpResponse(response);
         }
     }
 

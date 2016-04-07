@@ -12,7 +12,6 @@ import java.io.InputStream;
 
 import org.apache.http.HttpStatus;
 import org.duracloud.common.web.RestHttpHelper;
-import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.easymock.EasyMock;
 import org.junit.Before;
@@ -53,10 +52,10 @@ public class CachingContentStoreImplTest {
         EasyMock.verify(restHttpHelper);
     }
 
-    private HttpResponse createHttpResponse() throws Exception {
+    private RestHttpHelper.HttpResponse createHttpResponse() throws Exception {
         String xml = getAccountXml();
         InputStream stream = new ByteArrayInputStream(xml.getBytes());
-        return new HttpResponse(HttpStatus.SC_OK, null, stream);
+        return RestHttpHelper.HttpResponse.buildMock(HttpStatus.SC_OK, null, stream);
     }
 
     private String getAccountXml() throws Exception {
