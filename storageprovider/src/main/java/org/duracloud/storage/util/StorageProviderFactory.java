@@ -26,7 +26,6 @@ public interface StorageProviderFactory {
                            String instancePort,
                            String accountId);
 
-    public boolean isInitialized();
 
     public List<StorageAccount> getStorageAccounts();
 

@@ -19,7 +19,6 @@ import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProviderImpl;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
-import org.duracloud.storage.xml.DuraStoreInitDocumentBinding;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -62,14 +61,12 @@ public class StorageProviderUtilsTest {
 
     @Test
     public void testStorageProviderUtilities() throws Exception {
-        InputStream is = new ByteArrayInputStream(accountXml.getBytes("UTF-8"));
         StorageAccountManager acctManager = new StorageAccountManager();
         StorageProviderFactory storageProviderFactory =
             new StorageProviderFactoryImpl(acctManager,
                                            new StatelessStorageProviderImpl(),
                                            new TestUserUtil());
-        DuraStoreInitConfig config = new DuraStoreInitDocumentBinding().createFromXml(is);
-        storageProviderFactory.initialize(config, "host", "port", "accountid");
+        storageProviderFactory.initialize(null, "host", "port", "accountid");
         StorageProvider storage =
             storageProviderFactory.getStorageProvider();
 

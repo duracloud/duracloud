@@ -25,7 +25,6 @@ public class Application extends ResourceConfig{
         public Application () {
             super(
                 RequestContextFilter.class,
-                InitRest.class,
                 StoreRest.class,
                 SpaceRest.class,
                 ManifestRest.class,

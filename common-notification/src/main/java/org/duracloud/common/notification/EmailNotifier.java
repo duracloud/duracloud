@@ -7,7 +7,6 @@
  */
 package org.duracloud.common.notification;
 
-import org.duracloud.appconfig.domain.NotificationConfig;
 import org.duracloud.notification.AmazonNotificationFactory;
 import org.duracloud.notification.Emailer;
 import org.duracloud.notification.NotificationFactory;

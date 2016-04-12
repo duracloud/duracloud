@@ -61,7 +61,6 @@ public class RestExceptionsTestSupport {
             StorageProviderFactory.class);
         EasyMock.expect(factory.getStorageAccounts()).andThrow(
             createRuntimeException()).anyTimes();
-        EasyMock.expect(factory.isInitialized()).andReturn(false).anyTimes();
 
         EasyMock.replay(factory);
         return factory;

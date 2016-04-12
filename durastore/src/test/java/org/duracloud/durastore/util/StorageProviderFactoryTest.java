@@ -7,9 +7,13 @@
  */
 package org.duracloud.durastore.util;
 
-import org.duracloud.common.util.EncryptionUtil;
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.duracloud.common.util.UserUtil;
-import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -18,21 +22,10 @@ import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
-import org.duracloud.storage.xml.DuraStoreInitDocumentBinding;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author: Bill Branan
@@ -59,8 +52,6 @@ public class StorageProviderFactoryTest {
     private List<String> storageAccountIds;
     private StorageProviderFactory factory;
 
-    private static String accountXml;
-    private InputStream inputStream;
 
     @Before
     public void startup() throws Exception {
@@ -83,28 +74,6 @@ public class StorageProviderFactoryTest {
 
         factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, mockUserUtil);
 
-        EncryptionUtil encryptUtil = new EncryptionUtil();
-        String username = encryptUtil.encrypt("username");
-        String password = encryptUtil.encrypt("password");
-
-        StringBuilder xml = new StringBuilder();
-        xml.append("<durastoreConfig>");
-        xml.append("  <storageAudit>");
-        xml.append("  </storageAudit>");
-        xml.append("<storageProviderAccounts>");
-        xml.append("  <storageAcct ownerId='0' isPrimary='1'>");
-        xml.append("    <id>0</id>");
-        xml.append("    <storageProviderType>AMAZON_S3</storageProviderType>");
-        xml.append("    <storageProviderCredential>");
-        xml.append("      <username>"+username+"</username>");
-        xml.append("      <password>"+password+"</password>");
-        xml.append("    </storageProviderCredential>");
-        xml.append("  </storageAcct>");
-        xml.append("</storageProviderAccounts>");
-        xml.append("</durastoreConfig>");
-        accountXml = xml.toString();
-
-        inputStream = new ByteArrayInputStream(xml.toString().getBytes("UTF-8"));
     }
 
     private void replayMocks() {
@@ -207,15 +176,12 @@ public class StorageProviderFactoryTest {
 
         replayMocks();
         factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, mockUserUtil);
-        factory.initialize(getConfig(), instanceHost, instancePort, "account");
+        factory.initialize(null, instanceHost, instancePort, "account");
 
         //Test retrieving from accountManager now that the cache has been cleared
         getProvider();
     }
 
-    private DuraStoreInitConfig getConfig() {
-        return new DuraStoreInitDocumentBinding().createFromXml(inputStream);
-    }
 
     @Test
     public void testInitilizeWithCachingEnabled() {
@@ -239,7 +205,7 @@ public class StorageProviderFactoryTest {
         factory = new StorageProviderFactoryImpl(mockSAM, mockSSP,
                                                  mockUserUtil, true);
 
-        factory.initialize(getConfig(), instanceHost, instancePort,"account");
+        factory.initialize(null, instanceHost, instancePort,"account");
     }
     
     private StorageAccountManager getProvider() {

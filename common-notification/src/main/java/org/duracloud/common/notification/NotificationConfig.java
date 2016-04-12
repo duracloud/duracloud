@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.appconfig.domain;
+package org.duracloud.common.notification;
 
 import java.util.List;
 

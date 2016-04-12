@@ -7,7 +7,6 @@
  */
 package org.duracloud.common.notification;
 
-import org.duracloud.appconfig.domain.NotificationConfig;
 
 /**
  * A Notifier is responsible for sending notifications to a destination or
