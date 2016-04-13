@@ -23,7 +23,7 @@ import org.duracloud.security.domain.SecurityUserBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -110,7 +110,7 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
         List<String> grantBeans = u.getGrantedAuthorities();
         GrantedAuthority[] grants = new GrantedAuthority[grantBeans.size()];
         for (int i = 0; i < grantBeans.size(); ++i) {
-            grants[i] = new GrantedAuthorityImpl(grantBeans.get(i));
+            grants[i] = new SimpleGrantedAuthority(grantBeans.get(i));
         }
 
         DuracloudUserDetails user = new DuracloudUserDetails(u.getUsername(),

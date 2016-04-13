@@ -43,18 +43,10 @@
       <artifactId>swift</artifactId>
     </dependency>
 
-
     <!-- test -->
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common-json</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>unit-test-db</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

@@ -638,7 +638,7 @@
               type="hidden"
               name="storeId"
               id="storeId" />
-            <sec:authorize ifAnyGranted="ROLE_ROOT">
+            <sec:authorize access="hasRole('ROLE_ROOT')">
               <c:set var="rootUser" value="rootUser" />
             </sec:authorize>
             <c:if test="${fn:length(contentStores) == 1 or empty rootUser}">

@@ -26,7 +26,7 @@ import org.duracloud.common.model.Credential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * <pre>
@@ -45,7 +45,7 @@ public abstract class DatabaseUtil {
 
     private final EmbeddedDataSource dataSource;
 
-    private final SimpleJdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     private final String baseDir;
 
@@ -67,7 +67,7 @@ public abstract class DatabaseUtil {
                     "dataEncryption=true;bootPassword=" + bootPassword;
             dataSource.setConnectionAttributes(connAtts);
         }
-        jdbcTemplate = new SimpleJdbcTemplate(dataSource);
+        jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     protected abstract List<TableSpec> getTableSpecs();
@@ -159,7 +159,7 @@ public abstract class DatabaseUtil {
         dataSource.setShutdownDatabase("shutdown");
     }
 
-    public SimpleJdbcTemplate getSimpleJdbcTemplate() {
+    public JdbcTemplate getSimpleJdbcTemplate() {
         return jdbcTemplate;
     }
 
@@ -168,7 +168,7 @@ public abstract class DatabaseUtil {
     }
 
     public JdbcOperations getOps() {
-        return getSimpleJdbcTemplate().getJdbcOperations();
+        return getSimpleJdbcTemplate();
     }
 
     protected void execute(String sql) {

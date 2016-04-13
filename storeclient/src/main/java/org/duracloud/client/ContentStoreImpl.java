@@ -21,9 +21,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.http.Header;
+import org.apache.http.HttpStatus;
 import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.common.model.AclType;
@@ -57,6 +57,8 @@ import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 
 /**
  * Provides access to a content store
@@ -615,7 +617,6 @@ public class ContentStoreImpl implements ContentStore {
         try {
             HttpResponse response = restHelper.put(url,
                                                    content,
-                                                   String.valueOf(contentSize),
                                                    contentMimeType,
                                                    headers);
             checkResponse(response, HttpStatus.SC_CREATED);

@@ -79,7 +79,7 @@ public class GetSnapshotTaskRunnerTest {
             IOUtil.writeStringToStream(bridgeResult.serialize());
 
         RestHttpHelper.HttpResponse response =
-            new RestHttpHelper.HttpResponse(200, null, null, resultStream);
+            RestHttpHelper.HttpResponse.buildMock(200, null, resultStream);
         EasyMock.expect(restHelper.get(bridgeURL))
                 .andReturn(response);
 
@@ -99,7 +99,7 @@ public class GetSnapshotTaskRunnerTest {
 
         InputStream resultStream = IOUtil.writeStringToStream("Error");
         RestHttpHelper.HttpResponse response =
-            new RestHttpHelper.HttpResponse(500, null, null, resultStream);
+            RestHttpHelper.HttpResponse.buildMock(500, null, resultStream);
         EasyMock.expect(restHelper.get(bridgeURL))
                 .andReturn(response);
 

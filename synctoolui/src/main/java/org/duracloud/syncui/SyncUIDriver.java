@@ -7,19 +7,6 @@
  */
 package org.duracloud.syncui;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.duracloud.syncui.config.SyncUIConfig;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.imageio.ImageIO;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import java.awt.AWTException;
 import java.awt.Dialog.ModalityType;
 import java.awt.Image;
@@ -35,6 +22,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.ProtectionDomain;
 
+import javax.imageio.ImageIO;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.duracloud.syncui.config.SyncUIConfig;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SyncUIDriver {
     private static int port;
     private static String contextPath;
@@ -44,7 +47,7 @@ public class SyncUIDriver {
     public static void main(String[] args) throws Exception {
         String url = "http://localhost:" + SyncUIConfig.getPort() +
                      SyncUIConfig.getContextPath();
-        HttpClient client = new HttpClient();
+        CloseableHttpClient client = HttpClients.createDefault();
 
         if(isAppRunning(url, client)) {
             log.info("Sync Application already running, launching browser...");
@@ -56,7 +59,7 @@ public class SyncUIDriver {
     }
 
     private static void launchServer(final String url,
-                                     final HttpClient client) {
+                                     final CloseableHttpClient client) {
         try {
             final JDialog dialog = new JDialog();
             dialog.setSize(new java.awt.Dimension(400, 75));
@@ -122,18 +125,20 @@ public class SyncUIDriver {
         }
     }
 
-    private static boolean isAppRunning(String url, HttpClient client) {
-        GetMethod get = new GetMethod(url);
-        int response = 0;
+    private static boolean isAppRunning(String url, CloseableHttpClient client) {
+        HttpGet get = new HttpGet(url);
+        CloseableHttpResponse response;
+        int responseCode;
         try {
-            response = client.executeMethod(get);
+            response = client.execute(get);
+            responseCode = response.getStatusLine().getStatusCode();
         } catch(IOException e) {
             log.debug("Attempt to connect to synctool app at url " + url +
                       " failed due to: " + e.getMessage());
-            response = 0;
+            responseCode = 0;
         }
-        log.debug("Response from {}: {}", url, response);
-        return response == 200;
+        log.debug("Response from {}: {}", url, responseCode);
+        return responseCode == 200;
     }
 
     private static void sleep(int millis) {

@@ -8,7 +8,7 @@
 package org.duracloud.durastore.rest;
 
 import static junit.framework.Assert.assertNotNull;
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import static org.junit.Assert.assertTrue;

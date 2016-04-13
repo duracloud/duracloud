@@ -238,7 +238,7 @@ public class CreateSnapshotTaskRunnerTest {
             IOUtil.writeStringToStream(bridgeResult.serialize());
 
         RestHttpHelper.HttpResponse response =
-            new RestHttpHelper.HttpResponse(201, null, null, resultStream);
+            RestHttpHelper.HttpResponse.buildMock(201, null, resultStream);
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
         EasyMock.expect(restHelper.put(snapshotURL, snapshotBody, headers))
@@ -262,7 +262,7 @@ public class CreateSnapshotTaskRunnerTest {
 
         InputStream resultStream = IOUtil.writeStringToStream("Error");
         RestHttpHelper.HttpResponse response =
-            new RestHttpHelper.HttpResponse(500, null, null, resultStream);
+            RestHttpHelper.HttpResponse.buildMock(500, null, resultStream);
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
         EasyMock.expect(restHelper.put(snapshotURL, snapshotBody, headers))

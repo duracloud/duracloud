@@ -545,7 +545,7 @@ $(function(){
             var feedback = $("#feedback");
             return $.ajax({
                 type : "POST",
-                url : "/duradmin/j_spring_security_check",
+                url : form.attr("action"),
                 data : form.serialize(),
                 cache : false,
                 beforeSend : function() {
