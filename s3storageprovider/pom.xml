@@ -56,7 +56,12 @@
     <!-- Amazon library for accessing AWS services, including S3 -->
     <dependency>
       <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk</artifactId>
+      <artifactId>aws-java-sdk-s3</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-cloudfront</artifactId>
     </dependency>
 
   </dependencies>
