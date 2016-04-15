@@ -13,6 +13,11 @@
     <param-value>/WEB-INF/config/duracloud-app-config.xml</param-value>
   </context-param>
 
+  <context-param>
+    <param-name>contextClass</param-name>
+    <param-value>org.duracloud.common.rest.spring.XmlWebApplicationContext</param-value>
+  </context-param>
+
   <!--
     - This is useful because current browsers typically do not
     - set a character encoding even if specified in the HTML page or form

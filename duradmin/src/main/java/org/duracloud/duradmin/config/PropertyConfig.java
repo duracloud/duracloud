@@ -18,7 +18,7 @@ import org.springframework.core.annotation.Order;
 
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@PropertySource("file://${duracloud.config.file}") //this references the system property.
+@PropertySource("${duracloud.config.file}") //this references the system property.
 public class PropertyConfig {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException{

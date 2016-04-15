@@ -15,13 +15,16 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.ResourceLoader;
 
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@PropertySource("file://${duracloud.config.file}") //this references the system property.
+@PropertySource("${duracloud.config.file}") //this references the system property.
+
 public class PropertyConfig {
+    
     @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException{
+    public  PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer(ResourceLoader resourceLoader) throws IOException{
         PropertySourcesPlaceholderConfigurer p = new PropertySourcesPlaceholderConfigurer();
         return p;
     }
