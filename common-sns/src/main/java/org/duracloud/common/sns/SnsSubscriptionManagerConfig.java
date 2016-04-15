@@ -20,7 +20,6 @@ import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.cache.AccountComponentCache;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.event.AccountChangeEvent;
-import org.duracloud.common.util.AccountStoreConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -61,30 +60,27 @@ public class SnsSubscriptionManagerConfig {
                                            props.getInstanceNotificationTopicArn(),
                                            queueName);
 
-            if(!AccountStoreConfig.accountStoreIsLocal()){
-                subscriptionManager.addListener(new MessageListener() {
-                    @Override
-                    public void onMessage(Message message) {
-                        log.info("message received: " + message);
-                        log.info("message body: " + message.getBody());
-                        JsonFactory factory = new JsonFactory(); 
-                        ObjectMapper mapper = new ObjectMapper(factory); 
-                        TypeReference<HashMap<String,String>> typeRef 
-                                = new TypeReference<HashMap<String,String>>() {};
-                        String body = message.getBody();
-                        try {
-                            Map<String,String> map = mapper.readValue(body, typeRef);
-                            AccountChangeEvent event = AccountChangeEvent.deserialize(map.get("Message"));
-                            for(AccountComponentCache<?> cache : componentCaches){
-                                cache.onEvent(event);
-                            }
-                        } catch (IOException e) {
-                            log.error("failed to handle message: " + e.getMessage(), e);
-                        } 
-                    }
-                });
-            }
-
+            subscriptionManager.addListener(new MessageListener() {
+                @Override
+                public void onMessage(Message message) {
+                    log.info("message received: " + message);
+                    log.info("message body: " + message.getBody());
+                    JsonFactory factory = new JsonFactory(); 
+                    ObjectMapper mapper = new ObjectMapper(factory); 
+                    TypeReference<HashMap<String,String>> typeRef 
+                            = new TypeReference<HashMap<String,String>>() {};
+                    String body = message.getBody();
+                    try {
+                        Map<String,String> map = mapper.readValue(body, typeRef);
+                        AccountChangeEvent event = AccountChangeEvent.deserialize(map.get("Message"));
+                        for(AccountComponentCache<?> cache : componentCaches){
+                            cache.onEvent(event);
+                        }
+                    } catch (IOException e) {
+                        log.error("failed to handle message: " + e.getMessage(), e);
+                    } 
+                }
+            });
             
             return subscriptionManager;
         } catch (UnknownHostException e) {

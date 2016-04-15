@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpStatus;
+import org.duracloud.client.HttpHeaders;
 import org.duracloud.common.constant.Constants;
-import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.junit.After;

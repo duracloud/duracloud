@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.duracloud.common.util.UserUtil;
+import org.duracloud.storage.domain.DatabaseConfig;
+import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -176,10 +178,20 @@ public class StorageProviderFactoryTest {
 
         replayMocks();
         factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, mockUserUtil);
-        factory.initialize(null, instanceHost, instancePort, "account");
+        factory.initialize(createConfig(), instanceHost, instancePort, "account");
 
         //Test retrieving from accountManager now that the cache has been cleared
         getProvider();
+    }
+
+    protected DuraStoreInitConfig createConfig() {
+        DuraStoreInitConfig config = new DuraStoreInitConfig();
+        config.setStorageAccounts(Arrays.asList((StorageAccount) new StorageAccountImpl("id",
+                                                                                        "username",
+                                                                                        "password",
+                                                                                        StorageProviderType.AMAZON_S3)));
+        config.setMillDbConfig(new DatabaseConfig());
+        return config;
     }
 
 
@@ -202,10 +214,11 @@ public class StorageProviderFactoryTest {
 
         replayMocks();
 
+        
         factory = new StorageProviderFactoryImpl(mockSAM, mockSSP,
                                                  mockUserUtil, true);
 
-        factory.initialize(null, instanceHost, instancePort,"account");
+        factory.initialize(createConfig(), instanceHost, instancePort,"account");
     }
     
     private StorageAccountManager getProvider() {

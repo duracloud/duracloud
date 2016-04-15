@@ -17,7 +17,6 @@ import org.duracloud.account.db.model.StorageProviderAccount;
 import org.duracloud.account.db.repo.DuracloudAccountRepo;
 import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
-import org.duracloud.common.util.AccountStoreConfig;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -32,7 +31,6 @@ public class StorageAccountManagerFactory  {
     private DuracloudAccountRepo accountRepo;
     private GlobalPropertiesRepo globalPropertiesRepo;
     private DuraCloudRequestContextUtil contextUtil;
-    private StorageAccountManager localStorageAccountManager;
     public StorageAccountManagerFactory(DuracloudAccountRepo accountRepo,
                                       GlobalPropertiesRepo globalPropertiesRepo,
                               DuraCloudRequestContextUtil contextUtil) {
@@ -45,12 +43,6 @@ public class StorageAccountManagerFactory  {
     
     public StorageAccountManager createInstance () {
         
-        if(AccountStoreConfig.accountStoreIsLocal()){
-            if(this.localStorageAccountManager == null){
-                this.localStorageAccountManager = new StorageAccountManager();
-            }
-            return this.localStorageAccountManager;
-        }
         //retrieve account info from db
         String accountId = this.contextUtil.getAccountId();
         AccountInfo info = this.accountRepo.findBySubdomain(accountId);

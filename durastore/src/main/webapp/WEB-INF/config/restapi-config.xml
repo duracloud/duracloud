@@ -48,12 +48,6 @@
     <aop:scoped-proxy />
   </bean>
   
-  <bean id="localStorageProviderFactory" class="org.duracloud.durastore.util.StorageProviderFactoryImpl">
-    <constructor-arg ref="statelessStoragePvdr" />
-    <constructor-arg ref="storageAccountManager" />
-    <constructor-arg ref="securityContextUtil"/>
-    <constructor-arg value="true" />
-  </bean>
   
   <bean id="contextUtil" class="org.duracloud.common.rest.DuraCloudRequestContextUtil"/>
 
@@ -81,7 +75,6 @@
   
   <bean id="storageProviderFactory"  class="org.duracloud.durastore.rest.StorageProviderFactoryBean" lazy-init="true" scope="request">
     <property name="storageProviderFactoryCache" ref="storageProviderFactoryCache" />
-    <property name="localStorageProviderFactory" ref="localStorageProviderFactory" />
     <aop:scoped-proxy />
   </bean>
 

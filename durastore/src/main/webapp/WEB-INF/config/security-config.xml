@@ -99,9 +99,6 @@
     <authentication-provider user-service-ref="userDetailsSvc" />
   </authentication-manager>
 
-  <beans:bean id="localUserDetailsSvc" class="org.duracloud.security.impl.UserDetailsServiceImpl">
-  </beans:bean>
-  
   <beans:bean id="userDetailsServiceCache" class="org.duracloud.security.impl.UserDetailsServiceCache">
     <beans:constructor-arg ref="accountRepo" />
     <beans:constructor-arg ref="userFinderUtil"/>
@@ -109,7 +106,6 @@
   
   <beans:bean id="userDetailsSvc"  class="org.duracloud.security.impl.UserDetailsServiceFactoryBean" lazy-init="true" scope="request">
     <beans:property name="userDetailsServiceCache" ref="userDetailsServiceCache" />
-    <beans:property name="localUserDetailsService" ref="localUserDetailsSvc" />
     <aop:scoped-proxy />
   </beans:bean>
   

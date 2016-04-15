@@ -17,7 +17,6 @@ import org.duracloud.common.error.InvalidUsernameException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.common.model.SystemUserCredential;
-import org.duracloud.common.util.AccountStoreConfig;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.slf4j.Logger;
@@ -58,18 +57,6 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
                                                        systemUser.getPassword(),
                                                        grants);
         addUser(system);
-
-        if(AccountStoreConfig.accountStoreIsLocal()){
-            // Add root user
-            grants = new ArrayList<String>();
-            grants.add("ROLE_ROOT");
-            grants.add("ROLE_ADMIN");
-            grants.add("ROLE_USER");
-            SecurityUserBean root = new SecurityUserBean(rootUser.getUsername(),
-                                                         rootUser.getRootEncodedPassword(),
-                                                         grants);
-            addUser(root);
-        }
     }
 
     /**

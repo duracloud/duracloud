@@ -11,7 +11,6 @@ import org.duracloud.common.cache.AbstractAccountComponentCache;
 import org.duracloud.common.event.AccountChangeEvent;
 import org.duracloud.common.event.AccountChangeEvent.EventType;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
-import org.duracloud.common.util.AccountStoreConfig;
 import org.duracloud.mill.manifest.ManifestStore;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.provider.TaskProviderFactory;
@@ -26,7 +25,6 @@ public class TaskProviderFactoryCache extends AbstractAccountComponentCache<Task
     private StorageAccountManagerFactory storageAccountManagerFactory;
     private StorageProviderFactory storageProviderFactory;
     private ManifestStore manifestStore;
-    private TaskProviderFactoryImpl localFactory;
     private DuraCloudRequestContextUtil contextUtil;
     
     public TaskProviderFactoryCache(DuraCloudRequestContextUtil contextUtil,
@@ -62,12 +60,6 @@ public class TaskProviderFactoryCache extends AbstractAccountComponentCache<Task
     
     @Override
     protected TaskProviderFactory createInstance (String accountId) {
-        if(AccountStoreConfig.accountStoreIsLocal()){
-            if(this.localFactory == null){
-                this.localFactory = new TaskProviderFactoryImpl(storageAccountManagerFactory.createInstance(), storageProviderFactory, manifestStore);
-            }
-            return this.localFactory;
-        }
         // retrieve account info from db
         StorageAccountManager storageAccountManager =
             this.storageAccountManagerFactory.createInstance();

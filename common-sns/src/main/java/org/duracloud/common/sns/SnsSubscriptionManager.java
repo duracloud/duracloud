@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.common.util.AccountStoreConfig;
 import org.duracloud.common.util.WaitUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,9 +65,6 @@ public class SnsSubscriptionManager {
             throw new DuraCloudRuntimeException("this manager is already connected");
         }
         
-        if(AccountStoreConfig.accountStoreIsLocal()){
-            return;
-        }
         //create sqs queue
         log.info("creating sqs queue");
         CreateQueueRequest request = new CreateQueueRequest(this.queueName);
@@ -183,10 +179,6 @@ public class SnsSubscriptionManager {
             throw new DuraCloudRuntimeException("this manager is already disconnected");
         }
         
-        if(AccountStoreConfig.accountStoreIsLocal()){
-            return;
-        }
-
         log.info("disconnecting");
         log.info("unsubscribing {}", this.subscriptionArn);
         this.snsClient.unsubscribe(this.subscriptionArn);

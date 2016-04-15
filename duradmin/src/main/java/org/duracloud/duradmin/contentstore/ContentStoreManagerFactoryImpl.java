@@ -10,8 +10,6 @@ package org.duracloud.duradmin.contentstore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
-import org.duracloud.common.util.AccountStoreConfig;
-import org.duracloud.duradmin.config.DuradminConfig;
 
 public class ContentStoreManagerFactoryImpl
         implements ContentStoreManagerFactory {
@@ -22,17 +20,7 @@ public class ContentStoreManagerFactoryImpl
         this.requestUtil = requestUtil;
     }
     public ContentStoreManager create() throws Exception {
-        String durastoreHost = null;
-        String durastorePort = null;
-        if(AccountStoreConfig.accountStoreIsLocal()){
-            durastoreHost = DuradminConfig.getDuraStoreHost();
-            durastoreHost = DuradminConfig.getDuraStorePort();
-        }else{
-            durastoreHost = requestUtil.getHost();
-            durastorePort = requestUtil.getPort()+"";
-        }
-        
-        return new ContentStoreManagerImpl(durastoreHost,
-                                           durastorePort);
+        return new ContentStoreManagerImpl(requestUtil.getHost(),
+                                           requestUtil.getPort()+"");
     }
 }

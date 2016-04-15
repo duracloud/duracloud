@@ -8,7 +8,6 @@
 package org.duracloud.durastore.rest;
 
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
-import org.duracloud.common.util.AccountStoreConfig;
 import org.duracloud.durastore.util.StorageProviderFactoryCache;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
  *
  */
 public class StorageProviderFactoryBean extends AbstractFactoryBean<StorageProviderFactory>{
-    private StorageProviderFactory localStorageProviderFactory;
     private StorageProviderFactoryCache storageProviderFactoryCache;
     private DuraCloudRequestContextUtil accountIdUtil = new DuraCloudRequestContextUtil();
     
@@ -27,22 +25,10 @@ public class StorageProviderFactoryBean extends AbstractFactoryBean<StorageProvi
         super();
     }
 
-    public StorageProviderFactory getlocalStorageProviderFactory() {
-        return localStorageProviderFactory;
-    }
-    
-    public void
-           setlocalStorageProviderFactory(StorageProviderFactory localStorageProviderFactory) {
-        this.localStorageProviderFactory = localStorageProviderFactory;
-    }
     
     @Override
     public StorageProviderFactory createInstance() throws Exception {
-        if(AccountStoreConfig.accountStoreIsLocal()){
-            return this.localStorageProviderFactory;
-        }else{
-            return this.storageProviderFactoryCache.get(accountIdUtil.getAccountId());
-        }
+        return this.storageProviderFactoryCache.get(accountIdUtil.getAccountId());
     }
 
     @Override

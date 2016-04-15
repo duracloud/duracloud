@@ -81,7 +81,6 @@
     <module>durastore</module>
     <module>reportdata</module>
     <module>auditor</module>
-    <module>app-config</module>
     <module>chunk</module>
     <module>stitch</module>
     <module>manifeststitch</module>
