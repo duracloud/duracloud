@@ -7,10 +7,13 @@
  */
 package org.duracloud.common.test;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
+
+import org.duracloud.common.model.Credential;
 
 /**
  * Test configuration information. To be used for integration tests which
@@ -21,17 +24,36 @@ import java.util.List;
  */
 @XmlRootElement
 public class TestConfig {
+    
+    
+    public TestConfig() {
+        providerCredentials = new ArrayList<>();
+    }
 
+    
     @XmlValue
     private List<StorageProviderCredential> providerCredentials;
 
     @XmlValue
     private String queueName;
 
-    public TestConfig() {
-        providerCredentials = new ArrayList<>();
-    }
+    
+    @XmlValue
+    private TestEndPoint testEndPoint = new TestEndPoint();
+    
+    @XmlValue 
+    private Credential userCredential = new Credential("user", "upw");
 
+    @XmlValue 
+    private Credential adminCredential = new Credential("admin", "apw");
+
+    @XmlValue 
+    private Credential rootCredential  = new Credential("root", "rpw");
+
+ 
+    public TestEndPoint getTestEndPoint(){
+        return this.testEndPoint;
+    }
     public void addProviderCredential(StorageProviderCredential cred) {
         providerCredentials.add(cred);
     }
@@ -52,5 +74,28 @@ public class TestConfig {
     public void setQueueName(String queueName) {
         this.queueName = queueName;
     }
+    public Credential getUserCredential() {
+        return userCredential;
+    }
+    public void setUserCredential(Credential userCredential) {
+        this.userCredential = userCredential;
+    }
+    public Credential getAdminCredential() {
+        return adminCredential;
+    }
+    public void setAdminCredential(Credential adminCredential) {
+        this.adminCredential = adminCredential;
+    }
+    public Credential getRootCredential() {
+        return rootCredential;
+    }
+    public void setRootCredential(Credential rootCredential) {
+        this.rootCredential = rootCredential;
+    }
+    public void setTestEndPoint(TestEndPoint testEndPoint) {
+        this.testEndPoint = testEndPoint;
+    }
+    
+    
 
 }

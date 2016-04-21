@@ -23,10 +23,12 @@ import org.duracloud.chunk.writer.DuracloudContentWriter;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
+import org.duracloud.common.test.TestConfig;
+import org.duracloud.common.test.TestConfigUtil;
+import org.duracloud.common.test.TestEndPoint;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.integration.util.StorageAccountTestUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,9 +43,6 @@ public class TestDuracloudContentWriter {
     private DuracloudContentWriter writer;
     private DuracloudContentWriter writerThrow;
 
-    private static String host = "localhost";
-    private static String port = null;
-    private static final String defaultPort = "8080";
     private static String context = "durastore";
     private static String username = "user-1";
 
@@ -62,28 +61,16 @@ public class TestDuracloudContentWriter {
 
     @Before
     public void setUp() throws Exception {
-        StorageAccountTestUtil storageUtil = new StorageAccountTestUtil();
-        storeManager = new ContentStoreManagerImpl(host, getPort(), context);
-        storeManager.login(storageUtil.getRootCredential());
+        TestConfig testConfig = new TestConfigUtil().getTestConfig();
+        TestEndPoint endpoint = testConfig.getTestEndPoint();
+        storeManager = new ContentStoreManagerImpl(endpoint.getHost(), endpoint.getPort()+"", context);
+        storeManager.login(testConfig.getRootCredential());
 
         store = storeManager.getPrimaryContentStore();
         writer = new DuracloudContentWriter(store, username);
         writerThrow = new DuracloudContentWriter(store, username, true);
     }
 
-    private static String getPort() throws Exception {
-        if (port == null) {
-            ChunkTestsConfig config = new ChunkTestsConfig();
-            port = config.getPort();
-        }
-
-        try { // Ensure the port is a valid port value
-            Integer.parseInt(port);
-        } catch (NumberFormatException e) {
-            port = defaultPort;
-        }
-        return port;
-    }
 
     @After
     public void tearDown() throws Exception {
