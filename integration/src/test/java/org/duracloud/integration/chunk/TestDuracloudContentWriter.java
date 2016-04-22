@@ -23,6 +23,8 @@ import org.duracloud.chunk.writer.DuracloudContentWriter;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
+import org.duracloud.common.model.Credential;
+import org.duracloud.common.model.SimpleCredential;
 import org.duracloud.common.test.TestConfig;
 import org.duracloud.common.test.TestConfigUtil;
 import org.duracloud.common.test.TestEndPoint;
@@ -64,7 +66,9 @@ public class TestDuracloudContentWriter {
         TestConfig testConfig = new TestConfigUtil().getTestConfig();
         TestEndPoint endpoint = testConfig.getTestEndPoint();
         storeManager = new ContentStoreManagerImpl(endpoint.getHost(), endpoint.getPort()+"", context);
-        storeManager.login(testConfig.getRootCredential());
+        SimpleCredential cred =  testConfig.getRootCredential();
+        storeManager.login(new Credential(cred.getUsername(), cred.getPassword()));
+        
 
         store = storeManager.getPrimaryContentStore();
         writer = new DuracloudContentWriter(store, username);

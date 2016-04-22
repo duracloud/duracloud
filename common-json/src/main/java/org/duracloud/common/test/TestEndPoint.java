@@ -13,7 +13,7 @@ package org.duracloud.common.test;
  */
 public class TestEndPoint {
     private String host = "localhost";
-    private int port = 8080;
+    private String port = "8080";
     
     public String getHost() {
         return host;
@@ -21,10 +21,10 @@ public class TestEndPoint {
     public void setHost(String host) {
         this.host = host;
     }
-    public int getPort() {
+    public String getPort() {
         return port;
     }
-    public void setPort(int port) {
+    public void setPort(String port) {
         this.port = port;
     }
 }

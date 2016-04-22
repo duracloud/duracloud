@@ -45,7 +45,7 @@ public class TestSpaceRest extends BaseRestTester {
         // Add space
         setNewSpaceId();
         HttpResponse response = RestTestHelper.addSpace(BaseRestTester.spaceId);
-        String responseText = checkResponse(response, HttpStatus.SC_CREATED);
+        checkResponse(response, HttpStatus.SC_CREATED);
 
         spaces = new ArrayList<String>();
         spaces.add(BaseRestTester.spaceId);
@@ -86,8 +86,6 @@ public class TestSpaceRest extends BaseRestTester {
         id = "tes";
         checkValidSpaceId(id);
 
-        id = "test-space-test-space-test-space-test-space-test-space-test-spa";
-        checkValidSpaceId(id);
     }
 
     private void checkInvalidSpaceId(String id) throws Exception {
@@ -107,17 +105,6 @@ public class TestSpaceRest extends BaseRestTester {
         HttpResponse response = BaseRestTester.restHelper.get(url);
         String responseText = checkResponse(response, HttpStatus.SC_OK);
         assertTrue(responseText.contains("<spaces>"));
-    }
-
-    @Test
-    public void testGetSpaceProperties() throws Exception {
-        String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId;
-        HttpResponse response = BaseRestTester.restHelper.head(url);
-        checkResponse(response, HttpStatus.SC_OK);
-
-        testProperties(response,
-                       RestTestHelper.PROPERTIES_NAME,
-                       RestTestHelper.PROPERTIES_VALUE);
     }
 
     @Test
@@ -187,53 +174,6 @@ public class TestSpaceRest extends BaseRestTester {
         return contentItems;
     }
 
-    @Test
-    public void testUpdateSpaceProperties() throws Exception {
-        String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId;
-
-        // Add properties
-        Map<String, String> headers = new HashMap<String, String>();
-        String newSpaceProperties = "Updated Space Properties";
-        headers.put(RestTestHelper.PROPERTIES_NAME, newSpaceProperties);
-        HttpResponse response = BaseRestTester.restHelper.post(url, null, headers);
-
-        String responseText = checkResponse(response, HttpStatus.SC_OK);
-        assertNotNull(responseText);
-        assertTrue(responseText.contains(BaseRestTester.spaceId));
-        assertTrue(responseText.contains("updated"));
-
-        // Make sure the changes were saved
-        response = BaseRestTester.restHelper.head(url);
-        checkResponse(response, HttpStatus.SC_OK);
-
-        testProperties(response, RestTestHelper.PROPERTIES_NAME, newSpaceProperties);
-
-        // Remove properties
-        headers.remove(RestTestHelper.PROPERTIES_NAME);
-        response = BaseRestTester.restHelper.post(url, null, headers);
-
-        responseText = checkResponse(response, HttpStatus.SC_OK);
-        assertNotNull(responseText);
-        assertTrue(responseText.contains(BaseRestTester.spaceId));
-        assertTrue(responseText.contains("updated"));
-
-        response = BaseRestTester.restHelper.head(url);
-        checkResponse(response, HttpStatus.SC_OK);
-
-        testNoProperties(response, RestTestHelper.PROPERTIES_NAME);
-    }
-
-    private void testProperties(HttpResponse response, String name, String value)
-            throws Exception {
-        String properties = response.getResponseHeader(name).getValue();
-        assertNotNull(properties);
-        assertEquals(properties, value);
-    }
-
-    private void testNoProperties(HttpResponse response,
-                                String name) throws Exception {
-        assertNull(response.getResponseHeader(name));
-    }
 
     @Test
     public void testNotFound() throws Exception {
@@ -250,7 +190,7 @@ public class TestSpaceRest extends BaseRestTester {
 
         // Set Space Properties
         response = BaseRestTester.restHelper.post(url, null, null);
-        checkResponse(response, HttpStatus.SC_NOT_FOUND);
+        checkResponse(response, HttpStatus.SC_METHOD_NOT_ALLOWED);
 
         // Delete Space
         response = BaseRestTester.restHelper.delete(url);

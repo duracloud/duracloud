@@ -134,10 +134,10 @@ public class DuraStoreSyncTestBase extends SyncIntegrationTestBase {
 
     protected ContentStore getContentStore() throws Exception {
         StoreClientUtil storeUtil = new StoreClientUtil();
-        return storeUtil.createContentStore(SyncIntegrationTestBase.host,
+        return storeUtil.createContentStore(SyncIntegrationTestBase.getHost(),
                                             Integer.parseInt(
-                                                SyncIntegrationTestBase.port),
-                                            SyncIntegrationTestBase.context,
+                                                SyncIntegrationTestBase.getPort()),
+                                            SyncIntegrationTestBase.getContext(),
                                             SyncIntegrationTestBase.
                                                 getRootCredential().
                                                 getUsername(),

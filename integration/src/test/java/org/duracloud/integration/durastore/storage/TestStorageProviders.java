@@ -7,10 +7,20 @@
  */
 package org.duracloud.integration.durastore.storage;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.model.SimpleCredential;
+import org.duracloud.common.test.TestConfig;
+import org.duracloud.common.test.TestConfigUtil;
 import org.duracloud.integration.durastore.storage.probe.ProbedRackspaceStorageProvider;
 import org.duracloud.integration.durastore.storage.probe.ProbedS3StorageProvider;
-import org.duracloud.integration.util.StorageAccountTestUtil;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -22,13 +32,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-
-import static org.junit.Assert.assertNotNull;
 
 /**
  * This class runs a suite of tests on the StorageProvider interface across all
@@ -84,8 +87,13 @@ public class TestStorageProviders {
 
     private static Credential getCredential(StorageProviderType type) {
         log.debug("Getting credential for: '" + type + "'");
-
-        Credential credential = new StorageAccountTestUtil().getRootCredential();
+        TestConfig config;
+        try {
+            config = new TestConfigUtil().getTestConfig();
+        } catch (IOException e1) {
+            throw new RuntimeException(e1);
+        }
+        SimpleCredential credential = config.getRootCredential();
         try {
             assertNotNull(credential);
 
@@ -93,11 +101,12 @@ public class TestStorageProviders {
             String password = credential.getPassword();
             assertNotNull(username);
             assertNotNull(password);
+            return new Credential(username, password);
         } catch (Exception e) {
             log.warn("Error getting credential for: '" + type + "'");
         }
 
-        return credential;
+        return null;
     }
 
     @Before

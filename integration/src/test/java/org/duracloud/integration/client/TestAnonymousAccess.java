@@ -18,9 +18,11 @@ import java.util.Random;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
+import org.duracloud.common.model.AclType;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.UnauthorizedException;
+import org.duracloud.storage.provider.StorageProvider;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -52,6 +54,7 @@ public class TestAnonymousAccess extends ClientTestBase {
         createContent(getContentUrl());
     }
 
+
     @AfterClass
     public static void afterClass() throws Exception {
         // delete test space
@@ -82,7 +85,7 @@ public class TestAnonymousAccess extends ClientTestBase {
         } catch (UnauthorizedException e) {
             allowed = false;
         }
-        assertTrue(allowed);
+        assertFalse(allowed);
     }
 
     @Test
@@ -93,7 +96,7 @@ public class TestAnonymousAccess extends ClientTestBase {
         } catch (UnauthorizedException e) {
             allowed = false;
         }
-        assertTrue(allowed);
+        assertFalse(allowed);
     }
 
     @Test
@@ -126,7 +129,7 @@ public class TestAnonymousAccess extends ClientTestBase {
         } catch (UnauthorizedException e) {
             allowed = false;
         }
-        assertTrue(allowed);
+        assertFalse(allowed);
     }
 
     @Test
@@ -137,7 +140,7 @@ public class TestAnonymousAccess extends ClientTestBase {
         } catch (UnauthorizedException e) {
             allowed = false;
         }
-        assertTrue(allowed);
+        assertFalse(allowed);
     }
 
     @Test

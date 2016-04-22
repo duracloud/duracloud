@@ -7,35 +7,26 @@
  */
 package org.duracloud.integration.durastore.rest;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.duracloud.common.constant.Constants;
+import org.duracloud.common.model.Credential;
+import org.duracloud.common.model.SimpleCredential;
+import org.duracloud.common.test.TestConfig;
+import org.duracloud.common.test.TestConfigUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
-import org.duracloud.integration.durastore.config.DuraStoreConfig;
-import org.duracloud.integration.util.StorageAccountTestUtil;
 
 /**
  * @author Bill Branan
  */
 public class RestTestHelper {
 
-    private static String configFileName = "test-durastore.properties";
-    static {
-        DuraStoreConfig.setConfigFileName(configFileName);
-    }
-
     private static RestHttpHelper restHelper = getAuthorizedRestHelper();
 
     private static String baseUrl;
-
-    private static String host = "localhost";
-
-    private static String port;
-    private static final String defaultPort = "8080";
-
-    private static String webapp = "durastore";
 
     public static final String PROPERTIES_NAME =
         Constants.HEADER_PREFIX + "test-properties";
@@ -75,27 +66,26 @@ public class RestTestHelper {
 
     public static String getBaseUrl() throws Exception {
         if (baseUrl == null) {
-            baseUrl = "http://" + host + ":" + getPort() + "/" + webapp;
+            TestConfig config = new TestConfigUtil().getTestConfig();
+            baseUrl =
+                "http" + ((config.getTestEndPoint().getPort()+"").equals("443") ? "s" : "")
+                      + "://"
+                      + config.getTestEndPoint().getHost()
+                      + ":"
+                      + config.getTestEndPoint().getPort()
+                      + "/"
+                      + "durastore";
         }
         return baseUrl;
     }
 
-    private static String getPort() throws Exception {
-        if (port == null) {
-            port = DuraStoreConfig.getPort();
-        }
-
-        try { // Ensure the port is a valid port value
-            Integer.parseInt(port);
-        } catch (NumberFormatException e) {
-            port = defaultPort;
-        }
-
-        return port;
-    }
-
     public static RestHttpHelper getAuthorizedRestHelper() {
-        return new RestHttpHelper(new StorageAccountTestUtil().getRootCredential());
+        try {
+            SimpleCredential cred = new TestConfigUtil().getTestConfig().getRootCredential();
+            return new RestHttpHelper(new Credential(cred.getUsername(), cred.getPassword()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

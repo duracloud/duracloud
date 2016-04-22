@@ -22,13 +22,13 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.ChecksumUtil.Algorithm;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.InvalidIdException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.error.UnsupportedTaskException;
-import org.duracloud.integration.util.StorageAccountTestUtil;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,18 +44,10 @@ import junit.framework.Assert;
  *
  * @author Bill Branan
  */
-public class TestContentStore {
+public class TestContentStore extends ClientTestBase {
 
     protected static final Logger log =
         LoggerFactory.getLogger(TestContentStore.class);
-
-    private static String host = "localhost";
-
-    private static String port = null;
-
-    private static final String defaultPort = "8080";
-
-    private static String context = "durastore";
 
     private static ContentStoreManager storeManager;
 
@@ -72,10 +64,9 @@ public class TestContentStore {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        StorageAccountTestUtil acctUtil = new StorageAccountTestUtil();
 
-        storeManager = new ContentStoreManagerImpl(host, getPort(), context);
-        storeManager.login(acctUtil.getRootCredential());
+        storeManager = new ContentStoreManagerImpl(getHost(), getPort(), getContext());
+        storeManager.login(getRootCredential());
 
         store = storeManager.getPrimaryContentStore();
 
@@ -86,23 +77,8 @@ public class TestContentStore {
     public void setUp() throws Exception {
         if(!spaceExists(spaceId)) {
             // Create space
-            createSpace(spaceId);
+            createSpaceFromStore(spaceId);
         }
-    }
-
-    private static String getPort() throws Exception {
-        if (port == null) {
-            StoreClientConfig config = new StoreClientConfig();
-            port = config.getPort();
-        }
-
-        try { // Ensure the port is a valid port value
-            Integer.parseInt(port);
-        } catch (NumberFormatException e) {
-            port = defaultPort;
-        }
-
-        return port;
     }
 
     @After
@@ -180,7 +156,7 @@ public class TestContentStore {
         invalidIds.add("test-.space"); // Dash next to a period
         invalidIds.add("te");          // Too short
         invalidIds.add("test-space-test-space-test-space-" +
-                       "test-space-test-space-test-spac)"); // Too long
+                       "test-space-test-space-test-spac"); // Too long
         invalidIds.add("127.0.0.1");   // Formatted as an IP address
 
         for(String id : invalidIds) {
@@ -195,13 +171,11 @@ public class TestContentStore {
         id = "tes";
         checkValidSpaceId(id);
 
-        id = "test-space-test-space-test-space-test-space-test-space-test-spa";
-        checkValidSpaceId(id);
     }
 
     private void checkInvalidSpaceId(String id) throws Exception {
         try {
-            createSpace(id);
+            createSpaceFromStore(id);
             fail("Exception expected attempting to add " +
                  "a space with an invalid id: " + id);
         } catch(InvalidIdException e) {
@@ -210,10 +184,10 @@ public class TestContentStore {
     }
 
     private void checkValidSpaceId(String id) throws Exception {
-        createSpace(id);
+        createSpaceFromStore(id);
     }
 
-    private void createSpace(String spaceId)
+    private void createSpaceFromStore(String spaceId)
         throws Exception {
         boolean spaceExists = spaceExists(spaceId);
         if(!spaceExists) {
@@ -466,8 +440,10 @@ public class TestContentStore {
         String content = "This is the information stored as content";
         InputStream contentStream = IOUtil.writeStringToStream(content);
         String contentMimeType = "text/plain";
-        String metaName = "test content properties";
+        String metaName = "test-content-properties";
         String metaValue = "Testing Content Properties";
+        ChecksumUtil checksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
+        String contentChecksum = checksumUtil.generateChecksum(content);
         Map<String, String> contentProperties = new HashMap<String, String>();
         contentProperties.put(metaName, metaValue);
 
@@ -477,11 +453,10 @@ public class TestContentStore {
                                            contentStream,
                                            content.length(),
                                            contentMimeType,
-                                           null,
+                                           contentChecksum,
                                            contentProperties);
         // Check content checksum
         assertNotNull(checksum);
-        ChecksumUtil checksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
         contentStream = IOUtil.writeStringToStream(content);
         assertEquals(checksum, checksumUtil.generateChecksum(contentStream));
 
@@ -496,8 +471,7 @@ public class TestContentStore {
         assertEquals(metaValue, responseProperties.get(metaName));
         assertEquals(checksum,
                      responseProperties.get(ContentStore.CONTENT_CHECKSUM));
-        assertEquals(contentMimeType,
-                     responseProperties.get(ContentStore.CONTENT_MIMETYPE));
+        assertTrue( responseProperties.get(ContentStore.CONTENT_MIMETYPE).startsWith(contentMimeType));
         assertEquals(String.valueOf(content.length()),
                      responseProperties.get(ContentStore.CONTENT_SIZE));
         assertNotNull(responseProperties.get(ContentStore.CONTENT_MODIFIED));
@@ -513,8 +487,8 @@ public class TestContentStore {
         assertEquals(metaValue, responseProperties.get(metaName));
         assertEquals(checksum,
                      responseProperties.get(ContentStore.CONTENT_CHECKSUM));
-        assertEquals(contentMimeType,
-                     responseProperties.get(ContentStore.CONTENT_MIMETYPE));
+        assertTrue(responseProperties.get(ContentStore.CONTENT_MIMETYPE)
+                                     .startsWith(contentMimeType));
         assertEquals(String.valueOf(content.length()),
                      responseProperties.get(ContentStore.CONTENT_SIZE));
         assertNotNull(responseProperties.get(ContentStore.CONTENT_MODIFIED));

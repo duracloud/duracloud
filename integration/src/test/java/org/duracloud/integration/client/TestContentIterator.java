@@ -16,7 +16,6 @@ import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.domain.Space;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.integration.util.StorageAccountTestUtil;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -43,7 +42,6 @@ public class TestContentIterator extends ClientTestBase {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        StorageAccountTestUtil acctUtil = new StorageAccountTestUtil();
         ContentStoreManager storeManager = new ContentStoreManagerImpl(getHost(),
                                                                        getPort(),
                                                                        getContext());

@@ -7,15 +7,16 @@
  */
 package org.duracloud.integration.client;
 
-import org.duracloud.common.web.RestHttpHelper;
-import org.duracloud.integration.util.StorageAccountTestUtil;
-import org.duracloud.common.model.Credential;
-import org.duracloud.common.model.DuraCloudUserType;
-import org.junit.Assert;
-
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+
+import org.duracloud.common.model.Credential;
+import org.duracloud.common.model.SimpleCredential;
+import org.duracloud.common.test.TestConfig;
+import org.duracloud.common.test.TestConfigUtil;
+import org.duracloud.common.web.RestHttpHelper;
+import org.junit.Assert;
 
 /**
  * @author Andrew Woods
@@ -23,38 +24,34 @@ import java.util.Random;
  */
 public class ClientTestBase {
 
+    private static TestConfig testConfig = getTestConfig();
+    
     protected static RestHttpHelper restHelper = getAuthorizedRestHelper();
 
-    private static String host = "localhost";
-    private static String port = null;
-    private static String defaultPort = "8080";
     private static String context = "durastore";
-
-    protected static String getBaseUrl() throws Exception {
-        return "http://" + host + ":" + getPort() + "/" + context;
+    
+    protected static TestConfig getTestConfig(){
+        try {
+           return  new TestConfigUtil().getTestConfig();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
-
-    protected static String getHost() {
-        return host;
+    protected static String getBaseUrl() throws Exception {
+        return "http" + (getPort().equals("443") ? "s" : "") + "://" + getHost() + ":" + getPort() + "/" + context;
     }
 
     protected static String getContext() {
         return context;
     }
+    
+    protected static String getHost(){
+        return testConfig.getTestEndPoint().getHost();
+    }
 
-    protected static String getPort() throws Exception {
-        if (port == null) {
-            StoreClientConfig config = new StoreClientConfig();
-            port = config.getPort();
-        }
-
-        try { // Ensure the port is a valid port value
-            Integer.parseInt(port);
-        } catch (NumberFormatException e) {
-            port = defaultPort;
-        }
-
-        return port;
+    protected static String getPort(){
+        return testConfig.getTestEndPoint().getPort()+"";
     }
 
     protected static RestHttpHelper getAuthorizedRestHelper() {
@@ -62,8 +59,10 @@ public class ClientTestBase {
     }
 
     protected static Credential getRootCredential() {
-        return new StorageAccountTestUtil().getRootCredential();
+        SimpleCredential cred =  testConfig.getRootCredential();
+        return new Credential(cred.getUsername(), cred.getPassword());
     }
+
 
     protected static void createSpace(final String url) throws Exception {
         ClientTestBase.HttpCaller caller = new ClientTestBase.HttpCaller() {
@@ -75,6 +74,7 @@ public class ClientTestBase {
         };
         caller.makeCall(201);
     }
+
 
     protected static void createContent(final String url) throws Exception {
         HttpCaller caller = new HttpCaller() {

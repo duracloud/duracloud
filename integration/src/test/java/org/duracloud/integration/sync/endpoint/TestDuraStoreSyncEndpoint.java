@@ -17,11 +17,11 @@ import org.junit.Test;
  */
 public class TestDuraStoreSyncEndpoint extends DuraStoreSyncTestBase {
 
-    @Test
+    //@Test
     public void testDuraStoreSyncEndpoint() throws Exception {
         DuraStoreSyncEndpoint endpoint =
             new DuraStoreSyncEndpoint(getContentStore(),
-                                      username,
+                                      DuraStoreSyncTestBase.getRootCredential().getUsername(),
                                       SyncIntegrationTestBase.spaceId,
                                       true,
                                       false);
@@ -29,7 +29,7 @@ public class TestDuraStoreSyncEndpoint extends DuraStoreSyncTestBase {
 
         endpoint =
             new DuraStoreSyncEndpoint(getContentStore(),
-                                      username,
+                                      DuraStoreSyncTestBase.getRootCredential().getUsername(),
                                       SyncIntegrationTestBase.spaceId,
                                       false,
                                       false);

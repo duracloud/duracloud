@@ -7,9 +7,11 @@
  */
 package org.duracloud.common.json;
 
+import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.SimpleCredential;
 import org.duracloud.common.test.StorageProviderCredential;
 import org.duracloud.common.test.TestConfig;
+import org.duracloud.common.test.TestEndPoint;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,8 +41,27 @@ public class JaxbJsonSerializerTest {
         sb.append("      \"password\" : \"rack-pass\"");
         sb.append("    }");
         sb.append("  } ],");
-        sb.append("  \"queueName\": \"queue-name\"");
+        sb.append("  \"queueName\": \"queue-name\",");
+        sb.append("  \"testEndPoint\" : { ");
+        sb.append("      \"host\" : \"localhost\",");
+        sb.append("      \"port\" : \"8080\"");
+        sb.append("  },  ");
+        sb.append("  \"userCredential\" : { ");
+        sb.append("      \"username\" : \"testuser\",");
+        sb.append("      \"password\" : \"password\"");
+        sb.append("  },");  
+        sb.append("  \"adminCredential\" : { ");
+        sb.append("      \"username\" : \"testuser\",");
+        sb.append("      \"password\" : \"password\"");
+        sb.append("  }, ");  
+        sb.append("  \"rootCredential\" : { ");
+        sb.append("      \"username\" : \"testuser\",");
+        sb.append("      \"password\" : \"password\"");
+        sb.append("  }");
         sb.append("}");
+        
+        
+        
         jsonTestConfig = sb.toString();
     }
 
@@ -77,6 +98,10 @@ public class JaxbJsonSerializerTest {
         testConfig.addProviderCredential(s3Cred);
         testConfig.addProviderCredential(rackCred);
         testConfig.setQueueName("queue-name");
+        testConfig.setTestEndPoint(new TestEndPoint());
+        testConfig.setAdminCredential(new SimpleCredential("testuser", "password"));
+        testConfig.setRootCredential(new SimpleCredential("testuser", "password"));
+        testConfig.setUserCredential(new SimpleCredential("testuser", "password"));
 
         String json = serializer.serialize(testConfig);
         // Verify that the resulting json matches the expected value, ignoring

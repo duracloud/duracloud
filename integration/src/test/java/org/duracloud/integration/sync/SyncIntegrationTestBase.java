@@ -10,6 +10,7 @@ package org.duracloud.integration.sync;
 import static junit.framework.Assert.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
@@ -17,8 +18,10 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.model.SimpleCredential;
+import org.duracloud.common.test.TestConfigUtil;
+import org.duracloud.common.test.TestEndPoint;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.integration.util.StorageAccountTestUtil;
 import org.duracloud.sync.mgmt.ChangedList;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -31,16 +34,11 @@ import org.junit.BeforeClass;
  */
 public class SyncIntegrationTestBase {
 
-    protected static String host;
-    protected static String context;
-    protected static String port;
     protected static ContentStore store;
     protected static String spaceId;
-    protected static String username;
     protected File tempDir;
     protected ChangedList changedList;
 
-    private final static StorageAccountTestUtil acctUtil = new StorageAccountTestUtil();
 
     protected File createTempDir(String dirName) {
         File tempDir = new File("target", dirName);
@@ -52,14 +50,10 @@ public class SyncIntegrationTestBase {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        host = "localhost";
-        context = "durastore";
-        username = "username";
-        port = getPort();
-
 
         ContentStoreManager storeManager =
-            new ContentStoreManagerImpl(host, port, context);
+            new ContentStoreManagerImpl(getHost(), getPort(), getContext());
+        
         storeManager.login(getRootCredential());
 
         store = storeManager.getPrimaryContentStore();
@@ -68,18 +62,29 @@ public class SyncIntegrationTestBase {
         spaceId = "synctool-test-space-" + random;
     }
 
-    protected static Credential getRootCredential() throws Exception {
-        return acctUtil.getRootCredential();
+    protected static String getHost(){
+        return getTestEndPoint().getHost();
     }
 
-    private static String getPort() throws Exception {
-        String port = new SyncToolTestConfig().getPort();
-        try { // Ensure the port is a valid port value
-            Integer.parseInt(port);
-        } catch (NumberFormatException e) {
-            port = "8080";
+    protected static String getPort(){
+        return getTestEndPoint().getPort()+"";
+    }
+
+    private static TestEndPoint getTestEndPoint() {
+        try {
+            return new TestConfigUtil().getTestConfig().getTestEndPoint();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return port;
+    }
+
+    protected static String getContext(){
+        return "durastore";
+    }
+    
+    protected static Credential getRootCredential() throws Exception {
+        SimpleCredential cred = new TestConfigUtil().getTestConfig().getRootCredential();
+        return new Credential(cred.getUsername(), cred.getPassword());
     }
 
     @AfterClass

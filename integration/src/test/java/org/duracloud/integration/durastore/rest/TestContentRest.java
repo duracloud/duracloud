@@ -242,7 +242,7 @@ public class TestContentRest extends BaseRestTester {
         String invalidMime = "application*test";
         headers = new HashMap<String, String>();
         headers.put(HttpHeaders.CONTENT_TYPE, invalidMime);
-        postInvalidPropertiesUpdate(url, contentId, headers);
+        postInvalidPropertiesUpdate(url, contentId, headers, HttpStatus.SC_BAD_REQUEST);
 
         response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
@@ -265,13 +265,20 @@ public class TestContentRest extends BaseRestTester {
     }
 
     private HttpResponse postInvalidPropertiesUpdate(String url,
+                                                     String contentId,
+                                                     Map<String, String> headers)
+          throws Exception {
+
+        return postInvalidPropertiesUpdate(url, contentId, headers, HttpStatus.SC_INTERNAL_SERVER_ERROR);
+    }
+    private HttpResponse postInvalidPropertiesUpdate(String url,
                                                    String contentId,
-                                                   Map<String, String> headers)
+                                                   Map<String, String> headers,int status)
         throws Exception {
         HttpResponse response =
             BaseRestTester.restHelper.post(url, null, headers);
         String responseText =
-            checkResponse(response, HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            checkResponse(response,status);
         assertNotNull(responseText);
         return response;
     }

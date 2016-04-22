@@ -7,9 +7,13 @@
  */
 package org.duracloud.integration.duradmin;
 
+import java.io.IOException;
+
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.model.SimpleCredential;
+import org.duracloud.common.test.TestConfigUtil;
+import org.duracloud.common.test.TestEndPoint;
 import org.duracloud.common.web.RestHttpHelper;
-import org.duracloud.integration.util.StorageAccountTestUtil;
 
 /**
  * @author Andrew Woods
@@ -17,10 +21,22 @@ import org.duracloud.integration.util.StorageAccountTestUtil;
  */
 public class RestTestHelper {
 
-    private static Credential rootCredential;
-
     public static RestHttpHelper getAuthorizedRestHelper() {
-        return new RestHttpHelper(new StorageAccountTestUtil().getRootCredential());
+        try {
+            SimpleCredential creds = new TestConfigUtil().getTestConfig().getRootCredential();
+            return new RestHttpHelper(new Credential(creds.getUsername(), creds.getPassword()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public static String getBaseUrl(){
+        try {
+            TestEndPoint endpoint = new TestConfigUtil().getTestConfig().getTestEndPoint();
+            return "http" + (endpoint.getPort().equals("443") ? "s" : "") + "://" + endpoint.getHost() + ":" + endpoint.getPort() + "/durastore";
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

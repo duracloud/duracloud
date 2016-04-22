@@ -93,11 +93,10 @@ public abstract class TestStorageProvider {
         // test createSpace()
         log.debug("Test createSpace()");
         storageProvider.createSpace(SPACE_ID);
-        testSpaceProperties(SPACE_ID);
-
+        
         // test getSpaceProperties()
         log.debug("Test getSpaceProperties()");
-        Map<String, String> sProperties = testSpaceProperties(SPACE_ID);
+        testSpaceProperties(SPACE_ID);
 
         // test getSpaces()
         log.debug("Test getSpaces()");

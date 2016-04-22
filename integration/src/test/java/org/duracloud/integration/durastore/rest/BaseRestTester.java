@@ -7,12 +7,6 @@
  */
 package org.duracloud.integration.durastore.rest;
 
-import org.apache.http.HttpStatus;
-import org.duracloud.common.web.RestHttpHelper;
-import org.duracloud.common.web.RestHttpHelper.HttpResponse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import org.junit.BeforeClass;
 import static org.junit.Assert.*;
 
 import java.io.IOException;

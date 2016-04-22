@@ -1,0 +1,44 @@
+{
+    "providerCredentials": [
+        {
+            "type": "AMAZON_S3",
+            "credential": {
+                "username": "",
+                "password": ""
+            }
+        },
+        {
+            "type": "RACKSPACE",
+            "credential": {
+                "username": "",
+                "password": ""
+            }
+        },
+        {
+            "type": "SDSC",
+            "credential": {
+                "username": "",
+                "password": ""
+            }
+        }
+    ],
+    "queueName": "",
+
+    "testEndPoint" : {
+	"host" : "localhost",
+        "port" : "8080"
+    },
+
+    "userCredential" : {
+        "username" : "",
+        "password" : ""
+    },
+    "adminCredential" : {
+        "username" : "",
+        "password" : ""
+    },
+    "rootCredential" : {
+        "username" : "",
+        "password" : ""
+    }
+}
