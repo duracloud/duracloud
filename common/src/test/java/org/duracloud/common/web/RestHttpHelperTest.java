@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +35,15 @@ public class RestHttpHelperTest {
 
     private static Server server;
 
-    private static String host = "localhost";
+    private static String host = null;
+    
+    static {
+        try {
+            host = InetAddress.getLocalHost().getHostAddress();
+        }catch(Exception ex){
+            throw new RuntimeException(ex);
+        }
+    }
 
     private static int port = 8088;
 
