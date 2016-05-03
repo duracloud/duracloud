@@ -9,6 +9,7 @@ package org.duracloud.integration.durastore.rest;
 
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,8 +34,7 @@ public class TestContentRest extends BaseRestTester {
     private static final String CONTENT = "<content />";
 
     private static String[] contentIds = {"content1",
-                                          "dir0/dir1/content2",
-                                          "dir0/dir1/content3?storeID=0"};
+                                          "dir0/dir1/content2"};
 
     @Before
     public void setUp() throws Exception {
@@ -112,7 +112,10 @@ public class TestContentRest extends BaseRestTester {
     private HttpResponse addContentItem(String contentId) throws Exception {
         String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/" + contentId;
         Map<String, String> headers = new HashMap<String, String>();
-        return BaseRestTester.restHelper.put(url, CONTENT, headers);
+        return BaseRestTester.restHelper.put(url,
+                                             new ByteArrayInputStream(CONTENT.getBytes()),
+                                             "text/plain",
+                                             headers);
     }
 
     private void testCharacterInContentId(char character) throws Exception {
