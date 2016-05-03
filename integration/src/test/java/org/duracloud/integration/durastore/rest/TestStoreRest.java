@@ -8,6 +8,7 @@
 package org.duracloud.integration.durastore.rest;
 
 import org.apache.http.HttpStatus;
+import org.duracloud.common.util.WaitUtil;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
@@ -124,6 +125,7 @@ public class TestStoreRest extends BaseRestTester {
         assertTrue(responseText.contains("deleted"));
 
         // Delete space1
+        WaitUtil.wait(10);
         response = RestTestHelper.deleteSpace(BaseRestTester.spaceId, acctId);
         checkResponse(response, HttpStatus.SC_OK);
     }
