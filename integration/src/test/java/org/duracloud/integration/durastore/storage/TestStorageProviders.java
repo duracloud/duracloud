@@ -17,6 +17,7 @@ import java.util.Random;
 
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.SimpleCredential;
+import org.duracloud.common.test.StorageProviderCredential;
 import org.duracloud.common.test.TestConfig;
 import org.duracloud.common.test.TestConfigUtil;
 import org.duracloud.integration.durastore.storage.probe.ProbedRackspaceStorageProvider;
@@ -58,7 +59,6 @@ public class TestStorageProviders {
     @BeforeClass
     public static void beforeClass() throws StorageException {
 
-        final int NUM_PROVIDERS = 4;
         for (StorageProviderType providerType : StorageProviderType.values()) {
             Credential credential = getCredential(providerType);
             if (credential != null) {
@@ -82,7 +82,7 @@ public class TestStorageProviders {
             }
         }
 
-        Assert.assertEquals(NUM_PROVIDERS, storageProviders.size());
+        Assert.assertTrue(storageProviders.size() > 0);
     }
 
     private static Credential getCredential(StorageProviderType type) {
@@ -93,7 +93,14 @@ public class TestStorageProviders {
         } catch (IOException e1) {
             throw new RuntimeException(e1);
         }
-        SimpleCredential credential = config.getRootCredential();
+        SimpleCredential credential = null;
+        for(StorageProviderCredential spc : config.getProviderCredentials()){
+            if(spc.getType().name().equals(type.name())){
+                credential = spc.getCredential();
+                break;
+            }
+        }
+        
         try {
             assertNotNull(credential);
 
@@ -102,7 +109,7 @@ public class TestStorageProviders {
             assertNotNull(username);
             assertNotNull(password);
             return new Credential(username, password);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.warn("Error getting credential for: '" + type + "'");
         }
 
