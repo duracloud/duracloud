@@ -137,7 +137,7 @@ public class SyncManager implements ChangeHandler {
         return null;
     }
 
-    private void addToWorkerList(SyncWorker workerToAdd) {
+    private synchronized void addToWorkerList(SyncWorker workerToAdd) {
         cleanWorkerList();
         for(int i=0; i<workerList.size(); i++) {
             SyncWorker worker = workerList.get(i);
