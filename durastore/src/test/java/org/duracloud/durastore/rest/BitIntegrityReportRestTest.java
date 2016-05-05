@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +24,11 @@ import javax.ws.rs.core.Response;
 
 import org.duracloud.client.HttpHeaders;
 import org.duracloud.common.constant.Constants;
+import org.duracloud.common.model.AclType;
 import org.duracloud.mill.db.model.BitIntegrityReport;
 import org.duracloud.mill.db.repo.JpaBitIntegrityReportRepo;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReportResult;
+import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.easymock.EasyMockRunner;
@@ -114,14 +117,31 @@ public class BitIntegrityReportRestTest extends EasyMockSupport {
     @Test
     public void testGetReportNoBitReportFound() {
         setupHeader();
-        expect(repo.findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(eq(storeId),
-                                                                     eq(spaceId),
-                                                                     isA(PageRequest.class))).andReturn(null);
+        expect(repo.findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(
+            eq(storeId), eq(spaceId), isA(PageRequest.class)))
+            .andReturn(null);
+        expect(storageProviderFactory.getStorageProvider(storeId))
+            .andReturn(store);
+        expect(store.getSpaceACLs(spaceId)).andReturn(new HashMap<String, AclType>());
         replayAll();
         createRest();
         Response response = rest.getReport(spaceId, storeId);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        
+    }
+
+    @Test
+    public void testGetReportInvalidSpace() {
+        setupHeader();
+        expect(repo.findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(
+            eq(storeId), eq(spaceId), isA(PageRequest.class)))
+            .andReturn(null);
+        expect(storageProviderFactory.getStorageProvider(storeId))
+            .andReturn(store);
+        expect(store.getSpaceACLs(spaceId)).andThrow(new NotFoundException("not found"));
+        replayAll();
+        createRest();
+        Response response = rest.getReport(spaceId, storeId);
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
     @Test
