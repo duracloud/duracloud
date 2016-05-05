@@ -3594,7 +3594,7 @@ $(function() {
 				          	  						var tdKey = $.fn.create('td');
 				          	  						var tdVal = $.fn.create('td');
 				          	  						tdKey.append(key);
-				          	  						tdVal.append(value);
+				          	  						tdVal.append(value.toString());
 				          	  						tr.append(tdKey);
 				          	  						tr.append(tdVal);
 				          	  					});

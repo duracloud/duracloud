@@ -294,7 +294,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                                                username,
                                                spaceId,
                                                syncDeletes,
-                                               1073741824, // 1GB chunk size
+                                               this.syncConfigurationManager.getMaxFileSizeInBytes(), // 1GB chunk size
                                                this.syncConfigurationManager.isSyncUpdates(),
                                                this.syncConfigurationManager.isRenameUpdates(),
                                                this.syncConfigurationManager.isJumpStart(),

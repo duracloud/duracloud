@@ -55,9 +55,9 @@ public class OpenStackStorageProviderTest {
 
     @Test
     public void testGetSpaceContentsChunked() throws Exception {
-        String prefix = null;
+        String prefix = "this&is+the prefix";
         Long maxResults = 2L;
-        String marker = null;
+        String marker = "this&is+the marker";
 
         EasyMock.expect(swiftClient.containerExists(spaceId)).andReturn(true);
 
@@ -67,6 +67,9 @@ public class OpenStackStorageProviderTest {
         PageSet<ObjectInfo> filesObjectInfo = new PageSetImpl<ObjectInfo>(objects, null);
         ListContainerOptions containerOptions =
                 ListContainerOptions.Builder.maxResults(maxResults.intValue());
+        containerOptions = containerOptions.afterMarker(provider.sanitizeForURI(marker));
+        containerOptions = containerOptions.withPrefix(provider.sanitizeForURI(prefix));
+
         EasyMock.expect(swiftClient.listObjects(spaceId,
                 containerOptions))
                 .andReturn(filesObjectInfo);

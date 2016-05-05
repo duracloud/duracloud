@@ -45,7 +45,7 @@ public class DuraStoreChunkSyncEndpointTest {
     private final String username = "user-name";
     private final String spaceId = "space-id";
     private boolean syncDeletes;
-    private final long maxFileSize = 1024;
+    private final long maxFileSize = 1000;
 
     @Before
     public void setUp() throws Exception {

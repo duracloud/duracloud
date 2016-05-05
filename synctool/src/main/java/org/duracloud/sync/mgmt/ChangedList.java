@@ -19,6 +19,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.lang3.event.EventListenerSupport;
 import org.slf4j.Logger;
@@ -35,7 +38,7 @@ public class ChangedList {
     private static final Logger log = LoggerFactory.getLogger(ChangedList.class);
     private LinkedHashMap<String, ChangedFile> fileList;
     private LinkedHashMap<String, ChangedFile> reservedFiles;
-    
+    private ExecutorService executorService;
     private long listVersion;
 
     private static ChangedList instance;
@@ -55,6 +58,7 @@ public class ChangedList {
         listVersion = 0;
         listeners =
             new EventListenerSupport<ChangedListListener>(ChangedListListener.class);
+        this.executorService = Executors.newSingleThreadExecutor();
     }
 
     /**
@@ -99,12 +103,12 @@ public class ChangedList {
     }
 
     protected void fireChangedEventAsync() {
-        new Thread(new Runnable(){
+        this.executorService.execute(new Runnable(){
             @Override
             public void run() {
                 fireChangedEvent();
             }
-        }).start();
+        });
     }
 
     public void addListener(ChangedListListener listener){

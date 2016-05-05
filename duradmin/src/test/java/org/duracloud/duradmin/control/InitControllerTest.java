@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -171,6 +172,20 @@ public class InitControllerTest {
             @Override
             public int read() throws IOException {
                 return in.read();
+            }
+
+            @Override
+            public boolean isFinished() {
+                return false;
+            }
+
+            @Override
+            public boolean isReady() {
+                return false;
+            }
+
+            @Override
+            public void setReadListener(ReadListener readListener) {
             }
         };
 
