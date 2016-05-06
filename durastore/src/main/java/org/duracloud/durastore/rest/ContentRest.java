@@ -178,65 +178,75 @@ public class ContentRest extends BaseRest {
      * See http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1
      * for specifics on particular headers.
      */
-    private Response addContentPropertiesToResponse(ResponseBuilder response,
-                                                    Map<String, String> properties) {
+    protected Response addContentPropertiesToResponse(ResponseBuilder response,
+                                                      Map<String, String> properties) {
         if(properties != null) {
-            // Flags that, when set to true, indicate that the
-            // authoritative value for this data has already
-            // been set and should not be overwritten
-            boolean contentTypeSet = false;
-            boolean contentSizeSet = false;
-            boolean contentChecksumSet = false;
-            boolean contentModifiedSet = false;
+            // Set Content-Type header
+            String contentMimetype = // content-mimetype header
+                properties.remove(StorageProvider.PROPERTIES_CONTENT_MIMETYPE);
+            String contentType = // Content-Type header
+                properties.remove(HttpHeaders.CONTENT_TYPE);
+            if(null != contentMimetype && validMimetype(contentMimetype)) {
+                response.header(HttpHeaders.CONTENT_TYPE, contentMimetype);
+            } else if(null != contentType && validMimetype(contentType)) {
+                response.header(HttpHeaders.CONTENT_TYPE, contentType);
+            } else {
+                response.header(HttpHeaders.CONTENT_TYPE, DEFAULT_MIME);
+            }
 
+            // Set Content-Length header
+            String contentSize = // content-size header
+                properties.remove(StorageProvider.PROPERTIES_CONTENT_SIZE);
+            String contentLength = // Content-Length header
+                properties.remove(HttpHeaders.CONTENT_LENGTH);
+            if(null != contentSize) {
+                response.header(HttpHeaders.CONTENT_LENGTH, contentSize);
+            } else if(null != contentLength) {
+                response.header(HttpHeaders.CONTENT_LENGTH, contentLength);
+            }
+
+            // Set Last-Modified header
+            String contentModified = // content-modified header
+                properties.remove(StorageProvider.PROPERTIES_CONTENT_MODIFIED);
+            String lastModified = // Last-Modified header
+                properties.remove(HttpHeaders.LAST_MODIFIED);
+            if(null != contentModified) {
+                response.header(HttpHeaders.LAST_MODIFIED, contentModified);
+            } else if(null != lastModified) {
+                response.header(HttpHeaders.LAST_MODIFIED, lastModified);
+            }
+
+            // Set ETag and Content-MD5 headers
+            String contentChecksum = // content-checksum header
+                properties.remove(StorageProvider.PROPERTIES_CONTENT_CHECKSUM);
+            String contentMdFive = // content-md5 header
+                properties.remove(StorageProvider.PROPERTIES_CONTENT_MD5);
+            String contentMd5 = // Content-MD5 header
+                properties.remove(HttpHeaders.CONTENT_MD5);
+            String etag = // ETag header
+                properties.remove(HttpHeaders.ETAG);
+            if(null != contentChecksum) {
+                response.header(HttpHeaders.CONTENT_MD5, contentChecksum);
+                response.header(HttpHeaders.ETAG, contentChecksum);
+            } else if(null != contentMdFive) {
+                response.header(HttpHeaders.CONTENT_MD5, contentMdFive);
+                response.header(HttpHeaders.ETAG, contentMdFive);
+            } else if(null != contentMd5) {
+                response.header(HttpHeaders.CONTENT_MD5, contentMd5);
+                response.header(HttpHeaders.ETAG, contentMd5);
+            } else if(null != etag) {
+                response.header(HttpHeaders.CONTENT_MD5, etag);
+                response.header(HttpHeaders.ETAG, etag);
+            }
+
+            // Set the remaining property values as headers
             Iterator<String> propertiesNames = properties.keySet().iterator();
             while(propertiesNames.hasNext()) {
-                String propertiesName = (String)propertiesNames.next();
+                String propertiesName = propertiesNames.next();
                 String propertiesValue = properties.get(propertiesName);
 
-                if(propertiesName.equals(StorageProvider.PROPERTIES_CONTENT_MIMETYPE)) {
-                    if(validMimetype(propertiesValue)) {
-                        response.header(HttpHeaders.CONTENT_TYPE, propertiesValue);
-                        contentTypeSet = true;
-                    } else {
-                        response.header(HttpHeaders.CONTENT_TYPE, DEFAULT_MIME);
-                    }
-                } else if(propertiesName.equals(StorageProvider.PROPERTIES_CONTENT_SIZE)) {
-                    response.header(HttpHeaders.CONTENT_LENGTH, propertiesValue);
-                    contentSizeSet = true;
-                } else if(propertiesName.equals(StorageProvider.PROPERTIES_CONTENT_CHECKSUM)) {
-                    response.header(HttpHeaders.CONTENT_MD5, propertiesValue);
-                    response.header(HttpHeaders.ETAG, propertiesValue);
-                    contentChecksumSet = true;
-                } else if(propertiesName.equals(StorageProvider.PROPERTIES_CONTENT_MODIFIED)) {
-                    response.header(HttpHeaders.LAST_MODIFIED, propertiesValue);
-                    contentModifiedSet = true;
-                } else if((propertiesName.equals(HttpHeaders.CONTENT_TYPE))) {
-                    if(!contentTypeSet) {
-                        if(validMimetype(propertiesValue)) {
-                            response.header(HttpHeaders.CONTENT_TYPE, propertiesValue);
-                        } else {
-                            response.header(HttpHeaders.CONTENT_TYPE, DEFAULT_MIME);
-                        }
-                    }
-                } else if(propertiesName.equals(HttpHeaders.CONTENT_LENGTH)) {
-                    if(!contentSizeSet) {
-                        response.header(propertiesName, propertiesValue);
-                    }
-                } else if(propertiesName.equalsIgnoreCase(HttpHeaders.CONTENT_MD5)) {
-                    if(!contentChecksumSet) {
-                        response.header(HttpHeaders.CONTENT_MD5, propertiesValue);
-                    }
-                } else if(propertiesName.equals(HttpHeaders.ETAG)) {
-                    if(!contentChecksumSet) {
-                        response.header(propertiesName, propertiesValue);
-                    }
-                } else if(propertiesName.equals(HttpHeaders.LAST_MODIFIED)) {
-                    if(!contentModifiedSet) {
-                        response.header(propertiesName, propertiesValue);
-                    }
-                } else if(propertiesName.equals(HttpHeaders.DATE) ||
-                          propertiesName.equals(HttpHeaders.CONNECTION)) {
+                if(propertiesName.equals(HttpHeaders.DATE) ||
+                   propertiesName.equals(HttpHeaders.CONNECTION)) {
                     // Ignore this value
                 } else if(propertiesName.equals(HttpHeaders.AGE) ||
                           propertiesName.equals(HttpHeaders.CACHE_CONTROL) ||
