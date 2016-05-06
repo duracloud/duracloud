@@ -92,9 +92,8 @@ public class SnapshotAccessAdviceTest extends EasyMockSupport {
 
     @Test
     public void testSuccessAdmin() throws Throwable {
-        expect(helper.hasAdmin(isA(Authentication.class))).andReturn(true);
+        setupSubjectAdmin();
         replayAll();
-        advice = new SnapshotAccessAdvice(helper);
         advice.before(null, getArgs("get-snapshot"), null);
         
     }
@@ -132,6 +131,13 @@ public class SnapshotAccessAdviceTest extends EasyMockSupport {
         }catch(UnauthorizedException ex){
             assertTrue("expected failure",true);
         }
+    }
+
+    private void setupSubjectAdmin(){
+        advice = new SnapshotAccessAdvice(helper);
+        SecurityContextHolder.setContext(context);
+        expect(context.getAuthentication()).andReturn(auth).atLeastOnce();
+        expect(helper.hasAdmin(auth)).andReturn(true);
     }
 
     private void setupSubject(){
