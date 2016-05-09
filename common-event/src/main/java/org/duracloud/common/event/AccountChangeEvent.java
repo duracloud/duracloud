@@ -20,27 +20,30 @@ public class AccountChangeEvent {
         ACCOUNT_CHANGED,
         USERS_CHANGED,
         STORAGE_PROVIDERS_CHANGED,
-        ALL_ACCOUNTS_CHANGED
+        ALL_ACCOUNTS_CHANGED, 
+        STORAGE_PROVIDER_CACHE_ON_NODE_CHANGED;   //indicates that storage provider data cached on a node changed
     };
     
     private EventType eventType;
     private String accountId;
+    /*
+     * The host of originator of the event.
+     */
+    private String sourceHost;
     
     public AccountChangeEvent(){}
+
     /**
      * 
      * @param eventType
      * @param accountId
      */
-    public AccountChangeEvent(EventType eventType, String accountId){
+    public AccountChangeEvent(EventType eventType, String accountId, String sourceHost){
         this.eventType = eventType;
         this.accountId = accountId;
+        this.sourceHost = sourceHost;
     }
     
-    public AccountChangeEvent(EventType eventType) {
-        this.eventType = eventType;
-    }
-
     public EventType getEventType(){
         return this.eventType;
     }
@@ -48,7 +51,12 @@ public class AccountChangeEvent {
     public String getAccountId(){
         return this.accountId;
     }
+    
+    public String getSourceHost() {
+        return sourceHost;
+    }
 
+    
     public static String serialize(AccountChangeEvent accountChangeEvent) {
         JaxbJsonSerializer<AccountChangeEvent> serializer = new JaxbJsonSerializer<>(
                 AccountChangeEvent.class);

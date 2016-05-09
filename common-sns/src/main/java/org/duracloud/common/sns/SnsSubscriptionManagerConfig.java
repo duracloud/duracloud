@@ -64,7 +64,7 @@ public class SnsSubscriptionManagerConfig {
                 @Override
                 public void onMessage(Message message) {
                     log.info("message received: " + message);
-                    log.info("message body: " + message.getBody());
+                    log.debug("message body: " + message.getBody());
                     JsonFactory factory = new JsonFactory(); 
                     ObjectMapper mapper = new ObjectMapper(factory); 
                     TypeReference<HashMap<String,String>> typeRef 
@@ -77,7 +77,7 @@ public class SnsSubscriptionManagerConfig {
                             cache.onEvent(event);
                         }
                     } catch (IOException e) {
-                        log.error("failed to handle message: " + e.getMessage(), e);
+                        log.warn("unable to dispatch message: " + message + " : " + e.getMessage(), e);
                     } 
                 }
             });

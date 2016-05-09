@@ -10,9 +10,10 @@ package org.duracloud.durastore.storage;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.duracloud.common.error.NoUserLoggedInException;
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
+import org.duracloud.common.sns.AccountChangeNotifier;
 import org.duracloud.common.util.UserUtil;
 import org.duracloud.durastore.util.StorageProviderFactoryImpl;
 import org.duracloud.storage.domain.DatabaseConfig;
@@ -25,6 +26,7 @@ import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProviderImpl;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
+import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,11 +43,15 @@ public class StorageProviderUtilsTest {
 
     @Test
     public void testStorageProviderUtilities() throws Exception {
+        
+        AccountChangeNotifier accountChangeNotifier = EasyMock.createMock(AccountChangeNotifier.class);
         StorageAccountManager acctManager = new StorageAccountManager();
         StorageProviderFactory storageProviderFactory =
             new StorageProviderFactoryImpl(acctManager,
                                            new StatelessStorageProviderImpl(),
-                                           new TestUserUtil());
+                                           new TestUserUtil(),
+                                           new DuraCloudRequestContextUtil(),
+                                           accountChangeNotifier);
         
         DuraStoreInitConfig config = new DuraStoreInitConfig();
         config.setStorageAccounts(Arrays.asList((StorageAccount) new StorageAccountImpl("id",
@@ -54,6 +60,9 @@ public class StorageProviderUtilsTest {
                                                                                         StorageProviderType.AMAZON_S3)));
         
         config.setMillDbConfig(new DatabaseConfig());
+        
+        EasyMock.replay(accountChangeNotifier);
+        
         storageProviderFactory.initialize(config, "host", "port", "accountid");
         StorageProvider storage =
             storageProviderFactory.getStorageProvider();
@@ -68,6 +77,8 @@ public class StorageProviderUtilsTest {
         assertNotNull(primary.getPassword());
         assertEquals("password", primary.getPassword());
         assertEquals(primary.getType(), StorageProviderType.AMAZON_S3);
+        EasyMock.verify(accountChangeNotifier);
+
     }
 
     private class TestUserUtil implements UserUtil {

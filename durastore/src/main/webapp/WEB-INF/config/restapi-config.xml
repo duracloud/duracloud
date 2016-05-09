@@ -56,6 +56,8 @@
     <constructor-arg ref="statelessStoragePvdr" />
     <constructor-arg ref="securityContextUtil"/>
     <constructor-arg ref="duracloudMillRepo"/>
+    <constructor-arg ref="contextUtil"/>
+    <constructor-arg ref="accountChangeNotifier"/>
   </bean>
 
   <bean id="storageAccountManagerFactory" class="org.duracloud.durastore.util.StorageAccountManagerFactory">

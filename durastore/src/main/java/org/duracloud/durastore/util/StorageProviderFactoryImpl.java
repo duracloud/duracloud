@@ -17,6 +17,8 @@ import org.duracloud.audit.provider.AuditStorageProvider;
 import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.common.queue.aws.SQSTaskQueue;
 import org.duracloud.common.queue.noop.NoopTaskQueue;
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
+import org.duracloud.common.sns.AccountChangeNotifier;
 import org.duracloud.common.util.UserUtil;
 import org.duracloud.durastore.test.MockRetryStorageProvider;
 import org.duracloud.durastore.test.MockVerifyCreateStorageProvider;
@@ -57,32 +59,45 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
     private UserUtil userUtil;
     private TaskQueue auditQueue;
     private boolean cacheStorageProvidersOnInit = false;
+    private DuraCloudRequestContextUtil contextUtil;
+    private AccountChangeNotifier notifier;
 
     public StorageProviderFactoryImpl(StorageAccountManager storageAccountManager,
                                       StatelessStorageProvider statelessStorageProvider,
-                                      UserUtil userUtil) {
+                                      UserUtil userUtil, 
+                                      DuraCloudRequestContextUtil contextUtil,
+                                      AccountChangeNotifier notifier) {
         this(storageAccountManager,
              statelessStorageProvider,
              userUtil,
+             contextUtil,
+             notifier,
              false);
     }
 
     public StorageProviderFactoryImpl(StorageAccountManager storageAccountManager,
                                       StatelessStorageProvider statelessStorageProvider,
                                       UserUtil userUtil,
+                                      DuraCloudRequestContextUtil contextUtil,
+                                      AccountChangeNotifier notifier,
                                       boolean cacheStorageProvidersOnInit) {
         super(storageAccountManager);
         this.statelessProvider = statelessStorageProvider;
         this.storageProviders = new ConcurrentHashMap<>();
         this.userUtil = userUtil;
         this.cacheStorageProvidersOnInit = cacheStorageProvidersOnInit;
+        this.contextUtil = contextUtil;
+        this.notifier = notifier;
+        
     }
 
     public StorageProviderFactoryImpl(StorageAccountManager storageAccountManager,
                                       StatelessStorageProvider statelessStorageProvider,
                                       UserUtil userUtil,
+                                      DuraCloudRequestContextUtil contextUtil,
+                                      AccountChangeNotifier notifier,
                                       AuditConfig auditConfig) {
-        this(storageAccountManager, statelessStorageProvider, userUtil);
+        this(storageAccountManager, statelessStorageProvider, userUtil, contextUtil, notifier);
         configureAuditQueue(auditConfig);
     }
 
@@ -240,7 +255,7 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
             ((StorageProviderBase)storageProvider).setWrappedStorageProvider(auditProvider);
         }
         
-        StorageProvider aclProvider = new ACLStorageProvider(auditProvider);
+        StorageProvider aclProvider = new ACLStorageProvider(auditProvider, notifier, contextUtil);
         StorageProvider brokeredProvider =
             new BrokeredStorageProvider(statelessProvider,
                                         aclProvider,
