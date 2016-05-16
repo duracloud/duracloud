@@ -76,7 +76,7 @@ public class FilesystemContentWriterTest {
         String contentId = "a" + sep + "b" + sep + "c" + sep + "contentId";
 
         int numChunks = 4;
-        long maxChunkSize = 1024;
+        long maxChunkSize = 1000;
         ChunkableContent chunkable = new ChunkableContent(contentId,
                                                           contentStream,
                                                           contentSize,

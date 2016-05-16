@@ -129,7 +129,7 @@ public class DuracloudContentWriterTest {
         String spaceId = "test-spaceId";
         String contentId = "test-contentId";
 
-        long maxChunkSize = 1024;
+        long maxChunkSize = 1000;
         ChunkableContent chunkable = new ChunkableContent(contentId,
                                                           contentStream,
                                                           contentSize,
@@ -149,7 +149,7 @@ public class DuracloudContentWriterTest {
         String spaceId = "test-spaceId";
         String contentId = "test-contentId";
 
-        long maxChunkSize = 1024;
+        long maxChunkSize = 1000;
         ChunkableContent chunkable = new ChunkableContent(contentId,
                                                           contentStream,
                                                           contentSize,
@@ -168,7 +168,7 @@ public class DuracloudContentWriterTest {
         String spaceId = "test-spaceId";
         String contentId = "test-contentId";
 
-        long maxChunkSize = 1024;
+        long maxChunkSize = 1000;
         ChunkableContent chunkable = new ChunkableContent(contentId,
                                                           contentStream,
                                                           contentSize,
