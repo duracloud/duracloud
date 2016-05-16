@@ -38,7 +38,7 @@ public class ChunkableContentTest {
 
     private ChunkableContent chunkable;
     private String contentId = "contentId";
-    private final long MAX_CHUNK_SIZE = 10240;
+    private final long MAX_CHUNK_SIZE = 10000;
 
     private DigestInputStream contentInputStream;
     private MessageDigest contentChecksum;

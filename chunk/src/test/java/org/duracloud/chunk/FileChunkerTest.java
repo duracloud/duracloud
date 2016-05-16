@@ -65,7 +65,7 @@ public class FileChunkerTest {
 
     @Test
     public void testCreateContent() throws IOException {
-        long chunkSize = 10240;
+        long chunkSize = 10000;
         long size = chunkSize * 4 + chunkSize / 2;
 
         String name = "create-test.txt";
@@ -86,7 +86,7 @@ public class FileChunkerTest {
 
     @Test
     public void testLoadContent() throws IOException, NotFoundException {
-        long chunkSize = 16384;
+        long chunkSize = 16000;
         long contentSize = chunkSize * 4 + chunkSize / 2;
 
         String suffix = ".dura-chunk-\\d+";
@@ -150,7 +150,7 @@ public class FileChunkerTest {
 
     @Test
     public void testAddContent() throws Exception {
-        long chunkSize = 1024;
+        long chunkSize = 1000;
         long fileSize = chunkSize + chunkSize/2;
         String fileName = "add-content-test.txt";
 
@@ -172,7 +172,7 @@ public class FileChunkerTest {
 
     @Test
     public void testIgnoreFlag() throws Exception {
-        long chunkSize = 1024;
+        long chunkSize = 1000;
         String bigFilename0 = "big0.txt";
         String bigFilename1 = "big1.txt";
         String smallFilename = "small.txt";
@@ -236,7 +236,7 @@ public class FileChunkerTest {
                                     IOFileFilter dirFilter,
                                     int id,
                                     int numFiles) throws NotFoundException {
-        long chunkSize = 1024;
+        long chunkSize = 1000;
         FileChunkerOptions options;
         options = new FileChunkerOptions(fileFilter, dirFilter, chunkSize);
 

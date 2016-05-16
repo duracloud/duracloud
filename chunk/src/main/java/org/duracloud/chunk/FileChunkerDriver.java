@@ -76,9 +76,9 @@ public class FileChunkerDriver {
 
         int multiplier = Integer.parseInt(arg.substring(0, arg.length() - 1));
 
-        final long KB = 1024;
-        final long MB = 1048576;
-        final long GB = 1073741824;
+        final long KB = 1000;
+        final long MB = 1000*KB;
+        final long GB = 1000*MB;
 
         long chunkSize = 1 * MB;
         switch (unit) {
