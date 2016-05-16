@@ -600,6 +600,7 @@
                   <goal>single</goal>
                 </goals>
                 <configuration>
+                  <appendAssemblyId>true</appendAssemblyId>
                   <descriptors>
                     <descriptor>src/main/install/osx-installer-zip.xml</descriptor>
                   </descriptors>
