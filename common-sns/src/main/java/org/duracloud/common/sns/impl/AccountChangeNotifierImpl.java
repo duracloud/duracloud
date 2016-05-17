@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.common.sns;
+package org.duracloud.common.sns.impl;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -14,6 +14,7 @@ import org.duracloud.account.db.model.GlobalProperties;
 import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.event.AccountChangeEvent;
 import org.duracloud.common.event.AccountChangeEvent.EventType;
+import org.duracloud.common.sns.AccountChangeNotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
