@@ -7,9 +7,14 @@ notifications:
       - cibuilds@duracloud.org
     on_success: change
     on_failure: always
-  slack: duraspace:vOBySuKUwM95j2kfbwh0SNxq    
+  slack: duraspace:vOBySuKUwM95j2kfbwh0SNxq
 install:
   - mvn install -DskipTests -DskipDeploy
 script:
   - mvn test -DskipIntTests
 sudo: false
+addons:
+  artifacts: true
+  s3_region: us-east-1
+  paths:
+  - $(git ls-files -o | grep ".*\.war$")
