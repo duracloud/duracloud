@@ -15,6 +15,6 @@ script:
 sudo: false
 addons:
   artifacts: true
+    paths:
+    - $(git ls-files -o | grep "dura.*\.war$")
   s3_region: us-east-1
-  paths:
-  - $(git ls-files -o | grep ".*\.war$")
