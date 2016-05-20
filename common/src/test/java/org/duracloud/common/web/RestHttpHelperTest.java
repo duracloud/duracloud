@@ -124,16 +124,15 @@ public class RestHttpHelperTest {
 
     @Test
     public void testMultipartPost() throws Exception {
-        File file = createTmpFile();
-
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addTextBody("name", "text");
-        builder.addBinaryBody(file.getName(), file);
+        builder.addTextBody("text-part", "text");
+        // Note: Including a file as one piece of the multipart body
+        // causes this test to fail intermittently. Replacing it here with string bytes.
+        builder.addBinaryBody("binary-part", "binary-content".getBytes());
         HttpEntity reqEntity = builder.build();
 
         HttpResponse response = helper.multipartPost(getUrl(), reqEntity);
         verifyResponse(response);
-        file.delete();
     }
 
     @Test
