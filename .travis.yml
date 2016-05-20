@@ -13,10 +13,6 @@ install:
 script:
   - mvn test -DskipIntTests
 sudo: false
-before_deploy:
-  - mkdir -p build/webapps
-  - cp build/duracloud/duracloud/durastore/*.war build/webapps
-  - cp build/duracloud/duracloud/duradmin/*.war build/webapps
 deploy:
   - provider: s3
     access_key_id: $ARTIFACTS_KEY
@@ -24,7 +20,7 @@ deploy:
     bucket: $ARTIFACTS_BUCKET
     region: $ARTIFACTS_REGION
     skip_cleanup: true
-    local_dir: build/webapps
+    local_dir: $TRAVIS_BUILD_DIR/target
     upload-dir: duracloud/master
     on:
       branch: master
@@ -34,7 +30,7 @@ deploy:
     bucket: $ARTIFACTS_BUCKET
     region: $ARTIFACTS_REGION
     skip_cleanup: true
-    local_dir: build/webapps
+    local_dir: $TRAVIS_BUILD_DIR/target
     upload-dir: duracloud/develop
     on:
       branch: develop
