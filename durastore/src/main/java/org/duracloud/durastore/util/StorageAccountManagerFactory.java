@@ -21,7 +21,6 @@ import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.domain.impl.StorageAccountImpl;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This class is responsible for loading and caching global account information 
