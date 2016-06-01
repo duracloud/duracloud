@@ -45,7 +45,8 @@ public class TaskProviderFactoryCache extends AbstractAccountComponentCache<Task
         EventType eventType = event.getEventType();
         if(accountId != null){
             if(eventType.equals(EventType.STORAGE_PROVIDERS_CHANGED)|| 
-                eventType.equals(EventType.ACCOUNT_CHANGED)){
+                eventType.equals(EventType.ACCOUNT_CHANGED) || 
+                eventType.equals(EventType.STORAGE_PROVIDER_CACHE_ON_NODE_CHANGED)){
                 remove(accountId);
             }
         }else if(eventType.equals(EventType.ALL_ACCOUNTS_CHANGED)){
