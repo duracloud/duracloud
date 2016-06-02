@@ -62,9 +62,15 @@ public class StorageStatsController {
             store = contentStoreManager.getContentStore(storeId);
         }
         
-        return spaceStatsListSerializer.serialize(store.getSpaceStats(spaceId,
-                                                                      convertDate(start),
-                                                                      convertDate(end)));
+        if(spaceId != null){
+            return spaceStatsListSerializer.serialize(store.getSpaceStats(spaceId,
+                                                                          convertDate(start),
+                                                                          convertDate(end)));
+        }else{
+            return spaceStatsListSerializer.serialize(store.getStorageProviderStats(convertDate(start),
+                                                                                    convertDate(end)));
+        }
+
     }
 
     @RequestMapping(value = "/snapshot-by-day")

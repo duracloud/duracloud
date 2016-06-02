@@ -802,8 +802,7 @@ public class ContentStoreImplTest {
         list.add(new SpaceStatsDTO(new Date(), "account-id", storeId, spaceId, 1000l, 10l));
         String json = new JaxbJsonSerializer<>(SpaceStatsDTOList.class).serialize(list);
         String fullURL =
-            baseURL + "/storagestats/timeseries?"
-                         + "spaceID="+spaceId+"&start="
+            baseURL + "/report/space/"+spaceId+"?start="
                          + startStr
                          + "&end="
                          + endStr
@@ -821,6 +820,33 @@ public class ContentStoreImplTest {
     @Test
     public void testGetStorageStats() throws Exception {
        
+        Date start = new Date();
+        Date end = new Date();
+        String startStr = formatDate(start);
+        String endStr = formatDate(end);
+        
+        SpaceStatsDTOList list = new SpaceStatsDTOList();
+        list.add(new SpaceStatsDTO(new Date(), "account-id", storeId, spaceId, 1000l, 10l));
+        String json = new JaxbJsonSerializer<>(SpaceStatsDTOList.class).serialize(list);
+        String fullURL =
+            baseURL + "/report/store?start="
+                         + startStr
+                         + "&end="
+                         + endStr
+                         + "&storeID="
+                         + storeId;
+        EasyMock.expect(response.getStatusCode()).andReturn(200);
+        EasyMock.expect(response.getResponseBody()).andReturn(json);
+        EasyMock.expect(restHelper.get(fullURL)).andReturn(response);
+        replayMocks();
+        List<SpaceStatsDTO> stats = contentStore.getStorageProviderStats(start, end);
+        assertEquals(list, stats);
+        
+    }
+    
+    @Test
+    public void testGetStorageStatsByDate() throws Exception {
+       
         Date date = new Date();
         String dateStr = formatDate(date);
         
@@ -828,10 +854,9 @@ public class ContentStoreImplTest {
         list.add(new SpaceStatsDTO(new Date(), "account-id", storeId, spaceId, 1000l, 10l));
         String json = new JaxbJsonSerializer<>(SpaceStatsDTOList.class).serialize(list);
         String fullURL =
-            baseURL + "/storagestats/snapshot-by-day?"
-                         + "date="
+            baseURL + "/report/store/"
                          + dateStr
-                         + "&storeID="
+                         + "?storeID="
                          + storeId;
         EasyMock.expect(response.getStatusCode()).andReturn(200);
         EasyMock.expect(response.getResponseBody()).andReturn(json);

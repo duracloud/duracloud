@@ -20,7 +20,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.common.util.DateUtil;
 import org.duracloud.reportdata.storage.SpaceStatsDTO;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.util.StorageProviderFactory;
@@ -35,7 +34,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Daniel Bernstein Date: 2/25/2016
  */
-@Path("/storagestats")
+@Path("/report")
 @Component
 public class StorageStatsRest extends BaseRest {
 
@@ -49,10 +48,10 @@ public class StorageStatsRest extends BaseRest {
         this.storageProviderFactory = storageProviderFactory;
     }
 
-    @Path("/timeseries")
+    @Path("/space/{spaceID}")
     @GET
     @Produces(MediaType.APPLICATION_JSON_VALUE)
-    public Response getSpaceStatsOverTime(@QueryParam("spaceID") String spaceId,
+    public Response getSpaceStatsOverTime(@PathParam("spaceID") String spaceId,
                                   @QueryParam("storeID") String storeId,
                                   @QueryParam("start") String startMs,
                                   @QueryParam("end") String endMs) {
@@ -68,22 +67,9 @@ public class StorageStatsRest extends BaseRest {
 
         try {
             
-            Date startDate;
-            if(null == startMs){
-                Calendar c = Calendar.getInstance();
-                c.add(Calendar.DATE, -90);
-                c.set(Calendar.HOUR, 0);
-                c.set(Calendar.MINUTE, 0);
-                c.set(Calendar.SECOND, 0);
-                startDate = c.getTime();
-            }else{
-                startDate = toDateFromMs(startMs);
-            }
+            Date startDate = resolveStartDate(startMs);
 
-            Date endDate = new Date();
-            if(null != endMs){
-                endDate = toDateFromMs(endMs);
-            }
+            Date endDate = resolveEndDate(endMs);
 
             storeId = getStoreId(storeId);
             
@@ -110,16 +96,76 @@ public class StorageStatsRest extends BaseRest {
         }
     }
 
+    @Path("/store")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON_VALUE)
+    public Response getStoreStatsOverTime(@QueryParam("storeID") String storeId,
+                                  @QueryParam("start") String startMs,
+                                  @QueryParam("end") String endMs) {
+
+        String account = getSubdomain();
+
+        log.info("getting storage stats, {}:{} [{}:{}]",
+                 account,
+                 storeId,
+                 startMs,
+                 endMs);
+
+        try {
+            
+            Date startDate = resolveStartDate(startMs);
+
+            Date endDate = resolveEndDate(endMs);
+
+            storeId = getStoreId(storeId);
+            
+            List<SpaceStatsDTO> stats = resource.getStorageProviderStats(account, storeId, startDate , endDate);
+            
+            return responseOk(stats);
+
+        } catch (Exception e) {
+            log.error(MessageFormat.format("error getting storage stats, {0}:{1} [{3}:{4}]",
+                     account,
+                     storeId,
+                     startMs,
+                     endMs), e);
+            return responseBad(e);
+        }
+    }
+
+    protected Date resolveEndDate(String endMs) {
+        Date endDate = new Date();
+        if(null != endMs){
+            endDate = toDateFromMs(endMs);
+        }
+        return endDate;
+    }
+
+    protected Date resolveStartDate(String startMs) {
+        Date startDate;
+        if(null == startMs){
+            Calendar c = Calendar.getInstance();
+            c.add(Calendar.DATE, -90);
+            c.set(Calendar.HOUR, 0);
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
+            startDate = c.getTime();
+        }else{
+            startDate = toDateFromMs(startMs);
+        }
+        return startDate;
+    }
+
     protected Date toDateFromMs(String endMs) {
         return new Date(Long.parseLong(endMs));
     }
 
     
-    @Path("/snapshot-by-day")
+    @Path("/store/{date}")
     @GET
     @Produces(MediaType.APPLICATION_JSON_VALUE)
     public Response getStorageStatsByDay(@QueryParam("storeID") String storeId,
-                                  @QueryParam("date") String dateMs) {
+                                  @PathParam("date") String dateMs) {
 
         String account = getSubdomain();
 

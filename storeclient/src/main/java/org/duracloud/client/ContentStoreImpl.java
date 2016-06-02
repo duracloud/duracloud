@@ -7,7 +7,6 @@
  */
 package org.duracloud.client;
 
-import static org.duracloud.storage.provider.StorageProvider.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,7 +29,6 @@ import org.duracloud.common.model.AclType;
 import org.duracloud.common.retry.ExceptionHandler;
 import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
-import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.DateUtil.DateFormat;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.EncodeUtil;
@@ -48,7 +46,6 @@ import org.duracloud.error.UnsupportedTaskException;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReport;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReportResult;
-import org.duracloud.reportdata.storage.SpaceStatsDTO;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.IdUtil;
@@ -1277,13 +1274,44 @@ public class ContentStoreImpl implements ContentStore {
             throw new ContentStoreException("failed to retrieve space stats for " + spaceId, e);
         }
     }
-    
-    private String buildSpaceStatsURL(String spaceId, Date start, Date end) {
-        String url = buildURL("/storagestats/timeseries");
 
-        if(spaceId != null){
-            url = addQueryParameter(url, "spaceID",spaceId);
+    private String buildSpaceStatsURL(String spaceId, Date start, Date end) {
+        String url = buildURL("/report/space/" + spaceId);
+        
+        if(start != null){
+            url = addQueryParameter(url, "start", start.getTime()+"");
         }
+        
+        if(end != null){
+            url = addQueryParameter(url, "end", end.getTime()+"");
+        }
+        
+        url = addStoreIdQueryParameter(url);
+        return url;
+    }
+
+    @Override
+    public SpaceStatsDTOList getStorageProviderStats(Date start, Date end)
+        throws ContentStoreException {
+        String url = buildStorageProviderStatsURL(start, end);
+        try {
+            HttpResponse response = restHelper.get(url);
+            checkResponse(response, HttpStatus.SC_OK);
+            String body = response.getResponseBody();
+            JaxbJsonSerializer<SpaceStatsDTOList> serializer = new JaxbJsonSerializer<>(SpaceStatsDTOList.class);
+            return serializer.deserialize(body);
+        } catch(NotFoundException e) {
+            throw new NotFoundException("storeId = " + getStoreId());
+        } catch(UnauthorizedException e) {
+            throw new UnauthorizedException(getStoreId(), e);
+        } catch (Exception e) {
+            throw new ContentStoreException("failed to retrieve storage provider stats for " + getStoreId(), e);
+        }
+    }
+
+    
+    private String buildStorageProviderStatsURL(Date start, Date end) {
+        String url = buildURL("/report/store");
         
         if(start != null){
             url = addQueryParameter(url, "start", start.getTime()+"");
@@ -1315,11 +1343,7 @@ public class ContentStoreImpl implements ContentStore {
     }
     
     private String buildStorageProviderStatsURL(Date date) {
-        String url = buildURL("/storagestats/snapshot-by-day");
-        if(date != null){
-            url = addQueryParameter(url, "date", date.getTime()+"");
-        }
-        
+        String url = buildURL("/report/store/"+date.getTime());
         url = addStoreIdQueryParameter(url);
         return url;
     }
