@@ -18,10 +18,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.error.NotFoundException;
 import org.duracloud.reportdata.storage.SpaceStatsDTO;
 import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,23 +71,29 @@ public class StorageStatsRest extends BaseRest {
         try {
             
             Date startDate = resolveStartDate(startMs);
-
             Date endDate = resolveEndDate(endMs);
-
             storeId = getStoreId(storeId);
-            
+            ensureSpaceIsValid(storeId, spaceId);
             List<SpaceStatsDTO> stats = resource.getSpaceStats(account, storeId, spaceId, startDate , endDate);
-            
             return responseOk(stats);
 
         } catch (Exception e) {
-            log.error(MessageFormat.format("error getting storage stats, {0}:{1}:{2} [{3}:{4}]",
-                     account,
-                     storeId,
-                     spaceId,
-                     startMs,
-                     endMs), e);
-            return responseBad(e);
+            return handleException(e,
+                                   MessageFormat.format("error getting storage stats, {0}:{1}:{2} [{3}:{4}]",
+                                                        account,
+                                                        storeId,
+                                                        spaceId,
+                                                        startMs,
+                                                        endMs));
+        }
+    }
+
+    private void ensureSpaceIsValid(String storeId, String spaceId) throws NotFoundException {
+        StorageProvider provider = storageProviderFactory.getStorageProvider(storeId);
+        try {
+            provider.getSpaceProperties(spaceId);
+        }catch(org.duracloud.storage.error.NotFoundException ex){
+            throw new NotFoundException("The space was not foundt: " + spaceId);
         }
     }
 
@@ -104,24 +113,19 @@ public class StorageStatsRest extends BaseRest {
                  endMs);
 
         try {
-            
             Date startDate = resolveStartDate(startMs);
-
             Date endDate = resolveEndDate(endMs);
-
             storeId = getStoreId(storeId);
-            
             List<SpaceStatsDTO> stats = resource.getStorageProviderStats(account, storeId, startDate , endDate);
-            
             return responseOk(stats);
 
         } catch (Exception e) {
-            log.error(MessageFormat.format("error getting storage stats, {0}:{1} [{3}:{4}]",
-                     account,
-                     storeId,
-                     startMs,
-                     endMs), e);
-            return responseBad(e);
+            return handleException(e,
+                                   MessageFormat.format("error getting storage stats, {0}:{1} [{3}:{4}]",
+                                                        account,
+                                                        storeId,
+                                                        startMs,
+                                                        endMs));
         }
     }
 
@@ -148,10 +152,14 @@ public class StorageStatsRest extends BaseRest {
         return startDate;
     }
 
-    protected Date toDateFromMs(String endMs) {
-        return new Date(Long.parseLong(endMs));
+    protected Date toDateFromMs(String endMs) throws NumberFormatException {
+        try {
+            return new Date(Long.parseLong(endMs));
+        } catch (NumberFormatException ex) {
+            throw new NumberFormatException("Unable to parse date: " + endMs
+                                            + ". Input value must be in epoch milliseconds.");
+        }
     }
-
     
     @Path("/store/{date}")
     @GET
@@ -173,15 +181,27 @@ public class StorageStatsRest extends BaseRest {
                 resource.getStorageProviderByDay(account, storeId, theDate);
             return responseOk(stats);
         } catch (Exception e) {
-            log.error(MessageFormat.format("error getting storage stats, {0}:{1}:{2} [{3}]",
-                     account,
-                     storeId,
-                     dateMs), e);
+            return handleException(e, MessageFormat.format("error getting storage stats, {0}:{1}:{2} [{3}]",
+                                                    account,
+                                                    storeId,
+                                                    dateMs));
+        }
+    }
+
+    private Response handleException(Exception e, String defaultErrorMessage) {
+        if(e instanceof NumberFormatException){
+            log.error(e.getMessage(), e);
+            return responseBad(e, Status.BAD_REQUEST);
+        }else if(e instanceof NotFoundException){
+            log.error(e.getMessage(), e);
+            return responseBad(e, Status.NOT_FOUND);
+        }else{
+            log.error(defaultErrorMessage, e);
             return responseBad(e);
         }
     }
 
-    protected String getStoreId(String storeId) {
+    protected String getStoreId(String storeId) throws NotFoundException {
         if(storeId == null){
             List<StorageAccount> accounts = this.storageProviderFactory.getStorageAccounts();
             for(StorageAccount sa : accounts){
@@ -190,9 +210,22 @@ public class StorageStatsRest extends BaseRest {
                     break;
                 }
             }
-            
             if(storeId == null){
                 throw new DuraCloudRuntimeException("unable to resolve primary store id");
+            }
+        }else{
+            List<StorageAccount> accounts = this.storageProviderFactory.getStorageAccounts();
+            boolean valid = false;
+            for(StorageAccount sa : accounts){
+                if(storeId.equals(sa.getId())){
+                    valid = true;
+                    break;
+                }
+            }
+            
+            if(!valid){
+                throw new NotFoundException("Store id (" + storeId
+                                            + ") is not associated with this account.");
             }
             
         }
