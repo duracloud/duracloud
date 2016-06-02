@@ -73,15 +73,7 @@ public class StorageStatsRest extends BaseRest {
 
             storeId = getStoreId(storeId);
             
-            List<SpaceStatsDTO> stats; 
-            
-            if(spaceId == null) {
-                stats =
-                    resource.getStorageProviderStats(account, storeId, startDate , endDate);
-            }else{
-                stats =
-                    resource.getSpaceStats(account, storeId, spaceId, startDate , endDate);
-            }
+            List<SpaceStatsDTO> stats = resource.getSpaceStats(account, storeId, spaceId, startDate , endDate);
             
             return responseOk(stats);
 
