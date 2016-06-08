@@ -8,6 +8,7 @@
 package org.duracloud.sdscstorage;
 
 import org.duracloud.openstackstorage.OpenStackStorageProvider;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.jclouds.openstack.swift.SwiftClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,11 @@ public class SDSCStorageProvider extends OpenStackStorageProvider {
 
     public SDSCStorageProvider(SwiftClient swiftClient) {
         super(swiftClient);
+    }
+
+    @Override
+    public StorageProviderType getStorageProviderType() {
+        return StorageProviderType.SDSC;
     }
 
     @Override

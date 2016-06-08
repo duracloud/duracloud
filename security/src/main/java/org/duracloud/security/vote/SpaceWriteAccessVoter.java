@@ -182,7 +182,9 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
 
        for(StorageAccount account : accounts){
            if(account.getId().equals(storeId)){
-               if(account.getType().equals(StorageProviderType.SNAPSHOT)){
+               StorageProviderType type = account.getType();
+               if(type.equals(StorageProviderType.DPN) ||
+                  type.equals(StorageProviderType.CHRONOPOLIS)){
                    StorageProvider store = factory.getStorageProvider(storeId);
                    try {
                        String spaceId = getSpaceId(httpRequest);

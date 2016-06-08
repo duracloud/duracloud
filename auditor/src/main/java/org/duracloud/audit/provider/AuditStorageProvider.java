@@ -15,6 +15,7 @@ import org.duracloud.common.model.AclType;
 import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.common.queue.task.Task;
 import org.duracloud.common.util.UserUtil;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 
 import java.io.InputStream;
@@ -131,6 +132,10 @@ public class AuditStorageProvider implements StorageProvider {
     /*
      * GET methods, these make no changes to the store so are passed through
      */
+    @Override
+    public StorageProviderType getStorageProviderType() {
+        return target.getStorageProviderType();
+    }
 
     @Override
     public Iterator<String> getSpaces() {

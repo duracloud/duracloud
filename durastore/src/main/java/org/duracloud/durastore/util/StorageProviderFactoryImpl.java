@@ -28,6 +28,8 @@ import org.duracloud.irodsstorage.IrodsStorageProvider;
 import org.duracloud.rackspacestorage.RackspaceStorageProvider;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.sdscstorage.SDSCStorageProvider;
+import org.duracloud.snapshotstorage.ChronopolisStorageProvider;
+import org.duracloud.snapshotstorage.DpnStorageProvider;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.domain.AuditConfig;
 import org.duracloud.storage.domain.DuraStoreInitConfig;
@@ -219,8 +221,10 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
             storageProvider = new IrodsStorageProvider(username,
                                                        password,
                                                        account.getOptions());
-        } else if (type.equals(StorageProviderType.SNAPSHOT)) {
-            storageProvider = new SnapshotStorageProvider(username, password);
+        } else if (type.equals(StorageProviderType.DPN)) {
+            storageProvider = new DpnStorageProvider(username, password);
+        } else if (type.equals(StorageProviderType.CHRONOPOLIS)) {
+            storageProvider = new ChronopolisStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.TEST_RETRY)) {
             storageProvider = new MockRetryStorageProvider();
         } else if (type.equals(StorageProviderType.TEST_VERIFY_CREATE)) {

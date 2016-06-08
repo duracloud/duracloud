@@ -22,6 +22,7 @@ import edu.umiacs.irods.operation.QueryBuilder;
 import edu.umiacs.irods.operation.QueryResult;
 import edu.umiacs.irods.operation.UnknownSizeOutputStream;
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
@@ -86,6 +87,11 @@ public class IrodsStorageProvider implements StorageProvider {
                   "@" + host + ":" + port + baseDirectory + " rsrc " +
                   storageResource);
 
+    }
+
+    @Override
+    public StorageProviderType getStorageProviderType() {
+        return StorageProviderType.IRODS;
     }
 
     /**

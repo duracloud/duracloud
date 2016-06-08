@@ -13,6 +13,7 @@ import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StoragePolicy;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.error.StorageStateException;
@@ -43,6 +44,11 @@ public class GlacierStorageProvider extends S3StorageProvider {
 
     public GlacierStorageProvider(AmazonS3Client s3Client, String accessKey) {
         super(s3Client, accessKey, null);
+    }
+
+    @Override
+    public StorageProviderType getStorageProviderType() {
+        return StorageProviderType.AMAZON_GLACIER;
     }
 
     @Override

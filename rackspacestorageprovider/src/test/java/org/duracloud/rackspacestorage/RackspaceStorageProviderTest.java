@@ -8,6 +8,7 @@
 package org.duracloud.rackspacestorage;
 
 import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.easymock.EasyMock;
 import org.jclouds.openstack.swift.SwiftClient;
 import org.jclouds.openstack.swift.domain.MutableObjectInfoWithMetadata;
@@ -18,6 +19,8 @@ import org.junit.Test;
 
 import java.util.Date;
 import java.util.HashMap;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andrew Woods
@@ -37,9 +40,14 @@ public class RackspaceStorageProviderTest {
         EasyMock.verify( swiftClient);
     }
 
-//    private void replayMocks() {
-//        EasyMock.replay(swiftClient);
-//    }
+    @Test
+    public void testGetStorageProviderType() {
+        EasyMock.replay(swiftClient);
+
+        RackspaceStorageProvider provider =
+            new RackspaceStorageProvider("accessKey", "secretKey");
+        assertEquals(StorageProviderType.RACKSPACE, provider.getStorageProviderType());
+    }
 
     @Test
     public void testCopyContent() throws Exception {

@@ -12,6 +12,7 @@ import org.duracloud.common.util.metrics.Metric;
 import org.duracloud.common.util.metrics.MetricException;
 import org.duracloud.common.util.metrics.MetricsProbed;
 import org.duracloud.common.util.metrics.MetricsTable;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 
 import java.io.InputStream;
@@ -70,6 +71,14 @@ public abstract class ProbedStorageProvider
 
     protected void setStorageProvider(StorageProvider storageProvider) {
         this.storageProvider = storageProvider;
+    }
+
+    @Override
+    public StorageProviderType getStorageProviderType() {
+        startMetric("getStorageProviderType");
+        StorageProviderType type = storageProvider.getStorageProviderType();
+        stopMetric("getStorageProviderType");
+        return type;
     }
 
     public String addContent(String spaceId,

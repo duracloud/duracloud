@@ -8,6 +8,7 @@
 package org.duracloud.rackspacestorage;
 
 import org.duracloud.openstackstorage.OpenStackStorageProvider;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.jclouds.openstack.swift.SwiftClient;
 
 /**
@@ -31,6 +32,11 @@ public class RackspaceStorageProvider extends OpenStackStorageProvider {
 
     public RackspaceStorageProvider(SwiftClient swiftClient) {
         super(swiftClient);
+    }
+
+    @Override
+    public StorageProviderType getStorageProviderType() {
+        return StorageProviderType.RACKSPACE;
     }
 
     @Override

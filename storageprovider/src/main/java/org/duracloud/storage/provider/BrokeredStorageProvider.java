@@ -41,13 +41,18 @@ public class BrokeredStorageProvider
         return targetType;
     }
 
+    @Override
+    public StorageProviderType getStorageProviderType() {
+        return dispatchProvider.getStorageProviderType(targetProvider);
+    }
+
     public String addContent(String spaceId,
-                           String contentId,
-                           String contentMimeType,
-                           Map<String, String> userProperties,
-                           long contentSize,
-                           String contentChecksum,
-                           InputStream content) throws StorageException {
+                             String contentId,
+                             String contentMimeType,
+                             Map<String, String> userProperties,
+                             long contentSize,
+                             String contentChecksum,
+                             InputStream content) throws StorageException {
 
         return dispatchProvider.addContent(targetProvider,
                                            storeId,

@@ -121,6 +121,8 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
 
     protected void queueContentDeleteAuditTasks(final String spaceId, final String userId) {
 
+        final String storeType = unwrappedSnapshotProvider.getStorageProviderType().name();
+
         new Thread(new Runnable() {
             public void run() {
 
@@ -159,7 +161,7 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
                                     task.setDateTime(String.valueOf(time));
                                     task.setContentId(values[0]);
                                     task.setContentSize(values[1]);
-                                    task.setStoreType(StorageProviderType.SNAPSHOT.name());
+                                    task.setStoreType(storeType);
                                     task.setContentChecksum(values[2]);
                                     task.setAction(ActionType.DELETE_CONTENT.name());
                                     task.setUserId(userId);

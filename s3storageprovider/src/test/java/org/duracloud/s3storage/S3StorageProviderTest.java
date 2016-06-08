@@ -22,6 +22,7 @@ import java.util.Map;
 
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
@@ -73,6 +74,12 @@ public class S3StorageProviderTest {
         if (null != s3Client) {
             EasyMock.verify(s3Client);
         }
+    }
+
+    @Test
+    public void testGetStorageProviderType() {
+        S3StorageProvider provider = new S3StorageProvider(accessKey, "secretKey");
+        assertEquals(StorageProviderType.AMAZON_S3, provider.getStorageProviderType());
     }
 
     @Test

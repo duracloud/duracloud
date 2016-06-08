@@ -8,11 +8,14 @@
 package org.duracloud.sdscstorage;
 
 import junit.framework.Assert;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.easymock.EasyMock;
 import org.jclouds.openstack.swift.SwiftClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andrew Woods
@@ -38,6 +41,12 @@ public class SDSCStorageProviderTest {
 
     private void replayMocks() {
         EasyMock.replay(swiftClient);
+    }
+
+    @Test
+    public void testGetStorageProviderType() {
+        SDSCStorageProvider provider = new SDSCStorageProvider("accessKey", "secretKey");
+        assertEquals(StorageProviderType.SDSC, provider.getStorageProviderType());
     }
 
     @Test
