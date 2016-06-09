@@ -92,13 +92,13 @@ public class TestDuracloudContentWriter {
 
     @Test
     public void testWrite() throws Exception {
-        long contentLen = 4000;
+        long contentLen = 4100;
         InputStream contentStream = createContentStream(contentLen);
 
         String contentId = "test-contentId";
         String contentMimetype = "text/plain";
 
-        long maxChunkSize = 1024;
+        long maxChunkSize = 1000;
         int numChunks = (int) (contentLen / maxChunkSize + 1);
         ChunkableContent chunkable = new ChunkableContent(contentId,
                                                           contentMimetype,
@@ -117,13 +117,13 @@ public class TestDuracloudContentWriter {
 
     @Test
     public void testWriteSkipResults() throws Exception {
-        long contentLen = 4000;
+        long contentLen = 4100;
         InputStream contentStream = createContentStream(contentLen);
 
         String contentId = "test-contentId";
         String contentMimetype = "text/plain";
 
-        long maxChunkSize = 1024;
+        long maxChunkSize = 1000;
         int numChunks = (int) (contentLen / maxChunkSize + 1);
         ChunkableContent chunkable = new ChunkableContent(contentId,
                                                           contentMimetype,
