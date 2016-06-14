@@ -96,6 +96,8 @@
         <configuration>
           <webXml>${basedir}/target/web.xml</webXml>
           <warSourceExcludes>**/*.jsp</warSourceExcludes>
+          <!-- Resolves classloader LinkageError by removing duplicate classes -->
+          <packagingExcludes>WEB-INF/lib/httpcore*.jar</packagingExcludes>
           <webResources>
             <resource>
               <directory>src/main/webapp</directory>
@@ -401,10 +403,18 @@
       <artifactId>tiles-jsp</artifactId>
     </dependency>
 
+    <!-- Hibernate validator dependencies -->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <scope>compile</scope>
+    </dependency>
+    <dependency>
+       <groupId>org.jboss.logging</groupId>
+       <artifactId>jboss-logging</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml</groupId>
+      <artifactId>classmate</artifactId>
     </dependency>
 
     <dependency>
@@ -415,6 +425,11 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
     </dependency>
 
     <dependency>
