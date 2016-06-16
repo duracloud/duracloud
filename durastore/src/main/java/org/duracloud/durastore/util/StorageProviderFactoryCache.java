@@ -74,7 +74,7 @@ public class StorageProviderFactoryCache extends AbstractAccountComponentCache<S
                  .equals(EventType.STORAGE_PROVIDER_CACHE_ON_NODE_CHANGED)) {
             try {
                 String host = InetAddress.getLocalHost().getHostName();
-                if(host.equals(event.getSourceHost())){
+                if(!host.equals(event.getSourceHost())){
                     log.debug("This node {} is identical to the event source.", host);
                     return true;
                 }else{
