@@ -27,10 +27,6 @@ import org.springframework.core.io.Resource;
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.AmazonS3URI;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
 
 /**
  * Retrieves a signed URL for a media file that is streamed through
@@ -48,8 +44,6 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
 
     private static final String TASK_NAME =
         StorageTaskConstants.GET_SIGNED_URL_TASK_NAME;
-
-    private File localCfKeyFile = null;
 
     public GetSignedUrlTaskRunner(StorageProvider s3Provider,
                                   S3StorageProvider unwrappedS3Provider,
@@ -150,19 +144,19 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
     }
 
     private File getCfKeyPathFile(String cfKeyPath) throws IOException {
-        if(this.localCfKeyFile != null){
-            return this.localCfKeyFile;
-        }else if(this.cfKeyPath.startsWith("s3://")){
-            Resource resource =   S3ProviderUtil.getS3ObjectByUrl(this.cfKeyPath);
-            File tmpFile = IOUtil.writeStreamToFile(resource.getInputStream());
-            this.localCfKeyFile = new File(tmpFile.getParent(),
-                     tmpFile.getName() + cfKeyPath.substring(cfKeyPath.length()
-                                                        - 4));
-          tmpFile.renameTo(this.localCfKeyFile);
+        if(this.cfKeyPath.startsWith("s3://")){
+            File keyFile = new File(System.getProperty("java.io.tmpdir"),
+                     "cloudfront-key.der");
+            if(!keyFile.exists()){
+                Resource resource =   S3ProviderUtil.getS3ObjectByUrl(this.cfKeyPath);
+                File tmpFile = IOUtil.writeStreamToFile(resource.getInputStream());
+                tmpFile.renameTo(keyFile);
+                keyFile.deleteOnExit();
+            }
+            
+            return keyFile;
         }else{
-            this.localCfKeyFile = new File(this.cfKeyPath);
+            return new File(this.cfKeyPath);
         }
-        
-        return this.localCfKeyFile;
     }
 }
