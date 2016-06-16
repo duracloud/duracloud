@@ -7,10 +7,14 @@
  */
 package org.duracloud.s3task.streaming;
 
-import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
-import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
+import java.io.File;
+import java.io.IOException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Calendar;
+
 import org.duracloud.StorageTaskConstants;
+import org.duracloud.common.util.IOUtil;
+import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
@@ -18,11 +22,15 @@ import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 
-import java.io.File;
-import java.io.IOException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Calendar;
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3URI;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 
 /**
  * Retrieves a signed URL for a media file that is streamed through
@@ -41,6 +49,8 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
     private static final String TASK_NAME =
         StorageTaskConstants.GET_SIGNED_URL_TASK_NAME;
 
+    private File localCfKeyFile = null;
+
     public GetSignedUrlTaskRunner(StorageProvider s3Provider,
                                   S3StorageProvider unwrappedS3Provider,
                                   AmazonCloudFrontClient cfClient,
@@ -52,7 +62,7 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
         // Certificate identifier, an active trusted signer for the distribution
         this.cfKeyId = cfKeyId;
         // Local file path to signing key in DER format
-        this.cfKeyPath = cfKeyPath;
+        this.cfKeyPath = cfKeyPath.trim();
     }
 
     public String getName() {
@@ -114,11 +124,14 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
         expireCalendar.add(Calendar.MINUTE, minutesToExpire);
 
         try {
+            
+            File cfKeyPathFile = getCfKeyPathFile(this.cfKeyPath);
+            
             String signedUrl =
                 CloudFrontUrlSigner.getSignedURLWithCustomPolicy(
                     CloudFrontUrlSigner.Protocol.rtmp,
                     domainName,
-                    new File(cfKeyPath),
+                    cfKeyPathFile,
                     contentId,
                     cfKeyId,
                     expireCalendar.getTime(),
@@ -134,5 +147,22 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
         String toReturn = taskResult.serialize();
         log.info("Result of " + TASK_NAME + " task: " + toReturn);
         return toReturn;
+    }
+
+    private File getCfKeyPathFile(String cfKeyPath) throws IOException {
+        if(this.localCfKeyFile != null){
+            return this.localCfKeyFile;
+        }else if(this.cfKeyPath.startsWith("s3://")){
+            Resource resource =   S3ProviderUtil.getS3ObjectByUrl(this.cfKeyPath);
+            File tmpFile = IOUtil.writeStreamToFile(resource.getInputStream());
+            this.localCfKeyFile = new File(tmpFile.getParent(),
+                     tmpFile.getName() + cfKeyPath.substring(cfKeyPath.length()
+                                                        - 4));
+          tmpFile.renameTo(this.localCfKeyFile);
+        }else{
+            this.localCfKeyFile = new File(this.cfKeyPath);
+        }
+        
+        return this.localCfKeyFile;
     }
 }
