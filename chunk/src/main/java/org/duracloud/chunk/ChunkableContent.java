@@ -83,20 +83,24 @@ public class ChunkableContent implements Iterable<ChunkInputStream>, Iterator<Ch
      * @param maxChunkSize of chunk stream
      * @return efficient buffer size for given arg chunk-size
      */
-    private int calculateBufferSize(long maxChunkSize) {
+    protected int calculateBufferSize(long maxChunkSize) {
         final int KB = 1000;
 
         // Ensure maxChunkSize falls on 1-KB boundaries.
         if (maxChunkSize % KB != 0) {
-            String m = "MaxChunkSize must be multiple of 1000: " + maxChunkSize;
+            String m = "MaxChunkSize must be multiple of " + KB + ": " + maxChunkSize;
             log.error(m);
             throw new DuraCloudRuntimeException(m);
         }
 
-        // Find maximum block factor less than 8-KB.
+        // Find maximum block factor less than or equal to 8-KB.
         long size = maxChunkSize;
-        while (size > 8 * KB) {
-            size /= 2;
+        for(int i=1; i <= maxChunkSize; i++) {
+            // MaxChunkSize must be divisible by buffer size
+            if((maxChunkSize % i == 0) && ((maxChunkSize / i) <= (8*KB))) {
+                size = maxChunkSize / i;
+                break;
+            }
         }
 
         log.debug("Buf size: " + size + " for maxChunkSize: " + maxChunkSize);

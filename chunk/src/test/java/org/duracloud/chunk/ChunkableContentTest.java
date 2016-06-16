@@ -13,6 +13,7 @@ import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.manifest.ChunksManifestBean;
 import org.duracloud.chunk.stream.ChunkInputStream;
 import org.duracloud.chunk.stream.KnownLengthInputStream;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.ChecksumUtil;
 import static org.duracloud.common.util.ChecksumUtil.Algorithm;
 import org.junit.After;
@@ -210,4 +211,30 @@ public class ChunkableContentTest {
         Assert.assertNotNull(body);
         Assert.assertTrue(body.getLength() > 0);
     }
+
+    @Test
+    public void testCalculateBufferSize() {
+        // Testing values of maxChunkSize, which must be multiples of 1000
+        // Tests values to the 5GB byte limit
+        for(long i=1000; i<5000000000l; i+=(1000+i)) {
+            int bufferSize = chunkable.calculateBufferSize(i);
+            // Resulting buffer size should be less than or equal to 8000
+            Assert.assertTrue(bufferSize <= 8000);
+            // Resulting buffer size must be a multiple of the maxChunkSize
+            Assert.assertEquals(0, i % bufferSize);
+        }
+
+        // Verify exception on invalid maxChunkSize
+        try {
+            chunkable.calculateBufferSize(500);
+            Assert.fail("Exception expected");
+        } catch(DuraCloudRuntimeException e) {
+        }
+        try {
+            chunkable.calculateBufferSize(12345);
+            Assert.fail("Exception expected");
+        } catch(DuraCloudRuntimeException e) {
+        }
+    }
+
 }
