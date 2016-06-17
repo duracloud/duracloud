@@ -86,6 +86,7 @@
     <module>manifeststitch</module>
     <module>uploadtool</module>
     <module>duradmin</module>
+    <module>rewrite</module>
     <module>synctool</module>
     <module>syncoptimize</module>
     <module>synctoolui</module>
