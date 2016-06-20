@@ -29,6 +29,9 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+
 /**
  * 
  * @author Daniel Bernstein 
@@ -120,15 +123,8 @@ public class AuditLogReaderImpl implements AuditLogReader {
     }
 
     protected StorageProvider getStorageProvider() {
-        String accessKey = System.getProperty("aws.accessKeyId");
-        String secretKey = System.getProperty("aws.secretKey");
-        if(accessKey == null || secretKey == null){
-            throw new AuditLogReaderException(
-                    "The aws.accessKeyId and/or aws.secretKey system properties are not set.  " +
-            		"They should have been set on initialization!");
-        }
-        
-        return new S3StorageProvider(accessKey, secretKey);
+        AWSCredentials creds = new DefaultAWSCredentialsProviderChain().getCredentials();
+        return new S3StorageProvider(creds.getAWSAccessKeyId(), creds.getAWSSecretKey());
     }
 
     protected void writeToOutputStream(String auditSpaceId,

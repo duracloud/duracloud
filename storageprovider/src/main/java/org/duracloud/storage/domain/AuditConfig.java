@@ -13,26 +13,8 @@ package org.duracloud.storage.domain;
  */
 public class AuditConfig {
 
-    private String auditUsername;
-    private String auditPassword;
     private String auditQueueName;
     private String auditLogSpaceId;
-
-    public String getAuditUsername() {
-        return auditUsername;
-    }
-
-    public void setAuditUsername(String auditUsername) {
-        this.auditUsername = auditUsername;
-    }
-
-    public String getAuditPassword() {
-        return auditPassword;
-    }
-
-    public void setAuditPassword(String auditPassword) {
-        this.auditPassword = auditPassword;
-    }
 
     public String getAuditQueueName() {
         return auditQueueName;

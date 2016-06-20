@@ -137,16 +137,6 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
                 // If no queue name is defined, turn off auditing
                 this.auditQueue = new NoopTaskQueue();
             } else {
-                // If username and pass are provided, push into system props
-                // for the SQS client to pick up
-                String auditUsername = auditConfig.getAuditUsername();
-                String auditPassword = auditConfig.getAuditPassword();
-                
-                if(null != auditUsername && null != auditPassword) {
-                    System.setProperty("aws.accessKeyId", auditUsername);
-                    System.setProperty("aws.secretKey", auditPassword);
-                }
-
                 this.auditQueue = new SQSTaskQueue(queueName);
             }
         }
