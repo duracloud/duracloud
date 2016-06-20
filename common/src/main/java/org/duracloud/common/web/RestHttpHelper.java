@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Map;
@@ -332,7 +333,7 @@ public class RestHttpHelper {
         public String getResponseBody() throws IOException {
             HttpEntity entity = response.getEntity();
             if (entity != null) {
-                return EntityUtils.toString(entity);
+                return EntityUtils.toString(entity, "UTF-8");
             } else {
                 // No response body will be available for HEAD requests
                 return null;
