@@ -22,14 +22,17 @@
         }),         
         
         _init : function() {
+           var that = this;
             $.ui.expandopanel.prototype._init.call(this); //call super init first
             this.element.addClass("history-panel");
-            this.getContent().append("<h6>Cumulative Byte and File Counts Over Time</h6>");
-
-            this.getContent().append(this._createDiv(this._SUMMARIES_GRAPH_ELEMENT));
-            this.getContent().append(this._createDiv("summaries-legend"));
-            this.getContent().append(this._createDiv(this._DETAIL_GRAPH_ELEMENT));
-
+            var content = this.getContent();
+            
+            content.append("<h6 class='summaries-title'>Cumulative Byte and File Counts Over Time</h6>");
+            content.append(that._createDiv(this._SUMMARIES_GRAPH_ELEMENT));
+            content.append(that._createDiv("summaries-legend"));
+            content.append(that._createDiv(this._DETAIL_GRAPH_ELEMENT));
+            
+            
             this._initSummariesGraph();
         },
         
@@ -47,11 +50,20 @@
             $.when(this._getSummaries())
                 .done(function(result){
                     var summaries = result;
-                    if(summaries.length > 0){
-                        that.toggle();
-                    }
 
-                    that._initTimeSeriesGraph(summaries);
+                    that.toggle();
+                      var content = that.getContent();
+                      if(summaries.length == 0){
+                        var warning = $.fn.create("p");
+                        warning.text("There is no history available for this space.");
+                        content.append(warning);
+                        $("#" + that._SUMMARIES_GRAPH_ELEMENT).hide();
+                        $(".summaries-title").hide();
+
+                      }else{
+
+                        that._initTimeSeriesGraph(summaries);
+                      }
                 }).fail(function(err){
                     alert("failed to retrieve time series");
                 });
@@ -70,6 +82,7 @@
             var countData = [];
             var summariesGraph = $("#"+this._SUMMARIES_GRAPH_ELEMENT);
             var countMin = null;
+            
             $.each(summaries, function(i,summary){
                 
                 if (summary.timestamp > max){
