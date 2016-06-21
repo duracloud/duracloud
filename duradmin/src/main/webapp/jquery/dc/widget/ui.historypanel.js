@@ -54,7 +54,7 @@
                     that.toggle();
                       var content = that.getContent();
                       if(summaries.length == 0){
-                        var warning = $.fn.create("p").addClass("warning");
+                        var warning = $.fn.create("p");
                         warning.text("There is no history available for this space.");
                         content.append(warning);
                         $("#" + that._SUMMARIES_GRAPH_ELEMENT).hide();
