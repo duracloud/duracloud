@@ -167,28 +167,34 @@
                     previousPoint = null;            
                 }
             });
+            
             summariesGraph.unbind("plotclick");
-            summariesGraph.bind("plotclick", function (event, pos, item) {
-                if (item) {
-                    plot.unhighlight();
-                    plot.highlight(item.series, item.datapoint);
-                    var datum = item.series.data[item.dataIndex];
-                    var date = new Date(datum[0]);
-                    var message = "Loading...";
-                    dc.busy(message, {modal: true});
-
-                    that._loadDetail(that.options.storeId, date)
-                        .done(function(){
-                            dc.done();
-                        });
-                }
-            });
-            if(summaries.length > 0){
-                var summary = summaries[0];
-                this._loadDetail(
-                                 that.options.storeId, 
-                                 new Date(summary.timestamp));
+            
+            if(!that.options.spaceId){
+              summariesGraph.bind("plotclick", function (event, pos, item) {
+                  if (item) {
+                      plot.unhighlight();
+                      plot.highlight(item.series, item.datapoint);
+                      var datum = item.series.data[item.dataIndex];
+                      var date = new Date(datum[0]);
+                      var message = "Loading...";
+                      dc.busy(message, {modal: true});
+  
+                      that._loadDetail(that.options.storeId, date)
+                          .done(function(){
+                              dc.done();
+                          });
+                  }
+              });
+              
+              if(summaries.length > 0){
+                  var summary = summaries[summaries.length-1];
+                  this._loadDetail(
+                                   that.options.storeId, 
+                                   new Date(summary.timestamp));
+              }
             }
+
         },
         
         
