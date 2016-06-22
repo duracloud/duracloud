@@ -93,7 +93,7 @@ public class StorageStatsRest extends BaseRest {
         try {
             provider.getSpaceProperties(spaceId);
         }catch(org.duracloud.storage.error.NotFoundException ex){
-            throw new NotFoundException("The space was not foundt: " + spaceId);
+            throw new NotFoundException("The space was not found: " + spaceId);
         }
     }
 
