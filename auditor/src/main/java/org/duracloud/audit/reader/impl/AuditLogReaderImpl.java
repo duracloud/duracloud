@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.internal.AWSS3V4Signer;
 
 /**
  * 
@@ -124,7 +126,8 @@ public class AuditLogReaderImpl implements AuditLogReader {
 
     protected StorageProvider getStorageProvider() {
         AWSCredentials creds = new DefaultAWSCredentialsProviderChain().getCredentials();
-        return new S3StorageProvider(creds.getAWSAccessKeyId(), creds.getAWSSecretKey());
+        AmazonS3Client s3client = new AmazonS3Client();
+        return new S3StorageProvider(s3client, creds.getAWSAccessKeyId(), null);
     }
 
     protected void writeToOutputStream(String auditSpaceId,
