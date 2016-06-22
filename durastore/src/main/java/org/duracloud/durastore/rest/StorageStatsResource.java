@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.mill.db.repo.JpaSpaceStatsRepo;
 import org.duracloud.reportdata.storage.SpaceStatsDTO;
 import org.slf4j.Logger;
@@ -34,6 +35,12 @@ public class StorageStatsResource {
 
     private JpaSpaceStatsRepo spaceStatsRepo;
     
+    public static enum GroupBy {
+                                day, 
+                                week, 
+                                month;
+    }
+
     @Autowired
     public StorageStatsResource(JpaSpaceStatsRepo spaceStatsRepo){
         this.spaceStatsRepo = spaceStatsRepo;
@@ -44,10 +51,11 @@ public class StorageStatsResource {
                                                              String storeId,
                                                              String spaceId,
                                                              Date start,
-                                                             Date end) {
+                                                             Date end, 
+                                                             GroupBy groupBy) {
         
         
-        String interval = getInterval(start, end);
+        String interval = getInterval(groupBy);
         List<Object[]> list = this.spaceStatsRepo.getByAccountIdAndStoreIdAndSpaceId(accountId, storeId, spaceId, start, end, interval);
         List<SpaceStatsDTO> dtos = new ArrayList<>(list.size());
         for(Object[] s : list){
@@ -62,23 +70,28 @@ public class StorageStatsResource {
         return dtos;
     }
 
-    protected String getInterval(Date start, Date end) {
-        double daysBetweenStartAndEnd = (end.getTime()-start.getTime())/(24*60*60*1000);
-        
-        String interval = JpaSpaceStatsRepo.INTERVAL_DAY;
-        if(daysBetweenStartAndEnd > 120){
-            interval = JpaSpaceStatsRepo.INTERVAL_WEEK;
-        }else if(daysBetweenStartAndEnd > (2*365)){
-            interval = JpaSpaceStatsRepo.INTERVAL_MONTH;
+    protected String getInterval(GroupBy groupBy) {
+        if(groupBy == null){
+            groupBy = GroupBy.day;
         }
-        return interval;
+        
+        if(groupBy.equals(GroupBy.day)){
+            return JpaSpaceStatsRepo.INTERVAL_DAY;
+        }else if(groupBy.equals(GroupBy.week)){
+            return JpaSpaceStatsRepo.INTERVAL_WEEK;
+        }else if(groupBy.equals(GroupBy.month)){
+            return JpaSpaceStatsRepo.INTERVAL_MONTH;
+        }else {
+            throw new DuraCloudRuntimeException("No sql interval defined for groupBy param: " + groupBy);
+        }
     }
 
     public List<SpaceStatsDTO> getStorageProviderStats(String account,
                                                        String storeId,
                                                        Date start,
-                                                       Date end) {
-        String interval = getInterval(start, end);
+                                                       Date end,
+                                                       GroupBy groupBy) {
+        String interval = getInterval(groupBy);
         List<Object[]> list = this.spaceStatsRepo.getByAccountIdAndStoreId(account, storeId, start, end, interval);
         List<SpaceStatsDTO> dtos = new ArrayList<>(list.size());
         for(Object[] s : list){

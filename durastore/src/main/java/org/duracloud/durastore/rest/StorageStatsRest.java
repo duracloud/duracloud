@@ -8,7 +8,6 @@
 package org.duracloud.durastore.rest;
 
 import java.text.MessageFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +20,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.durastore.rest.StorageStatsResource.GroupBy;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.reportdata.storage.SpaceStatsDTO;
 import org.duracloud.storage.domain.StorageAccount;
@@ -57,7 +57,8 @@ public class StorageStatsRest extends BaseRest {
     public Response getSpaceStatsOverTime(@PathParam("spaceID") String spaceId,
                                   @QueryParam("storeID") String storeId,
                                   @QueryParam("start") String startMs,
-                                  @QueryParam("end") String endMs) {
+                                  @QueryParam("end") String endMs,
+                                  @QueryParam(value="groupBy") String groupBy){
 
         String account = getSubdomain();
 
@@ -74,7 +75,13 @@ public class StorageStatsRest extends BaseRest {
             Date endDate = resolveEndDate(endMs);
             storeId = getStoreId(storeId);
             ensureSpaceIsValid(storeId, spaceId);
-            List<SpaceStatsDTO> stats = resource.getSpaceStats(account, storeId, spaceId, startDate , endDate);
+            List<SpaceStatsDTO> stats =
+                resource.getSpaceStats(account,
+                                       storeId,
+                                       spaceId,
+                                       startDate,
+                                       endDate,
+                                       getGroupBy(groupBy));
             return responseOk(stats);
 
         } catch (Exception e) {
@@ -102,7 +109,8 @@ public class StorageStatsRest extends BaseRest {
     @Produces(MediaType.APPLICATION_JSON_VALUE)
     public Response getStoreStatsOverTime(@QueryParam("storeID") String storeId,
                                   @QueryParam("start") String startMs,
-                                  @QueryParam("end") String endMs) {
+                                  @QueryParam("end") String endMs,
+                                  @QueryParam(value="groupBy") String groupBy){
 
         String account = getSubdomain();
 
@@ -116,7 +124,12 @@ public class StorageStatsRest extends BaseRest {
             Date startDate = resolveStartDate(startMs);
             Date endDate = resolveEndDate(endMs);
             storeId = getStoreId(storeId);
-            List<SpaceStatsDTO> stats = resource.getStorageProviderStats(account, storeId, startDate , endDate);
+            List<SpaceStatsDTO> stats =
+                resource.getStorageProviderStats(account,
+                                                 storeId,
+                                                 startDate,
+                                                 endDate,
+                                                 getGroupBy(groupBy));
             return responseOk(stats);
 
         } catch (Exception e) {
@@ -126,6 +139,14 @@ public class StorageStatsRest extends BaseRest {
                                                         storeId,
                                                         startMs,
                                                         endMs));
+        }
+    }
+
+    private GroupBy getGroupBy(String groupBy) {
+        if(groupBy == null){
+            return GroupBy.day;
+        }else{
+            return GroupBy.valueOf(groupBy.toLowerCase());
         }
     }
 
@@ -140,12 +161,7 @@ public class StorageStatsRest extends BaseRest {
     protected Date resolveStartDate(String startMs) {
         Date startDate;
         if(null == startMs){
-            Calendar c = Calendar.getInstance();
-            c.add(Calendar.DATE, -90);
-            c.set(Calendar.HOUR, 0);
-            c.set(Calendar.MINUTE, 0);
-            c.set(Calendar.SECOND, 0);
-            startDate = c.getTime();
+            startDate = new Date(0);
         }else{
             startDate = toDateFromMs(startMs);
         }
