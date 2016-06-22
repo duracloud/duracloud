@@ -81,7 +81,7 @@ public class RestUtilImpl implements RestUtil {
             if(rContent.mimeType == null) {
                 MediaType mediaType = headers.getMediaType();
                 if(mediaType != null) {
-                    rContent.mimeType = mediaType.getType()+"/" + mediaType.getSubtype();
+                    rContent.mimeType = mediaType.toString();
                 }
             }
 
