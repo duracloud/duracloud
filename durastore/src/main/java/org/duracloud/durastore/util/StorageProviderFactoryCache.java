@@ -95,11 +95,7 @@ public class StorageProviderFactoryCache extends AbstractAccountComponentCache<S
         StorageAccountManager storageAccountManager =
             this.storageAccountManagerFactory.createInstance();
         
-        DuracloudMill millProps = millRepo.findAll().get(0);
-            
-        AuditConfig auditConfig = new AuditConfig();
-        auditConfig.setAuditLogSpaceId(millProps.getAuditLogSpaceId());
-        auditConfig.setAuditQueueName(millProps.getAuditQueue());
+        AuditConfig auditConfig = new AuditConfigBuilder(millRepo).build();
         
         StorageProviderFactoryImpl factory =
             new StorageProviderFactoryImpl(storageAccountManager,
