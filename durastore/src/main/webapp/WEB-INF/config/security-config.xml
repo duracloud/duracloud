@@ -42,7 +42,9 @@
     <intercept-url pattern="/task/*" access="ROLE_ADMIN"/>
     <intercept-url pattern="/stores" method="GET" access="ROLE_ANONYMOUS"/>
     <intercept-url pattern="/stores" method="POST" access="ROLE_ROOT"/>
-    <intercept-url pattern="/report/*" method="GET" access="ROLE_USER"/>
+    <intercept-url pattern="/report/store" method="GET" access="ROLE_USER"/>
+    <intercept-url pattern="/report/store/*" method="GET" access="ROLE_USER"/>
+    <intercept-url pattern="/report/space/*" method="GET" access="ROLE_USER"/>
     <intercept-url pattern="/manifest/*" method="GET" access="ROLE_USER"/>
     <intercept-url pattern="/bit-integrity/*" method="GET" access="ROLE_USER"/>
     <intercept-url pattern="/audit/*" method="GET" access="ROLE_ADMIN"/>
