@@ -18,6 +18,7 @@ import java.util.TimeZone;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.mill.db.repo.JpaSpaceStatsRepo;
 import org.duracloud.reportdata.storage.SpaceStatsDTO;
+import org.duracloud.reportdata.storage.StoreStatsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,19 +87,18 @@ public class StorageStatsResource {
         }
     }
 
-    public List<SpaceStatsDTO> getStorageProviderStats(String account,
+    public List<StoreStatsDTO> getStorageProviderStats(String account,
                                                        String storeId,
                                                        Date start,
                                                        Date end,
                                                        GroupBy groupBy) {
         String interval = getInterval(groupBy);
         List<Object[]> list = this.spaceStatsRepo.getByAccountIdAndStoreId(account, storeId, start, end, interval);
-        List<SpaceStatsDTO> dtos = new ArrayList<>(list.size());
+        List<StoreStatsDTO> dtos = new ArrayList<>(list.size());
         for(Object[] s : list){
-            dtos.add(new SpaceStatsDTO(new Date(((BigInteger)s[0]).longValue()*1000),
+            dtos.add(new StoreStatsDTO(new Date(((BigInteger)s[0]).longValue()*1000),
                                        s[1].toString(),
                                        s[2].toString(),
-                                       null,
                                        ((BigDecimal) s[3]).longValue(),
                                        ((BigDecimal) s[4]).longValue()));
         }

@@ -24,6 +24,7 @@ import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.durastore.rest.StorageStatsResource.GroupBy;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.reportdata.storage.SpaceStatsDTO;
+import org.duracloud.reportdata.storage.StoreStatsDTO;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
@@ -125,7 +126,7 @@ public class StorageStatsRest extends BaseRest {
             Date startDate = resolveStartDate(startMs);
             Date endDate = resolveEndDate(endMs);
             storeId = getStoreId(storeId);
-            List<SpaceStatsDTO> stats =
+            List<StoreStatsDTO> stats =
                 resource.getStorageProviderStats(account,
                                                  storeId,
                                                  startDate,

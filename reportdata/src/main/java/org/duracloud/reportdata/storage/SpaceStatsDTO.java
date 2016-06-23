@@ -10,33 +10,20 @@ package org.duracloud.reportdata.storage;
 
 import java.util.Date;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-
 
 /**
  * Represents a space's byte and object count at a moment in time.
  * @author Daniel Bernstein
  *
  */
-public class SpaceStatsDTO {
-    private Date timestamp;
-    private String accountId;
+public class SpaceStatsDTO  extends StoreStatsDTO {
     private String spaceId;
-    private String storeId;
-    private long byteCount = 0;
-    private long objectCount = 0;
     
     public SpaceStatsDTO (){}
     
     public SpaceStatsDTO(Date timestamp, String account, String storeId, String spaceId, long byteCount, long objectCount) {
-        setTimestamp(timestamp);
-        setAccountId(account);
-        setStoreId(storeId);
+        super(timestamp, account,storeId, byteCount,objectCount);
         setSpaceId(spaceId);
-        setByteCount(byteCount);
-        setObjectCount(objectCount);
     }
     
     public String getSpaceId() {
@@ -44,52 +31,5 @@ public class SpaceStatsDTO {
     }
     public void setSpaceId(String spaceId) {
         this.spaceId = spaceId;
-    }
-    public String getStoreId() {
-        return storeId;
-    }
-    public void setStoreId(String storeId) {
-        this.storeId = storeId;
-    }
-    public String getAccountId() {
-        return accountId;
-    }
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
-    }
-    public long getByteCount() {
-        return byteCount;
-    }
-    public void setByteCount(long byteCount) {
-        this.byteCount = byteCount;
-    }
-    public long getObjectCount() {
-        return objectCount;
-    }
-    public void setObjectCount(long objectCount) {
-        this.objectCount = objectCount;
-    }
-
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj, false);
-    }
-
-    @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this, false);
-    }
-    
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this);
     }
 }
