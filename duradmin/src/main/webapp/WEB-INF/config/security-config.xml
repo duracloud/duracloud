@@ -18,9 +18,6 @@
 
   <http entry-point-ref="authenticationProcessingFilterEntryPoint" use-expressions="false">
     <csrf disabled="true"/>
-    <intercept-url pattern="/init" method="GET" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-    <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
-    <intercept-url pattern="/security" access="ROLE_ROOT"/>
     <intercept-url pattern="/admin" access="ROLE_ROOT"  />
     <intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
     <intercept-url pattern="/style/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />

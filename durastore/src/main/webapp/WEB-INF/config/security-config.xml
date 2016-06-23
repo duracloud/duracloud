@@ -22,10 +22,6 @@
         realm="DuraCloud:DuraStore" use-expressions="false">
     <csrf disabled="true"/>
 
-    <intercept-url pattern="/security" access="ROLE_ROOT"/>
-    <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS,ROLE_USER"/>
-    <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
-
     <!-- no one should be adding the 'acl' space, not even ROOT -->
     <intercept-url pattern="/acl" method="PUT" access="ROLE_ROOT"/>
     <intercept-url pattern="/acl/" method="PUT" access="ROLE_ROOT"/>
