@@ -42,6 +42,8 @@
     <intercept-url pattern="/task/*" access="ROLE_ADMIN"/>
     <intercept-url pattern="/stores" method="GET" access="ROLE_ANONYMOUS"/>
     <intercept-url pattern="/stores" method="POST" access="ROLE_ROOT"/>
+    <intercept-url pattern="/report/store" method="GET" access="ROLE_USER"/>
+    <intercept-url pattern="/report/space" method="GET" access="ROLE_USER"/>
 
     <!--
       Set initial access as if all spaces are 'open'.
