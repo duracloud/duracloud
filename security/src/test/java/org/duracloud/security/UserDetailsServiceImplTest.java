@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.duracloud.common.model.Credential;
-import org.duracloud.common.model.RootUserCredential;
-import org.duracloud.common.model.SystemUserCredential;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.security.impl.UserDetailsServiceImpl;
@@ -227,14 +225,6 @@ public class UserDetailsServiceImplTest {
         Assert.assertTrue(foundUsers.contains(usernameC));
     }
 
-    @Test
-    public void testFailures() {
-        Credential cred = new RootUserCredential();
-        verifyFailure(cred);
-
-        cred = new SystemUserCredential();
-        verifyFailure(cred);
-    }
 
     private void verifyFailure(Credential cred) {
         SecurityUserBean user = new SecurityUserBean(cred.getUsername(),

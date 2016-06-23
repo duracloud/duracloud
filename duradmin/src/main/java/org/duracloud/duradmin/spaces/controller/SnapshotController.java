@@ -11,6 +11,7 @@ package org.duracloud.duradmin.spaces.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,7 +26,6 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.task.SnapshotTaskClient;
 import org.duracloud.client.task.SnapshotTaskClientManager;
 import org.duracloud.common.constant.Constants;
-import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
@@ -45,8 +45,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.thoughtworks.xstream.io.json.JsonWriter;
 
 /**
  * 
@@ -100,13 +98,9 @@ public class SnapshotController {
     }
 
     protected String getUserEmail(String username) {
-        if(username.equals(RootUserCredential.getRootUsername())){
-            return RootUserCredential.getRootEmail();
-        }else{
-            String userEmail = userDetailsService.getUserByUsername(username)
-                .getEmail();
-            return userEmail;
-        }
+        String userEmail = userDetailsService.getUserByUsername(username)
+            .getEmail();
+        return userEmail;
     }
 
     protected String getUsername(HttpServletRequest request) {

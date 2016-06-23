@@ -13,10 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.duracloud.common.error.InvalidUsernameException;
-import org.duracloud.common.model.Credential;
-import org.duracloud.common.model.RootUserCredential;
-import org.duracloud.common.model.SystemUserCredential;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.slf4j.Logger;
@@ -39,25 +35,10 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
     private Map<String, DuracloudUserDetails> usersTable =
         new HashMap<String, DuracloudUserDetails>();
 
-    private static final Credential systemUser = new SystemUserCredential();
-    private static final RootUserCredential rootUser = new RootUserCredential();
 
     public UserDetailsServiceImpl() {
-        initializeUsers();
     }
 
-    private void initializeUsers() {
-        usersTable.clear();
-
-        // Add system user.
-        List<String> grants = new ArrayList<String>();
-        grants.add("ROLE_ADMIN");
-        grants.add("ROLE_USER");
-        SecurityUserBean system = new SecurityUserBean(systemUser.getUsername(),
-                                                       systemUser.getPassword(),
-                                                       grants);
-        addUser(system);
-    }
 
     /**
      * This method retrieves UserDetails for all users from a flat file in
@@ -83,12 +64,7 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
      * @param users to populate into the usersTable
      */
     public void setUsers(List<SecurityUserBean> users) {
-        initializeUsers();
         for (SecurityUserBean u : users) {
-            if (!isCustomUser(u)) {
-                throw new InvalidUsernameException(u.getUsername());
-            }
-            
             addUser(u);
         }
     }
@@ -123,9 +99,7 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
         List<SecurityUserBean> users = new ArrayList<SecurityUserBean>();
         for (DuracloudUserDetails user : this.usersTable.values()) {
             SecurityUserBean bean = createUserBean(user);
-            if (isCustomUser(bean)) {
-                users.add(bean);
-            }
+            users.add(bean);
         }
         return users;
     }
@@ -134,7 +108,7 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
     public SecurityUserBean getUserByUsername(String username) {
         for (DuracloudUserDetails user : this.usersTable.values()) {
             SecurityUserBean bean = createUserBean(user);
-            if (isCustomUser(bean) && bean.getUsername().equals(username)) {
+            if (bean.getUsername().equals(username)) {
                 return bean;
             }
         }
@@ -155,12 +129,6 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
                                     user.getGroups());
     }
 
-    private boolean isCustomUser(SecurityUserBean user) {
-        String username = user.getUsername();
-        String rootname = rootUser.getUsername();
-        String sysname = systemUser.getUsername();
-        return !username.equals(rootname) && !username.equals(sysname);
-    }
 
     private List<String> getGrants(GrantedAuthority[] gAuths) {
         List<String> grants = new ArrayList<String>();
