@@ -61,7 +61,6 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
             || spaceId.equals("bit-integrity")
             || spaceId.equals("stores")
             || spaceId.equals("acl")
-            || spaceId.equals("init")
             || spaceId.equals("report")
             || spaceId.equals("task");
 
