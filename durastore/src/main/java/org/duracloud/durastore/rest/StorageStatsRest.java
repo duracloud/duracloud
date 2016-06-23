@@ -19,6 +19,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang.StringUtils;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.durastore.rest.StorageStatsResource.GroupBy;
 import org.duracloud.error.NotFoundException;
@@ -132,7 +133,7 @@ public class StorageStatsRest extends BaseRest {
                                                  getGroupBy(groupBy));
             return responseOk(stats);
 
-        } catch (Exception e) {
+        }catch (Exception e) {
             return handleException(e,
                                    MessageFormat.format("error getting storage stats, {0}:{1} [{3}:{4}]",
                                                         account,
@@ -146,7 +147,14 @@ public class StorageStatsRest extends BaseRest {
         if(groupBy == null){
             return GroupBy.day;
         }else{
-            return GroupBy.valueOf(groupBy.toLowerCase());
+            try {
+                return GroupBy.valueOf(groupBy.toLowerCase());
+            }catch(IllegalArgumentException ex){
+                String message =
+                    groupBy + " is not a valid value for the groupBy parameter.  You must specify one of the following values: "
+                                 + StringUtils.join(GroupBy.values(), ",");
+                throw new IllegalArgumentException(message,ex);
+            }
         }
     }
 
@@ -205,7 +213,7 @@ public class StorageStatsRest extends BaseRest {
     }
 
     private Response handleException(Exception e, String defaultErrorMessage) {
-        if(e instanceof NumberFormatException){
+        if(e instanceof NumberFormatException || e instanceof IllegalArgumentException){
             log.error(e.getMessage(), e);
             return responseBad(e, Status.BAD_REQUEST);
         }else if(e instanceof NotFoundException){
