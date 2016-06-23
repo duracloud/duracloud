@@ -190,11 +190,6 @@ public class SpaceReadAccessVoterTest {
     }
 
     @Test
-    public void testVoteReservedResourcesOpenInit() {
-        doTestVoteReservedResourcesOpen("init");
-    }
-
-    @Test
     public void testVoteReservedResourcesOpenSpaces() {
         doTestVoteReservedResourcesOpen("spaces");
     }
