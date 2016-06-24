@@ -62,10 +62,7 @@ public class GetSnapshotContentsTaskRunner extends AbstractSnapshotTaskRunner {
         }
         String snapshotId = taskParams.getSnapshotId();
         String prefix = taskParams.getPrefix();
-        String prefixParam = "";
-        if(null != prefix) {
-            prefixParam = "&prefix=" + prefix;
-        }
+        String prefixParam = "&prefix=" + (prefix != null ? prefix : "");
 
         return MessageFormat.format(
             "{0}/snapshot/{1}/content?page={2}&pageSize={3}{4}",
