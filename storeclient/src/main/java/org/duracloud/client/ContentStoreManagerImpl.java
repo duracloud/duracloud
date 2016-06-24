@@ -153,7 +153,7 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
      */
     public ContentStore getPrimaryContentStoreAsAnonymous()
         throws ContentStoreException {
-        return getPrimaryContentStore(-1); // Use default retries
+        return getPrimaryContentStoreAsAnonymous(-1);
     }
 
     /**
