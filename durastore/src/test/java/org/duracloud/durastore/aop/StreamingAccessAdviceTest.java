@@ -80,6 +80,11 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
         testSuccessUserAuthorized(StorageTaskConstants.GET_URL_TASK_NAME);
     }
 
+    @Test
+    public void testSuccessUserAuthorizedGetSignedUrl() throws Throwable {
+        testSuccessUserAuthorized(StorageTaskConstants.GET_SIGNED_URL_TASK_NAME);
+    }
+
 
     @Test
     public void testSuccessNoMethodMatch() throws Throwable {
@@ -98,7 +103,6 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
         replayAll();
         advice = new StreamingAccessAdvice(helper);
         advice.before(null, getArgs(StorageTaskConstants.GET_URL_TASK_NAME), taskProvider);
-        
     }
 
     protected void setupTaskProvider() {
@@ -106,7 +110,7 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
     }
 
     
-    public void testSuccessUserAuthorized(String taskName) throws Throwable {
+    private void testSuccessUserAuthorized(String taskName) throws Throwable {
         setupSubject();
         expect(helper.hasReadAccess(isA(String.class),
                                     eq(acls))).andReturn(true);
@@ -127,7 +131,11 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
     }
 
     protected void invokeAdvice() throws Throwable {
-        advice.before(null, getArgs(), taskProvider);
+        advice.before(null, getArgs(StorageTaskConstants.GET_URL_TASK_NAME), taskProvider);
+    }
+
+    protected void invokeAdvice(String taskName) throws Throwable {
+        advice.before(null, getArgs(taskName), taskProvider);
     }
 
     @Test
@@ -141,6 +149,22 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
         replayAll();
         try {
             invokeAdvice();
+        }catch(UnauthorizedException ex){
+            assertTrue("expected failure",true);
+        }
+    }
+
+    @Test
+    public void testFailureNoUserNoGroupPermissionsGetSignedUrl() throws Throwable {
+        setupSubject();
+        expect(helper.hasReadAccess(isA(String.class),
+                                    eq(acls))).andReturn(false);
+        expect(helper.groupsHaveReadAccess(eq(auth), eq(acls))).andReturn(false);
+        setupTaskProvider();
+
+        replayAll();
+        try {
+            invokeAdvice(StorageTaskConstants.GET_SIGNED_URL_TASK_NAME);
         }catch(UnauthorizedException ex){
             assertTrue("expected failure",true);
         }
