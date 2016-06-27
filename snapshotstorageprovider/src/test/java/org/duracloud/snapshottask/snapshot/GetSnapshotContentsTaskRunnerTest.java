@@ -91,7 +91,7 @@ public class GetSnapshotContentsTaskRunnerTest {
         url = taskRunner.buildBridgeURL(taskParams);
         expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
                       "/bridge/snapshot/" + snapshotId +
-                      "/content?page=0&pageSize=1000";
+                      "/content?page=0&pageSize=1000&prefix=";
         assertEquals(expectedUrl, url);
     }
 
