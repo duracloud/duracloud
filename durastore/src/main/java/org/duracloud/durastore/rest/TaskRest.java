@@ -7,8 +7,6 @@
  */
 package org.duracloud.durastore.rest;
 
-import static javax.ws.rs.core.Response.Status.*;
-
 import java.io.InputStream;
 import java.util.List;
 
@@ -33,6 +31,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 /**
  * Allows for calling storage provider specific tasks
  *
@@ -111,10 +114,9 @@ public class TaskRest extends BaseRest {
         } catch (UnsupportedTaskException e) {
             return responseBad(msg, e, BAD_REQUEST);
         } catch (UnauthorizedException e) {
-            return responseBad(msg, e, UNAUTHORIZED);
+            return responseBad(msg, e, FORBIDDEN);
         } catch (StorageStateException e) {
             return responseBad(msg, e, CONFLICT);
-
         } catch (Exception e) {
             return responseBad(msg, e, INTERNAL_SERVER_ERROR);
         }
