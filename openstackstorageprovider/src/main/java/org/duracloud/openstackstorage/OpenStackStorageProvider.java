@@ -283,18 +283,25 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
 
+        Map<String, String> spaceProperties = new HashMap<>();
+
         String containerName = getContainerName(spaceId);
         ContainerMetadata containerMetadata = swiftClient.getContainerMetadata(containerName);
-        Map<String, String> metadata = containerMetadata.getMetadata();
 
-        Map<String, String> spaceProperties = new HashMap<>();
-        spaceProperties.putAll(metadata);
+        if(null != containerMetadata) {
+            Map<String, String> metadata = containerMetadata.getMetadata();
 
-        // Add count and size properties
-        spaceProperties.put(PROPERTIES_SPACE_COUNT,
-                String.valueOf(containerMetadata.getCount()));
-        spaceProperties.put(PROPERTIES_SPACE_SIZE,
-                String.valueOf(containerMetadata.getBytes()));
+            spaceProperties.putAll(metadata);
+
+            // Add count and size properties
+            spaceProperties.put(PROPERTIES_SPACE_COUNT,
+                                String.valueOf(containerMetadata.getCount()));
+            spaceProperties.put(PROPERTIES_SPACE_SIZE,
+                                String.valueOf(containerMetadata.getBytes()));
+        } else {
+            spaceProperties.put(PROPERTIES_SPACE_COUNT, String.valueOf(0));
+            spaceProperties.put(PROPERTIES_SPACE_SIZE, String.valueOf(0));
+        }
 
         return spaceProperties;
     }
