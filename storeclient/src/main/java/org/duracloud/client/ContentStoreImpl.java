@@ -612,9 +612,11 @@ public class ContentStoreImpl implements ContentStore {
         }
         
         try {
+            
             HttpResponse response = restHelper.put(url,
                                                    content,
                                                    contentMimeType,
+                                                   contentSize,
                                                    headers);
             checkResponse(response, HttpStatus.SC_CREATED);
             Header checksum =

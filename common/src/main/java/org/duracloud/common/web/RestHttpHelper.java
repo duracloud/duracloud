@@ -166,7 +166,7 @@ public class RestHttpHelper {
                              String mimeType,
                              Map<String, String> headers) throws Exception {
         HttpEntity requestEntity =
-                buildInputStreamEntity(requestContent, mimeType);
+                buildInputStreamEntity(requestContent, mimeType, -1);
         return executeRequest(url, Method.POST, requestEntity, headers);
     }
 
@@ -189,9 +189,10 @@ public class RestHttpHelper {
     public HttpResponse put(String url,
                             InputStream requestContent,
                             String mimeType,
+                            long contentLength,
                             Map<String, String> headers) throws Exception {
         HttpEntity requestEntity =
-                buildInputStreamEntity(requestContent, mimeType);
+                buildInputStreamEntity(requestContent, mimeType, contentLength);
         return executeRequest(url, Method.PUT, requestEntity, headers);
     }
 
@@ -229,18 +230,20 @@ public class RestHttpHelper {
         }
         InputStream streamContent = IOUtil.writeStringToStream(requestContent);
         return buildInputStreamEntity(streamContent,
-                                      mimeType);
+                                      mimeType,
+                                      requestContent.getBytes().length);
     }
 
     private InputStreamEntity buildInputStreamEntity(InputStream streamContent,
-                                                     String mimeType)
+                                                     String mimeType,
+                                                     long contentLength)
             throws Exception {
         if (streamContent == null) {
             return null;
         }
 
         ContentType contentType = buildContentType(mimeType);
-        return new InputStreamEntity(streamContent, contentType);
+        return new InputStreamEntity(streamContent, contentLength, contentType);
     }
 
     private ContentType buildContentType(String mimeType) {

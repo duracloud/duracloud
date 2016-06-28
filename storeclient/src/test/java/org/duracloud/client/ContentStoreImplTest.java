@@ -293,6 +293,7 @@ public class ContentStoreImplTest {
         EasyMock.expect(restHelper.put(EasyMock.eq(fullURL),
                                        EasyMock.eq(content),
                                        EasyMock.eq(mime),
+                                       EasyMock.anyLong(),
                                        EasyMock.capture(headersCapture)))
                 .andReturn(response);
 
