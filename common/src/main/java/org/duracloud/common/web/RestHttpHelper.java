@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.io.Charsets;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -164,9 +165,10 @@ public class RestHttpHelper {
     public HttpResponse post(String url,
                              InputStream requestContent,
                              String mimeType,
+                             long contentLength,
                              Map<String, String> headers) throws Exception {
         HttpEntity requestEntity =
-                buildInputStreamEntity(requestContent, mimeType, -1);
+                buildInputStreamEntity(requestContent, mimeType, contentLength);
         return executeRequest(url, Method.POST, requestEntity, headers);
     }
 
@@ -231,7 +233,7 @@ public class RestHttpHelper {
         InputStream streamContent = IOUtil.writeStringToStream(requestContent);
         return buildInputStreamEntity(streamContent,
                                       mimeType,
-                                      requestContent.getBytes().length);
+                                      requestContent.getBytes(Charsets.UTF_8).length);
     }
 
     private InputStreamEntity buildInputStreamEntity(InputStream streamContent,
