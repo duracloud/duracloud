@@ -115,6 +115,7 @@ public class TestContentRest extends BaseRestTester {
         return BaseRestTester.restHelper.put(url,
                                              new ByteArrayInputStream(CONTENT.getBytes()),
                                              "text/plain",
+                                             CONTENT.length(),
                                              headers);
     }
 
