@@ -33,6 +33,11 @@
     </dependency>
 
     <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.jclouds</groupId>
       <artifactId>jclouds-core</artifactId>
     </dependency>
