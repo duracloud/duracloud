@@ -190,6 +190,12 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
+      <artifactId>securitycache</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
       <artifactId>storeclient</artifactId>
       <version>${project.version}</version>
     </dependency>
