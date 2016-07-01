@@ -7,14 +7,14 @@
  */
 package org.duracloud.storage.domain;
 
-import org.duracloud.storage.error.StorageException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.duracloud.storage.error.StorageException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages storage provider accounts.
@@ -55,10 +55,10 @@ public class StorageAccountManager {
         }
     }
 
-    public void setEnvironment(String instanceHost, String instancePort) {
+    public void setEnvironment(String instanceHost, String instancePort, String accountName) {
         this.instanceHost = instanceHost;
         this.instancePort = instancePort;
-        this.accountName = instanceHost.split("\\.")[0];
+        this.accountName = accountName;
     }
 
     public String getInstanceHost() {

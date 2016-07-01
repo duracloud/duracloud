@@ -41,7 +41,9 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
     private UserDetailsService userDetailsService;
     private AuthorizationHelper authHelper;
     private StorageProviderFactory storageProviderFactory;
-    
+    private static String[] EXCEPTIONAL_PATH_PREFIXES =
+        { "/manifest/", "/bit-integrity/", "/report/space/" };
+
     public SpaceAccessVoter(StorageProviderFactory storageProviderFactory,
                             UserDetailsService userDetailsService) {
         this.storageProviderFactory = storageProviderFactory;
@@ -57,12 +59,10 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         }
 
         return spaceId.equals("spaces")
-            || spaceId.equals("manifest")
-            || spaceId.equals("bit-integrity")
             || spaceId.equals("stores")
             || spaceId.equals("acl")
-            || spaceId.equals("init")
             || spaceId.equals("task");
+
     }
 
     protected String getStoreId(HttpServletRequest httpRequest) {
@@ -93,12 +93,22 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
             return null;
         }
 
-        if (spaceId.startsWith("/")) {
-            spaceId = spaceId.substring(1);
+        return extractSpaceId(spaceId);
+    }
+
+
+    protected String extractSpaceId(String pathInfo) {
+
+        
+        for(String prefix : EXCEPTIONAL_PATH_PREFIXES){
+            if(pathInfo.startsWith(prefix)){
+                return pathInfo.substring(prefix.length());
+            }
         }
 
-        if (spaceId.startsWith("acl/")) {
-            spaceId = spaceId.substring("acl/".length());
+        String spaceId = pathInfo;
+        if (spaceId.startsWith("/")) {
+            spaceId = pathInfo.substring(1);
         }
 
         int slashIndex = spaceId.indexOf("/");

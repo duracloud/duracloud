@@ -95,17 +95,31 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             list.removeListener(InternalChangedListListener.this);
 
             //in separate thread start shutdown only
-            //after  list is absolutely empty (no reserved files)
+            //after list is absolutely empty (no reserved files)
             //and sync manager has finished transferring files.
             new Thread(new Runnable(){
                 @Override
                 public void run() {
-                    while (!syncManager.getFilesInTransfer().isEmpty() && 
-                        list.getListSizeIncludingReservedFiles() > 0) {
-                        SyncProcessManagerImpl.this.sleep();
+                    while (!allWorkComplete(0)) {
+                        SyncProcessManagerImpl.this.sleep(2000);
                     }
 
                     SyncProcessManagerImpl.this.stop();
+                }
+
+                // Verify work is complete multiple times before giving
+                // the ok to shut everything down
+                private boolean allWorkComplete(int attempt) {
+                    boolean workComplete = syncManager.getFilesInTransfer().isEmpty() &&
+                                           list.getListSizeIncludingReservedFiles() <= 0;
+
+                    if(!workComplete || (workComplete && attempt > 2)) {
+                        return workComplete;
+                    } else {
+                        // Wait before another attempt
+                        SyncProcessManagerImpl.this.sleep(2000);
+                        return allWorkComplete(attempt+1);
+                    }
                 }
             }).start();
         }
@@ -366,11 +380,16 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             }
         }, "walk-completion-checker thread").start();
     }
-    
+
+    protected void sleep() {
+        sleep(500);
+    }
+
     private void sleep(long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
+            log.warn(e.getMessage(), e);
         }
     }
     
@@ -482,14 +501,6 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                 changeState(stoppedState);
             }
         }.start();
-    }
-    
-    protected void sleep() {
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            log.warn(e.getMessage(), e);
-        }
     }
 
     private void pauseImpl() {

@@ -26,6 +26,7 @@ import org.duracloud.common.util.DateUtil;
 import org.duracloud.mill.db.model.BitIntegrityReport;
 import org.duracloud.mill.db.repo.JpaBitIntegrityReportRepo;
 import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
@@ -53,7 +54,8 @@ public class BitIntegrityReportRest extends BaseRest {
     private JpaBitIntegrityReportRepo repo;
     private StorageProviderFactory storageProviderFactory;
     @Autowired
-    public BitIntegrityReportRest(JpaBitIntegrityReportRepo repo,  StorageProviderFactory storageProviderFactory) {
+    public BitIntegrityReportRest(JpaBitIntegrityReportRepo repo,
+                                  StorageProviderFactory storageProviderFactory) {
         this.repo = repo;
         this.storageProviderFactory = storageProviderFactory;
         log.info("created: {}, {}.", this.repo, this.storageProviderFactory);
@@ -99,10 +101,18 @@ public class BitIntegrityReportRest extends BaseRest {
 
         try {
             PageRequest pageRequest = new PageRequest(0, 1);
-            Page<BitIntegrityReport> page = repo.findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(storeId, spaceId, pageRequest);
+            Page<BitIntegrityReport> page =
+                repo.findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(storeId, spaceId, pageRequest);
             
             if(page == null || CollectionUtils.isEmpty(page.getContent())){
-                return responseBad("No reports matching the criteria found.", Response.Status.NO_CONTENT);
+                StorageProvider storage = storageProviderFactory.getStorageProvider(storeId);
+                try { // Determine if space exists in order to return the right error
+                    storage.getSpaceACLs(spaceId);
+                } catch(NotFoundException e) {
+                    return responseNotFound("Space with ID " + spaceId + " does not exist");
+                }
+                return responseBad("No reports matching the criteria found.",
+                                   Response.Status.NO_CONTENT);
             }
             
             BitIntegrityReport report = page.getContent().get(0);

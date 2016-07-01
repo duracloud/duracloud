@@ -18,6 +18,9 @@ import java.util.Map;
 
 import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
+import org.duracloud.common.sns.AccountChangeNotifier;
+import org.duracloud.common.util.AccountIdUtil;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.error.StorageException;
@@ -47,17 +50,34 @@ public class ACLStorageProvider implements StorageProvider {
 
     private Thread cacheLoaderThread = null;
     
-    public ACLStorageProvider(StorageProvider targetProvider) {
-        this(targetProvider, new SecurityContextUtil());
+    private AccountChangeNotifier notifier;
+    
+    private DuraCloudRequestContextUtil requestContextUtil;
+    
+    public ACLStorageProvider(StorageProvider targetProvider,
+                              AccountChangeNotifier notifier,
+                              DuraCloudRequestContextUtil requestContextUtil) {
+        this(targetProvider,
+             new SecurityContextUtil(),
+             notifier,
+             requestContextUtil);
     }
 
     public ACLStorageProvider(StorageProvider targetProvider,
-                              SecurityContextUtil securityContextUtil) {
+                              SecurityContextUtil securityContextUtil, 
+                              AccountChangeNotifier notifier, 
+                              DuraCloudRequestContextUtil requestContextUtil) {
+        assert targetProvider != null;
+        assert securityContextUtil != null;
+        assert notifier != null;
+        assert requestContextUtil != null;
+
         this.targetProvider = targetProvider;
         this.securityContextUtil = securityContextUtil;
         this.spaceACLMap = new HashMap<String, Map<String, AclType>>();
         this.loaded = false;
-
+        this.notifier = notifier;
+        this.requestContextUtil = requestContextUtil;
         ensureCacheLoaderThreadIsRunning();
     }
 
@@ -130,7 +150,7 @@ public class ACLStorageProvider implements StorageProvider {
         List<String> spaces = new ArrayList<String>();
         for (String space : spaceACLMap.keySet()) {
             Map<String, AclType> acls = spaceACLMap.get(space);
-            if (userHasAccess(user, acls) && !spaces.contains(space)) {
+             if (userHasAccess(user, acls) && !spaces.contains(space)) {
                 spaces.add(space);
             }
         }
@@ -285,6 +305,13 @@ public class ACLStorageProvider implements StorageProvider {
             // update cache
             this.spaceACLMap.put(spaceId, spaceACLs);
         }
+        
+        sendCacheChangedNotification();
+
+    }
+
+    private void sendCacheChangedNotification() {
+        notifier.storageProviderCacheOnNodeChanged(requestContextUtil.getAccountId());
     }
 
     @Override
@@ -332,6 +359,7 @@ public class ACLStorageProvider implements StorageProvider {
         targetProvider.setContentProperties(spaceId,
                                             contentId,
                                             contentProperties);
+        sendCacheChangedNotification();
     }
 
     @Override

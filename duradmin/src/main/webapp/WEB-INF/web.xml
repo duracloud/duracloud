@@ -13,6 +13,11 @@
     <param-value>/WEB-INF/config/duracloud-app-config.xml</param-value>
   </context-param>
 
+  <context-param>
+    <param-name>contextClass</param-name>
+    <param-value>org.duracloud.common.rest.spring.XmlWebApplicationContext</param-value>
+  </context-param>
+
   <!--
     - This is useful because current browsers typically do not
     - set a character encoding even if specified in the HTML page or form
@@ -67,6 +72,26 @@
   </filter-mapping>
 
   <!-- Security Filter -->
+  <filter>
+    <filter-name>requestContextFilter</filter-name>
+    <filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>requestContextFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <filter>
+    <filter-name>duraCloudRequestContextFilter</filter-name>
+    <filter-class>org.duracloud.common.rest.DuraCloudRequestContextFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>duraCloudRequestContextFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  
+  
   <filter>
     <filter-name>springSecurityFilterChain</filter-name>
     <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>

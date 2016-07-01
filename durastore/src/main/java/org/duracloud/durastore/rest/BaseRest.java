@@ -7,7 +7,9 @@
  */
 package org.duracloud.durastore.rest;
 
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.rest.DuraCloudRequestContextFilter;
 import org.duracloud.storage.provider.StorageProvider;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,7 +48,7 @@ public abstract class BaseRest {
 
     public static final String DEFAULT_MIME = MediaType.APPLICATION_OCTET_STREAM;
 
-    public static final String HEADER_PREFIX = "x-dura-meta-";
+    public static final String HEADER_PREFIX = Constants.HEADER_PREFIX;
     public static final String SPACE_ACL_HEADER =
         HEADER_PREFIX + StorageProvider.PROPERTIES_SPACE_ACL;
     public static final String CONTENT_MIMETYPE_HEADER =
@@ -113,6 +115,10 @@ public abstract class BaseRest {
         return Response.ok(text, TEXT_PLAIN).build();
     }
 
+    protected Response responseOk(Object entity) {
+        return Response.ok(entity).build();
+    }
+
     protected Response responseOkStream(InputStream text) {
         return Response.ok(text, TEXT_PLAIN).build();
     }
@@ -152,15 +158,12 @@ public abstract class BaseRest {
     }
 
     protected String getSubdomain() {
-        String subdomain = request.getHeader("X-FORWARDED-HOST");
-        if(subdomain == null){
-            subdomain = request.getServerName();
-        }
-        
-        subdomain = subdomain.split("[.]")[0];
-        return subdomain;
+        return (String)request.getAttribute(Constants.ACCOUNT_ID_ATTRIBUTE);
     }
 
+    protected String getAccountId() {
+        return getSubdomain();
+    }
 
 
 

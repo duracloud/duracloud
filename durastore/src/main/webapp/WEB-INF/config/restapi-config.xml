@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:aop="http://www.springframework.org/schema/aop"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
-
-
+  
   <!--manifest-->
   <bean id="manifestResource" class="org.duracloud.durastore.rest.ManifestResource">
     <constructor-arg ref="manifestGenerator"/>
@@ -14,13 +16,15 @@
   <bean id="manifestGenerator" class="org.duracloud.manifest.impl.ManifestGeneratorImpl">
     <constructor-arg ref="manifestStore"/>
     <constructor-arg ref="storageProviderFactory"/>
-
   </bean>
 
+  <bean id="auditLogReader" class="org.duracloud.audit.reader.impl.AuditLogReaderImpl"/>
 
-  <bean id="auditLogReader" class="org.duracloud.audit.reader.impl.AuditLogReaderImpl" >
+  <bean id="auditLogReaderInitializer" class="org.duracloud.durastore.util.AuditLogReaderInitializer"
+    init-method="init">
+        <constructor-arg ref="auditLogReader"/>
+        <constructor-arg ref="duracloudMillRepo"/>
   </bean>
-
 
   <!-- Support beans -->
   <bean id="storageAccountsDocumentBinding"
@@ -36,26 +40,68 @@
     <constructor-arg ref="storageProviderFactory"/>
   </bean>
 
-  <bean id="taskProviderFactoryImpl" class="org.duracloud.durastore.util.TaskProviderFactoryImpl">
-    <constructor-arg ref="storageAcctManager"/>
-    <constructor-arg ref="storageProviderFactory"/>
+
+  <bean id="taskProviderFactoryCache" class="org.duracloud.durastore.util.TaskProviderFactoryCache">
+    <constructor-arg ref="contextUtil"/>
+    <constructor-arg ref="storageAccountManagerFactory" />
+    <constructor-arg ref="storageProviderFactory" />
     <constructor-arg ref="manifestStore"/>
   </bean>
+
+  <bean id="taskProviderFactoryTarget" factory-bean="taskProviderFactoryCache" factory-method="getObject"
+    lazy-init="true" scope="request">
+    <aop:scoped-proxy />
+  </bean>
   
-  <bean id="storageProviderFactory" class="org.duracloud.durastore.util.StorageProviderFactoryImpl">
+  <bean id="taskProviderFactory" class="org.duracloud.durastore.aop.AOPTaskProviderFactoryDecorator" scope="request">
+    <aop:scoped-proxy />
+  
+    <constructor-arg ref="taskProviderFactoryTarget"/>
+    <constructor-arg>
+        <list>
+            <ref bean="snapshotAccessAdvisor"/>
+            <ref bean="streamingAccessAdvisor"/>
+        </list>
+    </constructor-arg>
+  </bean>
+  
+  
+  <bean id="contextUtil" class="org.duracloud.common.rest.DuraCloudRequestContextUtil"/>
+
+  <bean id="storageProviderFactoryCache" class="org.duracloud.durastore.util.StorageProviderFactoryCache">
+    <constructor-arg ref="storageAccountManagerFactory" />
     <constructor-arg ref="statelessStoragePvdr" />
-    <constructor-arg ref="storageAcctManager" />
     <constructor-arg ref="securityContextUtil"/>
-    <constructor-arg value="true" />
+    <constructor-arg ref="duracloudMillRepo"/>
+    <constructor-arg ref="accountChangeNotifier"/>
+    <constructor-arg ref="contextUtil"/>
   </bean>
 
-  <bean id="authorizationHelper" class="org.duracloud.security.util.AuthorizationHelper">
+  <bean id="storageAccountManagerFactory" class="org.duracloud.durastore.util.StorageAccountManagerFactory">
+    <constructor-arg ref="accountRepo" />
+    <constructor-arg ref="globalPropertiesRepo" />
+    <constructor-arg ref="contextUtil"/>
+  </bean>
+
+  <bean id="storageAccountManager" factory-bean="storageAccountManagerFactory"
+    factory-method="createInstance" lazy-init="true" scope="request">
+    <aop:scoped-proxy />
+  </bean>
+  
+  <bean id="userFinderUtil" class="org.duracloud.account.db.repo.UserFinderUtil">
+    <constructor-arg ref="repoMgr"/>
+  </bean>
+  
+  <bean id="storageProviderFactory"  class="org.duracloud.durastore.rest.StorageProviderFactoryBean" lazy-init="true" scope="request">
+    <property name="storageProviderFactoryCache" ref="storageProviderFactoryCache" />
+    <aop:scoped-proxy />
+  </bean>
+
+  <bean id="authorizationHelper" class="org.duracloud.security.util.AuthorizationHelper" > 
     <constructor-arg ref="storageProviderFactory"/>
   </bean>
 
   <bean id="statelessStoragePvdr" class="org.duracloud.storage.provider.StatelessStorageProviderImpl"/>
-
-  <bean id="storageAcctManager" class="org.duracloud.storage.domain.StorageAccountManager"/>
 
   <bean id="restUtil" class="org.duracloud.common.rest.RestUtilImpl"/>
 

@@ -9,14 +9,18 @@ package org.duracloud.duradmin.contentstore;
 
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
-import org.duracloud.duradmin.config.DuradminConfig;
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 
 public class ContentStoreManagerFactoryImpl
         implements ContentStoreManagerFactory {
 
+    private DuraCloudRequestContextUtil requestUtil;
+
+    public ContentStoreManagerFactoryImpl(DuraCloudRequestContextUtil requestUtil){
+        this.requestUtil = requestUtil;
+    }
     public ContentStoreManager create() throws Exception {
-        return new ContentStoreManagerImpl(DuradminConfig.getDuraStoreHost(),
-                                           DuradminConfig.getDuraStorePort(),
-                                           DuradminConfig.getDuraStoreContext());
+        return new ContentStoreManagerImpl(requestUtil.getHost(),
+                                           requestUtil.getPort()+"");
     }
 }

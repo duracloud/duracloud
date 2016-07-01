@@ -5,13 +5,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>synctoolui</artifactId>
   <packaging>war</packaging>
-  <version>3.7.4</version>
+  <version>4.0.0</version>
   <name>DuraCloud Sync Tool</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>3.7.4</version>
+    <version>4.0.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -96,6 +96,8 @@
         <configuration>
           <webXml>${basedir}/target/web.xml</webXml>
           <warSourceExcludes>**/*.jsp</warSourceExcludes>
+          <!-- Resolves classloader LinkageError by removing duplicate classes -->
+          <packagingExcludes>WEB-INF/lib/httpcore*.jar</packagingExcludes>
           <webResources>
             <resource>
               <directory>src/main/webapp</directory>
@@ -317,6 +319,16 @@
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-jsp</artifactId>
       <version>${jetty.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.jetty.orbit</groupId>
+          <artifactId>javax.servlet</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.jetty.orbit</groupId>
+          <artifactId>javax.servlet.jsp</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -391,15 +403,18 @@
       <artifactId>tiles-jsp</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
-    </dependency>
-
+    <!-- Hibernate validator dependencies -->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <scope>compile</scope>
+    </dependency>
+    <dependency>
+       <groupId>org.jboss.logging</groupId>
+       <artifactId>jboss-logging</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml</groupId>
+      <artifactId>classmate</artifactId>
     </dependency>
 
     <dependency>
@@ -413,10 +428,14 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
@@ -440,12 +459,6 @@
       <groupId>org.duracloud</groupId>
       <artifactId>storeclient</artifactId>
       <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.duracloud</groupId>
-          <artifactId>common-queue</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -602,6 +615,7 @@
                   <goal>single</goal>
                 </goals>
                 <configuration>
+                  <appendAssemblyId>true</appendAssemblyId>
                   <descriptors>
                     <descriptor>src/main/install/osx-installer-zip.xml</descriptor>
                   </descriptors>

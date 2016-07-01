@@ -4,13 +4,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>duradmin</artifactId>
   <packaging>war</packaging>
-  <version>3.7.4</version>
+  <version>4.0.0</version>
   <name>DuraCloud Administrator</name>
   <url>http://localhost:8080/${project.artifactId}</url>
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>3.7.4</version>
+    <version>4.0.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -143,6 +143,35 @@
         </executions>
       </plugin>
 
+      <!-- Copies built WAR to top level target dir for automated deploy -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.10</version>
+        <executions>
+          <execution>
+            <id>copy-build-artifact</id>
+            <phase>install</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>${project.version}</version>
+                  <type>war</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.basedir}/../target</outputDirectory>
+              <stripVersion>true</stripVersion>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
   <dependencies>
@@ -152,19 +181,13 @@
       <artifactId>common</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>common-json</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-     -->
-    
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>security</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>storeclient</artifactId>
@@ -177,6 +200,17 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-sns</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-cache</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>storageprovider</artifactId>
@@ -196,19 +230,18 @@
     </dependency>
 
     <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>app-config</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.duracloud.db</groupId>
       <artifactId>mill-db-repo</artifactId>
     </dependency>
 
     <dependency>
+      <groupId>org.duracloud.db</groupId>
+      <artifactId>account-management-db-repo</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>reportclient</artifactId>
+      <artifactId>common-rest</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -220,10 +253,15 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>snapshotdata</artifactId>
+      <artifactId>common-notification</artifactId>
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>snapshotdata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <!-- this artifact is also defined below: org.apache.tomcat -->
@@ -300,22 +338,13 @@
       <groupId>net.sf.spring-json</groupId>
       <artifactId>spring-json</artifactId>
       <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>cglib</groupId>
-          <artifactId>cglib-full</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>servlet-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>sojo-optional</artifactId>
@@ -380,8 +409,8 @@
 
     <!-- for HttpClient -->
     <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
     </dependency>
 
     <!-- for validation  -->
@@ -399,7 +428,6 @@
     <dependency>
       <groupId>net.sf.json-lib</groupId>
       <artifactId>json-lib</artifactId>
-      <version>2.2.3</version>
       <classifier>jdk15</classifier>
       <scope>compile</scope>
     </dependency>
@@ -459,12 +487,7 @@
       <type>zip</type>
       <version>1.7</version>
     </dependency>
-
-    <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
-    </dependency>
-
+   
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>

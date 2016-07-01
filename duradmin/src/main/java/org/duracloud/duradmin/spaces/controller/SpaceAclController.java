@@ -53,7 +53,7 @@ public class SpaceAclController {
 
     @Autowired(required=true)
     public SpaceAclController(@Qualifier("contentStoreManager") ContentStoreManager contentStoreManager, 
-                              DuracloudUserDetailsService userDetailsService) {
+                              @Qualifier("userDetailsSvc") DuracloudUserDetailsService userDetailsService) {
         this.contentStoreManager = contentStoreManager;
         this.userDetailsService = userDetailsService;
     }

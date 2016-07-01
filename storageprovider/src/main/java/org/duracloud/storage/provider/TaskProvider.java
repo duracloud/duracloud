@@ -20,7 +20,7 @@ public interface TaskProvider {
 
     public List<String> getSupportedTasks();    
 
-    public String performTask(String taskName, String taskParameters);
+    public String performTask(String taskName, String taskParameters) throws Exception;
     /**
      * The storeId with which the TaskProvider is associated.
      * @return The storeId

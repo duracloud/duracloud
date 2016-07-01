@@ -22,7 +22,7 @@ $(function() {
     // reusable validators that are used with various forms.
     // used in conjunctions with the jquery.validate.js and jquery.form
     $.validator.addMethod("mimetype", function(value, element) {
-      return value == null || value == '' || /^(\w[-]?)*\w\/(\w[-+]?)*\w$/.test(value);
+      return value == null || value == '' || /^(\w[-]?)*\w\/(\w[-+]?)*\w(;(\s*)?\w*[=](\w[-+]?)*)?$/.test(value);
     }, "Invalid Mimetype");
 
     $.validator.addMethod("startswith", function(value, element) {

@@ -25,8 +25,6 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProvider;
 import org.duracloud.storage.provider.TaskProviderFactory;
 import org.duracloud.storage.util.StorageProviderFactory;
-import org.springframework.aop.framework.AopProxy;
-import org.springframework.aop.framework.ProxyFactoryBean;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;

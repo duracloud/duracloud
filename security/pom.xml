@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>security</artifactId>
-  <version>3.7.4</version>
+  <version>4.0.0</version>
   <name>Security</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>3.7.4</version>
+    <version>4.0.0</version>
   </parent>
 
   <build>
@@ -44,6 +44,16 @@
     </dependency>
     
     <dependency>
+      <groupId>org.duracloud.db</groupId>
+      <artifactId>account-management-db-repo</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud.db</groupId>
+      <artifactId>account-management-db-model</artifactId>
+    </dependency>
+    
+    <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common-json</artifactId>
       <version>${project.version}</version>
@@ -57,13 +67,26 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>storageproviderdata</artifactId>
+      <artifactId>common-rest</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
+      <artifactId>storageproviderdata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
       <artifactId>snapshotdata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-cache</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -97,10 +120,12 @@
       <artifactId>spring-security-core</artifactId>
     </dependency>
 
+
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
     </dependency>
+
 
     <dependency>
       <groupId>stax</groupId>

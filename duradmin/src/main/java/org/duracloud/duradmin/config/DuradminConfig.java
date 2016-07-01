@@ -9,6 +9,7 @@ package org.duracloud.duradmin.config;
 
 import java.util.Properties;
 
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.util.ApplicationConfig;
 import org.duracloud.duradmin.domain.AdminInit;
 
@@ -27,42 +28,30 @@ public class DuradminConfig
 
     private static String configFileName;
 
-    private static String hostKey = "host";
 
-    private static String portKey = "port";
-
-    private static String durastoreContextKey = "durastoreContext";
-
-    private static String duraserviceContextKey = "duraserviceContext";
-
-    private static String durabossContextKey = "durabossContext";
-    
-    private static String millDbEnabledKey = "millDbEnabled";
 
     private static boolean initialized = false;
 
+    public static DuraCloudRequestContextUtil contextUtil = new DuraCloudRequestContextUtil();
+    
     private static Properties getProps() {
         return ApplicationConfig.getPropsFromResource(getConfigFileName());
     }
 
     public static String getPropsHost() {
-        return getProps().getProperty(hostKey);
+        return getProps().getProperty("host");
     }
 
     public static String getPropsPort() {
-        return getProps().getProperty(portKey);
+        return getProps().getProperty("port");
     }
 
     public static String getPropsDuraStoreContext() {
-        return getProps().getProperty(durastoreContextKey);
+        return getProps().getProperty("durastoreContext", "durastore");
     }
 
-    public static String getPropsDuraServiceContext() {
-        return getProps().getProperty(duraserviceContextKey);
-    }
-    
     public static Boolean isPropsMillDbEnabled() {
-        return Boolean.valueOf(getProps().getProperty(millDbEnabledKey));
+        return Boolean.valueOf(getProps().getProperty("millDbEnabled", "true"));
     }
 
 
@@ -87,18 +76,16 @@ public class DuradminConfig
     }
 
     public static String getDuraStoreHost() {
-        checkInitialized();
-        return config.getDuraStoreHost();
+        return contextUtil.getHost();
     }
 
     public static String getDuraStorePort() {
-        checkInitialized();
-        return config.getDuraStorePort();
+        return contextUtil.getPort()+"";
     }
 
     public static String getDuraStoreContext() {
         checkInitialized();
-        return config.getDuraStoreContext();
+        return getPropsDuraStoreContext();
     }
 
     public static boolean isMillDbEnabled() {
@@ -119,29 +106,7 @@ public class DuradminConfig
 
     private static void initFromProperties() {
         config = new AdminInit();
-        config.setDuraStoreHost(getPropsHost());
-        config.setDuraStorePort(getPropsPort());
-        config.setDuraStoreContext(getPropsDuraStoreContext());
-        config.setDuraBossContext(getPropsDuraBossContext());
         config.setAmaUrl(null); // default is null.
         config.setMillDbEnabled(isPropsMillDbEnabled());
     }
-
-
-    private static String getPropsDuraBossContext() {
-        return getProps().getProperty(durabossContextKey, "duraboss");
-    }
-
-    public static String getDuraBossHost() {
-        return getPropsHost();
-    }
-
-    public static String getDuraBossPort() {
-        return getPropsPort();
-    }
-
-    public static String getDuraBossContext() {
-        return getPropsDuraBossContext();
-    }
-
 }

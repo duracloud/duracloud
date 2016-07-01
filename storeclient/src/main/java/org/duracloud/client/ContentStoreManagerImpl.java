@@ -7,7 +7,14 @@
  */
 package org.duracloud.client;
 
-import org.apache.commons.httpclient.HttpStatus;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.HttpStatus;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.Securable;
 import org.duracloud.common.web.RestHttpHelper;
@@ -20,13 +27,6 @@ import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides facilities for connecting to a set of content stores
@@ -153,7 +153,7 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
      */
     public ContentStore getPrimaryContentStoreAsAnonymous()
         throws ContentStoreException {
-        return getPrimaryContentStore(-1); // Use default retries
+        return getPrimaryContentStoreAsAnonymous(-1);
     }
 
     /**

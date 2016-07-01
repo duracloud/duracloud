@@ -11,8 +11,6 @@ import static org.duracloud.storage.provider.StorageProvider.*;
 import static org.easymock.EasyMock.*;
 import static org.springframework.security.access.AccessDecisionVoter.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,20 +19,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
-import org.duracloud.snapshot.SnapshotConstants;
-import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
-import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.provider.TaskProvider;
-import org.duracloud.storage.provider.TaskProviderFactory;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
@@ -190,11 +182,6 @@ public class SpaceReadAccessVoterTest {
     }
 
     @Test
-    public void testVoteReservedResourcesOpenInit() {
-        doTestVoteReservedResourcesOpen("init");
-    }
-
-    @Test
     public void testVoteReservedResourcesOpenSpaces() {
         doTestVoteReservedResourcesOpen("spaces");
     }
@@ -209,15 +196,6 @@ public class SpaceReadAccessVoterTest {
         doTestVoteReservedResourcesOpen("acl");
     }
 
-    @Test
-    public void testVoteReservedResourcesOpenBitIntegrity() {
-        doTestVoteReservedResourcesOpen("bit-integrity");
-    }
-
-    @Test
-    public void testVoteReservedResourcesOpenManifest() {
-        doTestVoteReservedResourcesOpen("manifest");
-    }
 
     private void doTestVoteReservedResourcesOpen(String spaceId) {
         boolean securedSpace = false;
@@ -243,6 +221,32 @@ public class SpaceReadAccessVoterTest {
         replayMocks();
         int decision = voter.vote(caller, resource, config);
         Assert.assertEquals(ACCESS_GRANTED, decision);
+    }
+
+    private void testNonSpacesPaths(String path) {
+        boolean securedSpace = true;
+        Authentication caller = registeredUser(userRead, "none");
+        createMockInvocation(caller, securedSpace, HttpVerb.GET, path, 3);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
+        setupGetSpaceAcls();
+        replayMocks();
+        int decision = voter.vote(caller, resource, config);
+        Assert.assertEquals(ACCESS_GRANTED, decision);
+    }
+
+    @Test
+    public void testManifest(){
+        testNonSpacesPaths("/manifest/space-id");
+    }
+
+    @Test
+    public void testBitIntegrity(){
+        testNonSpacesPaths("/bit-integrity/space-id");
+    }
+
+    @Test
+    public void testSpaceReport(){
+        testNonSpacesPaths("/report/space/space-id");
     }
 
     @Test

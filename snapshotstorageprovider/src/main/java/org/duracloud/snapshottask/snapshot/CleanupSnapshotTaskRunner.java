@@ -7,6 +7,13 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,6 +22,7 @@ import java.util.Set;
 
 import org.duracloud.audit.task.AuditTask;
 import org.duracloud.audit.task.AuditTask.ActionType;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.common.queue.task.Task;
 import org.duracloud.common.retry.Retriable;
@@ -115,44 +123,72 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
 
         new Thread(new Runnable() {
             public void run() {
+
                 try {
+                    final File tmpFile = File.createTempFile(account+"-"+storeId + "-" + spaceId, ".tsv");
+                    
+                    tmpFile.deleteOnExit();
+                    final long time = System.currentTimeMillis();
                     new Retrier(4, 60*1000, 2).execute(new Retriable() {
                         public Object retry() throws Exception {
                             //create delete audit messages for each item in the space.
                             Iterator<ManifestItem> items = manifestStore.getItems(account, storeId, spaceId);
-                            long count = 0;
-                            Set<Task> tasks = new HashSet<Task>();
-                            while(items.hasNext()){
-                                ManifestItem item  = items.next();
-                                AuditTask task = new AuditTask();
-                                task.setAccount(account);
-                                task.setSpaceId(spaceId);
-                                task.setStoreId(storeId);
-                                task.setDateTime(String.valueOf(System.currentTimeMillis()));
-                                task.setContentId(item.getContentId());
-                                task.setContentSize(item.getContentSize());
-                                task.setStoreType(StorageProviderType.SNAPSHOT.name());
-                                task.setContentChecksum(item.getContentChecksum());
-                                task.setAction(ActionType.DELETE_CONTENT.name());
-                                task.setUserId(userId);
-                                tasks.add(task.writeTask());
-
-                                if(tasks.size() >= 10){
-                                    auditTaskQueue.put(tasks);
-                                    tasks = new HashSet<>();
+                            try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpFile)))){
+                                while(items.hasNext()){
+                                    ManifestItem item = items.next();
+                                    String line = marshalItem(item);
+                                    writer.write(line+"\n");
                                 }
                                 
-                                count++;
+                                writer.close();
+                                    
+                            }catch(Exception ex){
+                                throw new DuraCloudRuntimeException(ex);
                             }
-                            
-                            if(tasks.size() > 0){
-                                auditTaskQueue.put(tasks);
+                            long count = 0;
+                            Set<Task> tasks = new HashSet<Task>();
+
+                            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(tmpFile)))){
+                                String line = null;
+                                while((line = reader.readLine()) != null){
+                                    String[] values  = unmarshalItem(line);
+                                    AuditTask task = new AuditTask();
+                                    task.setAccount(account);
+                                    task.setSpaceId(spaceId);
+                                    task.setStoreId(storeId);
+                                    task.setDateTime(String.valueOf(time));
+                                    task.setContentId(values[0]);
+                                    task.setContentSize(values[1]);
+                                    task.setStoreType(StorageProviderType.SNAPSHOT.name());
+                                    task.setContentChecksum(values[2]);
+                                    task.setAction(ActionType.DELETE_CONTENT.name());
+                                    task.setUserId(userId);
+                                    tasks.add(task.writeTask());
+    
+                                    if(tasks.size() >= 10){
+                                        auditTaskQueue.put(tasks);
+                                        tasks = new HashSet<>();
+                                    }
+                                    
+                                    count++;
+                                }
+                                
+                                if(tasks.size() > 0){
+                                    auditTaskQueue.put(tasks);
+                                }
+                                log.info("Added {} delete audit tasks.", count);
+                            }catch(Exception ex){
+                                throw new DuraCloudRuntimeException(ex);
                             }
-                            log.info("Added {} delete audit tasks.", count);
 
                             return null;
                         }
+                        
+                        
                     });
+                    
+                    tmpFile.delete();
+
                 } catch (Exception e) {
                     String message = "Failed to complete queue of deletion audit tasks for " + 
                                      spaceId + " : message =" + e.getMessage();
@@ -160,5 +196,13 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
                 }
             }
         }, "snapshot-cleanup-" + spaceId).start();
+    }
+    
+    private String marshalItem(ManifestItem item){
+        return item.getContentId() + "\t" + item.getContentSize() + "\t"  + item.getContentChecksum();
+    }
+    
+    private String[] unmarshalItem(String line){
+        return line.split("\t");
     }
 }

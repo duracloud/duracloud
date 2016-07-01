@@ -7,36 +7,48 @@
  */
 package org.duracloud.common.web;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.BasicScheme;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.HeadMethod;
-import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.PartSource;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.commons.io.Charsets;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicStatusLine;
+import org.apache.http.util.EntityUtils;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.IOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Provides helper methods for REST tests
@@ -47,9 +59,7 @@ public class RestHttpHelper {
 
     protected final Logger log = LoggerFactory.getLogger(RestHttpHelper.class);
 
-    private static final String XML_MIMETYPE = "text/xml";
-
-    private Map<String, String> authHeaders = new HashMap<String, String>();
+    private CredentialsProvider credsProvider;
 
     public RestHttpHelper() {
         this(null);
@@ -57,12 +67,11 @@ public class RestHttpHelper {
 
     public RestHttpHelper(Credential credential) {
         if (credential != null) {
-            UsernamePasswordCredentials authCred = new UsernamePasswordCredentials(
-                credential.getUsername(),
-                credential.getPassword());
-            String authHeaderVal = BasicScheme.authenticate(authCred, "utf-8");
-            String authHeaderName = "Authorization";
-            authHeaders.put(authHeaderName, authHeaderVal);
+            credsProvider = new BasicCredentialsProvider();
+            credsProvider.setCredentials(
+                new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
+                new UsernamePasswordCredentials(credential.getUsername(),
+                                                credential.getPassword()));
         }
     }
 
@@ -70,19 +79,17 @@ public class RestHttpHelper {
         GET() {
 
             @Override
-            public HttpMethod getMethod(String url, RequestEntity re) {
-                return new GetMethod(url);
+            public HttpRequestBase getMethod(String url, HttpEntity entity) {
+                return new HttpGet(url);
             }
         },
         POST() {
 
             @Override
-            public HttpMethod getMethod(String url, RequestEntity re) {
-                EntityEnclosingMethod postMethod = new PostMethod(url);
-                if (re != null) {
-                    String length = String.valueOf(re.getContentLength());
-                    postMethod.setRequestHeader("Content-Length", length);
-                    postMethod.setRequestEntity(re);
+            public HttpRequestBase getMethod(String url, HttpEntity entity) {
+                HttpPost postMethod = new HttpPost(url);
+                if (entity != null) {
+                    postMethod.setEntity(entity);
                 }
                 return postMethod;
             }
@@ -90,10 +97,10 @@ public class RestHttpHelper {
         PUT() {
 
             @Override
-            public HttpMethod getMethod(String url, RequestEntity re) {
-                EntityEnclosingMethod putMethod = new PutMethod(url);
-                if (re != null) {
-                    putMethod.setRequestEntity(re);
+            public HttpRequestBase getMethod(String url, HttpEntity entity) {
+                HttpPut putMethod = new HttpPut(url);
+                if (entity != null) {
+                    putMethod.setEntity(entity);
                 }
                 return putMethod;
             }
@@ -101,12 +108,10 @@ public class RestHttpHelper {
         MULTPART() {
 
             @Override
-            public HttpMethod getMethod(String url, RequestEntity re) {
-                EntityEnclosingMethod postMethod = new PostMethod(url);
-                if (re != null) {
-                    String length = String.valueOf(re.getContentLength());
-                    postMethod.setRequestHeader("Content-Length", length);
-                    postMethod.setRequestEntity(re);
+            public HttpRequestBase getMethod(String url, HttpEntity entity) {
+                HttpPost postMethod = new HttpPost(url);
+                if (entity != null) {
+                    postMethod.setEntity(entity);
                 }
                 return postMethod;
             }
@@ -114,19 +119,19 @@ public class RestHttpHelper {
         HEAD() {
 
             @Override
-            public HttpMethod getMethod(String url, RequestEntity re) {
-                return new HeadMethod(url);
+            public HttpRequestBase getMethod(String url, HttpEntity entity) {
+                return new HttpHead(url);
             }
         },
         DELETE() {
 
             @Override
-            public HttpMethod getMethod(String url, RequestEntity re) {
-                return new DeleteMethod(url);
+            public HttpRequestBase getMethod(String url, HttpEntity entity) {
+                return new HttpDelete(url);
             }
         };
 
-        abstract public HttpMethod getMethod(String url, RequestEntity re);
+        abstract public HttpRequestBase getMethod(String url, HttpEntity entity);
     };
 
     public HttpResponse get(String url) throws Exception {
@@ -145,8 +150,7 @@ public class RestHttpHelper {
                              String requestContent,
                              Map<String, String> headers) throws Exception {
         String mimeType = null;
-        RequestEntity requestEntity =
-                buildInputStreamRequestEntity(requestContent, mimeType);
+        HttpEntity requestEntity = buildInputStreamEntity(requestContent, mimeType);
         return executeRequest(url, Method.POST, requestEntity, headers);
     }
 
@@ -154,21 +158,17 @@ public class RestHttpHelper {
                              String requestContent,
                              String mimeType,
                              Map<String, String> headers) throws Exception {
-        RequestEntity requestEntity =
-                buildInputStreamRequestEntity(requestContent, mimeType);
+        HttpEntity requestEntity = buildInputStreamEntity(requestContent, mimeType);
         return executeRequest(url, Method.POST, requestEntity, headers);
     }
 
     public HttpResponse post(String url,
                              InputStream requestContent,
-                             String contentSize,
                              String mimeType,
+                             long contentLength,
                              Map<String, String> headers) throws Exception {
-        long contentLength = Long.parseLong(contentSize);
-        RequestEntity requestEntity =
-                buildInputStreamRequestEntity(requestContent,
-                                              contentLength,
-                                              mimeType);
+        HttpEntity requestEntity =
+                buildInputStreamEntity(requestContent, mimeType, contentLength);
         return executeRequest(url, Method.POST, requestEntity, headers);
     }
 
@@ -176,8 +176,7 @@ public class RestHttpHelper {
                             String requestContent,
                             Map<String, String> headers) throws Exception {
         String mimeType = null;
-        RequestEntity requestEntity =
-                buildInputStreamRequestEntity(requestContent, mimeType);
+        HttpEntity requestEntity = buildInputStreamEntity(requestContent, mimeType);
         return executeRequest(url, Method.PUT, requestEntity, headers);
     }
 
@@ -185,209 +184,161 @@ public class RestHttpHelper {
                             String requestContent,
                             String mimeType,
                             Map<String, String> headers) throws Exception {
-        RequestEntity requestEntity =
-                buildInputStreamRequestEntity(requestContent, mimeType);
+        HttpEntity requestEntity = buildInputStreamEntity(requestContent, mimeType);
         return executeRequest(url, Method.PUT, requestEntity, headers);
     }
 
     public HttpResponse put(String url,
                             InputStream requestContent,
-                            String contentSize,
                             String mimeType,
+                            long contentLength,
                             Map<String, String> headers) throws Exception {
-        long contentLength = Long.parseLong(contentSize);
-        RequestEntity requestEntity =
-                buildInputStreamRequestEntity(requestContent,
-                                              contentLength,
-                                              mimeType);
+        HttpEntity requestEntity =
+                buildInputStreamEntity(requestContent, mimeType, contentLength);
         return executeRequest(url, Method.PUT, requestEntity, headers);
     }
 
     public HttpResponse multipartFilePost(String url, File file)
             throws Exception {
-        Part[] parts = {new FilePart(file.getName(), file)};
-        return multipartPost(url, parts);
+        ContentType contentType = ContentType.MULTIPART_FORM_DATA;
+        HttpEntity reqEntity =
+            MultipartEntityBuilder.create()
+                .addBinaryBody(file.getName(), file, contentType, file.getName()).build();
+        return multipartPost(url, reqEntity);
     }
 
     public HttpResponse multipartFileStreamPost(String url,
                                                 String fileName,
-                                                InputStream stream,
-                                                long length)
+                                                InputStream stream)
             throws Exception {
-        Part[] parts = {new FilePart(fileName,
-                        new StreamPart(fileName, stream, length))};
-        return multipartPost(url, parts);
+        ContentType contentType = ContentType.MULTIPART_FORM_DATA;
+        HttpEntity reqEntity =
+            MultipartEntityBuilder.create()
+                .addBinaryBody(fileName, stream, contentType, fileName).build();
+        return multipartPost(url, reqEntity);
     }
 
-    private class StreamPart implements PartSource {
-
-        private String fileName;
-        private InputStream stream;
-        private long length;
-
-        public StreamPart(String fileName, InputStream stream, long length) {
-            this.fileName = fileName;
-            this.stream = stream;
-            this.length = length;
-        }
-
-        public InputStream createInputStream() throws IOException {
-            return stream;
-        }
-
-        public String getFileName() {
-            return fileName;
-        }
-
-        public long getLength() {          
-            return length;
-        }
-    }
-
-    public HttpResponse multipartPost(String url, Part[] parts)
+    public HttpResponse multipartPost(String url, HttpEntity reqEntity)
             throws Exception {
         Map<String, String> headers = null;
-        RequestEntity re = buildMultipartRequestEntity(url, parts);
-        return executeRequest(url, Method.MULTPART, re, headers);
+        return executeRequest(url, Method.MULTPART, reqEntity, headers);
     }
 
-    private InputStreamRequestEntity buildInputStreamRequestEntity(String requestContent,
-                                                                   String argMimeType)
+    private InputStreamEntity buildInputStreamEntity(String requestContent,
+                                                     String mimeType)
             throws Exception {
         if (requestContent == null) {
             return null;
         }
         InputStream streamContent = IOUtil.writeStringToStream(requestContent);
-        long contentLength = requestContent.length();
-        return buildInputStreamRequestEntity(streamContent,
-                                             contentLength,
-                                             argMimeType);
-
+        return buildInputStreamEntity(streamContent,
+                                      mimeType,
+                                      requestContent.getBytes(Charsets.UTF_8).length);
     }
 
-    private InputStreamRequestEntity buildInputStreamRequestEntity(InputStream streamContent,
-                                                                   long contentLength,
-                                                                   String argMimeType)
+    private InputStreamEntity buildInputStreamEntity(InputStream streamContent,
+                                                     String mimeType,
+                                                     long contentLength)
             throws Exception {
         if (streamContent == null) {
             return null;
         }
-        String mimeType = (argMimeType == null ? XML_MIMETYPE : argMimeType);
-        return new InputStreamRequestEntity(streamContent,
-                                            contentLength,
-                                            mimeType);
 
+        ContentType contentType = buildContentType(mimeType);
+        return new InputStreamEntity(streamContent, contentLength, contentType);
     }
 
-    private RequestEntity buildMultipartRequestEntity(String url, Part[] parts) {
-        if (url == null || url.length() == 0) {
-            throw new IllegalArgumentException("URL must be a non-empty value");
+    private ContentType buildContentType(String mimeType) {
+        ContentType contentType;
+        if(null == mimeType) {
+            contentType = ContentType.TEXT_XML;
+        } else {
+            contentType = ContentType.create(mimeType, StandardCharsets.UTF_8);
         }
-        if (parts == null || parts.length == 0) {
-            return null;
-        }
-
-        PostMethod postMethod = new PostMethod(url);
-        return new MultipartRequestEntity(parts, postMethod.getParams());
+        return contentType;
     }
 
     private HttpResponse executeRequest(String url,
                                         Method method,
-                                        RequestEntity requestEntity,
+                                        HttpEntity requestEntity,
                                         Map<String, String> headers)
-            throws Exception {
+            throws IOException {
         if (url == null || url.length() == 0) {
             throw new IllegalArgumentException("URL must be a non-empty value");
         }
 
-        HttpMethod httpMethod = method.getMethod(url, requestEntity);
-
-        if (authHeaders != null && authHeaders.size() > 0) {
-            addHeaders(httpMethod, authHeaders);
-        }
+        HttpRequestBase httpRequest = method.getMethod(url, requestEntity);
 
         if (headers != null && headers.size() > 0) {
-            addHeaders(httpMethod, headers);
+            addHeaders(httpRequest, headers);
         }
 
         if (log.isDebugEnabled()) {
             log.debug(loggingRequestText(url, method, requestEntity, headers));
         }
 
-        HttpClient client = new HttpClient();
-        client.executeMethod(httpMethod);
-        HttpResponse response = new HttpResponse(httpMethod);
+        org.apache.http.HttpResponse response;
+        if (null != credsProvider) {
+            CloseableHttpClient httpClient =
+                HttpClients.custom().setDefaultCredentialsProvider(credsProvider).build();
 
-        if (log.isDebugEnabled()) {
-            log.debug(loggingResponseText(response));
+            // Use preemptive basic auth
+            URI requestUri = httpRequest.getURI();
+            HttpHost target = new HttpHost(requestUri.getHost(),
+                                           requestUri.getPort(),
+                                           requestUri.getScheme());
+            AuthCache authCache = new BasicAuthCache();
+            BasicScheme basicAuth = new BasicScheme();
+            authCache.put(target, basicAuth);
+            HttpClientContext localContext = HttpClientContext.create();
+            localContext.setAuthCache(authCache);
+
+            response = httpClient.execute(httpRequest, localContext);
+        } else {
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            response = httpClient.execute(httpRequest);
         }
 
-        return response;
+        HttpResponse httpResponse = new HttpResponse(response);
+
+        if (log.isDebugEnabled()) {
+            log.debug(loggingResponseText(httpResponse));
+        }
+
+        return httpResponse;
     }
 
-    private void addHeaders(HttpMethod httpMethod, Map<String, String> headers) {
+    private void addHeaders(HttpRequestBase httpRequest, Map<String, String> headers) {
         Iterator<String> headerIt = headers.keySet().iterator();
         while (headerIt.hasNext()) {
             String headerName = headerIt.next();
             String headerValue = headers.get(headerName);
             if (headerName != null && headerValue != null) {
-                httpMethod.addRequestHeader(headerName, headerValue);
+                httpRequest.addHeader(headerName, headerValue);
             }
         }
     }
 
     public static class HttpResponse {
 
-        private final int statusCode;
+        protected final org.apache.http.HttpResponse response;
 
-        private final InputStream responseStream;
-
-        private final Header[] responseHeaders;
-
-        private final Header[] responseFooters;
-
-        private HttpMethod httpMethod;
-
-        public HttpResponse(int statusCode,
-                     Header[] responseHeaders,
-                     Header[] responseFooters,
-                     InputStream responseStream) {
-            this.statusCode = statusCode;
-            this.responseHeaders = responseHeaders;
-            this.responseFooters = responseFooters;
-            this.responseStream = responseStream;
-        }
-
-        public HttpResponse(HttpMethod method)
-                throws IOException {
-            this(method.getStatusCode(),
-                 method.getResponseHeaders(),
-                 method.getResponseFooters(),
-                 method.getResponseBodyAsStream());
-            
-            this.httpMethod = method;
+        public HttpResponse(org.apache.http.HttpResponse response) {
+            this.response = response;
         }
 
         public int getStatusCode() {
-            return statusCode;
+            return response.getStatusLine().getStatusCode();
         }
 
-        public InputStream getResponseStream() {
-            return responseStream;
+        public InputStream getResponseStream() throws IOException {
+            return response.getEntity().getContent();
         }
 
         public String getResponseBody() throws IOException {
-            if (responseStream != null) {
-                BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(responseStream,
-                                                             "UTF-8"));
-                StringBuilder builder = new StringBuilder();
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line);
-                }
-                responseStream.close();
-                return builder.toString();
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                return EntityUtils.toString(entity, "UTF-8");
             } else {
                 // No response body will be available for HEAD requests
                 return null;
@@ -395,15 +346,11 @@ public class RestHttpHelper {
         }
 
         public Header[] getResponseHeaders() {
-            return responseHeaders;
-        }
-
-        public Header[] getResponseFooters() {
-            return responseFooters;
+            return response.getAllHeaders();
         }
 
         public Header getResponseHeader(String headerName) {
-            for (Header header : responseHeaders) {
+            for (Header header : response.getAllHeaders()) {
                 if (header.getName().equalsIgnoreCase(headerName)) {
                     return header;
                 }
@@ -411,16 +358,29 @@ public class RestHttpHelper {
             return null;
         }
 
-        public void close() {
-            if (null != httpMethod) {
-                httpMethod.releaseConnection();
-            }
+        /**
+         * Provided for testing of Http responses
+         */
+        public static HttpResponse buildMock(int statusCode,
+                                             Header[] responseHeaders,
+                                             InputStream responseStream) {
+            ProtocolVersion pVersion = new ProtocolVersion("HTTP", 1, 1);
+            StatusLine statusLine = new BasicStatusLine(pVersion, statusCode, "");
+
+            org.apache.http.HttpResponse response =
+                new DefaultHttpResponseFactory().newHttpResponse(statusLine, null);
+            response.setHeaders(responseHeaders);
+            BasicHttpEntity entity = new BasicHttpEntity();
+            entity.setContent(responseStream);
+            response.setEntity(entity);
+
+            return new HttpResponse(response);
         }
     }
 
     private String loggingRequestText(String url,
                                       Method method,
-                                      RequestEntity requestEntity,
+                                      HttpEntity requestEntity,
                                       Map<String, String> headers) {
         StringBuilder sb = new StringBuilder("URL: '" + url + "'\n");
         if (method != null) {
@@ -446,13 +406,6 @@ public class RestHttpHelper {
             sb.append("RESPONSE HEADERS: \n");
             for (Header header : headers) {
                 sb.append("  [" + header.getName() + "|" + header.getValue() + "]\n");
-            }
-        }
-        Header[] footers = response.getResponseFooters();
-        if (footers != null && footers.length > 0) {
-            sb.append("RESPONSE FOOTERS: \n");
-            for (Header footer : footers) {
-                sb.append("  [" + footer.getName() + "|" + footer.getValue() + "]\n");
             }
         }
         return sb.toString();

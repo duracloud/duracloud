@@ -13,6 +13,7 @@
   <context:annotation-config/>
   <context:component-scan base-package="org.duracloud" />
   
+  
   <import resource="restapi-config.xml" />
   <import resource="aop-config.xml" />
   <import resource="security-config.xml" />

@@ -10,9 +10,11 @@ package org.duracloud.snapshottask.snapshot;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.duracloud.audit.task.AuditTask;
@@ -98,6 +100,8 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
         for(int i = 0; i < 10; i++){
             ManifestItem item = new ManifestItem();
             item.setContentId("content-id-"+i);
+            item.setContentSize(i+"");
+            item.setContentChecksum("content-checksum-"+i);
             manifestItems.add(item);
         }
         
@@ -128,15 +132,24 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
         Thread.sleep(500);
 
         Set<Task> tasks = taskCapture.getValue();
-        assertEquals(manifestItems.size(), tasks.size());
-        
+        Map<String,Task> taskMapByContentId = new HashMap<>();
         for(Task task : tasks){
+            taskMapByContentId.put(task.getProperty(AuditTask.CONTENT_ID_PROP), task);
+        }
+        assertEquals(manifestItems.size(), taskMapByContentId.size());
+        
+        for(ManifestItem item : manifestItems){
+            Task task = taskMapByContentId.get(item.getContentId());
             assertNotNull(task.getProperty(AuditTask.DATE_TIME_PROP));
             assertNotNull(task.getProperty(AuditTask.CONTENT_ID_PROP));
             assertEquals(ActionType.DELETE_CONTENT.name(), task.getProperty(AuditTask.ACTION_PROP));
             assertEquals(account, task.getProperty(AuditTask.ACCOUNT_PROP));
             assertEquals(storeId, task.getProperty(AuditTask.STORE_ID_PROP));
             assertEquals(spaceId, task.getProperty(AuditTask.SPACE_ID_PROP));
+            assertEquals(item.getContentId(), task.getProperty(AuditTask.CONTENT_ID_PROP));
+            assertEquals(item.getContentChecksum(), task.getProperty(AuditTask.CONTENT_CHECKSUM_PROP));
+            assertEquals(item.getContentSize(), task.getProperty(AuditTask.CONTENT_SIZE_PROP));
+
         }
         
     }

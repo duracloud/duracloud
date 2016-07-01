@@ -26,7 +26,7 @@ import java.io.IOException;
  */
 public class TestConfigUtil {
 
-    public static final String DURACLOUD_TEST_CONFIG = "DURACLOUD-TEST-CONFIG";
+    public static final String DURACLOUD_TEST_CONFIG = "DURACLOUD_TEST_CONFIG";
 
     public TestConfig getTestConfig() throws IOException {
         String testConfigPath = System.getenv().get(DURACLOUD_TEST_CONFIG);

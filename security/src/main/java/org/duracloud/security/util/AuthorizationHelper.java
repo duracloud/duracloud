@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.common.model.AclType;
-import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
@@ -97,9 +96,6 @@ public class AuthorizationHelper {
     private boolean hasAccess(String name,
                               Map<String, AclType> acls,
                               boolean isRead) {
-        if (RootUserCredential.getRootUsername().equals(name)) {
-            return true;
-        }
 
         if (null == acls) {
             return false;

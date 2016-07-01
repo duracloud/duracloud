@@ -7,20 +7,28 @@
  */
 package org.duracloud.security.vote;
 
-import org.duracloud.StorageTaskConstants;
+import static org.duracloud.storage.provider.StorageProvider.*;
+import static org.easymock.EasyMock.*;
+import static org.springframework.security.access.AccessDecisionVoter.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
-import org.duracloud.snapshot.SnapshotConstants;
-import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
-import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.domain.impl.StorageAccountImpl;
 import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.provider.TaskProvider;
-import org.duracloud.storage.provider.TaskProviderFactory;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -38,25 +46,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.FilterInvocation;
-
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
-import static org.easymock.EasyMock.*;
-import static org.springframework.security.access.AccessDecisionVoter.ACCESS_ABSTAIN;
-import static org.springframework.security.access.AccessDecisionVoter.ACCESS_DENIED;
-import static org.springframework.security.access.AccessDecisionVoter.ACCESS_GRANTED;
 
 /**
  * @author Andrew Woods

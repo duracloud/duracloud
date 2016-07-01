@@ -52,7 +52,7 @@ public class Space
     
     private BitIntegrityReportProperties bitIntegrityReportProperties;
     
-    private boolean millDbEnabled = false;
+    private boolean millDbEnabled = true;
     
     public String getStoreId() {
         return storeId;

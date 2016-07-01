@@ -50,7 +50,7 @@ public abstract class TaskProviderBase implements TaskProvider {
     }
 
     @Override
-    public String performTask(String taskName, String taskParameters) {
+    public String performTask(String taskName, String taskParameters) throws Exception {
         log.debug("performTask(" + taskName + ", " + taskParameters + ")");
 
         for(TaskRunner runner : taskList) {

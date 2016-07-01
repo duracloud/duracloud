@@ -7,8 +7,6 @@
  */
 package org.duracloud.durastore.util;
 
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,18 +15,24 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
+import org.duracloud.common.sns.AccountChangeNotifier;
+import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.provider.StorageProvider;
-import org.easymock.EasyMock;
+import static org.easymock.EasyMock.*;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 
 /**
  * @author Andrew Woods
@@ -49,12 +53,20 @@ public class ACLStorageProviderTest {
     private static final String spacePrefix = "space-";
     private int NUM_SPACES = 5;
 
-
+    private DuraCloudRequestContextUtil requestContextUtil;
+    
+    private AccountChangeNotifier notifier;
+    
+    private SecurityContextUtil securityContextUtil = new SecurityContextUtil();
+    
     @Before
     public void setUp() throws Exception {
-        context = EasyMock.createMock("SecurityContext", SecurityContext.class);
+        
+        requestContextUtil = createMock("DuraCloudRequestContextUtil", DuraCloudRequestContextUtil.class);
+        notifier = createMock("AccountChangeNotifier", AccountChangeNotifier.class);
+        context = createMock("SecurityContext", SecurityContext.class);
 
-        authorities = new GrantedAuthority[]{new GrantedAuthorityImpl(
+        authorities = new GrantedAuthority[]{new SimpleGrantedAuthority(
             "ROLE_USER")};
         groups = new ArrayList<String>();
         groups.add(groupA);
@@ -62,12 +74,18 @@ public class ACLStorageProviderTest {
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(mockProvider, context);
+        verify(mockProvider, context);
         SecurityContextHolder.clearContext();
     }
 
     private void replayMocks() {
-        EasyMock.replay(mockProvider, context);
+        replay(mockProvider, context, notifier,requestContextUtil);
+    }
+    
+    private void setupNotification(){
+        notifier.storageProviderCacheOnNodeChanged("account");
+        expectLastCall();
+        expect(requestContextUtil.getAccountId()).andReturn("account");
     }
 
     @Test
@@ -78,12 +96,12 @@ public class ACLStorageProviderTest {
         createMockSecurityContext(3);
 
         mockProvider.createSpace(spaceId);
-        EasyMock.expectLastCall();
+        expectLastCall();
 
         replayMocks();
 
         // load cache
-        provider = new ACLStorageProvider(mockProvider);
+        provider = createProvider();
         Iterator<String> spaces = provider.getSpaces();
         Assert.assertNotNull(spaces);
 
@@ -120,7 +138,7 @@ public class ACLStorageProviderTest {
         userSpacesA.add(spacePrefix + 2);
         userSpacesA.add(spacePrefix + 3);
 
-        provider = new ACLStorageProvider(mockProvider);
+        provider = createProvider();
         Iterator<String> spaces = provider.getSpaces();
         Assert.assertNotNull(spaces);
 
@@ -133,11 +151,18 @@ public class ACLStorageProviderTest {
         Assert.assertEquals(userSpacesA.size(), i);
     }
 
+    private ACLStorageProvider createProvider() {
+        return new ACLStorageProvider(mockProvider,
+                                      securityContextUtil,
+                                      notifier,
+                                      requestContextUtil);
+    }
+
     private void createMockStorageProvider(int times) {
-        mockProvider = EasyMock.createMock("StorageProvider",
+        mockProvider = createMock("StorageProvider",
                                            StorageProvider.class);
         for (int i = 0; i < times; ++i) {
-            EasyMock.expect(mockProvider.getSpaces())
+            expect(mockProvider.getSpaces())
                     .andReturn(allSpaces().iterator());
         }
 
@@ -154,14 +179,14 @@ public class ACLStorageProviderTest {
             } else if (space.equals(spacePrefix + 3)) {
                 acls.put(PROPERTIES_SPACE_ACL + groupA, AclType.WRITE);
             }
-            EasyMock.expect(mockProvider.getSpaceACLs(space))
+            expect(mockProvider.getSpaceACLs(space))
                     .andReturn(acls)
                     .times(times);
         }
     }
 
     private void createMockSecurityContext(int times) {
-        Authentication auth = EasyMock.createMock("Authentication",
+        Authentication auth = createMock("Authentication",
                                                   Authentication.class);
         DuracloudUserDetails userDetails = new DuracloudUserDetails(username,
                                                                     "password",
@@ -173,11 +198,11 @@ public class ACLStorageProviderTest {
                                                                     true,
                                                                     Arrays.asList(authorities),
                                                                     groups);
-        EasyMock.expect(auth.getPrincipal())
+        expect(auth.getPrincipal())
                 .andReturn(userDetails)
                 .times(times);
-        EasyMock.replay(auth);
-        EasyMock.expect(context.getAuthentication())
+        replay(auth);
+        expect(context.getAuthentication())
                 .andReturn(auth)
                 .times(times);
 
@@ -201,16 +226,17 @@ public class ACLStorageProviderTest {
 
     @Test
     public void testGetSpaceACLs() throws Exception {
+        setupNotification();
         String spaceId = spacePrefix + 4;
         createMockStorageProvider(1);
         Map<String, AclType> origAcls = createSpaceACLs();
 
         mockProvider.setSpaceACLs(spaceId, origAcls);
-        EasyMock.expectLastCall();
+        expectLastCall();
         replayMocks();
 
         // method under test
-        provider = new ACLStorageProvider(mockProvider);
+        provider = createProvider();
         Map<String, AclType> acls = provider.getSpaceACLs(spaceId);
         Assert.assertNotNull(acls);
         Assert.assertEquals(new HashMap<String, String>(), acls);
@@ -233,17 +259,18 @@ public class ACLStorageProviderTest {
 
     @Test
     public void testSetSpaceACLs() throws Exception {
+        setupNotification();
         String spaceId = spacePrefix + 2;
         createMockStorageProvider(1);
         Map<String, AclType> origAcls = createSpaceACLs();
 
         mockProvider.setSpaceACLs(spaceId, origAcls);
-        EasyMock.expectLastCall();
+        expectLastCall();
 
         replayMocks();
 
         // method under test
-        provider = new ACLStorageProvider(mockProvider);
+        provider = createProvider();
         provider.setSpaceACLs(spaceId, origAcls);
 
         // getting ACLs should only hit the cache.
@@ -257,15 +284,15 @@ public class ACLStorageProviderTest {
         String spaceId = "ACLStorageProvider-cache";
         createMockStorageProvider(2);
 
-        EasyMock.expect(mockProvider.getSpaceACLs(spaceId))
+        expect(mockProvider.getSpaceACLs(spaceId))
                 .andReturn(new HashMap<String, AclType>());
         mockProvider.deleteSpace(spaceId);
-        EasyMock.expectLastCall();
+        expectLastCall();
 
         replayMocks();
 
         // method under test
-        provider = new ACLStorageProvider(mockProvider);
+        provider = createProvider();
         provider.deleteSpace(spaceId);
 
         // wait for cache to be cleared and reloaded.

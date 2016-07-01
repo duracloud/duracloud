@@ -19,7 +19,7 @@
 		});		
 		</script>
 
-		<form id="loginForm" action="${pageContext.request.contextPath}/j_spring_security_check"  method="post" onsubmit="return false;" >
+		<form id="loginForm" action="${pageContext.request.contextPath}/login"  method="post" onsubmit="return false;" >
 			<div id="login-wrapper">
 				<div id="login-header" class="outer clearfix">
 					<div id="dc-logo-panel"><a href="/duradmin/spaces" id="dc-logo"></a></div>			
@@ -32,11 +32,11 @@
 						<ul>
 							<li class="clearfix">
 								<label for="username">Username</label>							
-								<input type="text" id="username" name="j_username" class="field"/>	
+								<input type="text" id="username" name="username" class="field"/>
 							</li>
 							<li class="clearfix">
 								<label for="password">Password</label>
-								<input id="password" type="password" name="j_password" class="field"/>
+								<input id="password" type="password" name="password" class="field"/>
 							</li>
 							<li class="clearfix">
 								<button id="button-login" class="primary  float-r">Login</button>											

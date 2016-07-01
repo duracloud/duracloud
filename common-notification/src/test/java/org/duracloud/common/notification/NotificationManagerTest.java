@@ -7,7 +7,6 @@
  */
 package org.duracloud.common.notification;
 
-import org.duracloud.appconfig.domain.NotificationConfig;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;

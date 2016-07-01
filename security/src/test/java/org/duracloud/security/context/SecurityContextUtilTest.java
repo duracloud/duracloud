@@ -10,7 +10,6 @@ package org.duracloud.security.context;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.duracloud.common.error.NoUserLoggedInException;
@@ -23,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -49,8 +48,8 @@ public class SecurityContextUtilTest {
 
         context = EasyMock.createMock("SecurityContext", SecurityContext.class);
 
-        authorities = Arrays.asList(new GrantedAuthority[]{new GrantedAuthorityImpl(
-            "ROLE_USER"), new GrantedAuthorityImpl("ROLE_ADMIN")});
+        authorities = Arrays.asList(new GrantedAuthority[]{new SimpleGrantedAuthority(
+            "ROLE_USER"), new SimpleGrantedAuthority("ROLE_ADMIN")});
         groups = new ArrayList<String>();
         groups.add("group-curators");
     }

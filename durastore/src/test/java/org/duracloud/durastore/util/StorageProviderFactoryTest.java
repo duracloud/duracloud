@@ -7,8 +7,17 @@
  */
 package org.duracloud.durastore.util;
 
-import org.duracloud.common.util.EncryptionUtil;
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
+import org.duracloud.common.sns.AccountChangeNotifier;
 import org.duracloud.common.util.UserUtil;
+import org.duracloud.storage.domain.DatabaseConfig;
+import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -21,16 +30,6 @@ import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author: Bill Branan
@@ -56,15 +55,17 @@ public class StorageProviderFactoryTest {
 
     private List<String> storageAccountIds;
     private StorageProviderFactory factory;
-
-    private static String accountXml;
-    private InputStream inputStream;
+    
+    private DuraCloudRequestContextUtil contextUtil;
+    private AccountChangeNotifier notifier;
 
     @Before
     public void startup() throws Exception {
         mockSAM = EasyMock.createMock(StorageAccountManager.class);
         mockSSP = EasyMock.createMock(StatelessStorageProvider.class);
         mockUserUtil = EasyMock.createMock(UserUtil.class);
+        contextUtil = EasyMock.createMock(DuraCloudRequestContextUtil.class);
+        notifier = EasyMock.createMock(AccountChangeNotifier.class);
 
         acct1 = new StorageAccountImpl(acctId1, "u", "p",
                                        StorageProviderType.AMAZON_S3);
@@ -79,39 +80,17 @@ public class StorageProviderFactoryTest {
             .andReturn(true)
             .anyTimes();
 
-        factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, mockUserUtil);
+        factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, mockUserUtil, contextUtil, notifier);
 
-        EncryptionUtil encryptUtil = new EncryptionUtil();
-        String username = encryptUtil.encrypt("username");
-        String password = encryptUtil.encrypt("password");
-
-        StringBuilder xml = new StringBuilder();
-        xml.append("<durastoreConfig>");
-        xml.append("  <storageAudit>");
-        xml.append("  </storageAudit>");
-        xml.append("<storageProviderAccounts>");
-        xml.append("  <storageAcct ownerId='0' isPrimary='1'>");
-        xml.append("    <id>0</id>");
-        xml.append("    <storageProviderType>AMAZON_S3</storageProviderType>");
-        xml.append("    <storageProviderCredential>");
-        xml.append("      <username>"+username+"</username>");
-        xml.append("      <password>"+password+"</password>");
-        xml.append("    </storageProviderCredential>");
-        xml.append("  </storageAcct>");
-        xml.append("</storageProviderAccounts>");
-        xml.append("</durastoreConfig>");
-        accountXml = xml.toString();
-
-        inputStream = new ByteArrayInputStream(xml.toString().getBytes("UTF-8"));
     }
 
     private void replayMocks() {
-        EasyMock.replay(mockSAM, mockSSP, mockUserUtil);
+        EasyMock.replay(mockSAM, mockSSP, mockUserUtil, contextUtil, notifier);
     }
 
     @After
     public void teardown() {
-        EasyMock.verify(mockSAM, mockSSP, mockUserUtil);
+        EasyMock.verify(mockSAM, mockSSP, mockUserUtil,contextUtil, notifier);
     }
 
     @Test
@@ -200,16 +179,27 @@ public class StorageProviderFactoryTest {
         mockSAM.initialize(EasyMock.isA(List.class));
         EasyMock.expectLastCall();
 
-        mockSAM.setEnvironment(instanceHost, instancePort);
+        mockSAM.setEnvironment(instanceHost, instancePort, "account");
         EasyMock.expectLastCall();
 
         replayMocks();
-        factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, mockUserUtil);
-        factory.initialize(inputStream, instanceHost, instancePort);
+        factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, mockUserUtil,  contextUtil, notifier);
+        factory.initialize(createConfig(), instanceHost, instancePort, "account");
 
         //Test retrieving from accountManager now that the cache has been cleared
         getProvider();
     }
+
+    protected DuraStoreInitConfig createConfig() {
+        DuraStoreInitConfig config = new DuraStoreInitConfig();
+        config.setStorageAccounts(Arrays.asList((StorageAccount) new StorageAccountImpl("id",
+                                                                                        "username",
+                                                                                        "password",
+                                                                                        StorageProviderType.AMAZON_S3)));
+        config.setMillDbConfig(new DatabaseConfig());
+        return config;
+    }
+
 
     @Test
     public void testInitilizeWithCachingEnabled() {
@@ -225,15 +215,21 @@ public class StorageProviderFactoryTest {
 
         EasyMock.expect(mockSAM.getAccountName()).andReturn(acct1Name);
 
-        mockSAM.setEnvironment(instanceHost, instancePort);
+        mockSAM.setEnvironment(instanceHost, instancePort, "account");
         EasyMock.expectLastCall();
 
         replayMocks();
 
-        factory = new StorageProviderFactoryImpl(mockSAM, mockSSP,
-                                                 mockUserUtil, true);
+        
+        factory =
+            new StorageProviderFactoryImpl(mockSAM,
+                                           mockSSP,
+                                           mockUserUtil,
+                                           contextUtil,
+                                           notifier,
+                                           true);
 
-        factory.initialize(inputStream, instanceHost, instancePort);
+        factory.initialize(createConfig(), instanceHost, instancePort,"account");
     }
     
     private StorageAccountManager getProvider() {
@@ -253,7 +249,12 @@ public class StorageProviderFactoryTest {
 
         EasyMock.replay(sam);
 
-        factory = new StorageProviderFactoryImpl(sam, mockSSP, mockUserUtil);
+        factory =
+            new StorageProviderFactoryImpl(sam,
+                                           mockSSP,
+                                           mockUserUtil,
+                                           contextUtil,
+                                           notifier);
         StorageProvider provider = factory.getStorageProvider();
         assertNotNull(provider);
         assertTrue(provider instanceof BrokeredStorageProvider);

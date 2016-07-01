@@ -1,10 +1,14 @@
 <beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/security"
+               xmlns:aop="http://www.springframework.org/schema/aop"
+  
   xsi:schemaLocation="
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
            http://www.springframework.org/schema/security
-           http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+           http://www.springframework.org/schema/security/spring-security-4.0.xsd">
 
   <beans:bean id="authenticationProcessingFilter"
               class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
@@ -12,11 +16,8 @@
     <beans:property name="filterProcessesUrl" value="/j_spring_security_check" />
   </beans:bean>
 
-  <http entry-point-ref="authenticationProcessingFilterEntryPoint">
-    <intercept-url pattern="/init" method="GET" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-    <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
-    <intercept-url pattern="/security" access="ROLE_ROOT"/>
-    <intercept-url pattern="/dashboard" access="ROLE_ROOT"  />
+  <http entry-point-ref="authenticationProcessingFilterEntryPoint" use-expressions="false">
+    <csrf disabled="true"/>
     <intercept-url pattern="/admin" access="ROLE_ROOT"  />
     <intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
     <intercept-url pattern="/style/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
@@ -42,7 +43,20 @@
     <beans:constructor-arg ref="passwordEncoder"/>
   </beans:bean>
 
-  <beans:bean id="userDetailsSvc" class="org.duracloud.security.impl.UserDetailsServiceImpl"/>
+  <beans:bean id="userFinderUtil" class="org.duracloud.account.db.repo.UserFinderUtil">
+    <beans:constructor-arg ref="repoMgr"/>
+  </beans:bean>
+
+  <beans:bean id="userDetailsServiceCache" class="org.duracloud.security.impl.UserDetailsServiceCache">
+    <beans:constructor-arg ref="accountRepo" />
+    <beans:constructor-arg ref="userFinderUtil"/>
+  </beans:bean>
+  
+  <beans:bean id="userDetailsSvc"  class="org.duracloud.security.impl.UserDetailsServiceFactoryBean" lazy-init="true" scope="request">
+    <beans:property name="userDetailsServiceCache" ref="userDetailsServiceCache" />
+    <aop:scoped-proxy />
+  </beans:bean>
+
 
   <beans:bean id="passwordEncoder"
     class="org.springframework.security.authentication.encoding.ShaPasswordEncoder" >
@@ -50,7 +64,7 @@
   </beans:bean>
 
   <beans:bean id="authenticationProcessingFilterEntryPoint"	class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-		<beans:property name="loginFormUrl" value="/login" />
+		<beans:constructor-arg value="/login" />
 		<beans:property name="useForward" value="true" />
 	</beans:bean>
 
@@ -74,6 +88,10 @@
     <beans:property name="target" ref="contentStoreManagerTarget"/>
     <beans:property name="interceptorNames" value="securityAdvisor"/>
   </beans:bean>
+
+  <beans:bean id="webexpressionHandler"
+    class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" /> 
+  
 
 
 </beans:beans>

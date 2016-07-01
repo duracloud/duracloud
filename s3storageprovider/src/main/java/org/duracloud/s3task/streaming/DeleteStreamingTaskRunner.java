@@ -74,16 +74,11 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
                 if(existingDist.isEnabled()) {
                     // Disable the distribution
                     setDistributionState(distId, false);
-                    // Wait for the distribution to be disabled
-                    waitForDisabled(distId);
                 }
-                // Delete the distribution
-                GetStreamingDistributionConfigResult result =
-                    cfClient.getStreamingDistributionConfig(
-                        new GetStreamingDistributionConfigRequest(distId));
-                cfClient.deleteStreamingDistribution(
-                    new DeleteStreamingDistributionRequest().withId(distId)
-                                                            .withIfMatch(result.getETag()));
+
+                // Kick off a thread to wait and complete the delete action
+                Runnable deleteWorker = () -> waitAndDelete(distId);
+                new Thread(deleteWorker).start();
             }
         } else {
             throw new RuntimeException("No streaming distribution " +
@@ -97,12 +92,25 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
         return toReturn;
     }
 
+    private void waitAndDelete(String distId) {
+        // Wait for the distribution to be disabled
+        waitForDisabled(distId);
+
+        // Delete the distribution
+        GetStreamingDistributionConfigResult result =
+            cfClient.getStreamingDistributionConfig(
+                new GetStreamingDistributionConfigRequest(distId));
+        cfClient.deleteStreamingDistribution(
+            new DeleteStreamingDistributionRequest().withId(distId)
+                                                    .withIfMatch(result.getETag()));
+    }
+
     /*
      * Wait for the distribution to be disabled
      * Note that this can take up to 15 min
      */
     private void waitForDisabled(String distId) {
-        long maxTime = 900000; // 15 min
+        long maxTime = 1800000; // 30 min
         long start = System.currentTimeMillis();
 
         boolean deployed = isDeployed(distId);

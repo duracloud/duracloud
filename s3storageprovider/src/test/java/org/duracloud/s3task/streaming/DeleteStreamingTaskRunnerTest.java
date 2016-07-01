@@ -114,6 +114,8 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         String results = runner.performTask(taskParams.serialize());
         assertNotNull(results);
         testCapturedProps();
+
+        Thread.sleep(2000); // Give time for delete thread to execute before mock verify
     }
 
     /*

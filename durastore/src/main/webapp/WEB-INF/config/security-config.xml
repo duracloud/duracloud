@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:aop="http://www.springframework.org/schema/aop"
              xmlns="http://www.springframework.org/schema/security"
              xsi:schemaLocation="
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
            http://www.springframework.org/schema/security
-           http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+           http://www.springframework.org/schema/security/spring-security-4.0.xsd">
 
   <!--
     A lot of Spring conventions here.
@@ -16,10 +19,8 @@
       various servlet filters (including basic-auth, anonymous, and exception-translation)
    -->
   <http access-decision-manager-ref="duraAccessDecisionManager"
-        realm="DuraCloud:DuraStore" >
-    <intercept-url pattern="/security" access="ROLE_ROOT"/>
-    <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS, ROLE_USER"/>
-    <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
+        realm="DuraCloud:DuraStore" use-expressions="false">
+    <csrf disabled="true"/>
 
     <!-- no one should be adding the 'acl' space, not even ROOT -->
     <intercept-url pattern="/acl" method="PUT" access="ROLE_ROOT"/>
@@ -38,9 +39,17 @@
     <intercept-url pattern="/task/get-snapshot-contents" access="ROLE_USER"/>
     <intercept-url pattern="/task/get-restore"  access="ROLE_USER"/>
     <intercept-url pattern="/task/get-url"  access="ROLE_USER"/>
+    <intercept-url pattern="/task/get-signed-url"  access="ROLE_USER"/>
+    <intercept-url pattern="/task" access="ROLE_USER"/>
     <intercept-url pattern="/task/*" access="ROLE_ADMIN"/>
     <intercept-url pattern="/stores" method="GET" access="ROLE_USER"/>
     <intercept-url pattern="/stores" method="POST" access="ROLE_ROOT"/>
+    <intercept-url pattern="/report/store" method="GET" access="ROLE_USER"/>
+    <intercept-url pattern="/report/store/*" method="GET" access="ROLE_USER"/>
+    <intercept-url pattern="/report/space/*" method="GET" access="ROLE_USER"/>
+    <intercept-url pattern="/manifest/*" method="GET" access="ROLE_USER"/>
+    <intercept-url pattern="/bit-integrity/*" method="GET" access="ROLE_USER"/>
+    <intercept-url pattern="/audit/*" method="GET" access="ROLE_ADMIN"/>
 
     <!--
       Set initial access as if all spaces are 'open'.
@@ -76,14 +85,14 @@
 
   <beans:bean id="duraAccessDecisionManager" class="org.duracloud.security.vote.AccessDecisionManagerImpl">
     <beans:property name="allowIfAllAbstainDecisions" value="false"/>
-    <beans:property name="decisionVoters">
+    <beans:constructor-arg name="decisionVoters">
       <beans:list>
         <beans:ref bean="spaceReadAccessVoter"/>
         <beans:ref bean="spaceWriteAccessVoter"/>
         <beans:bean class="org.duracloud.security.vote.RoleVoterImpl" />
         <beans:bean class="org.duracloud.security.vote.UserIpLimitsAccessVoter" />
       </beans:list>
-    </beans:property>
+    </beans:constructor-arg>
   </beans:bean>
 
   <!-- AuthN Manager -->
@@ -94,8 +103,16 @@
     <authentication-provider user-service-ref="userDetailsSvc" />
   </authentication-manager>
 
-  <beans:bean id="userDetailsSvc" class="org.duracloud.security.impl.UserDetailsServiceImpl">
+  <beans:bean id="userDetailsServiceCache" class="org.duracloud.security.impl.UserDetailsServiceCache">
+    <beans:constructor-arg ref="accountRepo" />
+    <beans:constructor-arg ref="userFinderUtil"/>
   </beans:bean>
+  
+  <beans:bean id="userDetailsSvc"  class="org.duracloud.security.impl.UserDetailsServiceFactoryBean" lazy-init="true" scope="request">
+    <beans:property name="userDetailsServiceCache" ref="userDetailsServiceCache" />
+    <aop:scoped-proxy />
+  </beans:bean>
+  
 
   <beans:bean id="passwordEncoder"
     class="org.springframework.security.authentication.encoding.ShaPasswordEncoder" >

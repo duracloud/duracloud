@@ -7,10 +7,24 @@
  */
 package org.duracloud.client;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpStatus;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.http.Header;
+import org.apache.http.HttpStatus;
 import org.duracloud.common.constant.ManifestFormat;
+import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.retry.ExceptionHandler;
 import org.duracloud.common.retry.Retriable;
@@ -40,17 +54,6 @@ import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 
@@ -609,10 +612,11 @@ public class ContentStoreImpl implements ContentStore {
         }
         
         try {
+            
             HttpResponse response = restHelper.put(url,
                                                    content,
-                                                   String.valueOf(contentSize),
                                                    contentMimeType,
+                                                   contentSize,
                                                    headers);
             checkResponse(response, HttpStatus.SC_CREATED);
             Header checksum =
@@ -1253,6 +1257,99 @@ public class ContentStoreImpl implements ContentStore {
         return properties;
     }
     
+    
+    @Override
+    public SpaceStatsDTOList getSpaceStats(String spaceId, Date start, Date end)
+        throws ContentStoreException {
+        String url = buildSpaceStatsURL(spaceId, start, end);
+        try {
+            HttpResponse response = restHelper.get(url);
+            checkResponse(response, HttpStatus.SC_OK);
+            String body = response.getResponseBody();
+            JaxbJsonSerializer<SpaceStatsDTOList> serializer = new JaxbJsonSerializer<>(SpaceStatsDTOList.class);
+            return serializer.deserialize(body);
+        } catch(NotFoundException e) {
+            throw new NotFoundException("spaceId = " + spaceId);
+        } catch(UnauthorizedException e) {
+            throw new UnauthorizedException(spaceId, e);
+        } catch (Exception e) {
+            throw new ContentStoreException("failed to retrieve space stats for " + spaceId, e);
+        }
+    }
+
+    private String buildSpaceStatsURL(String spaceId, Date start, Date end) {
+        String url = buildURL("/report/space/" + spaceId);
+        
+        if(start != null){
+            url = addQueryParameter(url, "start", start.getTime()+"");
+        }
+        
+        if(end != null){
+            url = addQueryParameter(url, "end", end.getTime()+"");
+        }
+        
+        url = addStoreIdQueryParameter(url);
+        return url;
+    }
+
+    @Override
+    public SpaceStatsDTOList getStorageProviderStats(Date start, Date end)
+        throws ContentStoreException {
+        String url = buildStorageProviderStatsURL(start, end);
+        try {
+            HttpResponse response = restHelper.get(url);
+            checkResponse(response, HttpStatus.SC_OK);
+            String body = response.getResponseBody();
+            JaxbJsonSerializer<SpaceStatsDTOList> serializer = new JaxbJsonSerializer<>(SpaceStatsDTOList.class);
+            return serializer.deserialize(body);
+        } catch(NotFoundException e) {
+            throw new NotFoundException("storeId = " + getStoreId());
+        } catch(UnauthorizedException e) {
+            throw new UnauthorizedException(getStoreId(), e);
+        } catch (Exception e) {
+            throw new ContentStoreException("failed to retrieve storage provider stats for " + getStoreId(), e);
+        }
+    }
+
+    
+    private String buildStorageProviderStatsURL(Date start, Date end) {
+        String url = buildURL("/report/store");
+        
+        if(start != null){
+            url = addQueryParameter(url, "start", start.getTime()+"");
+        }
+        
+        if(end != null){
+            url = addQueryParameter(url, "end", end.getTime()+"");
+        }
+        
+        url = addStoreIdQueryParameter(url);
+        return url;
+    }
+    
+    @Override
+    public SpaceStatsDTOList getStorageProviderStatsByDay(Date date)
+        throws ContentStoreException {
+        String url = buildStorageProviderStatsURL(date);
+        try {
+            HttpResponse response = restHelper.get(url);
+            checkResponse(response, HttpStatus.SC_OK);
+            String body = response.getResponseBody();
+            JaxbJsonSerializer<SpaceStatsDTOList> serializer = new JaxbJsonSerializer<>(SpaceStatsDTOList.class);
+            return serializer.deserialize(body);
+        } catch(UnauthorizedException e) {
+            throw new UnauthorizedException(storeId, e);
+        } catch (Exception e) {
+            throw new ContentStoreException("failed to retrieve storage provider stats for " + storeId, e);
+        }
+    }
+    
+    private String buildStorageProviderStatsURL(Date date) {
+        String url = buildURL("/report/store/"+date.getTime());
+        url = addStoreIdQueryParameter(url);
+        return url;
+    }
+
     @Override
     public String toString() {
         return ReflectionToStringBuilder.toString(this);

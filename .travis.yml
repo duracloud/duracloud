@@ -7,9 +7,30 @@ notifications:
       - cibuilds@duracloud.org
     on_success: change
     on_failure: always
-  slack: duraspace:vOBySuKUwM95j2kfbwh0SNxq    
+  slack: duraspace:vOBySuKUwM95j2kfbwh0SNxq
 install:
   - mvn install -DskipTests -DskipDeploy
 script:
   - mvn test -DskipIntTests
 sudo: false
+deploy:
+  - provider: s3
+    access_key_id: $ARTIFACTS_KEY
+    secret_access_key: $ARTIFACTS_SECRET
+    bucket: $ARTIFACTS_BUCKET
+    region: $ARTIFACTS_REGION
+    skip_cleanup: true
+    local_dir: $TRAVIS_BUILD_DIR/target
+    upload-dir: duracloud/master
+    on:
+      branch: master
+  - provider: s3
+    access_key_id: $ARTIFACTS_KEY
+    secret_access_key: $ARTIFACTS_SECRET
+    bucket: $ARTIFACTS_BUCKET
+    region: $ARTIFACTS_REGION
+    skip_cleanup: true
+    local_dir: $TRAVIS_BUILD_DIR/target
+    upload-dir: duracloud/develop
+    on:
+      branch: develop

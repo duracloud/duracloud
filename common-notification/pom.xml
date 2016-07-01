@@ -4,23 +4,17 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>common-notification</artifactId>
-  <version>3.7.4</version>
+  <version>4.0.0</version>
   <name>Common Notification</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>3.7.4</version>
+    <version>4.0.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <dependencies>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>app-config</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>

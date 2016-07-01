@@ -24,7 +24,7 @@
   <bean id="multipartResolver"
         class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
    -->
-  <context:component-scan base-package="org.duracloud.duradmin,org.duracloud.mill" >
+  <context:component-scan base-package="org.duracloud.duradmin,org.duracloud.mill,org.duracloud.account,org.duracloud.common.sns" >
   </context:component-scan>
   <mvc:annotation-driven/>  
   

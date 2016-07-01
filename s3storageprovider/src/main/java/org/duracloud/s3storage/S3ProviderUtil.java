@@ -11,8 +11,15 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
-import org.duracloud.storage.error.StorageException;
+import com.amazonaws.services.s3.AmazonS3URI;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 
+import org.duracloud.storage.error.StorageException;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -108,4 +115,18 @@ public class S3ProviderUtil {
         return bucketName;
     }  
 
+    /**
+     * 
+     * @param s3Url using the s3://bucket/object syntax.
+     * @return
+     * @throws IOException
+     */
+    public static Resource getS3ObjectByUrl(String s3Url) throws IOException {
+        AmazonS3Client client = new AmazonS3Client();
+        AmazonS3URI s3Uri = new AmazonS3URI(s3Url);
+        S3Object s3Obj = client.getObject(new GetObjectRequest(s3Uri.getBucket(), s3Uri.getKey()));
+        s3Obj.getObjectContent();
+        Resource resource =   new InputStreamResource(s3Obj.getObjectContent());
+        return resource;
+    }
 }

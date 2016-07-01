@@ -7,7 +7,8 @@
  */
 package org.duracloud.durastore.util;
 
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
+import static org.duracloud.storage.provider.StorageProvider.*;
+import static org.easymock.EasyMock.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,17 +18,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.rest.DuraCloudRequestContextUtil;
+import org.duracloud.common.sns.AccountChangeNotifier;
+import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
-import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -49,13 +52,18 @@ public class ACLStorageProviderErrorTest {
     private static final String spacePrefix = "space-";
     private int NUM_SPACES = 5;
 
-
+    private SecurityContextUtil securityContextUtil = new SecurityContextUtil();
+    private AccountChangeNotifier notifier; 
+    private DuraCloudRequestContextUtil contextUtil;
+    
     @Before
     public void setUp() throws Exception {
         mockProvider = createMockStorageProvider();
-        context = EasyMock.createMock("SecurityContext", SecurityContext.class);
+        context = createMock("SecurityContext", SecurityContext.class);
+        contextUtil = createMock("DuraCloudRequestContextUtil", DuraCloudRequestContextUtil.class);
+        notifier = createMock("AccountChangeNotifier", AccountChangeNotifier.class);
 
-        authorities = new GrantedAuthority[]{new GrantedAuthorityImpl(
+        authorities = new GrantedAuthority[]{new SimpleGrantedAuthority(
             "ROLE_USER")};
         groups = new ArrayList<String>();
         groups.add(group);
@@ -63,22 +71,22 @@ public class ACLStorageProviderErrorTest {
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(mockProvider, context);
+        verify(mockProvider, context,contextUtil, notifier);
         SecurityContextHolder.clearContext();
     }
 
     private void replayMocks() {
-        EasyMock.replay(mockProvider, context);
+        replay(mockProvider, context, contextUtil, notifier);
     }
 
     private StorageProvider createMockStorageProvider() {
-        mockProvider = EasyMock.createMock("StorageProvider",
+        mockProvider = createMock("StorageProvider",
                                            StorageProvider.class);
-        EasyMock.expect(mockProvider.getSpaces())
+        expect(mockProvider.getSpaces())
                 .andReturn(allSpaces().iterator());
 
         for (String space : allSpaces()) {
-            EasyMock.expect(mockProvider.getSpaceACLs(space))
+            expect(mockProvider.getSpaceACLs(space))
                     .andReturn(aclMap());
         }
         return mockProvider;
@@ -99,7 +107,7 @@ public class ACLStorageProviderErrorTest {
     }
 
     private void createMockSecurityContext() {
-        Authentication auth = EasyMock.createMock("Authentication",
+        Authentication auth = createMock("Authentication",
                                                   Authentication.class);
         DuracloudUserDetails userDetails = new DuracloudUserDetails(username,
                                                                     "password",
@@ -111,9 +119,9 @@ public class ACLStorageProviderErrorTest {
                                                                     true,
                                                                     Arrays.asList(authorities),
                                                                     groups);
-        EasyMock.expect(auth.getPrincipal()).andReturn(userDetails).anyTimes();
-        EasyMock.replay(auth);
-        EasyMock.expect(context.getAuthentication()).andReturn(auth).anyTimes();
+        expect(auth.getPrincipal()).andReturn(userDetails).anyTimes();
+        replay(auth);
+        expect(context.getAuthentication()).andReturn(auth).anyTimes();
 
         SecurityContextHolder.setContext(context);
     }
@@ -124,12 +132,12 @@ public class ACLStorageProviderErrorTest {
 
         String spaceId = spacePrefix + 2;
         mockProvider.createSpace(spaceId);
-        EasyMock.expectLastCall().andThrow(new StorageException("test"));
+        expectLastCall().andThrow(new StorageException("test"));
 
         replayMocks();
 
         // verify original state
-        ACLStorageProvider provider = new ACLStorageProvider(mockProvider);
+        ACLStorageProvider provider = createProvider();
         verifyProviderState(provider);
 
         // method under test
@@ -143,6 +151,15 @@ public class ACLStorageProviderErrorTest {
 
         // verify state has not changed
         verifyProviderState(provider);
+    }
+
+    protected ACLStorageProvider createProvider() {
+        ACLStorageProvider provider =
+            new ACLStorageProvider(mockProvider,
+                                   securityContextUtil,
+                                   notifier,
+                                   contextUtil);
+        return provider;
     }
 
     private void verifyProviderState(ACLStorageProvider provider) {
@@ -169,12 +186,12 @@ public class ACLStorageProviderErrorTest {
 
         String spaceId = spacePrefix + 2;
         mockProvider.deleteSpace(spaceId);
-        EasyMock.expectLastCall().andThrow(new StorageException("test"));
+        expectLastCall().andThrow(new StorageException("test"));
 
         replayMocks();
 
         // verify original state
-        ACLStorageProvider provider = new ACLStorageProvider(mockProvider);
+        ACLStorageProvider provider = createProvider();
         verifyProviderState(provider);
 
         // method under test
@@ -200,12 +217,12 @@ public class ACLStorageProviderErrorTest {
         Map<String, AclType> acls = new HashMap<String, AclType>();
         acls.put(PROPERTIES_SPACE_ACL + "some-user", AclType.WRITE);
         mockProvider.setSpaceACLs(spaceId, acls);
-        EasyMock.expectLastCall().andThrow(new StorageException("test"));
+        expectLastCall().andThrow(new StorageException("test"));
 
         replayMocks();
 
         // verify original state
-        ACLStorageProvider provider = new ACLStorageProvider(mockProvider);
+        ACLStorageProvider provider = createProvider();
         verifyProviderState(provider);
 
         // method under test

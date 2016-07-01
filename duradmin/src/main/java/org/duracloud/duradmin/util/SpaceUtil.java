@@ -7,7 +7,7 @@
  */
 package org.duracloud.duradmin.util;
 
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.constant.Constants;
@@ -79,7 +79,6 @@ public class SpaceUtil {
         }
         space.setCallerAcl(aclName);
 
-        
         space.setMillDbEnabled(DuradminConfig.isMillDbEnabled());
         
         return space;
@@ -180,7 +179,7 @@ public class SpaceUtil {
             response.setContentType(mimetype);
 
            if(contentLength != null){
-               response.setContentLength(Integer.parseInt(contentLength));
+               response.setContentLengthLong(Long.parseLong(contentLength));
            }
            byte[] buf = new byte[1024];
            int read = -1;

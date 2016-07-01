@@ -63,18 +63,6 @@
     <property name="pattern" value=".*TaskProvider.*[.]performTask"/>
   </bean>
 
-  <bean id="taskProviderFactory" class="org.duracloud.durastore.aop.AOPTaskProviderFactoryDecorator">
-    <constructor-arg ref="taskProviderFactoryImpl"/>
-    <constructor-arg>
-        <list>
-            <ref bean="snapshotAccessAdvisor"/>
-            <ref bean="streamingAccessAdvisor"/>
-        </list>
-    </constructor-arg>
-  </bean>
-  
-  
-
   <!-- Enables Auto-AOP Proxy Creation -->
   <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
   

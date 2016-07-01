@@ -4,14 +4,14 @@
   <groupId>org.duracloud</groupId>
   <artifactId>durastore</artifactId>
   <packaging>war</packaging>
-  <version>3.7.4</version>
+  <version>4.0.0</version>
   <name>DuraCloud DuraStore</name>
   <url>http://localhost:8080/${project.artifactId}</url>
 
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>3.7.4</version>
+    <version>4.0.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -36,6 +36,35 @@
         </executions>
       </plugin>
 
+      <!-- Copies built WAR to top level target dir for automated deploy -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.10</version>
+        <executions>
+          <execution>
+            <id>copy-build-artifact</id>
+            <phase>install</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>${project.version}</version>
+                  <type>war</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.basedir}/../target</outputDirectory>
+              <stripVersion>true</stripVersion>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
 
   </build>
@@ -51,13 +80,19 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>common-rest</artifactId>
+      <artifactId>common-aop</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>common-aop</artifactId>
+      <artifactId>common-db</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-rest</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -74,10 +109,32 @@
     </dependency>
 
     <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-cache</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-sns</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.duracloud.db</groupId>
       <artifactId>mill-db-repo</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.duracloud.db</groupId>
+      <artifactId>account-management-db-repo</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud.db</groupId>
+      <artifactId>account-management-db-model</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>manifest</artifactId>
@@ -201,11 +258,6 @@
 
     <!-- for Jersey -->
     <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.glassfish.jersey.core</groupId>
       <artifactId>jersey-server</artifactId>
     </dependency>
@@ -228,7 +280,7 @@
 
     <dependency>
       <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk</artifactId>
+      <artifactId>aws-java-sdk-s3</artifactId>
     </dependency>
 
     <dependency>
@@ -244,6 +296,11 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-dbcp2</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.jaxrs</groupId>
+      <artifactId>jackson-jaxrs-json-provider</artifactId>
     </dependency>
 
   </dependencies>
