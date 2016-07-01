@@ -44,16 +44,6 @@
     </dependency>
     
     <dependency>
-      <groupId>org.duracloud.db</groupId>
-      <artifactId>account-management-db-repo</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud.db</groupId>
-      <artifactId>account-management-db-model</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common-json</artifactId>
       <version>${project.version}</version>
@@ -120,12 +110,10 @@
       <artifactId>spring-security-core</artifactId>
     </dependency>
 
-
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
     </dependency>
-
 
     <dependency>
       <groupId>stax</groupId>
