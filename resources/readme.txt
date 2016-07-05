@@ -5,7 +5,6 @@
 This package should include the following:
 a. war files
 -- durastore.war
--- duraboss.war
 -- duradmin.war
 
 b. readme.txt (this)
