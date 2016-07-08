@@ -495,7 +495,7 @@
               <resources>
                 <resource>
                   <directory>resources/beanstalk</directory>
-                  <filtering>false</filtering>
+                  <filtering>true</filtering>
                 </resource>
               </resources>
             </configuration>
