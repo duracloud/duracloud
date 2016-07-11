@@ -230,6 +230,7 @@
   </profiles>
 
   <properties>
+    <duracloud.home>/tmp/duracloud-home</duracloud.home>
     <tomcat.port.default>8080</tomcat.port.default>
     <tomcat.port>${tomcat.port.default}</tomcat.port>
     <database.home>${database.home.default}</database.home>
