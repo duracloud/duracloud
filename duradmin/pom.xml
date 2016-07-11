@@ -190,12 +190,6 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>securitycache</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
       <artifactId>storeclient</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -238,6 +232,11 @@
     <dependency>
       <groupId>org.duracloud.db</groupId>
       <artifactId>mill-db-repo</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud.db</groupId>
+      <artifactId>account-management-db-model</artifactId>
     </dependency>
 
     <dependency>

@@ -41,8 +41,12 @@
 
     <dependency>
       <groupId>org.duracloud.db</groupId>
+      <artifactId>account-management-db-model</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud.db</groupId>
       <artifactId>mill-db-repo</artifactId>
-      <version>${duracloud.db.version}</version>
     </dependency>
 
     <dependency>

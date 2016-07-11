@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
 import org.duracloud.client.HttpHeaders;
