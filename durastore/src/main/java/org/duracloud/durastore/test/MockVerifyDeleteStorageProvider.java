@@ -8,6 +8,7 @@
 package org.duracloud.durastore.test;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 
@@ -26,6 +27,11 @@ public class MockVerifyDeleteStorageProvider implements StorageProvider {
 
     private static int getSpacePropertiesAttempts = 0;
     private static String lastFailedSpacePropertiesId;
+
+    @Override
+    public StorageProviderType getStorageProviderType() {
+        return null;
+    }
 
     public Iterator<String> getSpaces() {
         // Default method body

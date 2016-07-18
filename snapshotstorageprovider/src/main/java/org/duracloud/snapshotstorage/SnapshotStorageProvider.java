@@ -11,6 +11,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StoragePolicy;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ import java.util.Map;
  * @author Bill Branan
  *         Date: 1/28/14
  */
-public class SnapshotStorageProvider extends S3StorageProvider {
+public abstract class SnapshotStorageProvider extends S3StorageProvider {
 
     private final Logger log =
         LoggerFactory.getLogger(SnapshotStorageProvider.class);
@@ -44,6 +45,7 @@ public class SnapshotStorageProvider extends S3StorageProvider {
          super(s3Client, accessKey, options);
     }
 
+    @Override
     protected StoragePolicy getStoragePolicy() {
         return null; // no transition policy, leaving content in S3 standard
     }

@@ -8,6 +8,7 @@
 package org.duracloud.storage.provider;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 
@@ -64,6 +65,13 @@ public interface StorageProvider {
     public static final long DEFAULT_MAX_RESULTS = 10000;
     public static final String PROPERTIES_STREAMING_HOST = "streaming-host";
     public static final String PROPERTIES_STREAMING_TYPE = "streaming-type";
+
+    /**
+     * Provides the type of storage provider being used.
+     *
+     * @return StorageProviderType type of provider
+     */
+    public StorageProviderType getStorageProviderType();
 
     /**
      * Provides a listing of all spaces owned by a customer.

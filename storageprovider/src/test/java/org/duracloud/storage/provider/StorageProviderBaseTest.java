@@ -8,6 +8,7 @@
 package org.duracloud.storage.provider;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -471,6 +472,10 @@ public class StorageProviderBaseTest {
         public StorageProviderBaseImpl(StorageProviderBase mock) {
             super();
             this.mock = mock;
+        }
+
+        public StorageProviderType getStorageProviderType() {
+            return mock.getStorageProviderType();
         }
 
         protected boolean spaceExists(String spaceId) {

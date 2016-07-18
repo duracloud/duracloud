@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Bill Branan
@@ -34,7 +35,7 @@ public class SnapshotStorageProviderTest {
     @Before
     public void setup() {
         s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
-        provider = new SnapshotStorageProvider(s3Client, accessKey, null);
+        provider = new TestableSnapshotStorageProvider(s3Client, accessKey, null);
     }
 
     @After
@@ -56,5 +57,18 @@ public class SnapshotStorageProviderTest {
 
         String bucketName = provider.getBucketName(spaceId);
         Assert.assertEquals(accessKey + "." + spaceId, bucketName);
+    }
+
+    @Test
+    public void testGetStoragePolicy() {
+        replayMocks();
+        Assert.assertNull(provider.getStoragePolicy());
+    }
+
+    private class TestableSnapshotStorageProvider extends SnapshotStorageProvider {
+        public TestableSnapshotStorageProvider(AmazonS3Client s3Client, String accessKey,
+                                               Map<String, String> options) {
+            super(s3Client, accessKey, options);
+        }
     }
 }

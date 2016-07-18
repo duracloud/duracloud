@@ -35,6 +35,7 @@ import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
@@ -91,6 +92,14 @@ public class S3StorageProvider extends StorageProviderBase {
                              Map<String, String> options) {
         this.accessKeyId = accessKey;
         this.s3Client = s3Client;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public StorageProviderType getStorageProviderType() {
+        return StorageProviderType.AMAZON_S3;
     }
 
     /**

@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>storeclient</artifactId>
-  <version>4.0.0</version>
+  <version>4.1.0</version>
   <name>StoreClient</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>4.0.0</version>
+    <version>4.1.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -88,6 +88,11 @@
       <groupId>org.duracloud</groupId>
       <artifactId>snapshotdata</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud.db</groupId>
+      <artifactId>account-management-db-model</artifactId>
     </dependency>
 
     <dependency>

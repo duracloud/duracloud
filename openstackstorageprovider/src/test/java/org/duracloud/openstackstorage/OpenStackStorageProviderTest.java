@@ -7,6 +7,7 @@
  */
 package org.duracloud.openstackstorage;
 
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -150,6 +151,11 @@ public class OpenStackStorageProviderTest {
     public class OpenStackTestProvider extends OpenStackStorageProvider {
         public OpenStackTestProvider(SwiftClient swiftClient) {
             super(swiftClient);
+        }
+
+        @Override
+        public StorageProviderType getStorageProviderType() {
+            return null;
         }
 
         @Override

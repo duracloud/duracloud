@@ -323,7 +323,8 @@ $(function(){
 		spNameMap["AMAZON_GLACIER"] = "Amazon Glacier";
 		spNameMap["RACKSPACE"] = "Rackspace";
 		spNameMap["SDSC"] = "SDSC";
-		spNameMap["SNAPSHOT"] = "Snapshot";
+		spNameMap["DPN"] = "DPN";
+		spNameMap["CHRONOPOLIS"] = "Chronopolis";
 		spNameMap["IRODS"] = "iRODS";
 		dc.STORAGE_PROVIDER_KEY_MAP = spNameMap;
 

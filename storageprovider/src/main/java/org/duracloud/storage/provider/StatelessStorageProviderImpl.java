@@ -8,6 +8,7 @@
 package org.duracloud.storage.provider;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 
 import java.io.InputStream;
@@ -17,6 +18,11 @@ import java.util.Map;
 
 public class StatelessStorageProviderImpl
         implements StatelessStorageProvider {
+
+    @Override
+    public StorageProviderType getStorageProviderType(StorageProvider targetProvider) {
+        return targetProvider.getStorageProviderType();
+    }
 
     /**
      * {@inheritDoc}

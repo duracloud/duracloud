@@ -4,14 +4,14 @@
   <groupId>org.duracloud</groupId>
   <artifactId>durastore</artifactId>
   <packaging>war</packaging>
-  <version>4.0.0</version>
+  <version>4.1.0</version>
   <name>DuraCloud DuraStore</name>
   <url>http://localhost:8080/${project.artifactId}</url>
 
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>4.0.0</version>
+    <version>4.1.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -99,12 +99,6 @@
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>security</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>securitycache</artifactId>
       <version>${project.version}</version>
     </dependency>
 

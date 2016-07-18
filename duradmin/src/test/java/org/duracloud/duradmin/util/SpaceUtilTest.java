@@ -156,7 +156,7 @@ public class SpaceUtilTest {
     public void testSnashotInProgress() throws Exception{
         Map<String,String> map = new HashMap<String,String>();
         map.put(Constants.SNAPSHOT_ID_PROP, "test");
-        expectGetStorageProviderType(StorageProviderType.SNAPSHOT);
+        expectGetStorageProviderType(StorageProviderType.DPN);
         EasyMock.expect(this.contentStore.getSpaceProperties(
                                                EasyMock.isA(String.class)))
                                           .andReturn(map);

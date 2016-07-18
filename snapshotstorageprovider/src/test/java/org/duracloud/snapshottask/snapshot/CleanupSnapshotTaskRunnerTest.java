@@ -24,6 +24,7 @@ import org.duracloud.common.queue.task.Task;
 import org.duracloud.mill.db.model.ManifestItem;
 import org.duracloud.mill.manifest.ManifestStore;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMockSupport;
@@ -110,7 +111,10 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
         expect(manifestStore.getItems(account, storeId, spaceId)).andReturn(it);
 
         Capture<Set<Task>> taskCapture = new Capture<>();
-        
+
+        expect(unwrappedSnapshotProvider.getStorageProviderType())
+            .andReturn(StorageProviderType.AMAZON_S3);
+
         auditQueue.put(capture(taskCapture));
         expectLastCall();
         Authentication auth = createMock(Authentication.class);

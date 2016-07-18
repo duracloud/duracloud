@@ -8,6 +8,7 @@
 package org.duracloud.storage.provider;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.util.StorageProviderUtil;

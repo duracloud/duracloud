@@ -8,6 +8,7 @@
 package org.duracloud.durastore.test;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 
@@ -26,6 +27,11 @@ import java.util.Map;
 public class MockRetryStorageProvider implements StorageProvider {
 
     private static int getSpaceContentsAttempts = 0;
+
+    @Override
+    public StorageProviderType getStorageProviderType() {
+        return null;
+    }
 
     public Iterator<String> getSpaces() {
         throw new StorageException("getSpaces is not retried",

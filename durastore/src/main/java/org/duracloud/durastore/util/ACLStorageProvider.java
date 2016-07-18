@@ -23,6 +23,7 @@ import org.duracloud.common.sns.AccountChangeNotifier;
 import org.duracloud.common.util.AccountIdUtil;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.impl.DuracloudUserDetails;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
@@ -129,6 +130,11 @@ public class ACLStorageProvider implements StorageProvider {
                 // do nothing
             }
         }
+    }
+
+    @Override
+    public StorageProviderType getStorageProviderType() {
+        return targetProvider.getStorageProviderType();
     }
 
     /**

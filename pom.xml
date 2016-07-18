@@ -5,7 +5,7 @@
   <groupId>org.duracloud</groupId>
   <artifactId>duracloud</artifactId>
   <packaging>pom</packaging>
-  <version>4.0.0</version>
+  <version>4.1.0</version>
   <name>DuraCloud</name>
   <description>Cloud-based digital content preservation system</description>
   <url>http://duracloud.org</url>
@@ -67,7 +67,6 @@
     <module>storageprovider</module>
     <module>storeclient</module>
     <module>security</module>
-    <module>securitycache</module>
     <module>storageproviderdata</module>
     <module>s3storageprovider</module>
     <module>glacierstorageprovider</module>
@@ -230,6 +229,7 @@
   </profiles>
 
   <properties>
+    <duracloud.home>/tmp/duracloud-home</duracloud.home>
     <tomcat.port.default>8080</tomcat.port.default>
     <tomcat.port>${tomcat.port.default}</tomcat.port>
     <database.home>${database.home.default}</database.home>
@@ -240,7 +240,7 @@
     <log.level.default>INFO</log.level.default>
     <log.level>${log.level.default}</log.level>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <duracloud.db.version>4.0.0</duracloud.db.version>
+    <duracloud.db.version>4.0.2</duracloud.db.version>
     <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
     <org.springframework.security.version>4.0.4.RELEASE</org.springframework.security.version>
     <org.springframework.webflow.version>2.4.2.RELEASE</org.springframework.webflow.version>
@@ -495,7 +495,7 @@
               <resources>
                 <resource>
                   <directory>resources/beanstalk</directory>
-                  <filtering>false</filtering>
+                  <filtering>true</filtering>
                 </resource>
               </resources>
             </configuration>

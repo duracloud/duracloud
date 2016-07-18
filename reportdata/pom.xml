@@ -3,14 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>reportdata</artifactId>
-  <version>4.0.0</version>
+  <version>4.1.0</version>
   <name>DuraCloud Report Data</name>
   <url>http://localhost:8080/${project.artifactId}</url>
 
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>4.0.0</version>
+    <version>4.1.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -49,6 +49,11 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud.db</groupId>
+      <artifactId>account-management-db-model</artifactId>
     </dependency>
 
   </dependencies>

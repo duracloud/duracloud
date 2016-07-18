@@ -16,6 +16,7 @@ import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.StorageClass;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageStateException;
 import org.easymock.Capture;
@@ -61,6 +62,16 @@ public class GlacierStorageProviderTest {
     @After
     public void tearDown() throws IOException {
         EasyMock.verify(s3Client);
+    }
+
+    @Test
+    public void testGetStorageProviderType() {
+        EasyMock.replay(s3Client);
+
+        GlacierStorageProvider provider =
+            new GlacierStorageProvider("accessKey", "secretKey");
+        assertEquals(StorageProviderType.AMAZON_GLACIER,
+                     provider.getStorageProviderType());
     }
 
     @Test

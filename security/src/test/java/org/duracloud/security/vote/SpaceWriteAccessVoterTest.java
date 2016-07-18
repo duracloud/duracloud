@@ -280,7 +280,7 @@ public class SpaceWriteAccessVoterTest {
             new StorageAccountImpl(storeId,
                                    "test",
                                    "test",
-                                   StorageProviderType.SNAPSHOT);
+                                   StorageProviderType.DPN);
         accounts.add(account);
 
         Map<String, String> spaceProps = new HashMap<>();

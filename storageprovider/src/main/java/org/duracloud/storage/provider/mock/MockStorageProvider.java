@@ -8,6 +8,7 @@
 package org.duracloud.storage.provider.mock;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 
@@ -45,6 +46,11 @@ public class MockStorageProvider
 
     public MockStorageProvider() {
         spaceProperties = new HashMap<>();
+    }
+
+    @Override
+    public StorageProviderType getStorageProviderType() {
+        return StorageProviderType.UNKNOWN;
     }
 
     public String addContent(String spaceId,

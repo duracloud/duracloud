@@ -283,7 +283,7 @@ $(function() {
     _isSnapshot : function(storeId) {
       var ischron = false;
       $.each(storeProviders, function(i, provider) {
-        if (storeId == provider.id && provider.type == 'snapshot') {
+        if (storeId == provider.id && (provider.type == 'dpn' || provider.type == 'chronopolis')) {
           ischron = true;
           return false;
         }

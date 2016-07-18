@@ -14,6 +14,7 @@ import org.duracloud.common.model.AclType;
 import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.common.queue.task.Task;
 import org.duracloud.common.util.UserUtil;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -82,6 +83,14 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     }
 
     // Test pass-through methods
+
+    @Test
+    public void testGetStorageProviderType() throws Exception {
+        EasyMock.expect(targetProvider.getStorageProviderType())
+                .andReturn(StorageProviderType.AMAZON_S3);
+        replayAll();
+        assertEquals(StorageProviderType.AMAZON_S3, provider.getStorageProviderType());
+    }
 
     @Test
     public void testGetSpaces() throws Exception {
