@@ -7,6 +7,7 @@
  */
 package org.duracloud.chunk.writer;
 
+import org.apache.commons.io.FileUtils;
 import org.duracloud.chunk.ChunkableContent;
 import org.duracloud.chunk.error.ContentNotAddedException;
 import org.duracloud.chunk.error.NotFoundException;
@@ -14,12 +15,18 @@ import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.stream.ChunkInputStream;
 import org.duracloud.chunk.stream.KnownLengthInputStream;
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.retry.Retrier;
+import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.IOUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +50,7 @@ public class DuracloudContentWriter implements ContentWriter {
     private String username;
     private Set<String> existingSpaces = new HashSet<String>();
     private List<AddContentResult> results = new ArrayList<AddContentResult>();
+    private ChecksumUtil checksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
 
     // if true, skip writing results and throw exception when errors occur
     private boolean throwOnError = false;
@@ -88,7 +96,7 @@ public class DuracloudContentWriter implements ContentWriter {
         createSpaceIfNotExist(spaceId);
 
         for (ChunkInputStream chunk : chunkable) {
-            writeSingle(spaceId, null, chunk, null);
+            writeChunk(spaceId, chunk);
         }
 
         ChunksManifest manifest = chunkable.finalizeManifest();
@@ -98,15 +106,92 @@ public class DuracloudContentWriter implements ContentWriter {
         return manifest;
     }
 
+    /*
+     * Writes chunk to DuraCloud if it does not already exist in DuraCloud with a
+     * matching checksum. Retry failed transfers.
+     */
+    private void writeChunk(String spaceId, ChunkInputStream chunk)
+        throws NotFoundException {
+        // Write chunk as a temp file
+        String chunkId = chunk.getChunkId();
+        File chunkFile = IOUtil.writeStreamToFile(chunk);
+        int maxRetries = 5;
+
+        try {
+            String chunkChecksum = getChunkChecksum(chunkFile);
+
+            // Write chunk if it is not already in storage
+            if (!chunkInStorage(spaceId, chunkId, chunkChecksum)) {
+                try {
+                    new Retrier(maxRetries).execute(() -> {
+                        try(InputStream chunkStream = new FileInputStream(chunkFile)) {
+                            ChunkInputStream chunkFileStream =
+                                new ChunkInputStream(chunkId,
+                                                     chunkStream,
+                                                     chunkFile.length(),
+                                                     chunk.md5Preserved());
+                            writeSingle(spaceId, chunkChecksum, chunkFileStream);
+                        }
+                        return "";
+                    });
+                } catch (Exception e) {
+                    String err = "Failed to store chunk with ID " + chunkId +
+                                 " in space " + spaceId + " after " + maxRetries +
+                                 " attempts. Last error: " + e.getMessage();
+                    throw new DuraCloudRuntimeException(err, e);
+                }
+            }
+        } finally {
+            if(null != chunkFile && chunkFile.exists()) {
+                FileUtils.deleteQuietly(chunkFile);
+            }
+        }
+    }
+
+    /*
+     * Determine the checksum of the chunk file
+     */
+    private String getChunkChecksum(File chunkFile) {
+        try {
+            return checksumUtil.generateChecksum(chunkFile);
+        } catch(IOException e) {
+            throw new DuraCloudRuntimeException("Unable to generate checksum for file " +
+                                                chunkFile + " due to: " + e.getMessage());
+        }
+    }
+
+    protected void setChecksumUtil(ChecksumUtil checksumUtil) {
+        this.checksumUtil = checksumUtil;
+    }
+
+    /*
+     * Determines if a file chunk exists in DuraCloud storage with the given checksum
+     */
+    private boolean chunkInStorage(String spaceId, String contentId, String checksum) {
+        try {
+            if(contentStore.contentExists(spaceId, contentId)) { // dc file exists
+                Map<String, String> props =
+                    contentStore.getContentProperties(spaceId, contentId);
+                String dcChecksum = props.get(ContentStore.CONTENT_CHECKSUM);
+                if(null != checksum && null != dcChecksum && checksum.equals(dcChecksum)) {
+                    return true; // File with matching checksum already in DuraCloud
+                } else {
+                    return false; // File exists in DuraCloud, but checksums don't match
+                }
+            } else {
+                return false; // File does not exist in DuraCloud
+            }
+        } catch (ContentStoreException e) {
+            return false; // File does not exist in DuraCloud
+        }
+    }
+
     @Override
     public ChunksManifest write(String spaceId, ChunkableContent chunkable)
         throws NotFoundException {
         return write(spaceId, chunkable, null);
     }
 
-
-    
-    
     /**
      * This method writes a single chunk to the DataStore.
      *
@@ -169,12 +254,13 @@ public class DuracloudContentWriter implements ContentWriter {
         log.debug("addManifest: " + spaceId + ", " + manifestId);
 
         KnownLengthInputStream manifestBody = manifest.getBody();
+        String manifestChecksum = checksumUtil.generateChecksum(manifest.getBody());
         addContentThenReport(spaceId,
                              manifestId,
                              manifestBody,
                              manifestBody.getLength(),
                              manifest.getMimetype(),
-                             null,
+                             manifestChecksum,
                              properties);
     }
 
