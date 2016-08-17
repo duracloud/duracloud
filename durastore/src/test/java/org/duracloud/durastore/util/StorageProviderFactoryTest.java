@@ -22,6 +22,7 @@ import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.domain.impl.StorageAccountImpl;
+import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
@@ -132,9 +133,9 @@ public class StorageProviderFactoryTest {
     private void setUpMocksGetStorageProvider() {
         EasyMock.expect(mockSAM.getPrimaryStorageAccount())
             .andReturn(acct1)
-            .times(2);
+            .times(1);
         EasyMock.expect(mockSAM.getStorageAccount(acctId1))
-            .andReturn(null)
+            .andReturn(acct1)
             .times(1);
         EasyMock.expect(mockSAM.getAccountName()).andReturn(acct1Name);
 
@@ -157,6 +158,26 @@ public class StorageProviderFactoryTest {
             .andReturn(acct1)
             .times(1);
         EasyMock.expect(mockSAM.getAccountName()).andReturn(acct1Name);
+
+        replayMocks();
+    }
+
+    @Test
+    public void testGetStorageProviderInvalidId() {
+        setUpMocksGetStorageProviderInvalidId();
+
+        try {
+            StorageProvider provider = factory.getStorageProvider(acctId2);
+            fail("Exception expected when requesting invalid store ID");
+        } catch(NotFoundException e) {
+            assertNotNull(e);
+        }
+    }
+
+    private void setUpMocksGetStorageProviderInvalidId() {
+        EasyMock.expect(mockSAM.getStorageAccount(acctId2))
+                .andReturn(null)
+                .times(1);
 
         replayMocks();
     }

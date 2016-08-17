@@ -36,6 +36,7 @@ import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProvider;
@@ -179,8 +180,8 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
 
     /**
      * Retrieves a particular storage provider based on the storage account ID.
-     * If a storage account cannot be retrieved, the primary storage provider
-     * account is used.
+     * If no storage ID is provided use the primary storage provider account
+     * If no storage account can be found with the given ID, throw NotFoundException
      *
      * @param storageAccountId - the ID of the storage provider account
      * @return
@@ -189,6 +190,7 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
     @Override
     public StorageProvider getStorageProvider(String storageAccountId)
             throws StorageException {
+        // If no store ID is provided, retrieves the primary store ID
         storageAccountId = checkStorageAccountId(storageAccountId);
 
         if(storageProviders.containsKey(storageAccountId)) {
@@ -198,10 +200,11 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
         StorageAccountManager storageAccountManager = getAccountManager();
         StorageAccount account =
             storageAccountManager.getStorageAccount(storageAccountId);
+
         if (account == null) {
-            account = storageAccountManager.getPrimaryStorageAccount();
-            storageAccountId = account.getId();
+            throw new NotFoundException("No store exists with ID " + storageAccountId);
         }
+
         String username = account.getUsername();
         String password = account.getPassword();
         StorageProviderType type = account.getType();
