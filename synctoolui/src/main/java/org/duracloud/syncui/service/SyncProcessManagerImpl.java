@@ -453,6 +453,8 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         if(this.dirWalker != null){
             this.dirWalker.stopWalk();
         }
+
+        ChangedList.getInstance().shutdown();
     }
     
     private void resetChangeList() {

@@ -12,6 +12,7 @@ import org.duracloud.client.util.StoreClientUtil;
 import org.duracloud.sync.endpoint.DuraStoreChunkSyncEndpoint;
 import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
+import org.duracloud.sync.mgmt.ChangedList;
 import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.mgmt.SyncSummary;
@@ -114,6 +115,7 @@ public class Uploader {
     public void stopUpload() {
         dirWalker.stopWalk();
         syncManager.terminateSync();
+        ChangedList.getInstance().shutdown();
         log.info("Upload Stopped");
     }
 
