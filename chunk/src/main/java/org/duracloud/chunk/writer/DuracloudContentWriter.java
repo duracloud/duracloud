@@ -55,6 +55,9 @@ public class DuracloudContentWriter implements ContentWriter {
     // if true, skip writing results and throw exception when errors occur
     private boolean throwOnError = false;
 
+    // if true, skip checks for chunks in storage
+    private boolean jumpStart = false;
+
     public DuracloudContentWriter(ContentStore contentStore, String username) {
         this.contentStore = contentStore;
         this.username = username;
@@ -62,9 +65,11 @@ public class DuracloudContentWriter implements ContentWriter {
 
     public DuracloudContentWriter(ContentStore contentStore,
                                   String username,
-                                  boolean throwOnError) {
+                                  boolean throwOnError,
+                                  boolean jumpStart) {
         this(contentStore, username);
         this.throwOnError = throwOnError;
+        this.jumpStart = jumpStart;
     }
 
     public List<AddContentResult> getResults() {
@@ -120,8 +125,8 @@ public class DuracloudContentWriter implements ContentWriter {
         try {
             String chunkChecksum = getChunkChecksum(chunkFile);
 
-            // Write chunk if it is not already in storage
-            if (!chunkInStorage(spaceId, chunkId, chunkChecksum)) {
+            // Write chunk if it is not already in storage (or jumpstart is enabled)
+            if (jumpStart || !chunkInStorage(spaceId, chunkId, chunkChecksum)) {
                 try {
                     new Retrier(maxRetries).execute(() -> {
                         try(InputStream chunkStream = new FileInputStream(chunkFile)) {

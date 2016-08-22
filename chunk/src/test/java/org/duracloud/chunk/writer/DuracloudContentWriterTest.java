@@ -38,36 +38,47 @@ import java.util.Map;
  */
 public class DuracloudContentWriterTest {
 
-    private DuracloudContentWriter writer;
     private DuracloudContentWriter writerError;
     private DuracloudContentWriter writerErrorThrow;
     private ContentStore contentStore;
     private ContentStore contentStoreThrow;
     private String username = "user-1";
+    private final String checksum = "this-is-a-checksum";
 
     @Before
     public void setUp() throws ContentStoreException {
         contentStore = EasyMock.createMock(ContentStore.class);
-        writer = new DuracloudContentWriter(contentStore, username);
 
         contentStoreThrow = createThrowingMockContentStore();
         writerError = new DuracloudContentWriter(contentStoreThrow, username);
         writerErrorThrow =
-            new DuracloudContentWriter(contentStoreThrow, username, true);
+            new DuracloudContentWriter(contentStoreThrow, username, true, false);
     }
 
-    private ContentStore createMockContentStore(boolean spaceExists)
+    private ContentStore createMockContentStore(boolean spaceExists,
+                                                boolean expectAddContent)
         throws ContentStoreException {
-        EasyMock.expect(contentStore.addContent(EasyMock.isA(String.class),
-                                                EasyMock.isA(String.class),
-                                                EasyMock.isA(InputStream.class),
-                                                //isChunkInputStream(),
-                                                EasyMock.anyLong(),
-                                                EasyMock.isA(String.class),
-                                                EasyMock.isA(String.class),
-                                                (Map) EasyMock.anyObject()))
-            .andReturn("")
-            .anyTimes();
+        if(expectAddContent) {
+            EasyMock.expect(contentStore.addContent(EasyMock.isA(String.class),
+                                                    EasyMock.isA(String.class),
+                                                    EasyMock.isA(InputStream.class),
+                                                    EasyMock.anyLong(),
+                                                    EasyMock.isA(String.class),
+                                                    EasyMock.isA(String.class),
+                                                    (Map) EasyMock.anyObject()))
+                    .andReturn("")
+                    .anyTimes();
+        } else { // Expect only the manifest to be added
+            EasyMock.expect(contentStore.addContent(EasyMock.eq("test-spaceId"),
+                                                    EasyMock.eq("test-contentId.dura-manifest"),
+                                                    EasyMock.isA(InputStream.class),
+                                                    EasyMock.anyLong(),
+                                                    EasyMock.eq("application/xml"),
+                                                    EasyMock.isA(String.class),
+                                                    (Map) EasyMock.anyObject()))
+                    .andReturn("")
+                    .once();
+        }
 
         Map<String, AclType> acls = new HashMap<String, AclType>();
         acls.put(StorageProvider.PROPERTIES_SPACE_ACL_PUBLIC, AclType.READ);
@@ -90,8 +101,7 @@ public class DuracloudContentWriterTest {
         return contentStore;
     }
 
-    private void updateMockContentStoreContentCheck(boolean chunkExists,
-                                                    boolean validChecksum)
+    private void updateMockContentStoreContentCheck(boolean chunkExists)
         throws ContentStoreException {
         if (!chunkExists) {
             EasyMock.expect(contentStore.contentExists(EasyMock.isA(String.class),
@@ -104,15 +114,6 @@ public class DuracloudContentWriterTest {
                 .andReturn(true)
                 .anyTimes();
 
-            String checksum = "this-is-a-checksum";
-            if(validChecksum) {
-                writer.setChecksumUtil(new ChecksumUtil (ChecksumUtil.Algorithm.MD5) {
-                    @Override
-                    public String generateChecksum(File file) throws IOException {
-                        return checksum;
-                    }
-                });
-            }
             Map<String, String> props = new HashMap<>();
             props.put(ContentStore.CONTENT_CHECKSUM, checksum);
             EasyMock.expect(contentStore.getContentProperties(EasyMock.isA(String.class),
@@ -159,7 +160,6 @@ public class DuracloudContentWriterTest {
     public void tearDown() {
         contentStore = null;
         contentStoreThrow = null;
-        writer = null;
     }
 
     /*
@@ -168,9 +168,19 @@ public class DuracloudContentWriterTest {
      */
     @Test
     public void testWrite() throws Exception {
-        createMockContentStore(true);
-        updateMockContentStoreContentCheck(false, false);
-        doTestWrite();
+        createMockContentStore(true, true);
+        updateMockContentStoreContentCheck(false);
+        doTestWrite(false, false);
+    }
+
+    /*
+     * Tests a write under the condition that the space exists
+     * and jumpstart is on
+     */
+    @Test
+    public void testWriteJumpstart() throws Exception {
+        createMockContentStore(true, true);
+        doTestWrite(false, true);
     }
 
     /*
@@ -179,9 +189,9 @@ public class DuracloudContentWriterTest {
      */
     @Test
     public void testWriteWrongChunkExists() throws Exception {
-        createMockContentStore(true);
-        updateMockContentStoreContentCheck(true, false);
-        doTestWrite();
+        createMockContentStore(true, true);
+        updateMockContentStoreContentCheck(true);
+        doTestWrite(false, false);
     }
 
     /*
@@ -190,9 +200,9 @@ public class DuracloudContentWriterTest {
      */
     @Test
     public void testWriteCorrectChunkExists() throws Exception {
-        createMockContentStore(true);
-        updateMockContentStoreContentCheck(true, true);
-        doTestWrite();
+        createMockContentStore(true, false);
+        updateMockContentStoreContentCheck(true);
+        doTestWrite(true, false);
     }
 
     /*
@@ -201,12 +211,23 @@ public class DuracloudContentWriterTest {
      */
     @Test
     public void testWriteSpaceNotExist() throws Exception {
-        createMockContentStore(false);
-        updateMockContentStoreContentCheck(false, false);
-        doTestWrite();
+        createMockContentStore(false, true);
+        updateMockContentStoreContentCheck(false);
+        doTestWrite(false, false);
     }
 
-    private void doTestWrite() throws Exception {
+    private void doTestWrite(boolean validChecksum, boolean jumpStart) throws Exception {
+        DuracloudContentWriter writer =
+            new DuracloudContentWriter(contentStore, username, false, jumpStart);
+        if(validChecksum) {
+            writer.setChecksumUtil(new ChecksumUtil (ChecksumUtil.Algorithm.MD5) {
+                @Override
+                public String generateChecksum(File file) throws IOException {
+                    return checksum;
+                }
+            });
+        }
+
         replayMocks();
         long contentSize = 4000;
         InputStream contentStream = createContentStream(contentSize);
@@ -279,7 +300,7 @@ public class DuracloudContentWriterTest {
 
     @Test
     public void testWriteSingle() throws Exception {
-        createMockContentStore(true);
+        createMockContentStore(true, true);
         replayMocks();
         long contentSize = 1000;
         InputStream contentStream = createContentStream(contentSize);
@@ -293,6 +314,8 @@ public class DuracloudContentWriterTest {
                                                       contentSize,
                                                       preserveMD5);
 
+        DuracloudContentWriter writer =
+            new DuracloudContentWriter(contentStore, username);
         String md5 = writer.writeSingle(spaceId, "checksum", chunk);
         Assert.assertNotNull(md5);
 

@@ -80,7 +80,7 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
         }
 
         DuracloudContentWriter contentWriter =
-            new DuracloudContentWriter(contentStore, username, true);
+            new DuracloudContentWriter(contentStore, username, true, jumpStart);
         FileChunkerOptions chunkerOptions = new FileChunkerOptions(maxFileSize);
 
         chunker = new FileChunker(contentWriter, chunkerOptions);
