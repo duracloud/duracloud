@@ -51,8 +51,7 @@ public class ChangedListBackupManagerTest  extends SyncTestBase {
         file.createNewFile();
         file.deleteOnExit();
         changedList.addChangedFile(file);
-
-        Thread.sleep(backupFrequency * 3);
+        Thread.sleep((backupFrequency*3) + ChangedListBackupManager.DEFAULT_SLEEP_TIME);
         bkMan.endBackup();
 
         ChangedFile changedFile = changedList.reserve();
@@ -61,7 +60,7 @@ public class ChangedListBackupManagerTest  extends SyncTestBase {
         assertEquals(testFileName, changedFile.getFile().getName());
         assertNull(changedList.reserve());
 
-        bkMan.loadBackup();
+        assertTrue(bkMan.loadBackup()  > 0);
 
         changedFile = changedList.reserve();
         assertNotNull(changedFile);

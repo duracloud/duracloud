@@ -28,7 +28,7 @@ public class ChangedListBackupManager implements Runnable {
         LoggerFactory.getLogger(ChangedListBackupManager.class);
 
     public static final int SAVED_BACKUPS = 3;
-
+    protected static final int DEFAULT_SLEEP_TIME = 5000; // 5 seconds
     private File backupDir;
     private long backupFrequency;
     private ChangedList changedList;
@@ -105,7 +105,7 @@ public class ChangedListBackupManager implements Runnable {
      * not held up by waiting for a sleep to complete here.
      */
     private void sleepAndCheck(long backupFrequency) {
-        long sleepTime = 5000; // 5 seconds
+        long sleepTime = DEFAULT_SLEEP_TIME;
         for(long sleepCompleted = 0;
             continueBackup && sleepCompleted < backupFrequency;
             sleepCompleted += sleepTime) {
