@@ -165,7 +165,7 @@ public class DuraStoreChunkSyncEndpointTest {
 
     @Test
     public void testAddUpdate3MBFileWith1MBChunks() throws Exception {
-        testAddChunkedFile(3, 1000 * 1000);
+        testAddChunkedFile(3, 1090 * 1000 * 1000);
     }
 
     // /**
@@ -194,25 +194,9 @@ public class DuraStoreChunkSyncEndpointTest {
         long fileSize = chunkCount * chunkSize;
         int fileCount = chunkCount + 1;
 
-        final Capture<InputStream> isCapture = new Capture<>();
 
-        EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
-                                                EasyMock.isA(String.class),
-                                                EasyMock.capture(isCapture),
-                                                EasyMock.anyLong(),
-                                                EasyMock.isA(String.class),
-                                                EasyMock.isA(String.class),
-                                                EasyMock.isA(Map.class)))
-                .andAnswer(new IAnswer<String>() {
-                    @Override
-                    public String answer() throws Throwable {
-                        InputStream is = isCapture.getValue();
-                        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
-                        String checksum = util.generateChecksum(is);
-                        return checksum;
-                    }
-                })
-                .times(fileCount);
+        setupAddContent(chunkCount, true);
+        setupAddContent(1, false);
         
         EasyMock.expect(contentStore.contentExists(EasyMock.eq(spaceId), EasyMock.isA(String.class))).andReturn(false)
                 .times(chunkCount);
@@ -247,6 +231,30 @@ public class DuraStoreChunkSyncEndpointTest {
 
         }
 
+    }
+
+    protected void setupAddContent(int chunkCount,
+                                   boolean checksumNull)
+                                       throws ContentStoreException {
+        final Capture<InputStream> isCapture = new Capture<>();
+
+        EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
+                                                EasyMock.isA(String.class),
+                                                EasyMock.capture(isCapture),
+                                                EasyMock.anyLong(),
+                                                EasyMock.isA(String.class),
+                                                checksumNull? EasyMock.isNull(String.class) : EasyMock.isA(String.class),
+                                                EasyMock.isA(Map.class)))
+                .andAnswer(new IAnswer<String>() {
+                    @Override
+                    public String answer() throws Throwable {
+                        InputStream is = isCapture.getValue();
+                        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
+                        String checksum = util.generateChecksum(is);
+                        return checksum;
+                    }
+                })
+                .times(chunkCount);
     }
 
     protected PipedInputStream getInputStream(long fileSize)

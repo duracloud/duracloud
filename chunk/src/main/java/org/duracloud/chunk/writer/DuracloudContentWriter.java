@@ -8,6 +8,7 @@
 package org.duracloud.chunk.writer;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.duracloud.chunk.ChunkableContent;
 import org.duracloud.chunk.error.ContentNotAddedException;
 import org.duracloud.chunk.error.NotFoundException;
@@ -117,25 +118,56 @@ public class DuracloudContentWriter implements ContentWriter {
      */
     private void writeChunk(String spaceId, ChunkInputStream chunk)
         throws NotFoundException {
-        // Write chunk as a temp file
         String chunkId = chunk.getChunkId();
-        File chunkFile = IOUtil.writeStreamToFile(chunk);
+
+        
+        File chunkFile = null;
+        boolean exists = false;
+        String chunkChecksum = null;
+        // check if chunk exists in content store.
+        try {
+            if(!jumpStart){
+                exists =  this.contentStore.contentExists(spaceId, chunkId);
+            }
+        } catch (Exception e1) {
+            String message = "failed to check for existence of chunk " + chunkId
+                + " in space "
+                + spaceId;
+            log.error(message,
+                      e1.getMessage());
+            throw new DuraCloudRuntimeException(message,e1);
+        }
+            
+
         int maxRetries = 5;
 
         try {
-            String chunkChecksum = getChunkChecksum(chunkFile);
+            // Write chunk as a temp file if no jumpstart and a content item already exists
+            // 
+            if(exists){
+                chunkFile = IOUtil.writeStreamToFile(chunk);
+                chunkChecksum = getChunkChecksum(chunkFile);
+            }
+
 
             // Write chunk if it is not already in storage (or jumpstart is enabled)
-            if (jumpStart || !chunkInStorage(spaceId, chunkId, chunkChecksum)) {
+            if (jumpStart || !exists || !chunkInStorage(spaceId, chunkId, chunkChecksum)) {
+                final File chunkFile1 = chunkFile;
+                final String chunkChecksum1 = chunkChecksum;
                 try {
                     new Retrier(maxRetries).execute(() -> {
-                        try(InputStream chunkStream = new FileInputStream(chunkFile)) {
-                            ChunkInputStream chunkFileStream =
+                        InputStream chunkStream = null;
+                        try{
+                            ChunkInputStream chunkInputStream =
+                                chunkFile1 != null ?
                                 new ChunkInputStream(chunkId,
-                                                     chunkStream,
-                                                     chunkFile.length(),
-                                                     chunk.md5Preserved());
-                            writeSingle(spaceId, chunkChecksum, chunkFileStream);
+                                                     chunkStream = new FileInputStream(chunkFile1),
+                                                     chunk.getChunkSize(),
+                                                     chunk.md5Preserved()) : chunk;
+                                                                                  
+                            writeSingle(spaceId, chunkChecksum1, chunkInputStream);
+                        }finally{
+                            IOUtils.closeQuietly(chunkStream);
                         }
                         return "";
                     });
@@ -170,11 +202,10 @@ public class DuracloudContentWriter implements ContentWriter {
     }
 
     /*
-     * Determines if a file chunk exists in DuraCloud storage with the given checksum
+     * Determines if an existing chunk in DuraCloud storage matches the given  checksum
      */
     private boolean chunkInStorage(String spaceId, String contentId, String checksum) {
         try {
-            if(contentStore.contentExists(spaceId, contentId)) { // dc file exists
                 Map<String, String> props =
                     contentStore.getContentProperties(spaceId, contentId);
                 String dcChecksum = props.get(ContentStore.CONTENT_CHECKSUM);
@@ -183,9 +214,6 @@ public class DuracloudContentWriter implements ContentWriter {
                 } else {
                     return false; // File exists in DuraCloud, but checksums don't match
                 }
-            } else {
-                return false; // File does not exist in DuraCloud
-            }
         } catch (ContentStoreException e) {
             return false; // File does not exist in DuraCloud
         }

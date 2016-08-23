@@ -7,22 +7,6 @@
  */
 package org.duracloud.chunk.writer;
 
-import org.duracloud.chunk.ChunkableContent;
-import org.duracloud.chunk.error.NotFoundException;
-import org.duracloud.chunk.stream.ChunkInputStream;
-import org.duracloud.client.ContentStore;
-import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.common.model.AclType;
-import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.easymock.EasyMock;
-import org.easymock.IArgumentMatcher;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -31,6 +15,25 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.duracloud.chunk.ChunkableContent;
+import org.duracloud.chunk.error.NotFoundException;
+import org.duracloud.chunk.stream.ChunkInputStream;
+import org.duracloud.client.ContentStore;
+import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.model.AclType;
+import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.ChecksumUtil.Algorithm;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.easymock.Capture;
+import org.easymock.EasyMock;
+import org.easymock.IAnswer;
+import org.easymock.IArgumentMatcher;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Andrew Woods
@@ -48,27 +51,48 @@ public class DuracloudContentWriterTest {
     @Before
     public void setUp() throws ContentStoreException {
         contentStore = EasyMock.createMock(ContentStore.class);
+        contentStoreThrow = EasyMock.createMock(ContentStore.class);
 
-        contentStoreThrow = createThrowingMockContentStore();
         writerError = new DuracloudContentWriter(contentStoreThrow, username);
         writerErrorThrow =
             new DuracloudContentWriter(contentStoreThrow, username, true, false);
     }
 
+    private ContentStore
+            createMockContentStore(boolean spaceExists,
+                                   boolean expectAddContent)
+                                       throws ContentStoreException {
+        return createMockContentStore(spaceExists, expectAddContent, true,true);
+    }
+
     private ContentStore createMockContentStore(boolean spaceExists,
-                                                boolean expectAddContent)
+                                                boolean expectAddContent,
+                                                boolean expectManifest,
+                                                boolean expectChecksum)
         throws ContentStoreException {
         if(expectAddContent) {
+            Capture<InputStream> capture = new Capture<InputStream>();
+            
             EasyMock.expect(contentStore.addContent(EasyMock.isA(String.class),
                                                     EasyMock.isA(String.class),
-                                                    EasyMock.isA(InputStream.class),
+                                                    EasyMock.capture(capture),
                                                     EasyMock.anyLong(),
                                                     EasyMock.isA(String.class),
-                                                    EasyMock.isA(String.class),
+                                                    expectChecksum ? EasyMock.isA(String.class) : EasyMock.isNull(String.class),
                                                     (Map) EasyMock.anyObject()))
-                    .andReturn("")
+                    .andAnswer(new IAnswer<String>() {
+                        @Override
+                        public String answer() throws Throwable {
+                            ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
+                            return util.generateChecksum(capture.getValue());
+                        }
+                    })
                     .anyTimes();
-        } else { // Expect only the manifest to be added
+            
+
+        } 
+        
+        if(expectManifest) { // Expect only the manifest to be added
             EasyMock.expect(contentStore.addContent(EasyMock.eq("test-spaceId"),
                                                     EasyMock.eq("test-contentId.dura-manifest"),
                                                     EasyMock.isA(InputStream.class),
@@ -123,14 +147,12 @@ public class DuracloudContentWriterTest {
         }
     }
 
-    private ContentStore createThrowingMockContentStore()
+    private void setupThrowingMockContentStore()
         throws ContentStoreException {
-        ContentStore contentStoreThrow = EasyMock.createMock(ContentStore.class);
 
         EasyMock.expect(contentStoreThrow.contentExists(EasyMock.isA(String.class),
                                                         EasyMock.isA(String.class)))
-                .andReturn(false)
-                .anyTimes();
+                .andReturn(false).atLeastOnce();
 
         EasyMock.expect(contentStoreThrow.addContent(EasyMock.isA(String.class),
                                                 EasyMock.isA(String.class),
@@ -139,9 +161,16 @@ public class DuracloudContentWriterTest {
                                                 EasyMock.isA(String.class),
                                                 EasyMock.isA(String.class),
                                                 (Map) EasyMock.anyObject()))
-            .andThrow(new ContentStoreException("Expected addContent Error "))
-            .anyTimes();
+            .andThrow(new ContentStoreException("Expected addContent Error ")).atLeastOnce();
 
+        EasyMock.expect(contentStoreThrow.addContent(EasyMock.isA(String.class),
+                                                     EasyMock.isA(String.class),
+                                                     isChunkInputStream(),
+                                                     EasyMock.anyLong(),
+                                                     EasyMock.isA(String.class),
+                                                     EasyMock.isNull(String.class),
+                                                     (Map) EasyMock.anyObject()))
+                 .andThrow(new ContentStoreException("Expected addContent Error ")).atLeastOnce();
         contentStoreThrow.createSpace(EasyMock.isA(String.class));
         EasyMock.expectLastCall().anyTimes();
 
@@ -149,7 +178,6 @@ public class DuracloudContentWriterTest {
             .andReturn(new HashMap<String, AclType>())
             .anyTimes();
         
-        return contentStoreThrow;
     }
 
     private void replayMocks() {
@@ -168,7 +196,7 @@ public class DuracloudContentWriterTest {
      */
     @Test
     public void testWrite() throws Exception {
-        createMockContentStore(true, true);
+        createMockContentStore(true, true, true, false);
         updateMockContentStoreContentCheck(false);
         doTestWrite(false, false);
     }
@@ -179,7 +207,7 @@ public class DuracloudContentWriterTest {
      */
     @Test
     public void testWriteJumpstart() throws Exception {
-        createMockContentStore(true, true);
+        createMockContentStore(true, true, true, false);
         doTestWrite(false, true);
     }
 
@@ -189,7 +217,7 @@ public class DuracloudContentWriterTest {
      */
     @Test
     public void testWriteWrongChunkExists() throws Exception {
-        createMockContentStore(true, true);
+        createMockContentStore(true, true, false, true);
         updateMockContentStoreContentCheck(true);
         doTestWrite(false, false);
     }
@@ -211,7 +239,7 @@ public class DuracloudContentWriterTest {
      */
     @Test
     public void testWriteSpaceNotExist() throws Exception {
-        createMockContentStore(false, true);
+        createMockContentStore(false, true, true, false);
         updateMockContentStoreContentCheck(false);
         doTestWrite(false, false);
     }
@@ -246,7 +274,9 @@ public class DuracloudContentWriterTest {
     }
 
     @Test
-    public void testErrorOnWrite() throws NotFoundException {
+    public void testErrorOnWrite() throws NotFoundException, ContentStoreException {
+        setupThrowingMockContentStore();
+
         replayMocks();
         long contentSize = 4000;
         InputStream contentStream = createContentStream(contentSize);
@@ -300,7 +330,7 @@ public class DuracloudContentWriterTest {
 
     @Test
     public void testWriteSingle() throws Exception {
-        createMockContentStore(true, true);
+        createMockContentStore(true, true, false, true);
         replayMocks();
         long contentSize = 1000;
         InputStream contentStream = createContentStream(contentSize);
