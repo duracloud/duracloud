@@ -278,6 +278,7 @@ public class SyncTool {
         syncBackupManager.endBackups();
         syncManager.endSync();
         dirMonitor.stopMonitor();
+        ChangedList.getInstance().shutdown();
 
         long inWork = StatusManager.getInstance().getInWork();
         if(inWork > 0) {

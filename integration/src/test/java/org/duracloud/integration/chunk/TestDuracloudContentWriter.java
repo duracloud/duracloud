@@ -72,7 +72,7 @@ public class TestDuracloudContentWriter {
 
         store = storeManager.getPrimaryContentStore();
         writer = new DuracloudContentWriter(store, username);
-        writerThrow = new DuracloudContentWriter(store, username, true);
+        writerThrow = new DuracloudContentWriter(store, username, true, false);
     }
 
 

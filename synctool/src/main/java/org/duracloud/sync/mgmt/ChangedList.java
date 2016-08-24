@@ -40,6 +40,7 @@ public class ChangedList {
     private LinkedHashMap<String, ChangedFile> reservedFiles;
     private ExecutorService executorService;
     private long listVersion;
+    private boolean shutdown = false;
 
     private static ChangedList instance;
 
@@ -136,7 +137,7 @@ public class ChangedList {
      * @return a file which has changed on the file system
      */
     public synchronized ChangedFile reserve() {
-        if(fileList.isEmpty()) {
+        if(fileList.isEmpty() || shutdown) {
             return null;
         }
 
@@ -259,5 +260,10 @@ public class ChangedList {
     private String getKey(ChangedFile changedFile) {
         return changedFile.getFile().getAbsolutePath();
     }
-        
+
+    public void shutdown() {
+        executorService.shutdown();
+        shutdown = true;
+    }
+
 }

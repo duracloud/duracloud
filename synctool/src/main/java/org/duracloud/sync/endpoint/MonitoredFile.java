@@ -22,7 +22,7 @@ import java.net.URI;
 public class MonitoredFile {
 
     private File file;
-    private MonitoredFileInputStream stream;
+    private MonitoredInputStream stream;
     private String checksum;
     private String mimetype;
 
@@ -65,10 +65,10 @@ public class MonitoredFile {
         return stream.getBytesRead();
     }
 
-    public MonitoredFileInputStream getStream() {
+    public MonitoredInputStream getStream() {
         if(null == stream) {
             try {
-                stream = new MonitoredFileInputStream(file);
+                stream = new MonitoredInputStream(file);
             } catch(FileNotFoundException e) {
                 throw new RuntimeException("Could not get stream for " +
                     "file: " + file.getAbsolutePath() + " due to " +

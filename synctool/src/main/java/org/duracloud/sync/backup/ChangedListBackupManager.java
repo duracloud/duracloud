@@ -28,7 +28,7 @@ public class ChangedListBackupManager implements Runnable {
         LoggerFactory.getLogger(ChangedListBackupManager.class);
 
     public static final int SAVED_BACKUPS = 3;
-
+    protected static final int DEFAULT_SLEEP_TIME = 5000; // 5 seconds
     private File backupDir;
     private long backupFrequency;
     private ChangedList changedList;
@@ -93,13 +93,29 @@ public class ChangedListBackupManager implements Runnable {
                 backingUp = false;
             }
 
-            sleep(backupFrequency);
+            sleepAndCheck(backupFrequency);
         }
     }
 
-    protected void sleep(long backupFrequency) {
+    /*
+     * Sleeps for a given amount of time, checking frequently
+     * to see if the process should be continued. This allows
+     * the the backup manager to wait between activity and also
+     * ensure that the higher level system shutdown process is
+     * not held up by waiting for a sleep to complete here.
+     */
+    private void sleepAndCheck(long backupFrequency) {
+        long sleepTime = DEFAULT_SLEEP_TIME;
+        for(long sleepCompleted = 0;
+            continueBackup && sleepCompleted < backupFrequency;
+            sleepCompleted += sleepTime) {
+            sleep(sleepTime);
+        }
+    }
+
+    protected void sleep(long milliseconds) {
         try {
-            Thread.sleep(backupFrequency);
+            Thread.sleep(milliseconds);
         } catch(InterruptedException e) {
             logger.warn("ChangedListBackupManager thread interrupted");
         }

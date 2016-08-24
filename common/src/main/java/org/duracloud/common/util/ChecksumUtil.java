@@ -49,8 +49,16 @@ public class ChecksumUtil {
     public String generateChecksum(InputStream inStream) {
         byte[] buf = new byte[4096];
         int numRead = 0;
+        long totalBytesRead = 0;
         while ((numRead = readFromStream(inStream, buf)) != -1) {
             digest.update(buf, 0, numRead);
+            totalBytesRead += numRead;
+            
+            if(log.isDebugEnabled()){
+                if(totalBytesRead % (1000*1000*1000) == 0 ) {
+                    log.debug("Total bytes read: {}", totalBytesRead);
+                }
+            }
         }
         return checksumBytesToString(digest.digest());
     }

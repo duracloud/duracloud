@@ -190,9 +190,11 @@ public class SpaceResource {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
             storage.createSpace(spaceID);
-            
+
             waitForSpaceCreation(storage, spaceID);
             updateSpaceACLs(spaceID, userACLs, storeID);
+        } catch (NotFoundException e) {
+            throw new InvalidIdException(e.getMessage());
         } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("add space", spaceID, e);

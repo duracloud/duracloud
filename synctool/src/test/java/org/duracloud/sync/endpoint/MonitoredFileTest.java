@@ -57,7 +57,7 @@ public class MonitoredFileTest {
             new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
         assertEquals(cksumUtil.generateChecksum(file), mFile.getChecksum());
 
-        MonitoredFileInputStream stream = mFile.getStream();
+        MonitoredInputStream stream = mFile.getStream();
         assertNotNull(stream);
         assertEquals(0, mFile.getStreamBytesRead());
         stream.read();

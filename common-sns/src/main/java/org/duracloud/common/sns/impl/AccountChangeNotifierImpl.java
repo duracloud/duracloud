@@ -87,7 +87,7 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
 
     @Override
     public void rootUsersChanged() {
-        publish(EventType.ACCOUNT_CHANGED, null);
+        publish(EventType.ALL_ACCOUNTS_CHANGED, null);
     }
 
     @Override

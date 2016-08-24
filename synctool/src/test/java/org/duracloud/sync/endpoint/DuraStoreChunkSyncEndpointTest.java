@@ -7,60 +7,67 @@
  */
 package org.duracloud.sync.endpoint;
 
-import org.apache.commons.io.FileUtils;
-import org.duracloud.client.ContentStore;
-import org.duracloud.common.model.AclType;
-import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.easymock.Capture;
-import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.duracloud.chunk.manifest.ChunksManifest.*;
+import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static org.duracloud.chunk.manifest.ChunksManifest.chunkSuffix;
-import static org.duracloud.chunk.manifest.ChunksManifest.manifestSuffix;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.AclType;
+import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.ChecksumUtil.Algorithm;
+import org.duracloud.common.util.IOUtil;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.easymock.Capture;
+import org.easymock.EasyMock;
+import org.easymock.IAnswer;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * @author Andrew Woods
- *         Date: 9/9/11
+ * @author Andrew Woods Date: 9/9/11
  */
 public class DuraStoreChunkSyncEndpointTest {
-
     private DuraStoreChunkSyncEndpoint endpoint;
-
     private ContentStore contentStore;
     private final String username = "user-name";
     private final String spaceId = "space-id";
     private boolean syncDeletes;
     private final long maxFileSize = 1000;
+    private File file;
+    private MonitoredFile monitoredFile;
 
     @Before
     public void setUp() throws Exception {
         contentStore = EasyMock.createMock("ContentStore", ContentStore.class);
         EasyMock.expect(contentStore.getStoreId()).andReturn("0");
         syncDeletes = false;
+        file = EasyMock.createMock("File", File.class);
+        monitoredFile =
+            EasyMock.createMock("MonitoredFile", MonitoredFile.class);
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(contentStore);
+        EasyMock.verify(contentStore, file, monitoredFile);
     }
 
     private void replayMocks() {
-        EasyMock.replay(contentStore);
+        EasyMock.replay(contentStore, file, monitoredFile);
     }
 
     @Test
@@ -90,16 +97,29 @@ public class DuraStoreChunkSyncEndpointTest {
     private void createGetFilesListMocks(List<String> contents)
         throws ContentStoreException {
 
-        EasyMock.expect(contentStore.getSpaceContents(spaceId)).andReturn(
-            contents.iterator()).times(2);
+        EasyMock.expect(contentStore.getSpaceContents(spaceId))
+                .andReturn(contents.iterator())
+                .times(2);
+
+    }
+
+    private void setEndpoint(long maxChunkSize) {
+        endpoint =
+            new DuraStoreChunkSyncEndpoint(contentStore,
+                                           username,
+                                           spaceId,
+                                           syncDeletes,
+                                           maxChunkSize,
+                                           true,
+                                           false,
+                                           false,
+                                           null,
+                                           null);
 
     }
 
     private void setEndpoint() {
-        endpoint = new DuraStoreChunkSyncEndpoint(contentStore, username,
-                                                  spaceId, syncDeletes,
-                                                  maxFileSize, true, false,
-                                                  false, null, null);
+        setEndpoint(maxFileSize);
     }
 
     @Test
@@ -115,7 +135,8 @@ public class DuraStoreChunkSyncEndpointTest {
         EasyMock.expect(contentStore.getSpaceContents(spaceId))
                 .andReturn(new ArrayList<String>().iterator());
         EasyMock.expect(contentStore.getSpaceACLs(spaceId))
-                .andReturn(new HashMap<String, AclType>()).anyTimes();
+                .andReturn(new HashMap<String, AclType>())
+                .anyTimes();
 
         Capture<Map<String, String>> propsCapture =
             new Capture<Map<String, String>>();
@@ -142,4 +163,123 @@ public class DuraStoreChunkSyncEndpointTest {
         FileUtils.deleteQuietly(contentFile);
     }
 
+    @Test
+    public void testAddUpdate3MBFileWith1MBChunks() throws Exception {
+        testAddChunkedFile(3, 1090 * 1000 * 1000);
+    }
+
+    // /**
+    // * This test takes about two hours due to the large file size.
+    // * In order to prevent a major slowdown in the build I have
+    // * commented it out.
+    // *
+    // * @throws Exception
+    // */
+    // @Test
+    // public void testAddUpdate250GBFile() throws Exception {
+    // testAddChunkedFile(250,1000*1000*1000);
+    // }
+
+    protected void testAddChunkedFile(int chunkCount, long chunkSize)
+        throws Exception {
+        String contentId = "contentId";
+        File tmpFile = File.createTempFile("test", "txt");
+        tmpFile.deleteOnExit();
+
+        EasyMock.expect(contentStore.getSpaceContents(spaceId))
+                .andReturn(new ArrayList<String>().iterator());
+        EasyMock.expect(contentStore.getSpaceACLs(spaceId))
+                .andReturn(new HashMap<String, AclType>())
+                .anyTimes();
+        long fileSize = chunkCount * chunkSize;
+        int fileCount = chunkCount + 1;
+
+
+        setupAddContent(chunkCount, true);
+        setupAddContent(1, false);
+        
+        EasyMock.expect(contentStore.contentExists(EasyMock.eq(spaceId), EasyMock.isA(String.class))).andReturn(false)
+                .times(chunkCount);
+
+        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
+        InputStream checksumIs = getInputStream(fileSize);
+        String wholeFileChecksum = null;
+        try{ 
+            wholeFileChecksum = util.generateChecksum(checksumIs);
+        }finally {
+            IOUtils.closeQuietly(checksumIs);
+        }
+        
+        PipedInputStream is = getInputStream(fileSize);
+        MonitoredInputStream mfis = new MonitoredInputStream(is);
+
+        try {
+            EasyMock.expect(monitoredFile.getAbsolutePath())
+                    .andReturn(tmpFile.getAbsolutePath());
+            EasyMock.expect(monitoredFile.getChecksum()).andReturn(wholeFileChecksum);
+            EasyMock.expect(monitoredFile.length()).andReturn(fileSize);
+
+            EasyMock.expect(monitoredFile.getStream()).andReturn(mfis);
+            replayMocks();
+            setEndpoint(chunkSize);
+
+            endpoint.addUpdateContent(contentId, monitoredFile);
+
+        } finally {
+            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(mfis);
+
+        }
+
+    }
+
+    protected void setupAddContent(int chunkCount,
+                                   boolean checksumNull)
+                                       throws ContentStoreException {
+        final Capture<InputStream> isCapture = new Capture<>();
+
+        EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
+                                                EasyMock.isA(String.class),
+                                                EasyMock.capture(isCapture),
+                                                EasyMock.anyLong(),
+                                                EasyMock.isA(String.class),
+                                                checksumNull? EasyMock.isNull(String.class) : EasyMock.isA(String.class),
+                                                EasyMock.isA(Map.class)))
+                .andAnswer(new IAnswer<String>() {
+                    @Override
+                    public String answer() throws Throwable {
+                        InputStream is = isCapture.getValue();
+                        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
+                        String checksum = util.generateChecksum(is);
+                        return checksum;
+                    }
+                })
+                .times(chunkCount);
+    }
+
+    protected PipedInputStream getInputStream(long fileSize)
+        throws IOException {
+        int bufferSize = 1000000;
+        PipedOutputStream os = new PipedOutputStream();
+        PipedInputStream is = new PipedInputStream(bufferSize);
+        os.connect(is);
+        final Thread t = new Thread(() -> {
+            byte[] buf = new byte[bufferSize];
+            try {
+                long iterations = fileSize / buf.length;
+
+                for (long i = 0; i < iterations; i++) {
+                    os.write(buf);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                IOUtils.closeQuietly(os);
+            }
+        });
+
+        t.start();
+        return is;
+    }
 }

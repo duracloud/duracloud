@@ -20,17 +20,17 @@ import static org.junit.Assert.assertEquals;
  * @author: Bill Branan
  * Date: 10/21/11
  */
-public class MonitoredFileInputStreamTest {
+public class MonitoredInputStreamTest {
 
     private File file;
-    private MonitoredFileInputStream stream;
+    private MonitoredInputStream stream;
 
     @Before
     public void setUp() throws Exception {
         file = File.createTempFile("temp", "file");
         FileUtils.writeStringToFile(file, "This file is used to execute tests");
 
-        stream = new MonitoredFileInputStream(file);
+        stream = new MonitoredInputStream(file);
         assertEquals(0, stream.bytesRead);
     }
 
