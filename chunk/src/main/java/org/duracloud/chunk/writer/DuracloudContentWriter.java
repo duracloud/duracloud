@@ -143,14 +143,14 @@ public class DuracloudContentWriter implements ContentWriter {
 
         try {
             // Write chunk as a temp file if no jumpstart and a content item already exists
-            // 
-            if(exists){
+            if(!jumpStart && exists){
                 chunkFile = IOUtil.writeStreamToFile(chunk);
                 chunkChecksum = getChunkChecksum(chunkFile);
             }
 
 
-            // Write chunk if it is not already in storage (or jumpstart is enabled)
+            // Write chunk if jump start is enabled or it does not exist in storage or
+            // it exists in storage but checksums do not match
             if (jumpStart || !exists || !chunkInStorage(spaceId, chunkId, chunkChecksum)) {
                 final File chunkFile1 = chunkFile;
                 final String chunkChecksum1 = chunkChecksum;
