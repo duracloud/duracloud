@@ -31,6 +31,13 @@
     <anonymous />
     <http-basic />
     <logout logout-url="/logout"/>
+    <headers>
+      <!--  Ensures that frames can be loaded from same origin.
+            This overrides the default x-frame-options (deny) 
+            which prevents same origin frame content from loading.
+       -->
+      <frame-options policy="SAMEORIGIN"/>
+    </headers>
   </http>
 
   <!-- AuthN Manager -->
