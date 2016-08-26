@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.nio.file.Watchable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -567,6 +568,7 @@ public class S3StorageProvider extends StorageProviderBase {
      */
     protected String doesContentExist(String bucketName, String contentId) {
         int maxAttempts = 90;
+        int waitInSeconds = 2;
         for(int i=0; i<maxAttempts; i++) {
             try {
                 ObjectMetadata metadata =
@@ -575,7 +577,11 @@ public class S3StorageProvider extends StorageProviderBase {
                   return metadata.getETag();
                 }
             } catch(AmazonClientException e) {
-                wait(2);
+                if(i > 5){
+                    log.warn("contentId={} still not found in bucket={} after {} of {} attempts. Waiting {}s...",
+                             contentId, bucketName, i+1, maxAttempts, waitInSeconds);
+                }
+                wait(waitInSeconds);
             }
         }
         return null;
