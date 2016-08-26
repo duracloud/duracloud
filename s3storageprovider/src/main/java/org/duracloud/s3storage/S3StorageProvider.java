@@ -566,7 +566,7 @@ public class S3StorageProvider extends StorageProviderBase {
      * If not, returns null.
      */
     protected String doesContentExist(String bucketName, String contentId) {
-        int maxAttempts = 5;
+        int maxAttempts = 90;
         for(int i=0; i<maxAttempts; i++) {
             try {
                 ObjectMetadata metadata =
