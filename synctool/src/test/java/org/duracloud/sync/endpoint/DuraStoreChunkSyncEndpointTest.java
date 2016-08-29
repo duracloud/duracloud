@@ -219,7 +219,9 @@ public class DuraStoreChunkSyncEndpointTest {
                 })
                 .times(fileCount);
         
-        EasyMock.expect(contentStore.contentExists(EasyMock.eq(spaceId), EasyMock.isA(String.class))).andReturn(false)
+        EasyMock.expect(contentStore.contentExists(EasyMock.eq(spaceId),
+                                                   EasyMock.isA(String.class)))
+                .andReturn(false)
                 .times(chunkCount);
 
         ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
