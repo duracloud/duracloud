@@ -174,11 +174,11 @@ public class DuracloudContentWriter implements ContentWriter {
      */
     private boolean chunkInStorage(String spaceId, String contentId, String checksum) {
         try {
-            if(contentStore.contentExists(spaceId, contentId)) { // dc file exists
+            if (contentStore.contentExists(spaceId, contentId)) { // dc file exists
                 Map<String, String> props =
                     contentStore.getContentProperties(spaceId, contentId);
                 String dcChecksum = props.get(ContentStore.CONTENT_CHECKSUM);
-                if(null != checksum && null != dcChecksum && checksum.equals(dcChecksum)) {
+                if (null != checksum && null != dcChecksum && checksum.equals(dcChecksum)) {
                     return true; // File with matching checksum already in DuraCloud
                 } else {
                     return false; // File exists in DuraCloud, but checksums don't match
@@ -289,7 +289,7 @@ public class DuracloudContentWriter implements ContentWriter {
                              contentChecksum, 
                              properties);
         } catch (ContentNotAddedException e) {
-            if(throwOnError) {
+            if (throwOnError) {
                 String err = "Content not added due to: " + e.getMessage();
                 throw new DuraCloudRuntimeException(err, e);
             } else {
@@ -297,7 +297,7 @@ public class DuracloudContentWriter implements ContentWriter {
             }
         }
 
-        if(!throwOnError) {
+        if (!throwOnError) {
             if (md5 != null) {
                 result.setMd5(md5);
                 result.setState(AddContentResult.State.SUCCESS);
@@ -319,14 +319,14 @@ public class DuracloudContentWriter implements ContentWriter {
                               Map<String,String> properties)
         throws ContentNotAddedException {
         
-        if(properties == null){
+        if (properties == null) {
             properties = new HashMap<String, String>();
         }
         
-        if(!properties.containsKey(StorageProvider.PROPERTIES_CONTENT_CREATOR)){
+        if (!properties.containsKey(StorageProvider.PROPERTIES_CONTENT_CREATOR)) {
             properties.put(StorageProvider.PROPERTIES_CONTENT_CREATOR, username);
         }
-        
+
         try {
             return contentStore.addContent(spaceId,
                                            contentId,
