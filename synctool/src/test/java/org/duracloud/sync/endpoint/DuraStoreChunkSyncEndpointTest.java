@@ -27,7 +27,8 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.ChecksumUtil.Algorithm;
-import org.duracloud.common.util.IOUtil;
+import org.duracloud.common.util.OperationTimer;
+
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
@@ -165,19 +166,19 @@ public class DuraStoreChunkSyncEndpointTest {
 
     @Test
     public void testAddUpdate3MBFileWith1MBChunks() throws Exception {
-        testAddChunkedFile(3, 1000 * 1000);
+        testAddChunkedFile(3, 1000 * 1000 * 1000);
     }
 
     // /**
-    // * This test takes about two hours due to the large file size.
+    // * This test takes about 50 minutes due to the large file size.
     // * In order to prevent a major slowdown in the build I have
     // * commented it out.
     // *
     // * @throws Exception
     // */
     // @Test
-    // public void testAddUpdate250GBFile() throws Exception {
-    // testAddChunkedFile(250,1000*1000*1000);
+    // public void testAddUpdate150GBFile() throws Exception {
+    // testAddChunkedFile(150,1000*1000*1000);
     // }
 
     protected void testAddChunkedFile(int chunkCount, long chunkSize)
@@ -208,8 +209,12 @@ public class DuraStoreChunkSyncEndpointTest {
                     public String answer() throws Throwable {
                         InputStream is = isCapture.getValue();
                         ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
-                        String checksum = util.generateChecksum(is);
-                        return checksum;
+                        return (new OperationTimer<String>("Generate the checksum") {
+                            public String executeImpl() {
+                                String checksum = util.generateChecksum(is);
+                                return checksum;
+                            }
+                        }).execute();
                     }
                 })
                 .times(fileCount);
