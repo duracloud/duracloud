@@ -80,7 +80,7 @@ public class ChunkInputStream extends InputStream {
         if(bytesRemainingInChunk <= len){
             len = (int)bytesRemainingInChunk;
         }
-        return stream.read(b, 0, len);
+        return stream.read(b, off, len);
 
     }
  
