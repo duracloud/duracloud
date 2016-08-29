@@ -58,7 +58,32 @@ public class ChunkInputStream extends InputStream {
 
         return stream.read();
     }
+    
+    
+    @Override
+    public int read(byte[] b) throws IOException {
+        return this.read(b, 0, b.length);
+    }
 
+    
+    
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        long byteCount = stream.getByteCount();
+        
+        if (byteCount >= chunkSize) {
+            return -1;
+        }
+        
+        long bytesRemainingInChunk = chunkSize - byteCount;
+        
+        if(bytesRemainingInChunk <= len){
+            len = (int)bytesRemainingInChunk;
+        }
+        return stream.read(b, off, len);
+
+    }
+ 
     public void close() throws IOException {
         // do not allow the wrapped stream to be closed.
     }
