@@ -569,21 +569,29 @@ public class S3StorageProvider extends StorageProviderBase {
     protected String doesContentExist(String bucketName, String contentId) {
         int maxAttempts = 90;
         int waitInSeconds = 2;
+        int attempts = 0;
         for(int i=0; i<maxAttempts; i++) {
             try {
                 ObjectMetadata metadata =
                     s3Client.getObjectMetadata(bucketName, contentId);
                 if(null != metadata) {
-                  return metadata.getETag();
+                    if(attempts > 5){
+                        log.warn("contentId={} found in bucket={} after waiting for {} seconds...",
+                                 contentId, bucketName, attempts*waitInSeconds);
+                    }
+
+                    return metadata.getETag();
                 }
-            } catch(AmazonClientException e) {
-                if(i > 5){
-                    log.warn("contentId={} still not found in bucket={} after {} of {} attempts. Waiting {}s...",
-                             contentId, bucketName, i+1, maxAttempts, waitInSeconds);
-                }
-                wait(waitInSeconds);
-            }
+            } catch(AmazonClientException e) {}
+
+            attempts++;
+            wait(waitInSeconds);
         }
+
+        log.warn("contentId={} NOT found in bucket={} after waiting for {} seconds...",
+                 contentId, bucketName, attempts*waitInSeconds);
+
+
         return null;
     }
 
