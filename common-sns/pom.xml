@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>common-sns</artifactId>
-  <version>4.1.2</version>
+  <version>4.1.3</version>
   <name>Common SNS</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>4.1.2</version>
+    <version>4.1.3</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

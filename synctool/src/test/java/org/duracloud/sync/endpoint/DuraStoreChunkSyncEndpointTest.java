@@ -166,7 +166,7 @@ public class DuraStoreChunkSyncEndpointTest {
 
     @Test
     public void testAddUpdate3MBFileWith1MBChunks() throws Exception {
-        testAddChunkedFile(3, 1000 * 1000 * 1000);
+        testAddChunkedFile(3, 10 * 1000 * 1000);
     }
 
     // /**
