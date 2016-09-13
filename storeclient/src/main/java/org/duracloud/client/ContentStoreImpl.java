@@ -1250,7 +1250,7 @@ public class ContentStoreImpl implements ContentStore {
                     new SimpleDateFormat(DateFormat.DEFAULT_FORMAT.getPattern());
                 properties.setCompletionDate(format.parse(header.getValue()));
             } else if (name.equals(HttpHeaders.CONTENT_LENGTH)) {
-                properties.setSize(Integer.valueOf(header.getValue()));
+                properties.setSize(Long.valueOf(header.getValue()));
             }
         }
 

@@ -17,7 +17,7 @@ import java.util.Date;
 public class BitIntegrityReportProperties {
     private Date completionDate;
     private BitIntegrityReportResult result;
-    private int size; 
+    private long size; 
     
     public Date getCompletionDate() {
         return completionDate;
@@ -31,10 +31,10 @@ public class BitIntegrityReportProperties {
     public void setResult(BitIntegrityReportResult result) {
         this.result = result;
     }
-    public int getSize() {
+    public long getSize() {
         return size;
     }
-    public void setSize(int size) {
+    public void setSize(long size) {
         this.size = size;
     }
 }
