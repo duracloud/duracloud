@@ -98,7 +98,7 @@ public class ServiceReportController {
 
         BitIntegrityReportProperties props = store.getBitIntegrityReportProperties(spaceId);
 
-        int size = props.getSize();
+        long size = props.getSize();
         Map<String, String> fileInfo = new HashMap<String, String>();
         fileInfo.put("size", size+"");
         return new ModelAndView("jsonView", "fileInfo", fileInfo);
