@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.event.EventListenerSupport;
@@ -454,7 +455,6 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             this.dirWalker.stopWalk();
         }
 
-        ChangedList.getInstance().shutdown();
     }
     
     private void resetChangeList() {
@@ -690,5 +690,11 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     @Override
     public void clearFailures() {
         StatusManager.getInstance().clearFailed();
+    }
+    
+    @PreDestroy
+    public void shutdown(){
+        this.syncBackupManager.endBackups();
+        ChangedList.getInstance().shutdown();
     }
 }
