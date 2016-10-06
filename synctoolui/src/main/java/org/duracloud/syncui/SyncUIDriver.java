@@ -32,6 +32,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.duracloud.common.util.WaitUtil;
 import org.duracloud.syncui.config.SyncUIConfig;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -86,16 +87,15 @@ public class SyncUIDriver {
             String warFile =
                 protectionDomain.getCodeSource().getLocation().toExternalForm();
             log.debug("warfile: {}", warFile);
-            WebAppContext context = new WebAppContext();
+            final WebAppContext context = new WebAppContext();
             context.setContextPath(contextPath);
             context.setAttribute("extractWAR", Boolean.FALSE);
             context.setWar(warFile);
             srv.setHandler(context);
-
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    createSysTray(url);
+                    createSysTray(url, srv);
 
                     while (true) {
                         if (progress.getValue() < 100) {
@@ -148,7 +148,7 @@ public class SyncUIDriver {
         }
     }
 
-    private static void createSysTray(final String url) {
+    private static void createSysTray(final String url, final Server srv) {
         final TrayIcon trayIcon;
         try {
 
@@ -184,6 +184,15 @@ public class SyncUIDriver {
                 ActionListener exitListener = new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         log.info("Exiting...");
+                        try {
+                            srv.stop();
+                            while(!srv.isStopped()){
+                                WaitUtil.wait(1);
+                            }
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+                        
                         System.exit(0);
                     }
                 };
