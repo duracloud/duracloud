@@ -14,8 +14,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.lang.Character.UnicodeScript;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,7 +30,6 @@ import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.retry.Retriable;
-import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.domain.Content;
@@ -285,11 +282,60 @@ public class ContentStoreImplTest {
         String mime = "text/plain";
 
         Capture<Map<String, String>> headersCapture = new Capture<>();
+        mockSuccessfulAddContent(headersCapture, checksum, mime, content);
+
+        contentStore.addContent(spaceId, contentId, content, 7,
+                                mime, checksum, null);
+        validAddContentHeadersCapture(checksum, mime, headersCapture);
+    }
+
+    @Test
+    public void testAddContentNullChecksumSupplied() throws Exception {
+        InputStream content = IOUtils.toInputStream("content");
+        String checksum = "checksum";
+        String mime = "text/plain";
+
+        Capture<Map<String, String>> headersCapture = new Capture<>();
+        mockSuccessfulAddContent(headersCapture, checksum, mime, content);
+
+        contentStore.addContent(spaceId, contentId, content, 7,
+                                mime, null, null);
+    }
+    
+    @Test
+    public void testAddContentReturnsInvalidChecksum() throws Exception {
+        Capture<Map<String, String>> headersCapture = new Capture<>();
+        String checksum = "checksum";
+        String outputChecksum = "badChecksum";
+        String mime = "text/plain";
+        InputStream content = IOUtils.toInputStream("content");
+
+        mockSuccessfulAddContent(headersCapture,
+                                 outputChecksum,
+                                 mime,
+                                 content);
+
+        try {
+            contentStore.addContent(spaceId, contentId, content, 7,
+                                    mime, checksum, null);
+            fail("addContent call should have failed.");
+        } catch (ContentStoreException e) {
+            assertTrue("expected failure", true);
+        }
+        
+        validAddContentHeadersCapture(checksum, mime, headersCapture);
+    }
+
+    protected void mockSuccessfulAddContent(Capture<Map<String, String>> headersCapture,
+                                            String outputChecksum,
+                                            String mime,
+                                            InputStream content)
+                                                throws Exception {
         String fullURL = baseURL + "/" + spaceId + "/" + contentId +
                          "?storeID=" + storeId;
         EasyMock.expect(response.getStatusCode()).andReturn(201);
         EasyMock.expect(response.getResponseHeader(HttpHeaders.CONTENT_MD5))
-                .andReturn(new BasicHeader(HttpHeaders.CONTENT_MD5, checksum));
+                .andReturn(new BasicHeader(HttpHeaders.CONTENT_MD5, outputChecksum));
         EasyMock.expect(restHelper.put(EasyMock.eq(fullURL),
                                        EasyMock.eq(content),
                                        EasyMock.eq(mime),
@@ -298,15 +344,17 @@ public class ContentStoreImplTest {
                 .andReturn(response);
 
         replayMocks();
+    }
 
-        contentStore.addContent(spaceId, contentId, content, 7,
-                                mime, checksum, null);
+    protected void
+              validAddContentHeadersCapture(String checksum,
+                                            String mime,
+                                            Capture<Map<String, String>> headersCapture) {
         Map<String, String> headers = headersCapture.getValue();
         Assert.assertEquals(mime, headers.get("x-dura-meta-" +
                                               ContentStore.CONTENT_MIMETYPE));
         Assert.assertEquals(checksum, headers.get(HttpHeaders.CONTENT_MD5));
     }
-
     @Test
     public void testGetContent() throws Exception {
         InputStream stream = IOUtils.toInputStream("content");
