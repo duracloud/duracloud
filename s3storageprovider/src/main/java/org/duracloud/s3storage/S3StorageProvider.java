@@ -557,6 +557,8 @@ public class S3StorageProvider extends StorageProviderBase {
                           "The content item was most likely never added to " +
                           "storage.", contentId, spaceId);
             }
+            // Rethrow to let the client know the file was not stored properly
+            throw e;
         }
 
         return providerChecksum;
