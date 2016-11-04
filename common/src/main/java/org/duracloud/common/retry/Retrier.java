@@ -139,7 +139,7 @@ public class Retrier {
             } catch (Exception e) {
                 lastException = e;
                 exceptionHandler.handle(e);
-                if(i < maxRetries){
+                if(i <= maxRetries){
                     WaitUtil.waitMs((long)Math.pow(i,waitBetweenRetriesMultiplier)*waitBetweenRetries);
                 }
             }
