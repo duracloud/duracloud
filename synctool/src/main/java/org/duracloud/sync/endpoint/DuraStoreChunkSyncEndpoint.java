@@ -7,10 +7,14 @@
  */
 package org.duracloud.sync.endpoint;
 
+import java.util.Iterator;
+import java.util.Map;
+
 import org.duracloud.chunk.FileChunker;
 import org.duracloud.chunk.FileChunkerOptions;
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.manifest.ChunksManifestBean;
+import org.duracloud.chunk.util.ChunksManifestVerifier;
 import org.duracloud.chunk.writer.DuracloudContentWriter;
 import org.duracloud.client.ContentStore;
 import org.duracloud.domain.Content;
@@ -21,9 +25,6 @@ import org.duracloud.stitch.impl.FileStitcherImpl;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * @author: Bill Branan
@@ -92,28 +93,60 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
                                                        String contentId) {
         Map<String, String> props = super.getContentProperties(spaceId,
                                                                contentId);
+        
+
         if (null == props) {
-            props = getPropertiesIfChunked(spaceId, contentId);
+           try {
+                ChunksManifest manifest = this.stitcher.getManifest(spaceId, getManifestId(contentId));
+
+                if(chunksInDuraCloudMatchChunksInManifest(spaceId, manifest)){
+                    props = getManifestProperties(spaceId, manifest);
+                }
+
+           } catch(Exception ex){
+               log.debug("Not a chunked content item: {}/{}", spaceId, contentId);
+           }
+            
         }
 
         return props;
     }
 
-    private Map<String, String> getPropertiesIfChunked(String spaceId,
-                                                       String contentId) {
-        Map<String, String> props = null;
-        String manifestId = contentId + ChunksManifest.manifestSuffix;
+    private boolean chunksInDuraCloudMatchChunksInManifest(String spaceId,
+                                                           ChunksManifest manifest) {
         try {
-            Content manifest = stitcher.getContentFromManifest(spaceId,
+            ChunksManifestVerifier verifier =
+                new ChunksManifestVerifier(getContentStore());
+            return verifier.verifyAllChunks(spaceId, manifest).isSuccess();
+        } catch (Exception e) {
+            log.warn("chunked file does not exist or is not valid: {}/{}",
+                     spaceId,
+                     manifest.getManifestId());
+            return false;
+        }
+    }
+
+    private Map<String, String> getManifestProperties(String spaceId,
+                                                       ChunksManifest manifest) {
+        Map<String, String> props = null;
+        String manifestId = manifest.getManifestId();
+        try {
+            
+            Content manifesContentItem = stitcher.getContentFromManifest(spaceId,
                                                                manifestId);
-            props = manifest.getProperties();
-            log.info("Manifest found for content: {}/{}", spaceId, contentId);
+            props = manifesContentItem.getProperties();
+            log.info("Manifest found for content: {}/{}", spaceId, manifestId);
 
         } catch (Exception e) {
-            log.debug("Not a chunked content item: {}/{}", spaceId, contentId);
+            log.debug("Not a chunked content item: {}/{}", spaceId, manifestId);
         }
 
         return props;
+    }
+
+    protected String getManifestId(String contentId) {
+        String manifestId = contentId + ChunksManifest.manifestSuffix;
+        return manifestId;
     }
 
     @Override
@@ -146,7 +179,7 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
     }
 
     private ChunksManifest getManifest(String spaceId, String contentId) {
-        String manifestId = contentId + ChunksManifest.manifestSuffix;
+        String manifestId = getManifestId(contentId);
         ChunksManifest manifest = null;
         try {
             manifest = stitcher.getManifest(spaceId, manifestId);
