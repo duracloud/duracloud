@@ -11,6 +11,7 @@ package org.duracloud.client;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ import org.duracloud.reportdata.bitintegrity.BitIntegrityReport;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReportResult;
 import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.IdUtil;
 import org.jdom.Document;
@@ -567,20 +569,16 @@ public class ContentStoreImpl implements ContentStore {
                              final String contentMimeType,
                              final String contentChecksum,
                              final Map<String, String> contentProperties)
-        throws ContentStoreException {
-        return execute(new Retriable() {
-            @Override
-            public String retry() throws ContentStoreException {
-                // The actual method being executed
-                return doAddContent(spaceId,
-                                    contentId,
-                                    content,
-                                    contentSize,
-                                    contentMimeType,
-                                    contentChecksum,
-                                    contentProperties);
-            }
-        });
+                                 throws ContentStoreException {
+        //unlike other ContentStore methods, addContent() should not be retried since the stream
+        //must be reset by the caller in order to produce valid results.
+        return doAddContent(spaceId,
+                            contentId,
+                            content,
+                            contentSize,
+                            contentMimeType,
+                            contentChecksum,
+                            contentProperties);
     }
 
     private String doAddContent(String spaceId,
@@ -624,7 +622,24 @@ public class ContentStoreImpl implements ContentStore {
             if(checksum == null) {
                 checksum = response.getResponseHeader(HttpHeaders.ETAG);
             }
-            return checksum.getValue();
+            String returnedChecksum =  checksum.getValue();
+            
+            if(contentChecksum != null && !returnedChecksum.equals(contentChecksum)){
+                String message = MessageFormat.format("checksum returned from durastore ({0}) " +
+                                                      "does not match the checksum that was sent ({1}): " + 
+                                                      "task={2}, spaceId={3}, contentId={4}",
+                                                       returnedChecksum,
+                                                       contentChecksum,
+                                                       task,
+                                                       spaceId, 
+                                                       contentId);
+                log.error(message);
+                throw new ChecksumMismatchException(message,
+                                                    false);
+            }
+            
+            return returnedChecksum;
+            
         } catch (InvalidIdException e) {
             throw new InvalidIdException(task, spaceId, contentId, e);            
         } catch(NotFoundException e) {

@@ -75,7 +75,7 @@ public class RetrierTest {
         final int failuresBeforeSuccess = 4; // More than the number of retries
         final RetryTester retryTester = new RetryTester(failuresBeforeSuccess);
 
-        Retrier retrier = new Retrier(Retrier.DEFAULT_MAX_RETRIES, 100, 2);
+        Retrier retrier = new Retrier(Retrier.DEFAULT_MAX_RETRIES, 10, 2);
         long start = System.currentTimeMillis();
         try {
             retrier.execute(new Retriable() {
@@ -87,9 +87,10 @@ public class RetrierTest {
         } catch (Exception e) {
             assertEquals(expectedAttempts, Integer.valueOf(e.getMessage()));
             long elapsed = System.currentTimeMillis() - start;
-            //0+1+4
-            assertTrue(elapsed >= 500);
-            assertTrue(elapsed < 800);
+            //(0+1+4+8)*10=130
+            assertTrue(elapsed >= 130);
+            //(0+1+4+8+16)*10=290
+            assertTrue(elapsed < 290);
 
         }
     }

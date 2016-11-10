@@ -49,10 +49,10 @@ public class DuracloudContentWriterTest {
     public void setUp() throws ContentStoreException {
         contentStore = EasyMock.createMock(ContentStore.class);
 
-        contentStoreThrow = createThrowingMockContentStore();
-        writerError = new DuracloudContentWriter(contentStoreThrow, username);
+        contentStoreThrow = EasyMock.createMock(ContentStore.class);
+        writerError = new DuracloudContentWriter(contentStoreThrow, username, 3, 10);
         writerErrorThrow =
-            new DuracloudContentWriter(contentStoreThrow, username, true, false);
+            new DuracloudContentWriter(contentStoreThrow, username, true, false,  3, 10);
     }
 
     private ContentStore createMockContentStore(boolean spaceExists,
@@ -123,33 +123,60 @@ public class DuracloudContentWriterTest {
         }
     }
 
-    private ContentStore createThrowingMockContentStore()
-        throws ContentStoreException {
-        ContentStore contentStoreThrow = EasyMock.createMock(ContentStore.class);
+    private void
+            setupThrowingMockContentStore(int addChunkFailures,
+                                          int addChunkSuccesses,
+                                          int addManifestFailures,
+                                          int addManifestSuccesses)
+                                              throws ContentStoreException {
 
         EasyMock.expect(contentStoreThrow.contentExists(EasyMock.isA(String.class),
                                                         EasyMock.isA(String.class)))
                 .andReturn(false)
                 .anyTimes();
 
-        EasyMock.expect(contentStoreThrow.addContent(EasyMock.isA(String.class),
-                                                EasyMock.isA(String.class),
-                                                isChunkInputStream(),
-                                                EasyMock.anyLong(),
-                                                EasyMock.isA(String.class),
-                                                EasyMock.isA(String.class),
-                                                (Map) EasyMock.anyObject()))
-            .andThrow(new ContentStoreException("Expected addContent Error "))
-            .anyTimes();
-
         contentStoreThrow.createSpace(EasyMock.isA(String.class));
         EasyMock.expectLastCall().anyTimes();
 
         EasyMock.expect(contentStoreThrow.getSpaceACLs(EasyMock.isA(String.class)))
-            .andReturn(new HashMap<String, AclType>())
-            .anyTimes();
-        
-        return contentStoreThrow;
+                .andReturn(new HashMap<String, AclType>())
+                .anyTimes();
+
+        expectAddContentErrors(addChunkFailures);
+        expectAddContentSuccesses(addChunkSuccesses);
+        expectAddContentErrors(addManifestFailures);
+        expectAddContentSuccesses(addManifestSuccesses);
+    }
+
+    protected void expectAddContentSuccesses(int times)
+                                                 throws ContentStoreException {
+        if (times > 0) {
+
+            EasyMock.expect(contentStoreThrow.addContent(EasyMock.isA(String.class),
+                                                         EasyMock.isA(String.class),
+                                                         isChunkInputStream(),
+                                                         EasyMock.anyLong(),
+                                                         EasyMock.isA(String.class),
+                                                         EasyMock.isA(String.class),
+                                                         (Map) EasyMock.anyObject()))
+                    .andReturn(checksum)
+                    .times(times);
+        }
+    }
+
+    protected void expectAddContentErrors(int times)
+        throws ContentStoreException {
+        if (times > 0) {
+            EasyMock.expect(contentStoreThrow.addContent(EasyMock.isA(String.class),
+                                                         EasyMock.isA(String.class),
+                                                         isChunkInputStream(),
+                                                         EasyMock.anyLong(),
+                                                         EasyMock.isA(String.class),
+                                                         EasyMock.isA(String.class),
+                                                         (Map) EasyMock.anyObject()))
+                    .andThrow(new ContentStoreException("Expected addContent Error "))
+                    .times(times);
+        }
     }
 
     private void replayMocks() {
@@ -246,43 +273,130 @@ public class DuracloudContentWriterTest {
     }
 
     @Test
-    public void testErrorOnWrite() throws NotFoundException {
-        replayMocks();
-        long contentSize = 4000;
+    public void testErrorOnWriteManifest() throws NotFoundException,ContentStoreException {
+        int contentSize = 4000;
         InputStream contentStream = createContentStream(contentSize);
 
         String spaceId = "test-spaceId";
         String contentId = "test-contentId";
 
-        long maxChunkSize = 1000;
+        int maxChunkSize = 1000;
+        int chunkCount = contentSize/maxChunkSize;
+        
         ChunkableContent chunkable = new ChunkableContent(contentId,
                                                           contentStream,
                                                           contentSize,
                                                           maxChunkSize);
+        
+        setupThrowingMockContentStore(0, chunkCount, writerErrorThrow.getMaxRetries()+1, 0);
+        replayMocks();
+        // Test add with error, expecting error to result in a thrown exception
+        try {
+
+            writerErrorThrow.write(spaceId, chunkable);
+
+            Assert.fail("Exception expected");
+        } catch(DuraCloudRuntimeException expected) {
+            Assert.assertNotNull(expected);
+        }
+        List<AddContentResult> results = writerError.getResults();
+        results = writerErrorThrow.getResults();
+        Assert.assertEquals(0, results.size());
+
+        EasyMock.verify(contentStoreThrow);
+        
+    }
+
+    @Test
+    public void testRetrySuccessOnWriteManifest() throws NotFoundException,ContentStoreException {
+        int contentSize = 4000;
+        InputStream contentStream = createContentStream(contentSize);
+
+        String spaceId = "test-spaceId";
+        String contentId = "test-contentId";
+
+        int maxChunkSize = 1000;
+        
+        int chunkCount = contentSize/maxChunkSize;
+        
+        ChunkableContent chunkable = new ChunkableContent(contentId,
+                                                          contentStream,
+                                                          contentSize,
+                                                          maxChunkSize);
+
+        setupThrowingMockContentStore(0, chunkCount, writerErrorThrow.getMaxRetries(), 1);
+        replayMocks();
+        writerErrorThrow.write(spaceId, chunkable);
+
+        EasyMock.verify(contentStoreThrow);
+    }
+
+    
+    @Test
+    public void testErrorOnWriteChunkNoThrow() throws NotFoundException,ContentStoreException {
+        int contentSize = 4000;
+        InputStream contentStream = createContentStream(contentSize);
+
+        String spaceId = "test-spaceId";
+        String contentId = "test-contentId";
+
+        int maxChunkSize = 1000;
+        ChunkableContent chunkable = new ChunkableContent(contentId,
+                                                          contentStream,
+                                                          contentSize,
+                                                          maxChunkSize);
+
+        //no retries on non throwing 
+        setupThrowingMockContentStore(writerErrorThrow.getMaxRetries()+1, 0, 0, 0);
+        replayMocks();
+
         // Test add with error, expecting error to be listed in results
         writerError.write(spaceId, chunkable);
         List<AddContentResult> results = writerError.getResults();
-        Assert.assertEquals(5, results.size());
-        for(int i=0; i<5; i++) {
-            AddContentResult result = results.get(i);
+        
+        Assert.assertEquals(1, results.size());
+        for(AddContentResult result :  results) {
             Assert.assertNotNull(result);
             Assert.assertTrue(result.getContentId().startsWith(contentId));
             Assert.assertEquals(AddContentResult.State.ERROR, result.getState());
         }
 
+        EasyMock.verify(contentStoreThrow);
+    }
+
+    
+    @Test
+    public void testErrorOnWriteChunkThrows() throws NotFoundException,ContentStoreException {
+        int contentSize = 4000;
+        InputStream contentStream = createContentStream(contentSize);
+
+        String spaceId = "test-spaceId";
+        String contentId = "test-contentId";
+
+        int maxChunkSize = 1000;
+        ChunkableContent chunkable = new ChunkableContent(contentId,
+                                                          contentStream,
+                                                          contentSize,
+                                                          maxChunkSize);
+
+        setupThrowingMockContentStore(writerErrorThrow.getMaxRetries()+1, 0, 0, 0);
+        replayMocks();
         // Test add with error, expecting error to result in a thrown exception
         try {
+
             writerErrorThrow.write(spaceId, chunkable);
+
             Assert.fail("Exception expected");
         } catch(DuraCloudRuntimeException expected) {
             Assert.assertNotNull(expected);
         }
+        List<AddContentResult> results = writerError.getResults();
         results = writerErrorThrow.getResults();
         Assert.assertEquals(0, results.size());
 
         EasyMock.verify(contentStoreThrow);
     }
-
+    
     private InputStream createContentStream(long size) {
         Assert.assertTrue("let's keep it reasonable", size < 10001);
 
