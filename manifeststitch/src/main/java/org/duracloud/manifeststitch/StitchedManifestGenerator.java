@@ -55,12 +55,10 @@ public class StitchedManifestGenerator {
             File.createTempFile("stitched-manifest-" + spaceId,
                                 "." + format.name().toLowerCase());
         //download manifest and process each line.
-        try {
-            InputStream manifest = store.getManifest(spaceId, format);
+        try(InputStream manifest = store.getManifest(spaceId, format);
             BufferedReader reader = new BufferedReader(new InputStreamReader(manifest));
-            
             BufferedWriter writer =
-                new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stitchedManifestFile)));
+                new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stitchedManifestFile)));) {
             ManifestFormatter formatter = new ManifestFormatterFactory().create(format);
             String header = formatter.getHeader();
             String line = null;
@@ -82,12 +80,6 @@ public class StitchedManifestGenerator {
                 }
             } catch (IOException e) {
                 log.error("failed to complete manifest stiching.", e);
-            }finally{
-                try {
-                    writer.close();
-                } catch (IOException e) {
-                    log.error("failed to close piped input stream", e);
-                }
             }
         } catch (ContentStoreException e) {
             log.error("failed to generate stitched manifest: " + e.getMessage(), e);
