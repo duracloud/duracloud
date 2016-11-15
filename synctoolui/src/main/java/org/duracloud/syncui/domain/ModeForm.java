@@ -31,7 +31,7 @@ public class ModeForm implements Serializable {
     }
 
     public void setMode(RunMode mode) {
-        log.info("setting mode {}", mode);
+        log.debug("setting mode {}", mode);
         this.mode = mode;
     }
 }
