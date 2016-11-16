@@ -10,6 +10,7 @@ package org.duracloud.stitch.datasource.impl;
 import org.duracloud.client.ContentStore;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.error.NotFoundException;
 import org.duracloud.stitch.datasource.DataSource;
 import org.duracloud.stitch.error.DataSourceException;
 import org.slf4j.Logger;
@@ -40,7 +41,11 @@ public class DuraStoreDataSource implements DataSource {
 
         } catch (ContentStoreException e) {
             String msg = "Error getting content: " + e.getMessage();
-            log.error(msg);
+            if(!(e instanceof NotFoundException)){
+                log.error(msg);
+            }else{
+                log.debug(msg);
+            }
             throw new DataSourceException(msg, e);
         }
     }
