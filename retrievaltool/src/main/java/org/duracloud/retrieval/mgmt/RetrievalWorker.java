@@ -220,6 +220,9 @@ public class RetrievalWorker implements Runnable {
             OutputStream outStream = new FileOutputStream(localFile);
         ) {
             IOUtils.copyLarge(inStream, outStream);
+        } catch(IOException e) {
+            deleteFile(localFile);
+            throw e;
         }
 
         if(! checksumsMatch(localFile, contentStream.getChecksum())) {
