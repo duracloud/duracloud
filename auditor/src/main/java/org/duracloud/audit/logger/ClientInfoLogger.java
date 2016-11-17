@@ -7,24 +7,23 @@
  */
 package org.duracloud.audit.logger;
 
-import org.duracloud.common.queue.task.Task;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Bill Branan
- *         Date: 3/20/14
+ * @author Daniel Bernstein
+ *         Date: 11/17/2016
  */
-public class WriteLogger extends TaskLogger{
-
+public class ClientInfoLogger extends BaseLogger {
     // Note that this logger is not named using the standard class name method
     // to keep the information sent to this log out of the primary logs.
-    private Logger log = LoggerFactory.getLogger("storage-write");
+    private Logger log = LoggerFactory.getLogger("client-info");
 
-    public void log(Task task) {
+    public void log(Map<String,String> props) {
         if(log.isInfoEnabled()) {
-            log.info(buildLogMessage(task));
+            log.info(buildLogMessage(props));
         }
     }
-
 }

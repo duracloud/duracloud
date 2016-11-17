@@ -26,6 +26,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpStatus;
 import org.apache.http.message.BasicHeader;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.common.model.AclType;
@@ -354,6 +355,8 @@ public class ContentStoreImplTest {
         Assert.assertEquals(mime, headers.get("x-dura-meta-" +
                                               ContentStore.CONTENT_MIMETYPE));
         Assert.assertEquals(checksum, headers.get(HttpHeaders.CONTENT_MD5));
+        Assert.assertNotNull(headers.get(Constants.CLIENT_VERSION_HEADER));
+
     }
     @Test
     public void testGetContent() throws Exception {

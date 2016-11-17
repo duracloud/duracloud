@@ -8,6 +8,8 @@
 package org.duracloud.durastore.rest;
 
 import org.apache.http.HttpStatus;
+import org.duracloud.audit.logger.ClientInfoLogger;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.web.EncodeUtil;
@@ -59,6 +61,7 @@ public class ContentRest extends BaseRest {
 
     private ContentResource contentResource;
     private RestUtil restUtil;
+    private final ClientInfoLogger clientInfoLog = new ClientInfoLogger();
     @Autowired
     public ContentRest(ContentResource contentResource, RestUtil restUtil) {
         this.contentResource = contentResource;
@@ -399,9 +402,9 @@ public class ContentRest extends BaseRest {
         msg.append(", ");
         msg.append(storeID);
         msg.append(")");
-
         try {
             log.info(msg.toString());
+            
             return doAddContent(spaceID, contentID, storeID);
 
         } catch (InvalidIdException e) {
@@ -429,6 +432,9 @@ public class ContentRest extends BaseRest {
 
         String checksum = null;
         MultivaluedMap<String, String> rHeaders = headers.getRequestHeaders();
+        
+        logClientInfo(rHeaders);
+
         if(rHeaders.containsKey(HttpHeaders.CONTENT_MD5)) {
             checksum = rHeaders.getFirst(HttpHeaders.CONTENT_MD5);
         }
@@ -455,6 +461,16 @@ public class ContentRest extends BaseRest {
                 .entity(error)
                 .build();
         }
+    }
+
+    private void logClientInfo(MultivaluedMap<String, String> rHeaders) {
+        Map<String,String> clientInfo = new HashMap<>();
+        clientInfo.put("accountId", getAccountId());
+        clientInfo.put("clientVersion",
+                       rHeaders.containsKey(Constants.CLIENT_VERSION_HEADER)
+                           ? rHeaders.getFirst(Constants.CLIENT_VERSION_HEADER)
+                           : "none-specified");
+        clientInfoLog.log(clientInfo);
     }
 
     /**

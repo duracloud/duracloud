@@ -19,6 +19,11 @@ public class Constants {
     public static final String HEADER_PREFIX = "x-dura-meta-";
 
     /**
+     * An http header sent by the client that indicates the version of the client.
+     */
+    public static final String CLIENT_VERSION_HEADER = "x-dura-client-version";
+
+    /**
      * Content ID used to define a space snapshot
      */
     public static final String SNAPSHOT_METADATA_SPACE =

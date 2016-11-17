@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * @author Bill Branan
  *         Date: 3/20/14
  */
-public class ReadLogger extends BaseLogger {
+public class ReadLogger extends TaskLogger {
 
     // Note that this logger is not named using the standard class name method
     // to keep the information sent to this log out of the primary logs.
