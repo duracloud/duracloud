@@ -103,7 +103,11 @@ public class ContentStoreImpl implements ContentStore {
         this.retryExceptionHandler = new ExceptionHandler() {
             @Override
             public void handle(Exception ex) {
-                log.warn(ex.getMessage());
+                if(!(ex instanceof NotFoundException)){
+                    log.warn(ex.getMessage());
+                }else{
+                    log.debug(ex.getMessage());
+                }
             }
         };
     }
