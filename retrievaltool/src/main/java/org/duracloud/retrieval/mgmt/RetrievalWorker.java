@@ -221,7 +221,12 @@ public class RetrievalWorker implements Runnable {
         ) {
             IOUtils.copyLarge(inStream, outStream);
         } catch(IOException e) {
-            deleteFile(localFile);
+            try {
+                deleteFile(localFile);
+            } catch(IOException ioe) {
+                logger.error("Exception deleting local file " +
+                             localFile.getAbsolutePath() + " due to: " + ioe.getMessage());
+            }
             throw e;
         }
 
