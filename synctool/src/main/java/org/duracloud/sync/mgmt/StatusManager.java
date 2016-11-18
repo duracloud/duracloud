@@ -90,11 +90,11 @@ public class StatusManager {
         return succeeded;
     }
 
-    public List<SyncSummary> getFailed() {
+    public synchronized List<SyncSummary> getFailed() {
         return failed;
     }
     
-    public List<SyncSummary> getRecentlyCompleted(){
+    public synchronized List<SyncSummary> getRecentlyCompleted(){
         return new ArrayList<SyncSummary>(this.recentlyCompleted);
     }
 

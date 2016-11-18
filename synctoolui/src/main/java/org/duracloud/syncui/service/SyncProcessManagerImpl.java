@@ -98,6 +98,8 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             //in separate thread start shutdown only
             //after list is absolutely empty (no reserved files)
             //and sync manager has finished transferring files.
+            
+            final SyncManager sm = syncManager;
             new Thread(new Runnable(){
                 @Override
                 public void run() {
@@ -111,7 +113,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                 // Verify work is complete multiple times before giving
                 // the ok to shut everything down
                 private boolean allWorkComplete(int attempt) {
-                    boolean workComplete = syncManager.getFilesInTransfer().isEmpty() &&
+                    boolean workComplete = (sm == null || syncManager.getFilesInTransfer().isEmpty()) &&
                                            list.getListSizeIncludingReservedFiles() <= 0;
 
                     if(!workComplete || (workComplete && attempt > 2)) {
@@ -658,8 +660,9 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
     @Override
     public List<MonitoredFile> getMonitoredFiles() {
-        if (this.syncManager != null) {
-            return this.syncManager.getFilesInTransfer();
+        SyncManager sm = this.syncManager;
+        if (sm != null) {
+            return sm.getFilesInTransfer();
         }
         return new LinkedList<MonitoredFile>();
     }

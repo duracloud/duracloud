@@ -75,6 +75,8 @@ public class DirectoryUpdateMonitor {
         logger.info("Starting Directory Update Monitor");
         try {
             monitor.start();
+        } catch(IllegalStateException e) {
+            logger.info("File alteration monitor is already started: " + e.getMessage());
         } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -87,6 +89,8 @@ public class DirectoryUpdateMonitor {
         logger.info("Stopping Directory Update Monitor");
         try {
             monitor.stop();
+        } catch(IllegalStateException e) {
+            logger.info("File alteration monitor is already stopped: " + e.getMessage());
         } catch(Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

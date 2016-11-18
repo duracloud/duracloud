@@ -20,10 +20,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.http.Header;
 import org.apache.http.HttpStatus;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.common.model.AclType;
@@ -74,7 +76,7 @@ public class ContentStoreImpl implements ContentStore {
 
     private RestHttpHelper restHelper;
 
-    private static final String HEADER_PREFIX = "x-dura-meta-";
+    private static final String HEADER_PREFIX = Constants.HEADER_PREFIX;
 
     private int maxRetries = 3;
 
@@ -83,6 +85,9 @@ public class ContentStoreImpl implements ContentStore {
 
     private ExceptionHandler retryExceptionHandler;
 
+    
+    private String clientVersion;
+    
     /**
      * Creates a ContentStore. This ContentStore uses the default number of
      * retries when a failure occurs (3).
@@ -103,9 +108,17 @@ public class ContentStoreImpl implements ContentStore {
         this.retryExceptionHandler = new ExceptionHandler() {
             @Override
             public void handle(Exception ex) {
-                log.warn(ex.getMessage());
+                if(!(ex instanceof NotFoundException)){
+                    log.warn(ex.getMessage());
+                }else{
+                    log.debug(ex.getMessage());
+                }
             }
         };
+        
+        this.clientVersion =
+            ResourceBundle.getBundle("storeclient").getString("version");
+        
     }
 
     /**
@@ -994,6 +1007,8 @@ public class ContentStoreImpl implements ContentStore {
                 headers.put(HEADER_PREFIX + key, properties.get(key));
             }
         }
+        
+        headers.put(Constants.CLIENT_VERSION_HEADER, clientVersion);
         return headers;
     }
 

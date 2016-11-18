@@ -103,7 +103,7 @@ public class SyncManager implements ChangeHandler {
      * @param changedFile the changed file
      * @returns true if file accepted for processing, false otherwise
      */
-    public boolean handleChangedFile(ChangedFile changedFile) {
+    public synchronized boolean handleChangedFile(ChangedFile changedFile) {
         File watchDir = getWatchDir(changedFile.getFile());
         SyncWorker worker = new SyncWorker(changedFile, watchDir, endpoint);
 
@@ -112,9 +112,7 @@ public class SyncManager implements ChangeHandler {
             workerPool.execute(worker);
             return true;
         } catch(RejectedExecutionException e) {
-            synchronized(workerList){
-                workerList.remove(worker);
-            }
+            workerList.remove(worker);
             return false;
         }
     }
@@ -137,7 +135,7 @@ public class SyncManager implements ChangeHandler {
         return null;
     }
 
-    private synchronized void addToWorkerList(SyncWorker workerToAdd) {
+    private void addToWorkerList(SyncWorker workerToAdd) {
         cleanWorkerList();
         for(int i=0; i<workerList.size(); i++) {
             SyncWorker worker = workerList.get(i);
@@ -161,7 +159,8 @@ public class SyncManager implements ChangeHandler {
     public synchronized List<MonitoredFile> getFilesInTransfer() {
         cleanWorkerList();
         List<MonitoredFile> monitoredFiles = new ArrayList<MonitoredFile>();
-        for(SyncWorker worker : (ArrayList<SyncWorker>)workerList.clone()) {
+        List<SyncWorker> workers = new ArrayList<>(workerList);
+        for(SyncWorker worker : workers) {
             monitoredFiles.add(worker.getMonitoredFile());
         }
         return monitoredFiles;
