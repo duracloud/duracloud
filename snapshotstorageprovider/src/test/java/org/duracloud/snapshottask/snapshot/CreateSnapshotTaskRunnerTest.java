@@ -276,5 +276,24 @@ public class CreateSnapshotTaskRunnerTest {
         } catch(TaskException e) {
         }
     }
+    
+    @Test
+    public void testPerformSnapshotPropertiesAlreadyExists() throws Exception {
+        String spaceId= "space-id";
+        CreateSnapshotTaskParameters params = new CreateSnapshotTaskParameters();
+        params.setDescription("desc");
+        params.setSpaceId(spaceId);
+        params.setUserEmail("test@duracloud.org");
+        EasyMock.expect(this.snapshotProvider.getContentProperties(spaceId,
+                                                                   Constants.SNAPSHOT_PROPS_FILENAME))
+                .andReturn(new HashMap<>());
+        replayMocks();
+        try {
+            taskRunner.performTask(params.serialize());
+            fail("Exception expected on 500 response");
+        } catch(TaskException e) {
+            assertTrue(e.getMessage().contains("snapshot properties already exist"));
+        }
+    }
 
 }

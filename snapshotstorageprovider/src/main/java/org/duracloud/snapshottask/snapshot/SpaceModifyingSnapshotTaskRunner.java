@@ -18,6 +18,7 @@ import org.duracloud.common.retry.Retrier;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
@@ -174,4 +175,17 @@ public abstract class SpaceModifyingSnapshotTaskRunner extends AbstractSnapshotT
         snapshotProvider.deleteContent(spaceId, Constants.SNAPSHOT_PROPS_FILENAME);
     }
 
+    /**
+     * Checks if the snapshot props file is in the space.
+     * @param spaceId
+     * @return
+     */
+    protected boolean snapshotPropsPresentInSpace(String spaceId) {
+        try {
+            snapshotProvider.getContentProperties(spaceId, Constants.SNAPSHOT_PROPS_FILENAME);
+            return true;
+        }catch(NotFoundException ex){
+            return false;
+        }
+    }
 }

@@ -8,13 +8,7 @@
 package org.duracloud.snapshottask.snapshot;
 
 import org.apache.http.HttpHeaders;
-import org.duracloud.common.constant.Constants;
-import org.duracloud.common.model.AclType;
-import org.duracloud.common.retry.Retriable;
-import org.duracloud.common.retry.Retrier;
-import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
-import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeParameters;
@@ -29,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -100,6 +93,20 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
             CreateSnapshotTaskParameters.deserialize(taskParameters);
         String spaceId = taskParams.getSpaceId();
 
+        
+        //check if snapshot  properties file already exists
+        try {
+            if(snapshotPropsPresentInSpace(spaceId)){
+                throw new TaskException( MessageFormat.format("Call to create snapshot failed, " +
+                    "snapshot properties already exist in space {0}. " + 
+                    "It appears that a snapshot is already underway.", spaceId));
+            }
+        }catch(Exception ex){
+            throw new TaskException( MessageFormat.format("Call to create snapshot failed, " +
+                "unable to determine existence of snapshot properties file in {0}. " + 
+                "Error: {1}",  spaceId, ex.getMessage()));
+        }
+        
         // Generate snapshot ID
         long now = System.currentTimeMillis();
         String snapshotId = generateSnapshotId(spaceId, now);
