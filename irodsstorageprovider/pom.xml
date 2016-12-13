@@ -16,7 +16,7 @@
     <repository>
       <id>adapt-sonatype</id>
       <name>ADAPT Project Repository</name>
-      <url>https://scm.umiacs.umd.edu/maven/adapt/content/repositories/releases/</url>
+      <url>https://scm.umiacs.umd.edu/adapt/repository/maven-releases</url>
       <releases>
         <enabled>true</enabled>
       </releases>
