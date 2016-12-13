@@ -843,6 +843,44 @@ public class ContentStoreImplTest {
     
     
     @Test
+    public void testPerformTaskNoRetries() throws Exception {
+        String taskName = "task1";
+        String taskParams = "params";
+
+        String fullURL = baseURL + "/task/" + taskName + "?storeID=" + storeId;
+        EasyMock.expect(response.getStatusCode()).andReturn(200);
+        EasyMock.expect(response.getResponseBody()).andReturn("success");
+        EasyMock.expect(restHelper.post(fullURL, taskParams, null))
+                .andReturn(response);
+
+        replayMocks();
+
+        String result = contentStore.performTask(taskName, taskParams);
+        Assert.assertEquals("success", result);
+    }
+    
+    @Test
+    public void testPerformTaskNoRetriesWithError() throws Exception {
+        String taskName = "task1";
+        String taskParams = "params";
+
+        String fullURL = baseURL + "/task/" + taskName + "?storeID=" + storeId;
+        EasyMock.expect(response.getStatusCode()).andReturn(409);
+        EasyMock.expect(response.getResponseBody()).andReturn("conflict");
+        EasyMock.expect(restHelper.post(fullURL, taskParams, null))
+                .andReturn(response);
+
+        replayMocks();
+        try { 
+            contentStore.performTaskWithNoRetries(taskName, taskParams);
+            Assert.fail("previous invocation should have failed.");
+        }catch(ContentStoreException ex){
+            Assert.assertTrue("Expected failure.", true);
+        }
+    }
+    
+    
+    @Test
     public void testGetSpaceStats() throws Exception {
        
         Date start = new Date();

@@ -1139,6 +1139,18 @@ public class ContentStoreImpl implements ContentStore {
             }
         });
     }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String performTaskWithNoRetries(final String taskName,
+                              final String taskParameters)
+        throws ContentStoreException {
+
+        return doPerformTask(taskName, taskParameters);
+    }
 
     private String doPerformTask(String taskName, String taskParameters)
         throws ContentStoreException {

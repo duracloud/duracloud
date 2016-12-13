@@ -83,6 +83,13 @@ public class SnapshotTaskClientImplTest {
         EasyMock.verify(contentStore);
     }
 
+    private void setupMockWithoutRetries(String taskName, String preparedResult)
+        throws Exception {
+        EasyMock.expect(contentStore.performTaskWithNoRetries(EasyMock.eq(taskName),
+                                                 EasyMock.isA(String.class)))
+                .andReturn(preparedResult);
+    }
+    
     private void setupMock(String taskName, String preparedResult)
         throws Exception {
         EasyMock.expect(contentStore.performTask(EasyMock.eq(taskName),
@@ -98,7 +105,7 @@ public class SnapshotTaskClientImplTest {
         preparedResult.setSnapshotId(snapshotId);
         preparedResult.setStatus(snapshotStatus);
 
-        setupMock(taskName, preparedResult.serialize());
+        setupMockWithoutRetries(taskName, preparedResult.serialize());
         replayMocks();
 
         CreateSnapshotTaskResult result =
@@ -247,7 +254,7 @@ public class SnapshotTaskClientImplTest {
         preparedResult.setRestoreId(restoreId);
         preparedResult.setStatus(restoreStatus);
 
-        setupMock(taskName, preparedResult.serialize());
+        setupMockWithoutRetries(taskName, preparedResult.serialize());
         replayMocks();
 
         RestoreSnapshotTaskResult result =
