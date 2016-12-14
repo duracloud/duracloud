@@ -9,15 +9,19 @@ package org.duracloud.snapshottask.snapshot;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.Map;
+import java.util.Properties;
 
 import org.duracloud.common.constant.Constants;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
@@ -98,6 +102,27 @@ public abstract class SpaceModifyingSnapshotTaskRunner extends AbstractSnapshotT
                                      propsStream);
      }
     
+     /**
+      * Returns snapshot from the snapshot properties file if it exists
+      *
+      * @param spaceId
+      * @return snapshot from the snapshot properties file if it exists, otherwise null
+      */
+     protected String getSnapshotIdFromProperties(String spaceId){
+         Properties props = new Properties();
+         try(InputStream is = this.snapshotProvider.getContent(spaceId, Constants.SNAPSHOT_PROPS_FILENAME)) {
+            props.load(is);
+            return props.getProperty(Constants.SNAPSHOT_ID_PROP);
+        } catch(NotFoundException ex){
+            return null;
+        }catch (Exception e) {
+            throw new TaskException( MessageFormat.format("Call to create snapshot failed, " +
+                "unable to determine existence of snapshot properties file in {0}. " + 
+                "Error: {1}",  spaceId, e.getMessage()));
+        }
+     }
+
+     
     /*
      * Removes the snapshot ID property from a space
      */
@@ -174,4 +199,17 @@ public abstract class SpaceModifyingSnapshotTaskRunner extends AbstractSnapshotT
         snapshotProvider.deleteContent(spaceId, Constants.SNAPSHOT_PROPS_FILENAME);
     }
 
+    /**
+     * Checks if the snapshot props file is in the space.
+     * @param spaceId
+     * @return
+     */
+    protected boolean snapshotPropsPresentInSpace(String spaceId) {
+        try {
+            snapshotProvider.getContentProperties(spaceId, Constants.SNAPSHOT_PROPS_FILENAME);
+            return true;
+        }catch(NotFoundException ex){
+            return false;
+        }
+    }
 }

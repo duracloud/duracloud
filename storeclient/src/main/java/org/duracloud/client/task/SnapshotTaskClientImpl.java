@@ -61,7 +61,7 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
         taskParams.setUserEmail(userEmail);
 
         String taskResult =
-            contentStore.performTask(SnapshotConstants.CREATE_SNAPSHOT_TASK_NAME,
+            contentStore.performTaskWithNoRetries(SnapshotConstants.CREATE_SNAPSHOT_TASK_NAME,
                                      taskParams.serialize());
 
         return CreateSnapshotTaskResult.deserialize(taskResult);
@@ -183,7 +183,7 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
         taskParams.setUserEmail(userEmail);
 
         String taskResult =
-            contentStore.performTask(SnapshotConstants.RESTORE_SNAPSHOT_TASK_NAME,
+            contentStore.performTaskWithNoRetries(SnapshotConstants.RESTORE_SNAPSHOT_TASK_NAME,
                                      taskParams.serialize());
 
         return RestoreSnapshotTaskResult.deserialize(taskResult);

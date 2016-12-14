@@ -8,7 +8,7 @@
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>4.2.0</version>
+    <version>4.2.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -16,7 +16,7 @@
     <repository>
       <id>adapt-sonatype</id>
       <name>ADAPT Project Repository</name>
-      <url>https://scm.umiacs.umd.edu/maven/adapt/content/repositories/releases/</url>
+      <url>https://scm.umiacs.umd.edu/adapt/repository/maven-releases</url>
       <releases>
         <enabled>true</enabled>
       </releases>

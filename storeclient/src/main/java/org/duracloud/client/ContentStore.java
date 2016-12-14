@@ -404,7 +404,7 @@ public interface ContentStore {
         throws ContentStoreException;
 
     /**
-     * Perform a task which is outside of the standard set of storage activites
+     * Perform a task (with retries on failure) which is outside of the standard set of storage activities
      * but is available through one or more storage providers.
      *
      * @param taskName the name of the task to be performed
@@ -414,6 +414,20 @@ public interface ContentStore {
      * @return the return value of the task
      */
     public String performTask(String taskName, String taskParameters)
+        throws ContentStoreException;
+
+
+    /**
+     * Perform a task (without retrying on failure) which is outside of the standard set of storage activities
+     * but is available through one or more storage providers.
+     *
+     * @param taskName the name of the task to be performed
+     * @param taskParameters the parameters of the task, what is included here
+     *                       and how the information is formatted is
+     *                       task-specific
+     * @return the return value of the task
+     */
+    public String performTaskWithNoRetries(String taskName, String taskParameters)
         throws ContentStoreException;
 
     /**

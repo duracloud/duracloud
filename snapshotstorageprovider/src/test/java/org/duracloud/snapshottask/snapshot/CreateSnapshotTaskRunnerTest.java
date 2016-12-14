@@ -18,6 +18,7 @@ import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.duracloud.storage.error.StorageStateException;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
@@ -26,6 +27,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -38,6 +40,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
+
 
 /**
  * @author Bill Branan
@@ -274,6 +277,29 @@ public class CreateSnapshotTaskRunnerTest {
             taskRunner.callBridge(restHelper, snapshotURL, snapshotBody);
             fail("Exception expected on 500 response");
         } catch(TaskException e) {
+        }
+    }
+    
+    @Test
+    public void testPerformSnapshotPropertiesAlreadyExists() throws Exception {
+        String spaceId= "space-id";
+        CreateSnapshotTaskParameters params = new CreateSnapshotTaskParameters();
+        params.setDescription("desc");
+        params.setSpaceId(spaceId);
+        params.setUserEmail("test@duracloud.org");
+        String snapshotId = "snapshot-001";
+        Properties props = new Properties();
+        props.put(Constants.SNAPSHOT_ID_PROP, snapshotId);
+        
+        EasyMock.expect(this.snapshotProvider.getContent(spaceId,
+                                                         Constants.SNAPSHOT_PROPS_FILENAME))
+                .andReturn(new ByteArrayInputStream((Constants.SNAPSHOT_ID_PROP + "=" + snapshotId).getBytes()));
+        replayMocks();
+        try {
+            taskRunner.performTask(params.serialize());
+            fail("Exception expected on 500 response");
+        } catch(StorageStateException e) {
+            assertTrue(e.getMessage().contains(snapshotId));
         }
     }
 

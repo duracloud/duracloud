@@ -9,12 +9,7 @@ package org.duracloud.snapshottask.snapshot;
 
 import org.apache.http.HttpHeaders;
 import org.duracloud.common.constant.Constants;
-import org.duracloud.common.model.AclType;
-import org.duracloud.common.retry.Retriable;
-import org.duracloud.common.retry.Retrier;
-import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
-import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeParameters;
@@ -23,13 +18,13 @@ import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
 import org.duracloud.snapshot.error.SnapshotDataException;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.duracloud.storage.error.StorageStateException;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -100,16 +95,26 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
             CreateSnapshotTaskParameters.deserialize(taskParameters);
         String spaceId = taskParams.getSpaceId();
 
+        
+        //check if snapshot  properties file already exists
+        //and if so throw StorageStateException
+        String snapshotId = getSnapshotIdFromProperties(spaceId);
+        if (snapshotId != null) {
+            throw new StorageStateException(MessageFormat.format("A snapshot ({0}) + is already underway for this space ({1})",
+                                                                 snapshotId,
+                                                                 spaceId),null);
+        }
+        
         // Generate snapshot ID
         long now = System.currentTimeMillis();
-        String snapshotId = generateSnapshotId(spaceId, now);
+        snapshotId = generateSnapshotId(spaceId, now);
 
         // Pull together all snapshot properties
         Map<String, String> snapshotProps = new HashMap<>();
         snapshotProps.put("duracloud-host", dcHost);
         snapshotProps.put("duracloud-space-id", spaceId);
         snapshotProps.put("duracloud-store-id", dcStoreId);
-        snapshotProps.put("snapshot-id", snapshotId);
+        snapshotProps.put(Constants.SNAPSHOT_ID_PROP, snapshotId);
         snapshotProps.put("snapshot-date", DateUtil.convertToStringVerbose(now));
         snapshotProps.put("owner-id", dcAccountName);
         snapshotProps.put("description", taskParams.getDescription());
@@ -195,6 +200,7 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
         return bridgeParams.serialize();
     }
 
+    
     /**
      * Constructs the contents of a properties file given a set of
      * key/value pairs
