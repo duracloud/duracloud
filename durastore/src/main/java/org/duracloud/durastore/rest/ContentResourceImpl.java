@@ -267,9 +267,9 @@ public class ContentResourceImpl implements ContentResource {
                                                       String destSpaceID,
                                                       String destContentID,
                                                       String destStoreID) throws ResourceException {
-        try {
-            InputStream inputStream =
-                srcStorage.getContent(srcSpaceID, srcContentID);
+        try(InputStream inputStream =
+            srcStorage.getContent(srcSpaceID, srcContentID)) {
+            
 
             Map<String, String> properties =
                 srcStorage.getContentProperties(srcSpaceID, srcContentID);

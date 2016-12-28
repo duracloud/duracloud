@@ -7,8 +7,21 @@
  */
 package org.duracloud.duradmin.util;
 
-import org.apache.http.HttpStatus;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
@@ -25,20 +38,10 @@ import org.duracloud.error.ContentStateException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.domain.StorageProviderType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides utility methods for spaces.
@@ -46,7 +49,8 @@ import java.util.Map;
  * @author Bill Branan
  */
 public class SpaceUtil {
-
+    
+    private static Logger log = LoggerFactory.getLogger(SpaceUtil.class);
 
     public static Space populateSpace(Space space,
                                       org.duracloud.domain.Space cloudSpace, 
@@ -164,7 +168,9 @@ public class SpaceUtil {
 	        Map<String,String> m = store.getContentProperties(spaceId, contentId);
 	        String mimetype = m.get(ContentStore.CONTENT_MIMETYPE);
 	        String contentLength = m.get(ContentStore.CONTENT_SIZE);
-	        streamToResponse(c.getStream(), response, mimetype, contentLength);
+	        try(InputStream is = c.getStream()){
+	            streamToResponse(is, response, mimetype, contentLength);
+	        }
 	}
 
     public static void streamToResponse(InputStream is,
@@ -175,6 +181,7 @@ public class SpaceUtil {
             IOException {
         
        OutputStream outStream = response.getOutputStream();
+
        try{
             response.setContentType(mimetype);
 
@@ -188,7 +195,6 @@ public class SpaceUtil {
            }
            
            response.flushBuffer();
-           outStream.close();
        }catch (Exception ex) {
            if(ex.getCause() instanceof ContentStateException){
                response.reset();
@@ -204,9 +210,14 @@ public class SpaceUtil {
                //c.f. http://support.microsoft.com/kb/294807
                message += StringUtils.repeat(" ", 512);
                outStream.write(message.getBytes());
-               outStream.close();
            } else {
                throw ex;
+           }
+       } finally {
+           try {
+               outStream.close();
+           }catch(Exception e){
+               log.warn("failed to close outputstream ( " + outStream + "): message=" + e.getMessage(),e);
            }
        }
    }

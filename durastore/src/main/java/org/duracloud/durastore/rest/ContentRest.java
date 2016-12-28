@@ -7,6 +7,29 @@
  */
 package org.duracloud.durastore.rest;
 
+import static javax.ws.rs.core.Response.Status.*;
+
+import java.io.InputStream;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
+import org.apache.commons.io.input.AutoCloseInputStream;
 import org.apache.http.HttpStatus;
 import org.duracloud.audit.logger.ClientInfoLogger;
 import org.duracloud.common.constant.Constants;
@@ -24,30 +47,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.CONFLICT;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
  * Provides interaction with content via REST
@@ -117,8 +116,8 @@ public class ContentRest extends BaseRest {
         Map<String, String> properties =
             contentResource.getContentProperties(spaceID, contentID, storeID);
         InputStream content =
-            contentResource.getContent(spaceID, contentID, storeID);
-
+            new AutoCloseInputStream(contentResource.getContent(spaceID, contentID, storeID));
+        
         ResponseBuilder responseBuilder = Response.ok(content);
 
         if(attachment){

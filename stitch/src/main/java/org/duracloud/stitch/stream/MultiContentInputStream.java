@@ -7,6 +7,7 @@
  */
 package org.duracloud.stitch.stream;
 
+import org.apache.commons.io.IOUtils;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.domain.Content;
 import org.duracloud.stitch.datasource.DataSource;
@@ -24,7 +25,7 @@ import java.util.List;
  *         Date: 9/8/11
  */
 public class MultiContentInputStream extends InputStream {
-
+    
     private DataSource dataSource;
     private Iterator<ContentItem> contents;
     private InputStream currentStream;
@@ -58,6 +59,9 @@ public class MultiContentInputStream extends InputStream {
     }
 
     private InputStream nextStream() {
+        if(this.currentStream != null){
+            IOUtils.closeQuietly(this.currentStream);
+        }
         return getStream(contents.next());
     }
 
