@@ -137,20 +137,22 @@ public class AuditLogReaderImpl implements AuditLogReader {
                                        String contentId)
         throws ContentStoreException,
             IOException {
-        InputStream is = storageProvider.getContent(auditSpaceId, contentId);
-        BufferedReader reader =
-            new BufferedReader(new InputStreamReader(is));
-        if (count > 0) {
-            // skip header if not hte first file
-            reader.readLine();
-        }
+        
+        try (BufferedReader reader =
+            new BufferedReader(new InputStreamReader(storageProvider.getContent(auditSpaceId,
+                                                                                contentId)))) {
+            if (count > 0) {
+                // skip header if not hte first file
+                reader.readLine();
+            }
 
-        while (true) {
-            String line = reader.readLine();
-            if (line != null) {
-                IOUtils.write(line+"\n", os);
-            } else {
-                break;
+            while (true) {
+                String line = reader.readLine();
+                if (line != null) {
+                    IOUtils.write(line + "\n", os);
+                } else {
+                    break;
+                }
             }
         }
     }

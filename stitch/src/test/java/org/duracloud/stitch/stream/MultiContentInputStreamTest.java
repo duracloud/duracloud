@@ -67,7 +67,6 @@ public class MultiContentInputStreamTest {
 
         multiStream = new MultiContentInputStream(dataSource, contentItems);
         IOUtils.copy(multiStream, out);
-
         Assert.assertEquals(text, out.toString());
         out.close();
     }

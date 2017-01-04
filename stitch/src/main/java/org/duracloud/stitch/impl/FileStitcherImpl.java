@@ -101,8 +101,8 @@ public class FileStitcherImpl implements FileStitcher {
             throw new InvalidManifestException(spaceId, manifestId, msg);
         }
 
-        try {
-            return ManifestDocumentBinding.createManifestFrom(content.getStream());
+        try(InputStream is = content.getStream()) {
+            return ManifestDocumentBinding.createManifestFrom(is);
 
         } catch (Exception e) {
             String msg = "Error deserializing manifest!";

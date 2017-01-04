@@ -24,6 +24,7 @@ import org.duracloud.chunk.manifest.ChunksManifestBean.ManifestHeader;
 import org.duracloud.chunk.manifest.xml.ManifestDocumentBinding;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.constant.ManifestFormat;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.manifest.ManifestFormatter;
@@ -128,20 +129,23 @@ public class StitchedManifestGenerator {
         
         //extract checksum from chunk manifest.
         Content content = store.getContent(spaceId, contentId);
-        
-        ChunksManifest chunkManifest =
-            ManifestDocumentBinding.createManifestFrom(content.getStream());
-        
-        ManifestHeader header = chunkManifest.getHeader();
-        String checksum = header.getSourceMD5();
-        String newContentId  = header.getSourceContentId();
-        ManifestItem newItem = new ManifestItem();
-        newItem.setSpaceId(spaceId);
-        newItem.setContentId(newContentId);
-        newItem.setContentChecksum(checksum);
-        
-        //retrieve new 
-        return formatter.formatLine(newItem);
+        try (InputStream is = content.getStream()) {
+            ChunksManifest chunkManifest =
+                ManifestDocumentBinding.createManifestFrom(is);
+
+            ManifestHeader header = chunkManifest.getHeader();
+            String checksum = header.getSourceMD5();
+            String newContentId = header.getSourceContentId();
+            ManifestItem newItem = new ManifestItem();
+            newItem.setSpaceId(spaceId);
+            newItem.setContentId(newContentId);
+            newItem.setContentChecksum(checksum);
+
+            // retrieve new
+            return formatter.formatLine(newItem);
+        } catch (IOException ex) {
+            throw new DuraCloudRuntimeException(ex);
+        }
     }
 
     protected void writeLine(String line, BufferedWriter writer)
