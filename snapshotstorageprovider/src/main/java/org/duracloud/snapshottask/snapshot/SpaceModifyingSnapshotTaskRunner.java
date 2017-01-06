@@ -9,6 +9,7 @@ package org.duracloud.snapshottask.snapshot;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Properties;
@@ -97,7 +98,8 @@ public abstract class SpaceModifyingSnapshotTaskRunner extends AbstractSnapshotT
                                      Constants.SNAPSHOT_PROPS_FILENAME,
                                      "text/x-java-properties",
                                      null,
-                                     serializedProps.length(),
+                                     // Ensures that length is based on UTF-8 encoded bytes
+                                     serializedProps.getBytes(StandardCharsets.UTF_8).length,
                                      propsChecksum,
                                      propsStream);
      }

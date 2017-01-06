@@ -14,8 +14,10 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.security.DigestInputStream;
 
@@ -187,6 +189,32 @@ public class ChecksumUtilTest {
         String stream = util.generateChecksum(getStream(content));
         String string = util.generateChecksum(content);
         assertEquals(stream, string);
+    }
+
+    @Test
+    public void testCompareChecksumMethods() throws Exception {
+        String data = "Survival’s research"; // Note: the apostrophe in this text is
+                                             // unicode U+2019, not a standard apostrophe.
+
+        File tempFile = File.createTempFile("checksum-util-test", "file");
+        Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), "UTF-8");
+        writer.write(data);
+        writer.close();
+
+        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
+        try {
+            String fileMd5 = util.generateChecksum(tempFile);
+            System.out.println("File MD5: " + fileMd5);
+            assertEquals("c56e8f84a1b33dd5b9caedac1017f1b1", fileMd5);
+
+            String stringMd5 = util.generateChecksum(data);
+            System.out.println("String MD5: " + stringMd5);
+            assertEquals("c56e8f84a1b33dd5b9caedac1017f1b1", stringMd5);
+
+            assertEquals(fileMd5, stringMd5);
+        } finally {
+            tempFile.delete();
+        }
     }
 
 
