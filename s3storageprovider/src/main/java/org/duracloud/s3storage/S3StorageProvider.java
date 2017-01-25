@@ -524,11 +524,14 @@ public class S3StorageProvider extends StorageProviderBase {
                             + " to S3 bucket "
                             + bucketName
                             + ". Content was not added.";
+                    
+                    
+                    
                     throw new ChecksumMismatchException(err, e, NO_RETRY);
                 }
             }
 
-            etag = doesContentExist(bucketName, contentId);
+            etag = doesContentExistWithExpectedChecksum(bucketName, contentId, contentChecksum);
             if(null == etag) {
                 String err = "Could not add content " + contentId +
                              " with type " + contentMimeType +
@@ -565,36 +568,62 @@ public class S3StorageProvider extends StorageProviderBase {
     }
 
     /*
-     * Determines if a content item exists. If so, returns its MD5.
-     * If not, returns null.
+     * Determines if a content item exists and if so if the MD5 matches what was
+     * expected. If so, returns its MD5. If not, returns null. This method is
+     * necessary because S3 GETs are non-atomic. Therefore it is possible for
+     * the put to succeed while a subsequent GET may return results inconsistent
+     * with the most recent state of S3.
      */
-    protected String doesContentExist(String bucketName, String contentId) {
+    protected String
+              doesContentExistWithExpectedChecksum(String bucketName,
+                                                   String contentId,
+                                                   String expectedChecksum) {
         int maxAttempts = 90;
         int waitInSeconds = 2;
         int attempts = 0;
-        for(int i=0; i<maxAttempts; i++) {
+        String etag = null;
+        for (int i = 0; i < maxAttempts; i++) {
             try {
                 ObjectMetadata metadata =
                     s3Client.getObjectMetadata(bucketName, contentId);
-                if(null != metadata) {
-                    if(attempts > 5){
+                if (null != metadata) {
+                    if (attempts > 5) {
                         log.warn("contentId={} found in bucket={} after waiting for {} seconds...",
-                                 contentId, bucketName, attempts*waitInSeconds);
+                                 contentId,
+                                 bucketName,
+                                 attempts * waitInSeconds);
+                    }
+                    
+                    etag = metadata.getETag();
+
+                    if (expectedChecksum.equals(getETagValue(etag))) {
+                        return etag;
                     }
 
-                    return metadata.getETag();
                 }
-            } catch(AmazonClientException e) {}
+            } catch (AmazonClientException e) {
+            }
 
             attempts++;
             wait(waitInSeconds);
         }
 
-        log.warn("contentId={} NOT found in bucket={} after waiting for {} seconds...",
-                 contentId, bucketName, attempts*waitInSeconds);
+        if(etag != null){
+            log.warn("contentId={} NOT found in bucket={} after waiting for {} seconds...",
+                     contentId,
+                     bucketName,
+                     attempts * waitInSeconds);
+        }else{
+            log.warn("contentId={} in bucket={} does not have the expected checksum after waiting for {} seconds. S3 Checksum={} Expected Checksum={}",
+                     contentId,
+                     bucketName,
+                     attempts * waitInSeconds,
+                     getETagValue(etag), 
+                     expectedChecksum);
 
+        }
 
-        return null;
+        return etag;
     }
 
     protected void wait(int seconds) {
