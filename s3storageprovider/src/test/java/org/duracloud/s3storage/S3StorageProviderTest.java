@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
-import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.NotFoundException;
@@ -88,7 +87,44 @@ public class S3StorageProviderTest {
         Capture<PutObjectRequest> capturedRequest =
             createS3ClientAddContent(hexChecksum);
         S3StorageProvider provider =
-            new S3StorageProvider(s3Client, accessKey, new HashMap());
+            new S3StorageProvider(s3Client, accessKey, new HashMap<String,String>());
+
+        String content = "hello";
+        contentStream = createStream(content);
+        String mimetype = "mimetype";
+        String userMetaName = "user-metadata-name";
+        String userMetaValue = "user-metadata-value";
+        Map<String, String> userMeta = new HashMap<>();
+        userMeta.put(userMetaName, userMetaValue);
+
+        String resultChecksum =
+            provider.addContent(spaceId,
+                                "contentId",
+                                mimetype,
+                                userMeta,
+                                content.length(),
+                                hexChecksum,
+                                contentStream);
+
+        Assert.assertEquals(hexChecksum, resultChecksum);
+
+        PutObjectRequest request = capturedRequest.getValue();
+        Assert.assertNotNull(request);
+
+        ObjectMetadata requestMetadata = request.getMetadata();
+        Assert.assertEquals(base64Checksum, requestMetadata.getContentMD5());
+        Assert.assertEquals(mimetype, requestMetadata.getContentType());
+        Assert.assertEquals(userMetaValue,
+                            requestMetadata.getUserMetadata().get(userMetaName));
+    }
+
+    
+    @Test
+    public void testEventuallyConsistentAddContent() {
+        Capture<PutObjectRequest> capturedRequest =
+            createS3ClientAddContentWithClientError(hexChecksum);
+        S3StorageProvider provider =
+            new S3StorageProvider(s3Client, accessKey, new HashMap<String,String>());
 
         String content = "hello";
         contentStream = createStream(content);
@@ -131,7 +167,7 @@ public class S3StorageProviderTest {
         Capture<PutObjectRequest> capturedRequest =
             createS3ClientAddContentInvalidChecksum(contentId);
         S3StorageProvider provider =
-            new S3StorageProvider(s3Client, accessKey, new HashMap());
+            new S3StorageProvider(s3Client, accessKey, new HashMap<String,String>());
 
         contentStream = createStream(content);
         String mimetype = "mimetype";
@@ -201,6 +237,40 @@ public class S3StorageProviderTest {
         return capturedRequest;
     }
 
+    private Capture<PutObjectRequest> createS3ClientAddContentWithClientError(String checksum) {
+        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        addListBucketsMock();
+
+        PutObjectResult result = EasyMock.createMock("PutObjectResult",
+                                                     PutObjectResult.class);
+        EasyMock.expect(result.getETag()).andThrow(new AmazonClientException("testClientException"));
+        EasyMock.replay(result);
+
+        ObjectMetadata objectMetadata =
+            EasyMock.createMock("ObjectMetadata", ObjectMetadata.class);
+        EasyMock.expect(objectMetadata.getETag()).andReturn("\"oldchecksum\"");
+        EasyMock.expect(objectMetadata.getETag())
+                .andReturn("\"" + checksum + "\"");
+        EasyMock.replay(objectMetadata);
+        
+        EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
+                                                   EasyMock.isA(String.class)))
+                .andThrow(new AmazonClientException("not found."));
+
+        EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
+                                                   EasyMock.isA(String.class)))
+                .andReturn(objectMetadata)
+                .times(2);
+        
+        Capture<PutObjectRequest> capturedRequest = new Capture<>();
+        EasyMock.expect(s3Client.putObject(EasyMock.capture(capturedRequest)))
+            .andReturn(result);
+
+        EasyMock.replay(s3Client);
+        return capturedRequest;
+    }
+
+    
     private Capture<PutObjectRequest> createS3ClientAddContentInvalidChecksum(
         String contentId) {
         s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
@@ -374,7 +444,10 @@ public class S3StorageProviderTest {
         S3StorageProvider provider =
             new S3StorageProvider(s3Client, accessKey, options);
 
-        String resultEtag = provider.doesContentExist("bucketname", "contentId");
+        String resultEtag =
+            provider.doesContentExistWithExpectedChecksum("bucketname",
+                                                          "contentId",
+                                                          etag);
         assertNotNull(resultEtag);
         assertEquals(etag, resultEtag);
     }
