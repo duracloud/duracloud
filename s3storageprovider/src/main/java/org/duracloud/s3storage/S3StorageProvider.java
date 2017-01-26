@@ -608,7 +608,7 @@ public class S3StorageProvider extends StorageProviderBase {
             wait(waitInSeconds);
         }
 
-        if(etag != null){
+        if(etag == null){
             log.warn("contentId={} NOT found in bucket={} after waiting for {} seconds...",
                      contentId,
                      bucketName,
