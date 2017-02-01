@@ -13,6 +13,7 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.retrieval.mgmt.RetrievalListener;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
@@ -37,7 +38,7 @@ import static org.duracloud.retrieval.source.DuraStoreStitchingRetrievalSourceTe
 public class DuraStoreStitchingRetrievalSourceTest {
 
     private DuraStoreStitchingRetrievalSource retrievalSource;
-
+    private RetrievalListener listener;
     private ContentStore store;
     private List<String> spaces;
     private final static boolean allSpaces = false;
@@ -64,11 +65,14 @@ public class DuraStoreStitchingRetrievalSourceTest {
 
         store = EasyMock.createMock("ContentStore", ContentStore.class);
         EasyMock.expect(store.getSpaces()).andReturn(spaces).times(1);
+        
+        listener = EasyMock.createMock("RetrievalListener", RetrievalListener.class);
+        
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(store);
+        EasyMock.verify(store,listener);
 
         for (InputStream stream : streams) {
             stream.close();
@@ -76,7 +80,7 @@ public class DuraStoreStitchingRetrievalSourceTest {
     }
 
     private void replayMocks() {
-        EasyMock.replay(store);
+        EasyMock.replay(store,listener);
     }
 
     @Test
@@ -187,7 +191,16 @@ public class DuraStoreStitchingRetrievalSourceTest {
     }
 
     @Test
-    public void testGetSourceContent() throws Exception {
+    public void testGetSourceContentWithNoListener() throws Exception {
+        testGetSourceContent(null);
+    }
+
+    @Test
+    public void testGetSourceContentWithListener() throws Exception {
+        testGetSourceContent(listener);
+    }
+
+    private void testGetSourceContent(RetrievalListener listener) throws Exception {
         List<ContentType> types = new ArrayList<ContentType>();
         types.add(BASIC);
         types.add(BASIC);
@@ -198,6 +211,17 @@ public class DuraStoreStitchingRetrievalSourceTest {
         types.add(BASIC);
 
         createGetSourceContentMocks(types);
+        
+        if(listener != null){
+            for(int i = 0; i < types.size(); i++){
+                ContentType ct = types.get(i);
+                if(ct.equals(CHUNK)){
+                    listener.chunkRetrieved(CHUNK.getContentId(i));
+                    EasyMock.expectLastCall();
+                }
+            }
+        }
+        
         replayMocks();
 
         retrievalSource = new DuraStoreStitchingRetrievalSource(store,
@@ -209,7 +233,8 @@ public class DuraStoreStitchingRetrievalSourceTest {
 
             // chunks will not be retrieved directly.
             if (CHUNK != type) {
-                ContentStream stream = retrievalSource.getSourceContent(item);
+                ContentStream stream = listener != null ? retrievalSource.getSourceContent(item,listener) :
+                                                          retrievalSource.getSourceContent(item);
                 Assert.assertNotNull(stream);
 
                 String md5 = stream.getChecksum();

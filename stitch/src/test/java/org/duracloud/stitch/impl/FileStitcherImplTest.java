@@ -24,6 +24,7 @@ import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.manifest.xml.ManifestDocumentBinding;
 import org.duracloud.domain.Content;
 import org.duracloud.stitch.FileStitcher;
+import org.duracloud.stitch.FileStitcherListener;
 import org.duracloud.stitch.datasource.DataSource;
 import org.duracloud.stitch.error.InvalidManifestException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -42,6 +43,7 @@ public class FileStitcherImplTest {
     private static final String COLOR_PROPERTY = "color";
 
     private FileStitcher stitcher;
+    private FileStitcherListener listener;
 
     private DataSource dataSource;
     private List<InputStream> streams = new ArrayList<InputStream>();
@@ -55,18 +57,19 @@ public class FileStitcherImplTest {
     @Before
     public void setUp() throws Exception {
         dataSource = EasyMock.createMock("DataSource", DataSource.class);
+        listener = EasyMock.createMock("FileStitcherListener", FileStitcherListener.class);
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(dataSource);
+        EasyMock.verify(dataSource, listener);
         for (InputStream stream : streams) {
             stream.close();
         }
     }
 
     private void replayMocks() {
-        EasyMock.replay(dataSource);
+        EasyMock.replay(dataSource,listener);
     }
 
     @Test
@@ -102,11 +105,25 @@ public class FileStitcherImplTest {
 
     @Test
     public void testGetContentFromManifest() throws Exception {
+        testGetContentFromManifest(null);
+    }
+
+    @Test
+    public void testGetContentFromManifestWithListener() throws Exception {
+        testGetContentFromManifest(listener);
+    }
+
+    private void testGetContentFromManifest(FileStitcherListener listener) throws Exception {
         createMocks(VALID_CHUNKS);
+        if(listener != null){
+           for(int i = 0; i < NUM_CHUNKS; i++){
+               listener.chunkStitched(buildChunkId(i));
+               EasyMock.expectLastCall();
+           }
+        }
         replayMocks();
-        
         stitcher = new FileStitcherImpl(dataSource);
-        Content content = stitcher.getContentFromManifest(spaceId, contentId);
+        Content content = stitcher.getContentFromManifest(spaceId, contentId, listener);
         Assert.assertNotNull(content);
 
         InputStream stream = content.getStream();
@@ -199,13 +216,11 @@ public class FileStitcherImplTest {
         Assert.assertEquals(NUM_CHUNKS, chunkIndexes.size());
 
         String md5 = "md5";
-        String index;
         String chunkId;
         String chunkText;
         for (int chunkIndex : chunkIndexes) {
             // create chunk entry.
-            index = getStringIndex(chunkIndex);
-            chunkId = chunkIdPrefix + ChunksManifest.chunkSuffix + index;
+            chunkId = buildChunkId(chunkIndex);
             chunkText = getChunkContent(chunkIndex);
             manifest.addEntry(chunkId, md5, chunkText.length());
 
@@ -218,6 +233,10 @@ public class FileStitcherImplTest {
         }
 
         return doCreateManifestContent(manifest);
+    }
+
+    protected String buildChunkId(int index) {
+        return chunkIdPrefix + ChunksManifest.chunkSuffix + getStringIndex(index);
     }
 
     private ChunksManifest createManifest(long sourceByteSize) {

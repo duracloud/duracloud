@@ -7,18 +7,6 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.duracloud.chunk.util.ChunkUtil;
-import org.duracloud.client.ContentStore;
-import org.duracloud.common.model.ContentItem;
-import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.retrieval.source.ContentStream;
-import org.duracloud.retrieval.source.RetrievalSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,6 +19,19 @@ import java.nio.file.attribute.FileTime;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
+import java.util.function.Function;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.duracloud.chunk.util.ChunkUtil;
+import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.ContentItem;
+import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.DateUtil;
+import org.duracloud.retrieval.source.ContentStream;
+import org.duracloud.retrieval.source.RetrievalSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles the retrieving of a single file from DuraCloud.
@@ -85,6 +86,10 @@ public class RetrievalWorker implements Runnable {
     }
 
     public Map<String,String> retrieveFile() {
+        return retrieveFile(null);
+    }
+    
+    public Map<String,String> retrieveFile(RetrievalListener listener) {
         attempts++;
         File localFile = getLocalFile();
         Map<String,String> props = null;
@@ -100,7 +105,7 @@ public class RetrievalWorker implements Runnable {
                     } else {
                         renameFile(localFile);
                     }
-                    props = retrieveToFile(localFile);
+                    props = retrieveToFile(localFile, listener);
                     succeed(localFile.getAbsolutePath());
                 }
             } else { // File does not exist
@@ -109,7 +114,7 @@ public class RetrievalWorker implements Runnable {
                     parentDir.mkdirs();
                     parentDir.setWritable(true);
                 }
-                props = retrieveToFile(localFile);
+                props = retrieveToFile(localFile, listener);
                 succeed(localFile.getAbsolutePath());
             }
         } catch(Exception e) {
@@ -213,7 +218,12 @@ public class RetrievalWorker implements Runnable {
      * otherwise an IOException is thrown.
      */
     protected Map<String, String> retrieveToFile(File localFile) throws IOException {
-        contentStream = source.getSourceContent(contentItem);
+        return retrieveToFile(localFile, null);
+    }
+    
+    protected Map<String, String> retrieveToFile(File localFile, RetrievalListener listener) throws IOException {
+
+        contentStream = source.getSourceContent(contentItem, listener);
 
         try (
             InputStream inStream = contentStream.getStream();

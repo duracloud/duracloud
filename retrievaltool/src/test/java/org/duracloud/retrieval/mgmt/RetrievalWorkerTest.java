@@ -338,11 +338,13 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         }
 
         @Override
-        public ContentStream getSourceContent(ContentItem contentItem) {
+        public ContentStream getSourceContent(ContentItem contentItem, RetrievalListener listener) {
             InputStream stream =
                 new ByteArrayInputStream(contentValue.getBytes());
             return new ContentStream(stream, getSourceProperties(contentItem));
         }
+        
+        
     }
 
     /*
@@ -351,7 +353,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
      */
     private class BrokenMockRetrievalSource extends MockRetrievalSource {
         @Override
-        public ContentStream getSourceContent(ContentItem contentItem) {
+        public ContentStream getSourceContent(ContentItem contentItem, RetrievalListener listener) {
             InputStream stream =
                 new ByteArrayInputStream(contentValue.getBytes());
             Map<String,String> props = new HashMap<>();
@@ -368,12 +370,12 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
     private class InconsistentMockRetrievalSource extends MockRetrievalSource {
         private boolean firstAttempt = true;
         @Override
-        public ContentStream getSourceContent(ContentItem contentItem) {
+        public ContentStream getSourceContent(ContentItem contentItem, RetrievalListener listener) {
             if(firstAttempt) {
                 firstAttempt = false;
                 throw new RuntimeException("Some unexpected failure.");
             } else {
-                return super.getSourceContent(contentItem);
+                return super.getSourceContent(contentItem, listener);
             }
         }
     }
