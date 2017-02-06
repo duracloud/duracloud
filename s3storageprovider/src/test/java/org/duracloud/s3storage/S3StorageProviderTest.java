@@ -20,7 +20,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.NotFoundException;
@@ -33,9 +32,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException.ErrorType;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.CopyObjectResult;
@@ -243,7 +245,13 @@ public class S3StorageProviderTest {
 
         PutObjectResult result = EasyMock.createMock("PutObjectResult",
                                                      PutObjectResult.class);
-        EasyMock.expect(result.getETag()).andThrow(new AmazonClientException("testClientException"));
+        
+        AmazonS3Exception ex = new AmazonS3Exception("message");
+        ex.setErrorCode("errorCode");
+        ex.setStatusCode(503);
+        ex.setErrorMessage("message");
+        
+        EasyMock.expect(result.getETag()).andThrow(ex);
         EasyMock.replay(result);
 
         ObjectMetadata objectMetadata =
