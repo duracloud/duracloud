@@ -193,7 +193,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         File localFile = new File(tempDir, "retrieve-to-file-test");
         assertFalse(localFile.exists());
 
-        worker.retrieveToFile(localFile);
+        worker.retrieveToFile(localFile, null);
         assertTrue(localFile.exists());
 
         // Test timestamps
@@ -213,7 +213,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         assertFalse(localFile.exists());
 
         try {
-            worker.retrieveToFile(localFile);
+            worker.retrieveToFile(localFile,null);
             fail("Exception expected with non-matching checksum");
         } catch(IOException expected) {
             assertNotNull(expected);

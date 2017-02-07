@@ -19,7 +19,6 @@ import java.nio.file.attribute.FileTime;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
-import java.util.function.Function;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -211,16 +210,16 @@ public class RetrievalWorker implements Runnable {
         return properties;
     }
 
-    /*
+    /**
      * Transfers the remote file stream to the local file
      * @returns the checksum of the File upon successful retrieval.  Successful
      * retrieval means the checksum of the local file and remote file match,
      * otherwise an IOException is thrown.
+     * @param localFile
+     * @param listener
+     * @return
+     * @throws IOException
      */
-    protected Map<String, String> retrieveToFile(File localFile) throws IOException {
-        return retrieveToFile(localFile, null);
-    }
-    
     protected Map<String, String> retrieveToFile(File localFile, RetrievalListener listener) throws IOException {
 
         contentStream = source.getSourceContent(contentItem, listener);
