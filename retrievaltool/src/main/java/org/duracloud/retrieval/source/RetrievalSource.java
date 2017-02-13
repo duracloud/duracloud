@@ -7,9 +7,10 @@
  */
 package org.duracloud.retrieval.source;
 
-import org.duracloud.common.model.ContentItem;
-
 import java.util.Map;
+
+import org.duracloud.common.model.ContentItem;
+import org.duracloud.retrieval.mgmt.RetrievalListener;
 
 /**
  * @author: Bill Branan
@@ -49,6 +50,18 @@ public interface RetrievalSource {
      * @param contentItem the file to retrieve
      * @return content stream of the specified file
      */
-    public ContentStream getSourceContent(ContentItem contentItem);
+    default public ContentStream getSourceContent(ContentItem contentItem){
+       return getSourceContent(contentItem, null);  
+    };
+    
+    /**
+     * Get the actual content using a retrieval listener callback. The listener
+     * should be called synchronously.  
+     * @param contentItem the file to retrieve
+     * @param listener of the specified operation
+     * @return
+     */
+    public ContentStream getSourceContent(ContentItem contentItem, RetrievalListener listener);
+    
     
 }

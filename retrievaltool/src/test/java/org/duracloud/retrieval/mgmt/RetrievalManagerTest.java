@@ -87,7 +87,7 @@ public class RetrievalManagerTest extends RetrievalTestBase {
         }
 
         @Override
-        public ContentStream getSourceContent(ContentItem contentItem) {
+        public ContentStream getSourceContent(ContentItem contentItem, RetrievalListener listener) {
             InputStream stream = getStream(contentItem.getContentId());
             return new ContentStream(stream, getSourceProperties(contentItem));
         }

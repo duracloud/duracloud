@@ -36,18 +36,21 @@ public class MultiContentInputStreamTest {
     private List<ContentItem> contentItems;
 
     private List<InputStream> streams;
+    
+    private MultiContentInputStreamListener listener;
 
     @Before
     public void setUp() throws Exception {
         dataSource = EasyMock.createMock("DataSource", DataSource.class);
+        listener = EasyMock.createMock("MultiContentInputStreamListener", MultiContentInputStreamListener.class);
         contentItems = new ArrayList<ContentItem>();
-
+        
         streams = new ArrayList<InputStream>();
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(dataSource);
+        EasyMock.verify(dataSource, listener);
 
         for (InputStream stream : streams) {
             stream.close();
@@ -55,17 +58,33 @@ public class MultiContentInputStreamTest {
     }
 
     private void replayMocks() {
-        EasyMock.replay(dataSource);
+        EasyMock.replay(dataSource,listener);
     }
 
     @Test
-    public void testRead() throws Exception {
+    public void testReadWithoutListener() throws Exception {
         String text = createReadMocks();
         replayMocks();
 
         OutputStream out = new ByteArrayOutputStream();
 
         multiStream = new MultiContentInputStream(dataSource, contentItems);
+        IOUtils.copy(multiStream, out);
+        Assert.assertEquals(text, out.toString());
+        out.close();
+    }
+    
+    @Test
+    public void testReadWithListener() throws Exception {
+        String text = createReadMocks();
+        contentItems.stream().forEach(x -> {
+            listener.contentIdRead(x.getContentId());
+            EasyMock.expectLastCall();
+        });
+        replayMocks();
+
+        OutputStream out = new ByteArrayOutputStream();
+        multiStream = new MultiContentInputStream(dataSource, contentItems, listener);
         IOUtils.copy(multiStream, out);
         Assert.assertEquals(text, out.toString());
         out.close();

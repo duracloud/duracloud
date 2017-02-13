@@ -30,9 +30,13 @@ public interface FileStitcher {
      *                                  naming convention, or there is an error
      *                                  retrieving the manifest.
      */
-    public Content getContentFromManifest(String spaceId, String contentId)
-        throws InvalidManifestException;
+    default public Content getContentFromManifest(String spaceId, String contentId)
+        throws InvalidManifestException {
+        return getContentFromManifest(spaceId, contentId, null);
+    }
 
+    public Content getContentFromManifest(String spaceId, String contentId, FileStitcherListener listener)
+        throws InvalidManifestException;
     /**
      * This method returns the deserialized ChunksManifest object found in the
      * arg spaceId with the arg manifestId.

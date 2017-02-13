@@ -25,16 +25,15 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.model.SetBucketLifecycleConfigurationRequest;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpStatus;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.storage.domain.ContentIterator;
-import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.NotFoundException;
@@ -46,7 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.nio.file.Watchable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -516,21 +515,56 @@ public class S3StorageProvider extends StorageProviderBase {
             etag = putResult.getETag();
         } catch (AmazonClientException e) {
             if (e instanceof AmazonS3Exception) {
-                String errorCode = ((AmazonS3Exception) e).getErrorCode();
+                AmazonS3Exception s3Ex = (AmazonS3Exception) e;
+                String errorCode = s3Ex.getErrorCode();
+                Integer statusCode = s3Ex.getStatusCode();
+                String message =
+                    MessageFormat.format("exception putting object {0} into {1}: errorCode={2},  statusCode={3}, errorMessage={4}",
+                                         contentId,
+                                         bucketName,
+                                         errorCode,
+                                         statusCode,
+                                         e.getMessage());
+
                 if (errorCode.equals("InvalidDigest") || errorCode.equals("BadDigest")) {
+                    log.error(message, e);                            
+
                     String err =
                         "Checksum mismatch detected attempting to add " + "content "
                             + contentId
                             + " to S3 bucket "
                             + bucketName
                             + ". Content was not added.";
-                    
-                    
-                    
                     throw new ChecksumMismatchException(err, e, NO_RETRY);
-                }
-            }
+                } else if (errorCode.equals("IncompleteBody")) {
+                    log.error(message, e);                            
+                    throw new StorageException("The content body was incomplete for "
+                                               + contentId
+                                               + " to S3 bucket "
+                                               + bucketName
+                                               + ". Content was not added.",
+                                               e,
+                                               NO_RETRY);
+                } else if (!statusCode.equals(HttpStatus.SC_SERVICE_UNAVAILABLE)
+                           && !statusCode.equals(HttpStatus.SC_NOT_FOUND)) {
+                    log.error(message, e);                            
+                    throw new StorageException(message, e, NO_RETRY);
 
+                }else{
+                    log.warn(message, e);                            
+                }
+            }else{
+                String err = MessageFormat.format("exception putting object {0} into {1}: {2}",
+                                                  contentId,
+                                                  bucketName,
+                                                  e.getMessage());
+                log.error(err, e);
+                throw new StorageException(err,
+                                           e,
+                                           NO_RETRY);
+            }
+            
+            
             etag = doesContentExistWithExpectedChecksum(bucketName, contentId, contentChecksum);
             if(null == etag) {
                 String err = "Could not add content " + contentId +
@@ -608,7 +642,7 @@ public class S3StorageProvider extends StorageProviderBase {
             wait(waitInSeconds);
         }
 
-        if(etag != null){
+        if(etag == null){
             log.warn("contentId={} NOT found in bucket={} after waiting for {} seconds...",
                      contentId,
                      bucketName,

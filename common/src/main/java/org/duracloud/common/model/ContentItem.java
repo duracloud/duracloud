@@ -7,6 +7,9 @@
  */
 package org.duracloud.common.model;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 /**
  * @author: Bill Branan
  * Date: Oct 12, 2010
@@ -29,6 +32,16 @@ public class ContentItem {
         return contentId;
     }
 
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
+    
     @Override
     public String toString() {
         return "DuraCloud file '" + spaceId + "/" + contentId + "'";

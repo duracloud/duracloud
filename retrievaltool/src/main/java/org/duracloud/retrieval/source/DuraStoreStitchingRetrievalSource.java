@@ -7,20 +7,22 @@
  */
 package org.duracloud.retrieval.source;
 
+import java.util.List;
+
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.util.ChunkUtil;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.domain.Content;
+import org.duracloud.retrieval.mgmt.RetrievalListener;
 import org.duracloud.stitch.FileStitcher;
+import org.duracloud.stitch.FileStitcherListener;
 import org.duracloud.stitch.datasource.impl.DuraStoreDataSource;
 import org.duracloud.stitch.error.InvalidManifestException;
 import org.duracloud.stitch.impl.FileStitcherImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * This class implements the RetrievalSource interface with support for handling
@@ -80,7 +82,7 @@ public class DuraStoreStitchingRetrievalSource extends DuraStoreRetrievalSource 
     }
 
     @Override
-    protected Content doGetContent(ContentItem item) {
+    protected Content doGetContent(ContentItem item, RetrievalListener listener) {
         log.debug("enter doGetContent: {}", item);
 
         if (null != item && chunkUtil.isChunk(item.getContentId())) {
@@ -95,18 +97,25 @@ public class DuraStoreStitchingRetrievalSource extends DuraStoreRetrievalSource 
 
         if (null != item && chunkUtil.isChunkManifest(item.getContentId())) {
             log.debug("retrieving manifest: {}", item);
-            return doGetContentFromManifest(item);
+            return doGetContentFromManifest(item, listener);
 
         } else {
             log.debug("retrieving basic content: {}", item);
-            return super.doGetContent(item);
+            return super.doGetContent(item, listener);
         }
     }
 
-    protected Content doGetContentFromManifest(ContentItem item) {
+    protected Content doGetContentFromManifest(ContentItem item, RetrievalListener listener) {
         try {
             return stitcher.getContentFromManifest(item.getSpaceId(),
-                                                   item.getContentId());
+                                                   item.getContentId(),
+                                                   new FileStitcherListener() {
+                                                       public void chunkStitched(String chunkId) {
+                                                           if(listener != null){
+                                                               listener.chunkRetrieved(chunkId);
+                                                           }
+                                                       }
+                                                   });
         } catch (InvalidManifestException e) {
             StringBuilder msg = new StringBuilder();
             msg.append("Unable to get content for ");

@@ -29,12 +29,21 @@ public class MultiContentInputStream extends InputStream {
     private DataSource dataSource;
     private Iterator<ContentItem> contents;
     private InputStream currentStream;
+    private MultiContentInputStreamListener listener;
+    private ContentItem currentItem;
 
     public MultiContentInputStream(DataSource dataSource,
-                                   List<ContentItem> contentItems) {
+                                   List<ContentItem> contentItems,
+                                   MultiContentInputStreamListener listener) {
         this.dataSource = dataSource;
         this.contents = contentItems.iterator();
         this.currentStream = null;
+        this.listener = listener;
+    }
+
+    public MultiContentInputStream(DataSource dataSource,
+                                   List<ContentItem> contentItems) {
+        this(dataSource, contentItems, null);
     }
 
     @Override
@@ -50,9 +59,13 @@ public class MultiContentInputStream extends InputStream {
         }
 
         int bite = currentStream.read();
-        if (-1 == bite && contents.hasNext()) {
-            currentStream = nextStream();
-            bite = currentStream.read();
+        if (-1 == bite) {
+            if(contents.hasNext()){
+                currentStream = nextStream();
+                bite = currentStream.read();
+            }else {
+                notifyContentIdRead();
+            }
         }
 
         return bite;
@@ -61,8 +74,17 @@ public class MultiContentInputStream extends InputStream {
     private InputStream nextStream() {
         if(this.currentStream != null){
             IOUtils.closeQuietly(this.currentStream);
+            notifyContentIdRead();
         }
-        return getStream(contents.next());
+        currentItem = contents.next();
+        return getStream(currentItem);
+    }
+
+    protected void notifyContentIdRead() {
+        if(this.listener != null && this.currentItem != null){
+            this.listener.contentIdRead(this.currentItem.getContentId());
+            this.currentItem = null;
+        }
     }
 
     private InputStream getStream(ContentItem contentItem) {

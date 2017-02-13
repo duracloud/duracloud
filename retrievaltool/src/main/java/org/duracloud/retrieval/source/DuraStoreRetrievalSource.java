@@ -7,19 +7,20 @@
  */
 package org.duracloud.retrieval.source;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.retrieval.mgmt.RetrievalListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author: Bill Branan
@@ -121,13 +122,13 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
     }
 
     @Override
-    public ContentStream getSourceContent(ContentItem contentItem) {
-        Content content = doGetContent(contentItem);
+    public ContentStream getSourceContent(ContentItem contentItem, RetrievalListener listener) {
+        Content content = doGetContent(contentItem, listener);
         return new ContentStream(content.getStream(),
                                  content.getProperties());
     }
 
-    protected Content doGetContent(ContentItem contentItem) {
+    protected Content doGetContent(ContentItem contentItem, RetrievalListener listener) {
         try {
             return contentStore.getContent(contentItem.getSpaceId(),
                                            contentItem.getContentId());

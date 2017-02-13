@@ -7,17 +7,7 @@
  */
 package org.duracloud.stitch.impl;
 
-import org.duracloud.chunk.manifest.ChunksManifest;
-import org.duracloud.chunk.manifest.ChunksManifestBean;
-import org.duracloud.chunk.manifest.xml.ManifestDocumentBinding;
-import org.duracloud.common.model.ContentItem;
-import org.duracloud.domain.Content;
-import org.duracloud.stitch.FileStitcher;
-import org.duracloud.stitch.datasource.DataSource;
-import org.duracloud.stitch.error.InvalidManifestException;
-import org.duracloud.stitch.stream.MultiContentInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.duracloud.storage.provider.StorageProvider.*;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -26,10 +16,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_MD5;
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_SIZE;
+import org.duracloud.chunk.manifest.ChunksManifest;
+import org.duracloud.chunk.manifest.ChunksManifestBean;
+import org.duracloud.chunk.manifest.xml.ManifestDocumentBinding;
+import org.duracloud.common.model.ContentItem;
+import org.duracloud.domain.Content;
+import org.duracloud.stitch.FileStitcher;
+import org.duracloud.stitch.FileStitcherListener;
+import org.duracloud.stitch.datasource.DataSource;
+import org.duracloud.stitch.error.InvalidManifestException;
+import org.duracloud.stitch.stream.MultiContentInputStream;
+import org.duracloud.stitch.stream.MultiContentInputStreamListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class implements the FileStitcher interface.
@@ -48,7 +47,7 @@ public class FileStitcherImpl implements FileStitcher {
     }
 
     @Override
-    public Content getContentFromManifest(String spaceId, String contentId)
+    public Content getContentFromManifest(String spaceId, String contentId, FileStitcherListener listener)
         throws InvalidManifestException {
         log.debug("getContentFromManifest({}, {})", spaceId, contentId);
 
@@ -63,7 +62,7 @@ public class FileStitcherImpl implements FileStitcher {
         ChunksManifest manifest = getManifest(manifestContent, spaceId, contentId);
 
         // collect ordered sequence of chunk streams.
-        InputStream multiStream = getChunkSequenceStream(spaceId, manifest);
+        InputStream multiStream = getChunkSequenceStream(spaceId, manifest, listener);
 
         // package the chunks as the reconstituted content item.
         Content content = new Content();
@@ -93,6 +92,7 @@ public class FileStitcherImpl implements FileStitcher {
         return getManifest(dataSource.getContent(spaceId, manifestId), spaceId, manifestId);
     }
     
+    
     private ChunksManifest getManifest(Content content, String spaceId, String manifestId)
         throws InvalidManifestException {
         if (null == content) {
@@ -112,7 +112,7 @@ public class FileStitcherImpl implements FileStitcher {
     }
 
     private InputStream getChunkSequenceStream(String spaceId,
-                                               ChunksManifest manifest)
+                                               ChunksManifest manifest, FileStitcherListener listener)
         throws InvalidManifestException {
         // sort chunks by their index.
         Map<Integer, String> sortedChunkIds = new TreeMap<Integer, String>();
@@ -132,8 +132,17 @@ public class FileStitcherImpl implements FileStitcher {
             String contentId = manifest.getHeader().getSourceContentId();
             throw new InvalidManifestException(spaceId, contentId, msg);
         }
-
-        return new MultiContentInputStream(dataSource, chunks);
+        
+        return new MultiContentInputStream(dataSource,
+                                           chunks,
+                                           new MultiContentInputStreamListener() {
+                                               public void
+                                                      contentIdRead(String contentId) {
+                                                   if (listener != null) {
+                                                       listener.chunkStitched(contentId);
+                                                   }
+                                               }
+                                           });
     }
 
     private Map<String, String> getContentProperties(ChunksManifest manifest) {

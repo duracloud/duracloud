@@ -13,6 +13,7 @@ import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.retrieval.mgmt.RetrievalListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +66,7 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
     }
 
     @Override
-    protected Content doGetContent(ContentItem item) {
+    protected Content doGetContent(ContentItem item, RetrievalListener listener) {
         try {
             return contentStore.getContent(item.getSpaceId(),
                     item.getContentId());
@@ -77,7 +78,7 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
             // for the passed in ContentItem to this method.
             ContentItem manifestItem = new ContentItem(item.getSpaceId(),
                     item.getContentId() + ChunksManifest.manifestSuffix);
-            return doGetContentFromManifest(manifestItem);
+            return doGetContentFromManifest(manifestItem, listener);
         }
     }
 }
