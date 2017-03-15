@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.duracloud.account.db.model.Role;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.SnapshotSummary;
@@ -64,7 +65,8 @@ public class GetSnapshotsTaskRunner extends AbstractSnapshotTaskRunner {
         
         //if the caller has only user privs
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if(!auth.getAuthorities().contains("ROLE_ADMIN")){
+        
+        if(!auth.getAuthorities().contains(Role.ROLE_ADMIN.authority())){
             //deserialize results
             GetSnapshotListBridgeResult list = GetSnapshotListBridgeResult.deserialize(result);
             List<SnapshotSummary> filteredSnapshots = new LinkedList<>();
