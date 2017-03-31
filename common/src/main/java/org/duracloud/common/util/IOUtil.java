@@ -85,6 +85,17 @@ public class IOUtil {
             IOUtils.copy(inStream, outStream);
         } catch (IOException e) {
             String err = "Error writing stream to file: " + e.getMessage();
+
+            //close the outputstream if possible
+            //so that file can be deleted.
+            if(null != outStream) {
+                IOUtils.closeQuietly(outStream);
+            }
+
+            if(file != null && file.exists()){
+                file.delete();
+            }
+            
             throw new DuraCloudRuntimeException(err, e);
         } finally {
             if(null != inStream) {
