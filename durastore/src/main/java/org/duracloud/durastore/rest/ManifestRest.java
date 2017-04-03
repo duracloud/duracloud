@@ -20,6 +20,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.http.client.utils.URIBuilder;
@@ -28,9 +29,11 @@ import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
+import org.duracloud.common.stream.GzipCompressingInputStream;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.ChecksumUtil.Algorithm;
 import org.duracloud.common.util.DateUtil;
+import org.duracloud.common.util.DateUtil.DateFormat;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.manifest.error.ManifestArgumentException;
 import org.duracloud.manifest.error.ManifestNotFoundException;
@@ -42,6 +45,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+
 
 /**
  * REST interface for the Manifest Generator.
@@ -76,7 +81,8 @@ public class ManifestRest extends BaseRest {
     public Response getManifest(@PathParam("spaceId") String spaceId,
                                 @QueryParam("format") String format,
                                 @QueryParam("storeID") String storeId,
-                                @QueryParam("generate") String generate) {
+                                @QueryParam("generate") String generate,
+                                @QueryParam("compress") String compress) {
 
         if (!enabled) {
             return Response.status(501)
@@ -99,18 +105,31 @@ public class ManifestRest extends BaseRest {
 
             InputStream manifest =
                 manifestResource.getManifest(account, storeId, spaceId, format);
-
+            
+            boolean compressOutput = compress != null;
+            
             if (generate != null) {
                 URI uri = generateAsynchronously(account,
                                                  spaceId,
                                                  storeId,
                                                  format,
-                                                 manifest);
+                                                 manifest,
+                                                 compressOutput);
                 return Response.accepted("We are processing your manifest generation request. " +
                                          "To retrieve your file, please poll the URI in the Location " + 
                                          "header of this response: (" + uri + ").").location(uri).build();
             } else {
-                return responseOkStream(manifest);
+                if(compressOutput){
+                    return Response.ok(new GzipCompressingInputStream(manifest))
+                        .type(new MediaType("application", "x-gzip"))
+                        .build();
+                    
+                }else{
+                    return Response.ok(manifest)
+                                   .type(ManifestFormat.valueOf(format)
+                                                       .getMimeType())
+                                   .build();
+                }
             }
 
         } catch (ManifestArgumentException e) {
@@ -138,20 +157,26 @@ public class ManifestRest extends BaseRest {
      * @param storeId
      * @param format
      * @param manifest 
+     * @param compress
      * @return The URI of the generated manifest.
      */
     private URI generateAsynchronously(String account,
                                        String spaceId,
                                        String storeId,
-                                       String format, InputStream manifest)
+                                       String format, 
+                                       InputStream manifest,
+                                       boolean compress)
         throws Exception {
         StorageProviderType providerType = getStorageProviderType(storeId);
 
         String contentId =
-            MessageFormat.format("generated-manifests/manifest-{0}_{1}{2}.txt",
+            MessageFormat.format("generated-manifests/manifest-{0}_{1}_{2}.txt{3}",
                                  spaceId,
                                  providerType.name().toLowerCase(),
-                                 DateUtil.convertToString(System.currentTimeMillis()));
+                                 DateUtil.convertToString(System.currentTimeMillis(), DateFormat.PLAIN_FORMAT),
+                                 compress ? ".gz":"");
+
+       
 
         String adminSpace = "x-duracloud-admin";
 
@@ -163,7 +188,7 @@ public class ManifestRest extends BaseRest {
 
             try {
                 // write file to disk
-                File file = IOUtil.writeStreamToFile(manifest);
+                File file = IOUtil.writeStreamToFile(manifest, true);
 
                 // upload to the default storage provider with retries
                 uploadManifestToDefaultStorageProvider(format,

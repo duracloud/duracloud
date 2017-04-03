@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -77,11 +78,19 @@ public class IOUtil {
     }
 
     public static File writeStreamToFile(InputStream inStream) {
+        return writeStreamToFile(inStream, false);
+    }
+    
+    public static File writeStreamToFile(InputStream inStream, boolean gzip) {
+
         File file = null;
         OutputStream outStream = null;
         try {
             file = File.createTempFile("file", ".tmp");
             outStream = FileUtils.openOutputStream(file);
+            if(gzip){
+                outStream = new GZIPOutputStream(outStream);
+            }
             IOUtils.copy(inStream, outStream);
         } catch (IOException e) {
             String err = "Error writing stream to file: " + e.getMessage();

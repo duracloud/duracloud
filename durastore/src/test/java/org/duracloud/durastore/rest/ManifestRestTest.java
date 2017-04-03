@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPInputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
@@ -79,12 +80,25 @@ public class ManifestRestTest extends EasyMockSupport {
     }
 
     @Test
+    public void getCompressedManifestSync() throws Exception {
+        String format = ManifestFormat.TSV.name();
+        expectGetManifest(format);
+        setupAccountId();
+        replayAll();
+        Response response = rest.getManifest(spaceId, format, storeId, null, "compress");
+        InputStream is = (InputStream)response.getEntity();
+        
+        assertEquals(testContent, IOUtil.readStringFromStream(new GZIPInputStream(is)));
+    }
+
+    
+    @Test
     public void getManifestSync() throws Exception {
         String format = ManifestFormat.TSV.name();
         expectGetManifest(format);
         setupAccountId();
         replayAll();
-        Response response = rest.getManifest(spaceId, format, storeId, null);
+        Response response = rest.getManifest(spaceId, format, storeId, null, null);
         InputStream is = (InputStream)response.getEntity();
         assertEquals(testContent, IOUtil.readStringFromStream(is));
     }
@@ -126,7 +140,7 @@ public class ManifestRestTest extends EasyMockSupport {
                                    });
 
         replayAll();
-        Response response = rest.getManifest(spaceId, format, storeId, "generate");
+        Response response = rest.getManifest(spaceId, format, storeId, "generate", null);
         URI uri = (URI) response.getLocation();
         assertEquals(HttpStatus.SC_ACCEPTED, response.getStatus());
 
