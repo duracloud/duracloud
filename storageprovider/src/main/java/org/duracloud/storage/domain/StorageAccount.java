@@ -30,6 +30,7 @@ public interface StorageAccount {
         HOST,
         BASE_DIRECTORY,
         RESOURCE,
+        TEMP_PATH,
         // Snapshot below
         SNAPSHOT_USER,
         BRIDGE_HOST,
