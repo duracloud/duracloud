@@ -4,13 +4,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>retrievaltool</artifactId>
   <packaging>jar</packaging>
-  <version>4.2.6</version>
+  <version>4.3.0</version>
   <name>Retrieval Tool</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>4.2.6</version>
+    <version>4.3.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
