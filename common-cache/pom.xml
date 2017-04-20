@@ -3,14 +3,14 @@
     <parent>
         <groupId>org.duracloud</groupId>
         <artifactId>duracloud</artifactId>
-        <version>4.3.2</version>
+        <version>4.3.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.duracloud</groupId>
     <artifactId>common-cache</artifactId>
-    <version>4.3.2</version>
+    <version>4.3.3</version>
     <name>Common Event</name>
 
     <dependencies>
