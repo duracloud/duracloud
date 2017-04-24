@@ -17,10 +17,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.http.client.utils.URIBuilder;
@@ -29,7 +29,6 @@ import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
-import org.duracloud.common.stream.GzipCompressingInputStream;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.ChecksumUtil.Algorithm;
 import org.duracloud.common.util.DateUtil;
@@ -76,13 +75,14 @@ public class ManifestRest extends BaseRest {
         this.storageProviderFactory = storageProviderFactory;
     }
 
+    
+    
+    
     @Path("/{spaceId}")
     @GET
     public Response getManifest(@PathParam("spaceId") String spaceId,
                                 @QueryParam("format") String format,
-                                @QueryParam("storeID") String storeId,
-                                @QueryParam("generate") String generate,
-                                @QueryParam("compress") String compress) {
+                                @QueryParam("storeID") String storeId) {
 
         if (!enabled) {
             return Response.status(501)
@@ -106,32 +106,58 @@ public class ManifestRest extends BaseRest {
             InputStream manifest =
                 manifestResource.getManifest(account, storeId, spaceId, format);
             
-            boolean compressOutput = compress != null;
-            
-            if (generate != null) {
+            return Response.ok(manifest)
+                           .type(ManifestFormat.valueOf(format)
+                                               .getMimeType()).build();
+
+        } catch (ManifestArgumentException e) {
+            log.error("Error for, {}:{} [{}]",
+                      new Object[] { storeId, spaceId, format, e });
+            return responseBadRequest(e);
+
+        } catch (ManifestNotFoundException e) {
+            log.error("Error for, {}:{} [{}]",
+                      new Object[] { storeId, spaceId, format, e });
+            return responseNotFound(e.getMessage());
+
+        } catch (Exception e) {
+            log.error("Error for, {}:{} [{}]",
+                      new Object[] { storeId, spaceId, format, e });
+            return responseBad(e);
+        }
+    }
+    
+    @Path("/{spaceId}")
+    @POST
+    public Response generateManifest(@PathParam("spaceId") String spaceId,
+                                @QueryParam("format") String format,
+                                @QueryParam("storeID") String storeId) {
+
+        if (!enabled) {
+            return Response.status(501)
+                           .entity("This endpoint is currently disabled.")
+                           .build();
+        }
+        
+        if(format == null){
+            format = DEFAULT_FORMAT;
+        }
+
+        String account = getSubdomain();
+        log.info("generating manifest, {}:{}:{} [{}]",
+                 account,
+                 storeId,
+                 spaceId,
+                 format);
+
+        try {
                 URI uri = generateAsynchronously(account,
                                                  spaceId,
                                                  storeId,
-                                                 format,
-                                                 manifest,
-                                                 compressOutput);
+                                                 format);
                 return Response.accepted("We are processing your manifest generation request. " +
                                          "To retrieve your file, please poll the URI in the Location " + 
                                          "header of this response: (" + uri + ").").location(uri).build();
-            } else {
-                if(compressOutput){
-                    return Response.ok(new GzipCompressingInputStream(manifest))
-                        .type(new MediaType("application", "x-gzip"))
-                        .build();
-                    
-                }else{
-                    return Response.ok(manifest)
-                                   .type(ManifestFormat.valueOf(format)
-                                                       .getMimeType())
-                                   .build();
-                }
-            }
-
         } catch (ManifestArgumentException e) {
             log.error("Error for, {}:{} [{}]",
                       new Object[] { storeId, spaceId, format, e });
@@ -156,25 +182,26 @@ public class ManifestRest extends BaseRest {
      * @param spaceId
      * @param storeId
      * @param format
-     * @param manifest 
      * @param compress
      * @return The URI of the generated manifest.
      */
     private URI generateAsynchronously(String account,
                                        String spaceId,
                                        String storeId,
-                                       String format, 
-                                       InputStream manifest,
-                                       boolean compress)
+                                       String format)
         throws Exception {
         StorageProviderType providerType = getStorageProviderType(storeId);
 
+        InputStream manifest =
+            manifestResource.getManifest(account, storeId, spaceId, format);
+
+        
         String contentId =
             MessageFormat.format("generated-manifests/manifest-{0}_{1}_{2}.txt{3}",
                                  spaceId,
                                  providerType.name().toLowerCase(),
                                  DateUtil.convertToString(System.currentTimeMillis(), DateFormat.PLAIN_FORMAT),
-                                 compress ? ".gz":"");
+                                 ".gz");
 
        
 
