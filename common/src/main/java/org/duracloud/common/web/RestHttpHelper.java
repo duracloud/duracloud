@@ -42,6 +42,7 @@ import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
@@ -280,7 +281,9 @@ public class RestHttpHelper {
         org.apache.http.HttpResponse response;
         if (null != credsProvider) {
             CloseableHttpClient httpClient =
-                HttpClients.custom().setDefaultCredentialsProvider(credsProvider).build();
+                buildClient(HttpClients.custom()
+                                       .setDefaultCredentialsProvider(credsProvider),
+                            method);
 
             // Use preemptive basic auth
             URI requestUri = httpRequest.getURI();
@@ -295,7 +298,7 @@ public class RestHttpHelper {
 
             response = httpClient.execute(httpRequest, localContext);
         } else {
-            CloseableHttpClient httpClient = HttpClients.createDefault();
+            CloseableHttpClient httpClient = buildClient(HttpClients.custom(),method);
             response = httpClient.execute(httpRequest);
         }
 
@@ -306,6 +309,14 @@ public class RestHttpHelper {
         }
 
         return httpResponse;
+    }
+
+    private CloseableHttpClient buildClient(HttpClientBuilder builder,
+                                            Method method) {
+        if (method.equals(Method.HEAD)) {
+            builder.disableContentCompression();
+        }
+        return builder.build();
     }
 
     private void addHeaders(HttpRequestBase httpRequest, Map<String, String> headers) {
