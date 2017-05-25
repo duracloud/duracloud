@@ -95,7 +95,15 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
             cfClient.listStreamingDistributions(new ListStreamingDistributionsRequest())
                     .getStreamingDistributionList();
 
-        for(StreamingDistributionSummary distSummary : distList.getItems()) {
+        List<StreamingDistributionSummary> streamingDistList = distList.getItems();
+        while(distList.isTruncated()) {
+            distList = cfClient.listStreamingDistributions(
+                new ListStreamingDistributionsRequest().withMarker(distList.getNextMarker()))
+                               .getStreamingDistributionList();
+            streamingDistList.addAll(distList.getItems());
+        }
+
+        for(StreamingDistributionSummary distSummary : streamingDistList) {
             if(isDistFromBucket(bucketName, distSummary)) {
                 distListForBucket.add(distSummary);
             }
