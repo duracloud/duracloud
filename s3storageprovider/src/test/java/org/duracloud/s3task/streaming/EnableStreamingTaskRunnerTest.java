@@ -140,7 +140,8 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
             new ListStreamingDistributionsResult()
                 .withStreamingDistributionList(
                     new StreamingDistributionList()
-                        .withItems(new ArrayList()));
+                        .withItems(new ArrayList())
+                        .withIsTruncated(false));
         EasyMock
             .expect(cfClient.listStreamingDistributions(
                 EasyMock.isA(ListStreamingDistributionsRequest.class)))

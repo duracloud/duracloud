@@ -191,12 +191,29 @@ public class StreamingTaskRunnerTestBase {
             new ListStreamingDistributionsResult()
                 .withStreamingDistributionList(
                     new StreamingDistributionList()
-                        .withItems(new ArrayList()));
+                        .withItems(new ArrayList())
+                        .withIsTruncated(false));
         EasyMock
             .expect(cfClient.listStreamingDistributions(
                 EasyMock.isA(ListStreamingDistributionsRequest.class)))
             .andReturn(result)
             .times(1);
+
+        EasyMock.replay(cfClient);
+        return cfClient;
+    }
+
+    /*
+     * For testing the case where the number of distributions exceeds the
+     * maximum that can be returned in a single call
+     */
+    protected AmazonCloudFrontClient createMockCFClientV5(boolean secure,
+                                                          int listCallsExpected)
+        throws Exception {
+        AmazonCloudFrontClient cfClient =
+            EasyMock.createMock(AmazonCloudFrontClient.class);
+
+        cfClientExpectValidDistribution(cfClient, secure, listCallsExpected);
 
         EasyMock.replay(cfClient);
         return cfClient;
@@ -217,6 +234,19 @@ public class StreamingTaskRunnerTestBase {
      */
     protected void cfClientExpectValidDistribution(AmazonCloudFrontClient cfClient,
                                                    boolean secure) {
+        cfClientExpectValidDistribution(cfClient, secure, 1);
+    }
+
+    /**
+     * Used when expecting a valid distribution as a result of the
+     * listStreamingDistributions call.
+     * @param secure defines if the returned distribution is secure or open
+     * @param listCallsExpected the number of times the call to list distributions will
+     *                          be called in order to retrieve the entire list
+     */
+    protected void cfClientExpectValidDistribution(AmazonCloudFrontClient cfClient,
+                                                   boolean secure,
+                                                   int listCallsExpected) {
         S3Origin origin = new S3Origin().withDomainName(
             bucketName + DeleteStreamingTaskRunner.S3_ORIGIN_SUFFIX);
         StreamingDistributionSummary distSummary =
@@ -230,18 +260,26 @@ public class StreamingTaskRunnerTestBase {
         }
         distSummary.setTrustedSigners(trustedSigners);
 
-        List<StreamingDistributionSummary> distSummaries = new ArrayList();
-        distSummaries.add(distSummary);
-        ListStreamingDistributionsResult distSummaryResult =
-            new ListStreamingDistributionsResult()
-                .withStreamingDistributionList(
-                    new StreamingDistributionList()
-                        .withItems(distSummaries));
-        EasyMock
-            .expect(cfClient.listStreamingDistributions(
-                EasyMock.isA(ListStreamingDistributionsRequest.class)))
-            .andReturn(distSummaryResult)
-            .times(1);
+        for(int i=0; i<listCallsExpected; i++) {
+            boolean truncated = false;
+            if((listCallsExpected - i) > 1) {
+                truncated = true;
+            }
+
+            List<StreamingDistributionSummary> distSummaries = new ArrayList();
+            distSummaries.add(distSummary);
+            ListStreamingDistributionsResult distSummaryResult =
+                new ListStreamingDistributionsResult()
+                    .withStreamingDistributionList(
+                        new StreamingDistributionList()
+                            .withItems(distSummaries)
+                            .withIsTruncated(truncated)
+                            .withNextMarker("marker"));
+            EasyMock
+                .expect(cfClient.listStreamingDistributions(
+                    EasyMock.isA(ListStreamingDistributionsRequest.class)))
+                .andReturn(distSummaryResult);
+        }
     }
 
 }
