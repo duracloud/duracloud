@@ -19,7 +19,7 @@ public class RetrievalConfig {
 
     public static final String DEFAULT_WORK_DIR =
         System.getProperty("user.home") + File.separator +
-            "duracloud-retreival-work";
+            "duracloud-retrieval-work";
 
     private static File workDir;
 
