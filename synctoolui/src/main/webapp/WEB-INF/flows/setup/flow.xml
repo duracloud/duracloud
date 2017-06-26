@@ -36,7 +36,7 @@
   </decision-state>
 
   <view-state id="noSpaceAvailableError" view="/setup/no-space-error">
-    <transition on="exit" to="end" />
+    <transition on="cancel" to="end"  validate="false"/>
   </view-state>
 
   <view-state id="selectSpace" view="/setup/space" model="spaceForm">
