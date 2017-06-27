@@ -22,12 +22,6 @@ $.widget("ui.uploader", {
         _progress: null,
         _progressPanel: null, 
         _dropTarget: null,
-        _isDnDSupported:function(){
-            return (typeof FileReader != 'undefined') &&
-                   ('draggable' in document.createElement('span')) &&
-                   (!!window.FormData) && 
-                   ("upload" in new XMLHttpRequest);
-        },
         _init: function(){ 
             var that = this;
  
@@ -38,120 +32,37 @@ $.widget("ui.uploader", {
             /**
              * configure drag and drop support only if it is supported.
              */
-            if(this._isDnDSupported()){
-                dropTarget.unbind();
-                dropTarget.bind("dragover", 
-                            function () { 
-                                this.className = 'hover'; 
-                                return false; 
-                            });
-                
-                var removeHover = function () { 
-                    this.className = ''; 
-                    return false; 
-                };
+              dropTarget.unbind();
+              dropTarget.bind("dragover", 
+                          function () { 
+                              this.className = 'hover'; 
+                              return false; 
+                          });
+              
+              var removeHover = function () { 
+                  this.className = ''; 
+                  return false; 
+              };
 
-                dropTarget.bind("dragend", removeHover);
-                dropTarget.bind("dragleave", removeHover);
+              dropTarget.bind("dragend", removeHover);
+              dropTarget.bind("dragleave", removeHover);
 
-                dropTarget.bind("drop", 
-                            function (e) {
-                                this.className = '';
-                                e.preventDefault();
-                                that._loadPreviewList(e.originalEvent.dataTransfer.files);
-                            });
-                that._dropTarget = dropTarget;
-    
-            }
+              dropTarget.bind("drop", 
+                          function (e) {
+                              this.className = '';
+                              e.preventDefault();
+                              that._loadPreviewList(e.originalEvent.dataTransfer.files);
+                          });
+              that._dropTarget = dropTarget;
 
             that._progress = $("#uploadprogress");
 
             that._progressPanel = that._progress.parent();
             
-            var  singleUploadForm = $("#single-upload-form");
-
-            singleUploadForm.validate({
-                rules: {
-                    file: {
-                        required:true,
-                    },
-                },
-                messages: {}
-            });
-            
-            var formControls = singleUploadForm.find("button");
-            
-            singleUploadForm.find("#file")
-                        .change(function(){
-                              $("#single-upload-2").hide();
-                              $("#single-upload-1").show();
-                              var filename = singleUploadForm.find('#file').val().replace(/C:\\fakepath\\/i, '');
-                              singleUploadForm.find("#path,#contentId").val(filename);
-
-                              $(".cancel", singleUploadForm)
-                              .unbind() 
-                              .click(function(e){
-                                  e.preventDefault();
-                                  that._reset();
-                              });
-                              
-                              $("#dnd-upload", that.element).hide();
-                              that._status("The 'DuraCloud ID' field indicates the identifier a file will be known by in DuraCloud. You may update this if you wish, then click 'Upload' to start the transfer process.");
+            $("#file-chooser-form", this.element).find("#file").
+                        unbind().change(function(evt){
+                              that._loadPreviewList(evt.target.files);
                         });
-            
-            
-            singleUploadForm.ajaxForm({
-                dataType: "text",
-                beforeSerialize:function(form, options){
-                    dc.checkSession();
-                    that._status("Uploading...");
-                    form.find("#spaceId").val(that._space.spaceId);
-                    form.find("#storeId").val(that._space.storeId);
-                    formControls.attr("disabled", "disabled");
-                    form.hide();
-                },
-                success: function(data){
-                    data = $.parseJSON(data);
-                    dc.checkSession();
-                    that._status("Successfully uploaded.", true);
-                    that._progressPanel.hide();
-                    //on success reset
-                    that._addUploadAnotherButton();
- 
-                    if(that.options.clickContent){
-
-                        that._dropPreview.append($("<p>Click on link below to view file.</p>"));
-
-                        var item = $("<div class='upload-item'></div>");
-                        item.append($("<a>"+data.results[0].contentId+"</a>")
-                                .click(function(){
-                                    that.options.clickContent(data.results[0]);
-                                }));
-                        that._dropPreview.append(item);
-                        
-                    }
-                    
-                    if(that.options.contentUploaded){
-                        that.options.contentUploaded(data.results)   
-                    }
-                },
-                
-                uploadProgress: function (event, position, total, complete) {
-                    that._status("Uploading...");
-                    that._progressPanel.show();
-                    that._progress.val(complete);
-                    that._progress.html(complete);
-                },
-                
-                error: function(xhr, status, errorThrown){
-                    that._status("Upload failed", false);
-                },
-                
-                complete: function(){
-                    formControls.removeAttr("disabled");
-                }
-            });
-            
             
             that._reset();
             
@@ -171,7 +82,13 @@ $.widget("ui.uploader", {
                         "\n\nTo skip this item, click 'Cancel'.")){
                     return;
                 }
+            }else if (file.size > (2*1000*1000*1000)){
+              alert("It looks like \"" + file.name + "\" is larger than two gigabytes. \n" +
+                    "Please use the DuraCloud SyncTool to upload larger files.\n\n" +
+                    "This file will be skipped");
+              return;
             }
+            
             var item = $("<div class='upload-item form-fields'></div>").addClass("clearfix");
             item.css("vertical-align","middle");
             var ul = $("<ul></ul>");
@@ -224,27 +141,18 @@ $.widget("ui.uploader", {
         },
         
         _reset: function(){
-            var form = $("#single-upload-form",this.element);
-            form[0].reset();
+            var form = $("#file-chooser-form",this.element);
+            form.find("#file").val('');
             form.show();
-
-            $("#single-upload-2").show();
-            $("#single-upload-1").hide();
 
             var dndUpload = $("#dnd-upload");
 
             this._dropPreview.children().remove();
 
-            if(this._isDnDSupported()){
-                this._dropTarget.show();
+            this._dropTarget.show();
                 dndUpload.show();
                 this._status('Select a single file using the file chooser or drag and '+
                 'drop files from your computer onto the dotted square to upload');
-
-            }else{
-                dndUpload.hide();
-                this._status('Select a single file using the file chooser.');
-            }
         },
         
         _status: function(statusText,/*boolean*/ success){
@@ -259,8 +167,6 @@ $.widget("ui.uploader", {
             }
             
         },
-        
-        
         
         _uploadFiles: function(files){
             var that = this;
@@ -377,7 +283,7 @@ $.widget("ui.uploader", {
                 that._previewfile(file, i, function(index){
                     
                     //disable extraneous controls while previewing.
-                    $("#single-upload-form", that.element).fadeOut();
+                    $("#file-chooser-form", that.element).fadeOut();
                     $("#dnd-upload",that.element).fadeOut();
 
                     
@@ -406,8 +312,7 @@ $.widget("ui.uploader", {
         },
 
         
-        destroy: function(){ 
-        
+        close: function(){ 
         }, 
     }
 );
