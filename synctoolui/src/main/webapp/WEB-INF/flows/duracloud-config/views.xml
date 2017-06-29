@@ -7,5 +7,6 @@
   <definition name="/duracloud-config/credentials" extends="/setup/credentials" />
   <definition name="/duracloud-config/space"  extends="/setup/space" />
   <definition name="/duracloud-config/finish" template="/WEB-INF/jsp/duracloud-config/finish.jsp" />
+  <definition name="/duracloud-config/no-space-error"  extends="/setup/no-space-error"/>
 
 </tiles-definitions>

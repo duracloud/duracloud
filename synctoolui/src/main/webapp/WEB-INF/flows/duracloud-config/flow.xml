@@ -32,7 +32,7 @@
   </decision-state>
 
   <view-state id="noSpaceAvailableError" view="/duracloud-config/no-space-error">
-    <transition on="cancel" to="end" />
+    <transition on="cancel" to="end"  validate="false"/>
   </view-state>
 
   <view-state id="selectSpace" view="/duracloud-config/space" model="spaceForm">
