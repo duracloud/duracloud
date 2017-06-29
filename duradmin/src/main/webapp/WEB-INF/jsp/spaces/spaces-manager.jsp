@@ -722,46 +722,19 @@
         </div>
         <div id="upload-viewer" style="display:none">
           <h1>Upload</h1>
-            <div class="hint status">
-              <p></p>
-            </div>
-            <div id="upload-progress-panel" style="display:none">
-              <progress
-                id="uploadprogress"
-                min="0"
-                max="100"
-                value="0">0</progress>
-            </div>
-          <div id="file-chooser-form">
-            <form id="single-upload-form" method="POST" enctype="multipart/form-data" action="${pageContext.request.contextPath}/spaces/content/upload">
-              <div id="single-upload-1" class="form-fields" style="display:none">
-               <input type="hidden" name="spaceId" id="spaceId" value=""/>
-               <input type="hidden" name="storeId" id="storeId" value=""/>
-
-               <ul>
-                  <li>
-                   <button type="submit">Upload</button>
-                   <button class="cancel">Cancel</button>
-                  </li>
-
-                  <li class="clearfix">
-                     <label>File Name</label>
-                     <input id="path" type="text" readonly="readonly" class="field" size="35"/>
-                  </li>
-                  <li class="clearfix">
-                      <label for="contentId">DuraCloud ID</label>
-                      <input  id="contentId" type="text" name="contentId" placeholder="optional content id" size="35"/>
-                  </li>
-                </ul>
-              </div>
-              <div id="single-upload-2" class="form-fields">
-                     <input  id="file" name="file" type="file" class="field" />
-              </div>
-              
-
-            </form>
+          <div class="hint status">
+            <p></p>
           </div>
-
+          <div id="upload-progress-panel" style="display:none">
+            <progress
+              id="uploadprogress"
+              min="0"
+              max="100"
+              value="0">0</progress>
+          </div>
+          <div id="file-chooser-form" class="form-fields">
+             <input  id="file" name="file" type="file" class="field" multiple />
+          </div>
 
           <div id="upload-list-wrapper">
               <div id="dnd-upload">
