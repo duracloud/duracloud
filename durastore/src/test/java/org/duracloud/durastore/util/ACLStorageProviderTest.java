@@ -84,7 +84,7 @@ public class ACLStorageProviderTest {
     
     private void setupNotification(){
         notifier.storageProviderCacheOnNodeChanged("account");
-        expectLastCall();
+        expectLastCall().once();
         expect(requestContextUtil.getAccountId()).andReturn("account");
     }
 
@@ -96,7 +96,7 @@ public class ACLStorageProviderTest {
         createMockSecurityContext(3);
 
         mockProvider.createSpace(spaceId);
-        expectLastCall();
+        expectLastCall().once();
 
         replayMocks();
 
@@ -232,7 +232,7 @@ public class ACLStorageProviderTest {
         Map<String, AclType> origAcls = createSpaceACLs();
 
         mockProvider.setSpaceACLs(spaceId, origAcls);
-        expectLastCall();
+        expectLastCall().once();
         replayMocks();
 
         // method under test
@@ -265,7 +265,7 @@ public class ACLStorageProviderTest {
         Map<String, AclType> origAcls = createSpaceACLs();
 
         mockProvider.setSpaceACLs(spaceId, origAcls);
-        expectLastCall();
+        expectLastCall().once();
 
         replayMocks();
 
@@ -287,7 +287,7 @@ public class ACLStorageProviderTest {
         expect(mockProvider.getSpaceACLs(spaceId))
                 .andReturn(new HashMap<String, AclType>());
         mockProvider.deleteSpace(spaceId);
-        expectLastCall();
+        expectLastCall().once();
 
         replayMocks();
 

@@ -27,6 +27,7 @@ import org.springframework.core.io.Resource;
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
+import com.amazonaws.services.cloudfront.util.SignerUtils;
 
 /**
  * Retrieves a signed URL for a media file that is streamed through
@@ -120,10 +121,9 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
         try {
             
             File cfKeyPathFile = getCfKeyPathFile(this.cfKeyPath);
-            
             String signedUrl =
                 CloudFrontUrlSigner.getSignedURLWithCustomPolicy(
-                    CloudFrontUrlSigner.Protocol.rtmp,
+                    SignerUtils.Protocol.rtmp,
                     domainName,
                     cfKeyPathFile,
                     contentId,

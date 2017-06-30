@@ -577,3 +577,7 @@ table.extended-properties > tbody > tr {
 	text-align:right;
 	
 }
+
+#file-chooser-form {
+  margin: 20px 0px 20px 0px
+}

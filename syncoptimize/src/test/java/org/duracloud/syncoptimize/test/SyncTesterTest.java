@@ -41,7 +41,7 @@ public class SyncTesterTest {
 
         Capture<String[]> syncConfig = new Capture<>();
         syncTool.runSyncTool(EasyMock.capture(syncConfig));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         contentStore.deleteContent(EasyMock.eq(spaceId),
                                    EasyMock.isA(String.class));
@@ -116,9 +116,9 @@ public class SyncTesterTest {
                 .andReturn(contentIds.iterator());
 
         contentStore.deleteContent(spaceId, contentId1);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         contentStore.deleteContent(spaceId, contentId2);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         EasyMock.replay(contentStore);
 

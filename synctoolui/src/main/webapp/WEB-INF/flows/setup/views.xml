@@ -31,5 +31,6 @@
   <definition name="/setup/directories" template="/WEB-INF/jsp/setup/directories.jsp" />
   <definition name="/setup/options" template="/WEB-INF/jsp/setup/options.jsp" />
   <definition name="/setup/finish" template="/WEB-INF/jsp/setup/finish.jsp" />
+  <definition name="/setup/no-space-error"  extends="/setup/no-space-error" template="/WEB-INF/jsp/setup/no-space-available.jsp" />
 
 </tiles-definitions>

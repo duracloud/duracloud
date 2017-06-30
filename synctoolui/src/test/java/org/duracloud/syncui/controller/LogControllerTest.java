@@ -54,10 +54,10 @@ public class LogControllerTest extends AbstractTest {
     public void testDownload() throws IOException{
         HttpServletResponse response = createMock(HttpServletResponse.class);
         response.setHeader(EasyMock.isA(String.class), EasyMock.isA(String.class));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         PrintWriter pw = createMock(PrintWriter.class);
         pw.write(EasyMock.isA(String.class));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         EasyMock.expect(response.getWriter()).andReturn(pw);
         replay();
         LogController c = new LogController(syncConfigurationManager);

@@ -129,7 +129,7 @@ public class SnapshotControllerTest extends EasyMockSupport {
                 .andReturn(new CreateSnapshotTaskResult());
 
         response.setStatus(HttpStatus.SC_ACCEPTED);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         response.setHeader("Content-Type", "application/json");
         setupUserDetails();
 

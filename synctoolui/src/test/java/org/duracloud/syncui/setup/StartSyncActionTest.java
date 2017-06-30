@@ -26,7 +26,7 @@ public class StartSyncActionTest extends AbstractTest {
     public void testExecute() throws Exception {
         SyncProcessManager spm = createMock(SyncProcessManager.class);
         spm.start();
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         RequestContext context = createMock(RequestContext.class);
         
         replay();

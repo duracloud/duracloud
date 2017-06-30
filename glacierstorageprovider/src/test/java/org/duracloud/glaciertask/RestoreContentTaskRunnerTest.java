@@ -71,7 +71,7 @@ public class RestoreContentTaskRunnerTest {
                 .andReturn("123.one");
 
         s3Client.restoreObject("123.one", "two/three.txt", 14);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 

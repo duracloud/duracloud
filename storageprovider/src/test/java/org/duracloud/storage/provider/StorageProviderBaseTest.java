@@ -113,7 +113,7 @@ public class StorageProviderBaseTest {
         Capture<Map<String, String>> propsSetCapture = new Capture<>();
         providerMock.doSetSpaceProperties(EasyMock.eq(spaceId),
                                           EasyMock.capture(propsSetCapture));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 
@@ -155,7 +155,7 @@ public class StorageProviderBaseTest {
         Capture<Map<String, String>> propsSetCapture = new Capture<>();
         providerMock.doSetSpaceProperties(EasyMock.eq(spaceId),
                                           EasyMock.capture(propsSetCapture));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 
@@ -231,7 +231,7 @@ public class StorageProviderBaseTest {
         Capture<Map<String, String>> propsSetCapture = new Capture<>();
         providerMock.doSetSpaceProperties(EasyMock.eq(spaceId),
                                           EasyMock.capture(propsSetCapture));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 
@@ -290,7 +290,7 @@ public class StorageProviderBaseTest {
         Capture<Map<String, String>> propsSetCapture = new Capture<>();
         providerMock.doSetSpaceProperties(EasyMock.eq(spaceId),
                                           EasyMock.capture(propsSetCapture));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 
@@ -306,14 +306,14 @@ public class StorageProviderBaseTest {
     @Test
     public void testDeleteSpace() {
         providerMock.throwIfSpaceNotExist(spaceId);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         EasyMock.expect(providerMock.getAllSpaceProperties(spaceId)).andReturn(
             new HashMap<String, String>()).once();
 
         providerMock.doSetSpaceProperties(EasyMock.<String>anyObject(),
                                           EasyMock.<Map<String, String>>anyObject());
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 
@@ -329,7 +329,7 @@ public class StorageProviderBaseTest {
                 .once();
 
         providerMock.removeSpace(spaceId);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 
@@ -350,7 +350,7 @@ public class StorageProviderBaseTest {
                 .once();
 
         providerMock.deleteContent(spaceId, contentId);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         EasyMock.expect(providerMock.getSpaceContents(EasyMock.eq(spaceId),
                                                       EasyMock.<String>isNull()))
@@ -358,7 +358,7 @@ public class StorageProviderBaseTest {
                 .once();
 
         providerMock.removeSpace(spaceId);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 
@@ -380,7 +380,7 @@ public class StorageProviderBaseTest {
                 .once();
 
         wrappedProvider.deleteContent(spaceId, contentId);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         EasyMock.expect(providerMock.getSpaceContents(EasyMock.eq(spaceId),
                                                       EasyMock.<String>isNull()))
@@ -388,7 +388,7 @@ public class StorageProviderBaseTest {
                 .once();
 
         providerMock.removeSpace(spaceId);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         EasyMock.replay(wrappedProvider);
         replayMocks();
         
@@ -420,7 +420,7 @@ public class StorageProviderBaseTest {
                 .once();
 
         providerMock.removeSpace(spaceId);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 
@@ -452,7 +452,7 @@ public class StorageProviderBaseTest {
 
         providerMock.doSetSpaceProperties(EasyMock.<String>anyObject(),
                                           EasyMock.<Map<String, String>>anyObject());
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 

@@ -118,7 +118,7 @@ public class FileStitcherImplTest {
         if(listener != null){
            for(int i = 0; i < NUM_CHUNKS; i++){
                listener.chunkStitched(buildChunkId(i));
-               EasyMock.expectLastCall();
+               EasyMock.expectLastCall().once();
            }
         }
         replayMocks();

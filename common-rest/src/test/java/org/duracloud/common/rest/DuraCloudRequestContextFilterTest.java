@@ -84,7 +84,7 @@ public class DuraCloudRequestContextFilterTest extends EasyMockSupport {
         request.setAttribute(Constants.SERVER_HOST, host);
 
         chain.doFilter(request, response);
-        expectLastCall();
+        expectLastCall().once();
     }
 
     protected void executeDoFilter()

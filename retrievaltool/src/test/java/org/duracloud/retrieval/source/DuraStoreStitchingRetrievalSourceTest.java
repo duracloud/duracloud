@@ -217,7 +217,7 @@ public class DuraStoreStitchingRetrievalSourceTest {
                 ContentType ct = types.get(i);
                 if(ct.equals(CHUNK)){
                     listener.chunkRetrieved(CHUNK.getContentId(i));
-                    EasyMock.expectLastCall();
+                    EasyMock.expectLastCall().once();
                 }
             }
         }

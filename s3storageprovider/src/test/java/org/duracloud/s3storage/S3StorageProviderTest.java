@@ -294,7 +294,7 @@ public class S3StorageProviderTest {
                 .andReturn(result);
 
         s3Client.deleteObject(accessKey + "." + spaceId, contentId);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         EasyMock.replay(s3Client);
         return capturedRequest;
@@ -553,7 +553,7 @@ public class S3StorageProviderTest {
         Capture<BucketTaggingConfiguration> tagConfigCap = new Capture<>();
         s3Client.setBucketTaggingConfiguration(EasyMock.isA(String.class),
                                                EasyMock.capture(tagConfigCap));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         S3StorageProvider provider = getProvider();
 
@@ -612,11 +612,11 @@ public class S3StorageProviderTest {
         EasyMock.expect(this.s3Client.createBucket(bucketName)).andReturn(bucket);
 
         s3Client.deleteBucketLifecycleConfiguration(bucketName);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         Capture<BucketLifecycleConfiguration> lifecycleConfigCapture = new Capture<>();
         s3Client.setBucketLifecycleConfiguration(EasyMock.eq(bucketName),
                                                  EasyMock.capture(lifecycleConfigCapture));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         EasyMock.expect(this.s3Client.listBuckets()).andReturn(Arrays.asList(bucket));
         
@@ -627,7 +627,7 @@ public class S3StorageProviderTest {
                 .andReturn(new BucketTaggingConfiguration());
         s3Client.setBucketTaggingConfiguration(EasyMock.eq(bucketName),
                                                EasyMock.isA(BucketTaggingConfiguration.class));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         EasyMock.expect(s3Client.listObjects(EasyMock.isA(ListObjectsRequest.class)))
                 .andReturn(new ObjectListing());

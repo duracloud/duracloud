@@ -63,9 +63,9 @@ public class SyncOptimizeManagerTest extends EasyMockSupport{
         setupDriver();
 
         this.syncConfigurationManager.setThreadCount(threadCount);
-        expectLastCall();
+        expectLastCall().once();
         this.callback.onSuccess();
-        expectLastCall();
+        expectLastCall().once();
 
         replayAll();
         this.syncOptimizeManager.start(callback);
@@ -94,7 +94,7 @@ public class SyncOptimizeManagerTest extends EasyMockSupport{
         setupStart();
         expect(this.syncOptimizeDriver.getOptimalThreads(isA(SyncOptimizeConfig.class))).andThrow(new IOException());
         this.callback.onFailure(isA(IOException.class), isA(String.class));
-        expectLastCall();
+        expectLastCall().once();
         replayAll();
         this.syncOptimizeManager.start(callback);
         Thread.sleep(500);

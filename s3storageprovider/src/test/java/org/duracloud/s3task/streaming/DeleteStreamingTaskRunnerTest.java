@@ -9,6 +9,7 @@ package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.cloudfront.model.DeleteStreamingDistributionRequest;
+import com.amazonaws.services.cloudfront.model.DeleteStreamingDistributionResult;
 import com.amazonaws.services.cloudfront.model.GetStreamingDistributionConfigRequest;
 import com.amazonaws.services.cloudfront.model.GetStreamingDistributionConfigResult;
 import com.amazonaws.services.cloudfront.model.GetStreamingDistributionRequest;
@@ -161,11 +162,11 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
             .andReturn(distResult)
             .times(1);
 
-        cfClient.deleteStreamingDistribution(
-            EasyMock.isA(DeleteStreamingDistributionRequest.class));
-        EasyMock.expectLastCall().times(1);
-
-        EasyMock.replay(cfClient);
+        DeleteStreamingDistributionResult result = EasyMock.createMock(DeleteStreamingDistributionResult.class);
+        EasyMock.expect(cfClient.deleteStreamingDistribution(
+            EasyMock.isA(DeleteStreamingDistributionRequest.class))).andReturn(result);
+        
+        EasyMock.replay(cfClient,result);
         return cfClient;
     }
 

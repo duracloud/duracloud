@@ -280,7 +280,6 @@ public class SyncProcessManagerImplTest extends AbstractTest {
     @Test
     public void testRestart() throws SyncProcessException, ContentStoreException {
         setupStart(2);
-        expectLastCall();
 
         replay();
         createTestSubject();
