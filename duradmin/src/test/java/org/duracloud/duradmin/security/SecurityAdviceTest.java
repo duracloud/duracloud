@@ -72,7 +72,7 @@ public class SecurityAdviceTest {
         } else {
             securable.logout();
         }
-        expectLastCall();
+        expectLastCall().once();
         replay(securable);
 
         return securable;

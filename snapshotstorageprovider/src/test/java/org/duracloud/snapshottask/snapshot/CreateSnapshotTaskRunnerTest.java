@@ -158,7 +158,7 @@ public class CreateSnapshotTaskRunnerTest {
         Capture<Map<String, String>> propsCapture = new Capture<>();
         unwrappedSnapshotProvider.setNewSpaceProperties(EasyMock.eq(spaceId),
                                                         EasyMock.capture(propsCapture));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 

@@ -34,7 +34,7 @@ public class SpaceWritableValidatorTest  extends AbstractTest {
 
         cs.deleteContent(EasyMock.isA(String.class),
                                       EasyMock.isA(String.class));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         
         ConstraintValidatorContext cvc =
             createMock(ConstraintValidatorContext.class);

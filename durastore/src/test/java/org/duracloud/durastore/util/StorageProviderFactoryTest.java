@@ -198,10 +198,10 @@ public class StorageProviderFactoryTest {
 
         //reinitialize
         mockSAM.initialize(EasyMock.isA(List.class));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         mockSAM.setEnvironment(instanceHost, instancePort, "account");
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
         factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, mockUserUtil,  contextUtil, notifier);
@@ -226,7 +226,7 @@ public class StorageProviderFactoryTest {
     public void testInitilizeWithCachingEnabled() {
         //reinitialize
         mockSAM.initialize(EasyMock.isA(List.class));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         EasyMock.expect(mockSAM.getStorageAccountIds())
         .andReturn(Arrays.asList(new String[]{acctId1}).iterator());
@@ -237,7 +237,7 @@ public class StorageProviderFactoryTest {
         EasyMock.expect(mockSAM.getAccountName()).andReturn(acct1Name);
 
         mockSAM.setEnvironment(instanceHost, instancePort, "account");
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 

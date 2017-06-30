@@ -72,7 +72,7 @@ public class RestExceptionsTestSupport {
             "AuditLogReader",
             AuditLogReader.class);
         reader.initialize(EasyMock.isA(AuditConfig.class));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         return reader;
     }
     protected SpaceResource createSpaceResource() throws ResourceException {

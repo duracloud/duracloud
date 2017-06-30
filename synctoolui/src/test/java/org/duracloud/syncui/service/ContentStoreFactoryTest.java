@@ -34,7 +34,7 @@ public class ContentStoreFactoryTest {
             EasyMock.createMock(ContentStoreManager.class);
         ContentStore cs = EasyMock.createMock(ContentStore.class);
         csm.login(EasyMock.isA(Credential.class));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         EasyMock.expect(csm.getPrimaryContentStore()).andReturn(cs);
         ContentStoreFactory csf = new ContentStoreFactory() {
             @Override
@@ -59,7 +59,7 @@ public class ContentStoreFactoryTest {
             EasyMock.createMock(ContentStoreManager.class);
         ContentStore cs = EasyMock.createMock(ContentStore.class);
         csm.login(EasyMock.isA(Credential.class));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         EasyMock.expect(csm.getPrimaryContentStore())
                 .andThrow(new ContentStoreException("test exception"));
         ContentStoreFactory csf = new ContentStoreFactory() {

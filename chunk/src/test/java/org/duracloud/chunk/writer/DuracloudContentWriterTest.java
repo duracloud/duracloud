@@ -87,7 +87,7 @@ public class DuracloudContentWriterTest {
             EasyMock.expect(contentStore.getSpaceACLs(EasyMock.isA(String.class)))
                     .andThrow(new ContentStoreException("canned-exception"));
             contentStore.createSpace(EasyMock.isA(String.class));
-            EasyMock.expectLastCall();
+            EasyMock.expectLastCall().once();
 
             EasyMock.expect(contentStore.getSpaceACLs(EasyMock.isA(String.class)))
                     .andReturn(acls);

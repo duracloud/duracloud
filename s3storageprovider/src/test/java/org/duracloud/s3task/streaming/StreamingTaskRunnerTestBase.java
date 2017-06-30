@@ -83,7 +83,7 @@ public class StreamingTaskRunnerTestBase {
         spacePropsCapture = new Capture<>();
         provider.setNewSpaceProperties(EasyMock.eq(spaceId),
                                        EasyMock.capture(spacePropsCapture));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         EasyMock.replay(provider);
         return provider;
@@ -164,7 +164,7 @@ public class StreamingTaskRunnerTestBase {
         AmazonS3Client service = EasyMock.createMock(AmazonS3Client.class);
 
         service.deleteBucketPolicy(EasyMock.isA(String.class));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         EasyMock.replay(service);
         return service;

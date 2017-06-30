@@ -202,7 +202,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
         service.setBucketPolicy(EasyMock.isA(String.class),
                                 EasyMock.isA(String.class));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         EasyMock.replay(service);
         return service;

@@ -66,7 +66,7 @@ public class SetStoragePolicyTaskRunnerTest {
         EasyMock.expect(unwrappedS3Provider.getBucketName(spaceId)).andReturn(spaceId);
         unwrappedS3Provider.setSpaceLifecycle(EasyMock.eq(spaceId),
                                               EasyMock.isA(BucketLifecycleConfiguration.class));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayAll();
 

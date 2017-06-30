@@ -79,7 +79,7 @@ public class MultiContentInputStreamTest {
         String text = createReadMocks();
         contentItems.stream().forEach(x -> {
             listener.contentIdRead(x.getContentId());
-            EasyMock.expectLastCall();
+            EasyMock.expectLastCall().once();
         });
         replayMocks();
 

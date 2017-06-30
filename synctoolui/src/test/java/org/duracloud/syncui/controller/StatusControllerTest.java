@@ -59,7 +59,7 @@ public class StatusControllerTest extends AbstractTest {
     public void testStart() throws SyncProcessException{
         syncProcessManager.start();
 
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         replay();
         
         View v = statusController.start();
@@ -69,7 +69,7 @@ public class StatusControllerTest extends AbstractTest {
     @Test
     public void testResume() throws SyncProcessException{
         syncProcessManager.resume();
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         replay();
         
         View v = statusController.resume();
@@ -79,7 +79,7 @@ public class StatusControllerTest extends AbstractTest {
     @Test
     public void testPause() throws SyncProcessException {
         syncProcessManager.pause();
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         replay();
         
         View v = statusController.pause();
@@ -89,7 +89,7 @@ public class StatusControllerTest extends AbstractTest {
     @Test
     public void testStop() {
         syncProcessManager.stop();
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         replay();
         
         View v = statusController.stop();

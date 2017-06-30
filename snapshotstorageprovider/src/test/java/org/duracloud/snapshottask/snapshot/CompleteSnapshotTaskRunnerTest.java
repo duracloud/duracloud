@@ -66,11 +66,11 @@ public class CompleteSnapshotTaskRunnerTest {
         EasyMock.expect(unwrappedSnapshotProvider.getBucketName(spaceId))
                 .andReturn(bucketName);
         s3Client.deleteBucketLifecycleConfiguration(EasyMock.eq(bucketName));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         unwrappedSnapshotProvider.setNewSpaceProperties(EasyMock.eq(spaceId),
                                                         EasyMock.isA(Map.class));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 

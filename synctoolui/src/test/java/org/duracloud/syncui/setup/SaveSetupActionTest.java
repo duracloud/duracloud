@@ -50,28 +50,28 @@ public class SaveSetupActionTest extends AbstractTest {
         space.setSpaceId(spaceId);
         
         scm.persistDuracloudConfiguration(username, password, host, cred.getPort(), spaceId);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         scm.persistDirectoryConfigs(configs);
 
 
         AdvancedForm advanced = new AdvancedForm();
         advanced.setSyncDeletes(false);
         scm.setSyncDeletes(advanced.isSyncDeletes());
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         advanced.setJumpStart(false);
         scm.setJumpStart(advanced.isJumpStart());
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         advanced.setUpdatePolicy(UpdatePolicy.OVERWRITE.name());
         scm.setSyncUpdates(true);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         scm.setRenameUpdates(false);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         ModeForm  modeForm = new ModeForm();
         modeForm.setMode(RunMode.SINGLE_PASS);
         scm.setMode(RunMode.SINGLE_PASS);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         SaveSetupAction sc = new SaveSetupAction(scm);
         replay();

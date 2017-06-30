@@ -73,7 +73,7 @@ public class CompleteRestoreTaskRunnerTest {
         s3Client.setBucketLifecycleConfiguration(EasyMock.eq(bucketName),
                                                  EasyMock.capture(
                                                      lifecycleConfigCapture));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 

@@ -102,7 +102,7 @@ public class CompleteCancelSnapshotTaskRunnerTest extends EasyMockSupport {
         //setup delete space properties
         snapshotProvider.deleteContent(eq(spaceId),
                                                     eq(Constants.SNAPSHOT_PROPS_FILENAME));
-        expectLastCall();
+        expectLastCall().once();
 
         //setup remove snapshot space property
         Map<String, String> spaceProps = new HashMap<>();
@@ -113,7 +113,7 @@ public class CompleteCancelSnapshotTaskRunnerTest extends EasyMockSupport {
         Capture<Map<String, String>> propsCapture = new Capture<>();
         unwrappedSnapshotProvider.setNewSpaceProperties(EasyMock.eq(spaceId),
                                                         EasyMock.capture(propsCapture));
-        expectLastCall();
+        expectLastCall().once();
 
         //setup remove read only acl
         String aclUserName = "acl-" + dcSnapshotUser;

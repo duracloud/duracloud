@@ -95,7 +95,7 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
         s3Client.setBucketLifecycleConfiguration(eq(bucketName),
                                                  capture(
                                                      lifecycleConfigCapture));
-        expectLastCall();
+        expectLastCall().once();
 
         List<ManifestItem> manifestItems = new LinkedList<>();
         for(int i = 0; i < 10; i++){
@@ -116,7 +116,7 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
             .andReturn(StorageProviderType.AMAZON_S3);
 
         auditQueue.put(capture(taskCapture));
-        expectLastCall();
+        expectLastCall().once();
         Authentication auth = createMock(Authentication.class);
         String userId = "user-id";
         expect(auth.getName()).andReturn(userId);

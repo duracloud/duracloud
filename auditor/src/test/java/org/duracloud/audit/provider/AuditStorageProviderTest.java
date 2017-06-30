@@ -194,7 +194,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     private Capture<Task> mockAuditCall() {
         Capture<Task> auditTaskCapture = new Capture<>();
         taskQueue.put(EasyMock.capture(auditTaskCapture));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         return auditTaskCapture;
     }
 
@@ -202,7 +202,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         EasyMock.expect(userUtil.getCurrentUsername()).andReturn(user);
         Capture<Task> logCapture = new Capture<>();
         readLogger.log(EasyMock.capture(logCapture));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         return logCapture;
     }
 
@@ -210,7 +210,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         EasyMock.expect(userUtil.getCurrentUsername()).andReturn(user);
         Capture<Task> logCapture = new Capture<>();
         writeLogger.log(EasyMock.capture(logCapture));
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         return logCapture;
     }
 
@@ -237,7 +237,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         Capture<Task> logCapture = mockWriteLogCall();
 
         targetProvider.createSpace(spaceId);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         replayAll();
         provider.createSpace(spaceId);
 
@@ -252,7 +252,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         Capture<Task> logCapture = mockWriteLogCall();
 
         targetProvider.deleteSpace(spaceId);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         replayAll();
         provider.deleteSpace(spaceId);
 
@@ -269,7 +269,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         spaceAcls.put(user, AclType.WRITE);
 
         targetProvider.setSpaceACLs(spaceId, spaceAcls);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         replayAll();
         provider.setSpaceACLs(spaceId, spaceAcls);
 
@@ -370,7 +370,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
                 .andReturn(props);
 
         targetProvider.deleteContent(spaceId, contentId);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         replayAll();
         provider.deleteContent(spaceId, contentId);
 
@@ -396,7 +396,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         contentProps.put(propName, propValue);
 
         targetProvider.setContentProperties(spaceId, contentId, contentProps);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
         replayAll();
         provider.setContentProperties(spaceId, contentId, contentProps);
 

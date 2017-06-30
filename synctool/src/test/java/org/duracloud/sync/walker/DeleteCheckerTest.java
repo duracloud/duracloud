@@ -72,7 +72,7 @@ public class DeleteCheckerTest extends SyncTestBase {
         EasyMock.expect(syncEndpoint.getFilesList())
                 .andReturn(filesList.iterator());
         syncEndpoint.deleteContent(spaceId, delFile);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 
@@ -104,7 +104,7 @@ public class DeleteCheckerTest extends SyncTestBase {
         EasyMock.expect(syncEndpoint.getFilesList())
                 .andReturn(filesList.iterator());
         syncEndpoint.deleteContent(spaceId, delFile);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 
@@ -134,7 +134,7 @@ public class DeleteCheckerTest extends SyncTestBase {
         EasyMock.expect(syncEndpoint.getFilesList())
                 .andReturn(filesList.iterator());
         syncEndpoint.deleteContent(spaceId, tempFile.getName());
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
 

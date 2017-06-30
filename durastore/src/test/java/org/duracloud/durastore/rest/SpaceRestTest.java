@@ -167,7 +167,7 @@ public class SpaceRestTest {
 
         // space resource mocks
         spaceResource.updateSpaceACLs(spaceId, spaceACLs, storeId);
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().once();
 
         replayMocks();
     }
