@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * Provides access to test configuration.
  * Assumes that:
- * 1. There is a system property named: DURACLOUD-TEST-CONFIG
+ * 1. There is a system property named: DURACLOUD_TEST_CONFIG
  * 2. The value of that system property is the full path to a valid test
  *    configuration file in JSON format
  *
@@ -30,8 +30,19 @@ public class TestConfigUtil {
 
     public TestConfig getTestConfig() throws IOException {
         String testConfigPath = System.getenv().get(DURACLOUD_TEST_CONFIG);
-        String jsonTestConfig =
-            FileUtils.readFileToString(new File(testConfigPath));
+        if(null == testConfigPath || testConfigPath.isEmpty()) {
+            throw new RuntimeException("In order to run integration tests, an " +
+                                       "environment variable named " +
+                                       DURACLOUD_TEST_CONFIG + " must be supplied.");
+        }
+
+        File configFile = new File(testConfigPath);
+        if(!configFile.exists()) {
+            throw new RuntimeException("No integration test configuration file could " +
+                                       "be found at path " + testConfigPath);
+        }
+
+        String jsonTestConfig = FileUtils.readFileToString(configFile);
 
         JaxbJsonSerializer<TestConfig> serializer =
             new JaxbJsonSerializer<>(TestConfig.class);

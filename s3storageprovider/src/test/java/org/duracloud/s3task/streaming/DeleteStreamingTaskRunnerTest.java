@@ -162,11 +162,13 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
             .andReturn(distResult)
             .times(1);
 
-        DeleteStreamingDistributionResult result = EasyMock.createMock(DeleteStreamingDistributionResult.class);
-        EasyMock.expect(cfClient.deleteStreamingDistribution(
-            EasyMock.isA(DeleteStreamingDistributionRequest.class))).andReturn(result);
-        
-        EasyMock.replay(cfClient,result);
+        EasyMock
+            .expect(cfClient.deleteStreamingDistribution(
+                EasyMock.isA(DeleteStreamingDistributionRequest.class)))
+            .andReturn(new DeleteStreamingDistributionResult())
+            .times(1);
+
+        EasyMock.replay(cfClient);
         return cfClient;
     }
 
