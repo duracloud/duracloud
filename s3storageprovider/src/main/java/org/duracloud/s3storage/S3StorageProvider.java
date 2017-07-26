@@ -27,6 +27,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.duracloud.common.model.AclType;
@@ -45,6 +46,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,6 +75,11 @@ public class S3StorageProvider extends StorageProviderBase {
     private static final StorageClass DEFAULT_STORAGE_CLASS =
         StorageClass.Standard;
 
+    private static final String UTF_8 = StandardCharsets.UTF_8.name();
+    
+    private static final String HEADER_VALUE_PREFIX = UTF_8 + "' '";
+    private static final String HEADER_KEY_SUFFIX = "*";
+    
     private String accessKeyId = null;
     protected AmazonS3Client s3Client = null;
 
@@ -494,10 +504,13 @@ public class S3StorageProvider extends StorageProviderBase {
 
         if(userProperties != null) {
             for (String key : userProperties.keySet()) {
+                String value = userProperties.get(key);
+
                 if (log.isDebugEnabled()) {
-                    log.debug("[" + key + "|" + userProperties.get(key) + "]");
+                    log.debug("[" + key + "|" + value + "]");
                 }
-                objMetadata.addUserMetadata(getSpaceFree(key), userProperties.get(key));
+                
+                objMetadata.addUserMetadata(getSpaceFree(encodeHeaderKey(key)), encodeHeaderValue(value));
             }
         }
 
@@ -895,7 +908,7 @@ public class S3StorageProvider extends StorageProviderBase {
         Map<String, String> userProperties = objMetadata.getUserMetadata();
         for(String metaName : userProperties.keySet()) {
             String metaValue = userProperties.get(metaName);
-            contentProperties.put(getWithSpace(metaName), metaValue);
+            contentProperties.put(getWithSpace(decodeHeaderKey(metaName)), decodeHeaderValue(metaValue));
         }
 
         // Set MIMETYPE
@@ -1020,4 +1033,39 @@ public class S3StorageProvider extends StorageProviderBase {
         return name.replaceAll("%20", " ");
     }
 
+    static protected String encodeHeaderValue(String userMetaValue) {
+        try {
+            String encodedValue = HEADER_VALUE_PREFIX + URLEncoder.encode(userMetaValue, UTF_8);
+            return encodedValue;
+        } catch (UnsupportedEncodingException e) {
+            //this should never happen
+            throw new RuntimeException(e);
+        }
+    }
+
+    static protected String decodeHeaderValue(String userMetaValue) {
+        if(userMetaValue.startsWith(HEADER_VALUE_PREFIX)){
+            try {
+                String encodedValue = URLDecoder.decode(userMetaValue.substring(HEADER_VALUE_PREFIX.length()), UTF_8);
+                return encodedValue;
+            } catch (UnsupportedEncodingException e) {
+                //this should never happen
+                throw new RuntimeException(e);
+            }
+        }else{
+            return userMetaValue;
+        }
+    }
+
+    static protected String encodeHeaderKey(String userMetaName) {
+        return userMetaName+HEADER_KEY_SUFFIX;
+    }
+
+    static protected String decodeHeaderKey(String userMetaName) {
+        if(userMetaName.endsWith(HEADER_KEY_SUFFIX)){
+            return userMetaName.substring(0, userMetaName.length()-1);
+        }else{
+            return userMetaName;
+        }
+    }
 }

@@ -116,8 +116,8 @@ public class S3StorageProviderTest {
         ObjectMetadata requestMetadata = request.getMetadata();
         Assert.assertEquals(base64Checksum, requestMetadata.getContentMD5());
         Assert.assertEquals(mimetype, requestMetadata.getContentType());
-        Assert.assertEquals(userMetaValue,
-                            requestMetadata.getUserMetadata().get(userMetaName));
+        Assert.assertEquals(provider.encodeHeaderValue(userMetaValue),
+                            requestMetadata.getUserMetadata().get(provider.encodeHeaderKey(userMetaName)));
     }
 
     
@@ -153,8 +153,8 @@ public class S3StorageProviderTest {
         ObjectMetadata requestMetadata = request.getMetadata();
         Assert.assertEquals(base64Checksum, requestMetadata.getContentMD5());
         Assert.assertEquals(mimetype, requestMetadata.getContentType());
-        Assert.assertEquals(userMetaValue,
-                            requestMetadata.getUserMetadata().get(userMetaName));
+        Assert.assertEquals(provider.encodeHeaderValue(userMetaValue),
+                            requestMetadata.getUserMetadata().get(provider.encodeHeaderKey(userMetaName)));
     }
 
     /*
@@ -378,8 +378,8 @@ public class S3StorageProviderTest {
             .andReturn(null);
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.addUserMetadata(StorageProvider.PROPERTIES_CONTENT_CHECKSUM,
-                                       checksum);
+        objectMetadata.addUserMetadata(S3StorageProvider.encodeHeaderKey(StorageProvider.PROPERTIES_CONTENT_CHECKSUM),
+                                       S3StorageProvider.encodeHeaderValue(checksum));
         EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
                                                    EasyMock.isA(String.class)))
             .andReturn(objectMetadata);
