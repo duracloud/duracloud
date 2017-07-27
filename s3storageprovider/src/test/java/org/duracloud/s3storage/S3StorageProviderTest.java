@@ -12,6 +12,7 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -645,4 +646,24 @@ public class S3StorageProviderTest {
         EasyMock.verify(s3Client,bucket);
     }
 
+
+    @Test
+    public void testEncodeDecodeHeaderKey() throws Exception {
+        String key = "key";
+        String encodedKey = S3StorageProvider.encodeHeaderKey(key);
+        Assert.assertEquals(encodedKey, "key*");
+        Assert.assertEquals(key,
+                            S3StorageProvider.decodeHeaderKey(encodedKey));
+    }
+
+    @Test
+    public void testEncodeDecodeHeaderValue() throws Exception {
+        String value = "Xanthoparmeliacoloradoënsis";
+        String encodedValue = S3StorageProvider.encodeHeaderValue(value);
+        Assert.assertEquals(encodedValue,
+                            "UTF-8''Xanthoparmeliacoloradoe%CC%88nsis");
+        Assert.assertEquals(value,
+                            S3StorageProvider.decodeHeaderValue(encodedValue));
+
+    }
 }

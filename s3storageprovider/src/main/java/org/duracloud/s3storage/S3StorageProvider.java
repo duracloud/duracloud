@@ -77,8 +77,8 @@ public class S3StorageProvider extends StorageProviderBase {
 
     private static final String UTF_8 = StandardCharsets.UTF_8.name();
     
-    private static final String HEADER_VALUE_PREFIX = UTF_8 + "' '";
-    private static final String HEADER_KEY_SUFFIX = "*";
+    protected static final String HEADER_VALUE_PREFIX = UTF_8 + "''";
+    protected static final String HEADER_KEY_SUFFIX = "*";
     
     private String accessKeyId = null;
     protected AmazonS3Client s3Client = null;
@@ -1033,6 +1033,11 @@ public class S3StorageProvider extends StorageProviderBase {
         return name.replaceAll("%20", " ");
     }
 
+    /**
+     * Ensures compliance with  https://tools.ietf.org/html/rfc5987#section-3.2.2
+     * @param userMetaValue
+     * @return
+     */
     static protected String encodeHeaderValue(String userMetaValue) {
         try {
             String encodedValue = HEADER_VALUE_PREFIX + URLEncoder.encode(userMetaValue, UTF_8);
@@ -1057,6 +1062,11 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
+    /**
+     * Ensures compliance with  https://tools.ietf.org/html/rfc5987#section-3.2.2
+     * @param userMetaValue
+     * @return
+     */
     static protected String encodeHeaderKey(String userMetaName) {
         return userMetaName+HEADER_KEY_SUFFIX;
     }
