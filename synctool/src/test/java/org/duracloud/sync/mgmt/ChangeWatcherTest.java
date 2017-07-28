@@ -23,8 +23,10 @@ public class ChangeWatcherTest extends SyncTestBase {
 
     @Test
     public void testChangeWatcher() throws Exception {
-        ChangeWatcher changeWatcher =
-            new ChangeWatcher(changedList, new TestHandler(), 100);
+        ChangeWatcher changeWatcher = new ChangeWatcher(changedList,
+                                                        new TestHandler(),
+                                                        100,
+                                                        new StatusManager(changedList));
         new Thread(changeWatcher).start();
 
         changes = 0;

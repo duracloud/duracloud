@@ -24,6 +24,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.sync.endpoint.MonitoredFile;
+import org.duracloud.sync.mgmt.ChangedList;
 import org.duracloud.sync.mgmt.SyncSummary;
 import org.duracloud.syncui.AbstractTest;
 import org.duracloud.syncui.domain.DirectoryConfig;
@@ -109,7 +110,8 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         this.syncProcessManagerImpl =
             new SyncProcessManagerImpl(syncConfigurationManager,
                                        this.contentStoreManagerFactory,
-                                       this.syncOptimizeManager);
+                                       this.syncOptimizeManager, 
+                                       new ChangedList());
     }
 
     protected void setupStart() throws ContentStoreException {

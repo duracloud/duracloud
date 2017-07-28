@@ -10,6 +10,7 @@ package org.duracloud.sync;
 import org.apache.commons.io.FileUtils;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.duracloud.sync.config.SyncToolConfigParser;
+import org.duracloud.sync.mgmt.ChangedList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +28,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class SyncToolTest extends SyncTestBase {
 
-    private SyncTool syncTool;
     private static final String prevHost = "prevHost";
     private static final String prevSpaceId = "prevSpaceId";
     private static final String prevStoreId = "prevStoreId";
@@ -42,7 +42,6 @@ public class SyncToolTest extends SyncTestBase {
     @Before
     @Override
     public void setUp() {
-        syncTool = new SyncTool();
     }
 
     @After
@@ -54,7 +53,8 @@ public class SyncToolTest extends SyncTestBase {
         // clean start = no restart
         SyncToolConfig config = new SyncToolConfig();
         config.setCleanStart(true);
-        syncTool.setSyncConfig(config);
+
+        SyncTool syncTool = new SyncTool(config);
 
         assertFalse(syncTool.restartPossible());
 
@@ -83,7 +83,8 @@ public class SyncToolTest extends SyncTestBase {
                            prevSyncDel, prevNoUpdates, prevRenameUpdates,
                            prevPrefix, prevExclude, contentDirs);
         config.setWorkDir(workDir);
-        syncTool.setSyncConfig(config);
+        
+        syncTool = new SyncTool(config);
 
         assertTrue(syncTool.restartPossible());
 
@@ -99,6 +100,9 @@ public class SyncToolTest extends SyncTestBase {
 
     @Test
     public void testConfigEquals() {
+        
+        SyncTool syncTool = new SyncTool(new SyncToolConfig());
+        
         SyncToolConfig prevConfig = getPrevConfig();
         assertTrue(syncTool.configEquals(prevConfig, prevConfig));
 

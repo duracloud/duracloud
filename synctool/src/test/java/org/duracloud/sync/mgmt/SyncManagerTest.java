@@ -43,9 +43,13 @@ public class SyncManagerTest extends SyncTestBase {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         List<File> watchDirs = new ArrayList<File>();
         watchDirs.add(tempDir);
-
-        SyncManager syncManager =
-            new SyncManager(watchDirs, new TestEndpoint(), 2, 100);
+        
+        SyncManager syncManager = new SyncManager(changedList,
+                                                  watchDirs,
+                                                  new TestEndpoint(),
+                                                  2,
+                                                  100,
+                                                  new StatusManager(changedList));
         syncManager.beginSync();
 
         int changedFiles = 10;
@@ -94,10 +98,10 @@ public class SyncManagerTest extends SyncTestBase {
         List<File> watchDirs = new ArrayList<File>();
         watchDirs.add(tempDir1);
         watchDirs.add(tempDir2);
-
+        ChangedList changedList = new ChangedList();
+        StatusManager statusManager = new StatusManager(changedList);
         SyncManager syncManager =
-            new SyncManager(watchDirs, new TestEndpoint(), 2, 100);
-
+            new SyncManager(changedList, watchDirs, new TestEndpoint(), 2, 100, statusManager);
         assertEquals(tempDir1,
                      syncManager.getWatchDir(new File("/a/b/file.txt")));
         assertEquals(tempDir2,

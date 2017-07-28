@@ -23,9 +23,9 @@ public class DirectoryListener extends FileAlterationListenerAdaptor {
 
     private ChangedList changedList;
     private boolean syncDeletes;
-
-    public DirectoryListener(boolean syncDeletes) {
-        changedList = ChangedList.getInstance();
+    
+    public DirectoryListener(boolean syncDeletes, ChangedList changedList) {
+        this.changedList = changedList;
         this.syncDeletes = syncDeletes;
     }
 

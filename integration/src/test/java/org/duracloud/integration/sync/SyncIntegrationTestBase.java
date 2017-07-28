@@ -99,7 +99,7 @@ public class SyncIntegrationTestBase {
 
     @Before
     public void setUp() throws Exception {
-        changedList = ChangedList.getInstance();
+        changedList = new ChangedList();
         assertNull(changedList.reserve());
 
         tempDir = createTempDir("sync-test-dir");

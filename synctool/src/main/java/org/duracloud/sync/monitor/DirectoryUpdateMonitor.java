@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.duracloud.sync.mgmt.ChangedList;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,8 @@ public class DirectoryUpdateMonitor {
      */
     public DirectoryUpdateMonitor(List<File> directories,
                                   long pollFrequency,
-                                  boolean syncDeletes) {
+                                  boolean syncDeletes, 
+                                  ChangedList changedList) {
         monitor = new FileAlterationMonitor(pollFrequency);
 
         for (File watchDir : directories) {
@@ -57,7 +59,7 @@ public class DirectoryUpdateMonitor {
                             }});
                 }
 
-                observer.addListener(new DirectoryListener(syncDeletes));
+                observer.addListener(new DirectoryListener(syncDeletes, changedList));
                 monitor.addObserver(observer);
 
             } else {

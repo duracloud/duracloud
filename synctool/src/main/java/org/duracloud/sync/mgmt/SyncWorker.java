@@ -31,6 +31,7 @@ public class SyncWorker implements Runnable {
     private File watchDir;
     private SyncEndpoint syncEndpoint;
     private StatusManager statusManager;
+    private ChangedList changedList;
     private boolean complete;
     private MonitoredFile monitoredFile;
     private Date start, stop;
@@ -45,12 +46,21 @@ public class SyncWorker implements Runnable {
      *            reside in a watched directory
      * @param endpoint
      *            the endpoint to which the file should be synced
+     * @param changedList
+     *            the changeList
+     * @param statusManager
+     *            the statusManager
      */
-    public SyncWorker(ChangedFile file, File watchDir, SyncEndpoint endpoint) {
+    public SyncWorker(ChangedFile file,
+                      File watchDir,
+                      SyncEndpoint endpoint,
+                      ChangedList changedList,
+                      StatusManager status) {
         this.syncFile = file;
         this.watchDir = watchDir;
         this.syncEndpoint = endpoint;
-        this.statusManager = StatusManager.getInstance();
+        this.changedList = changedList;
+        this.statusManager = status;
         this.complete = false;
         this.monitoredFile = new MonitoredFile(syncFile.getFile());
     }
@@ -72,6 +82,8 @@ public class SyncWorker implements Runnable {
             result = SyncResultType.FAILED;
         }
         
+        
+        boolean willRetry = false;
         try{
             if (result != SyncResultType.FAILED) {
                 SyncSummary summary =
@@ -83,7 +95,7 @@ public class SyncWorker implements Runnable {
                 
                 statusManager.successfulCompletion(summary);
             } else {
-                retryOnFailure();
+                willRetry = retryOnFailure();
             }
         }catch(Throwable e){
             logger.error("Unexpected error: " + e.getMessage()
@@ -94,7 +106,9 @@ public class SyncWorker implements Runnable {
             
         }
         //remove from the list.
-        this.syncFile.remove();
+        if(!willRetry){
+            this.changedList.remove(this.syncFile);
+        }
 
         complete = true;
         
@@ -104,7 +118,7 @@ public class SyncWorker implements Runnable {
         return complete;
     }
 
-    private void retryOnFailure() {
+    private boolean retryOnFailure() {
         int syncAttempts = syncFile.getSyncAttempts();
         String syncFilePath = syncFile.getFile().getAbsolutePath();
         if (syncAttempts < MAX_RETRIES) {
@@ -112,8 +126,9 @@ public class SyncWorker implements Runnable {
                 + syncFilePath + " back to the changed "
                 + "list, another attempt will be made to sync file.");
             syncFile.incrementSyncAttempts();
-            ChangedList.getInstance().addChangedFile(syncFile);
+            this.changedList.unreserve(syncFile);
             statusManager.stoppingWork();
+            return true;
         } else {
 
             SyncSummary summary =
@@ -127,6 +142,7 @@ public class SyncWorker implements Runnable {
             logger.error("Failed to sync file "
                 + syncFilePath + " after " + syncAttempts
                 + " attempts. No further attempts will be made.");
+            return false;
         }
     }
 

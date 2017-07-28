@@ -7,6 +7,7 @@
  */
 package org.duracloud.syncui.config;
 
+import org.duracloud.sync.mgmt.ChangedList;
 import org.springframework.beans.PropertyEditorRegistrar;
 import org.springframework.beans.PropertyEditorRegistry;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
@@ -55,6 +56,11 @@ public class AppConfig extends WebMvcConfigurationSupport {
        ms.setDefaultEncoding("UTF-8");
        ms.setCacheSeconds(5);
        return ms;
+   }
+   
+   @Bean
+   public ChangedList changedList() {
+       return new ChangedList();
    }
    
    @Bean

@@ -95,7 +95,7 @@ public class ChangedListTest extends SyncTestBase {
         changedList.addChangedFile(changedFile);
         assertEquals(1, changedList.getListSize());
         ChangedFile reserved = changedList.reserve();
-        reserved.remove();
+        changedList.remove(reserved);
         File persistFile = File.createTempFile("persist", "file");
         changedList.persist(persistFile);
         changedList.restore(persistFile, new ArrayList<File>());
@@ -109,7 +109,7 @@ public class ChangedListTest extends SyncTestBase {
         assertEquals(1, changedList.getListSize());
         ChangedFile reserved = changedList.reserve();
         assertEquals(0, changedList.getListSize());
-        reserved.unreserve();
+        changedList.unreserve(reserved);
         assertEquals(1, changedList.getListSize());
     }
 

@@ -39,6 +39,8 @@ public class SyncManager implements ChangeHandler {
     private ExecutorService watcherPool;
     private ThreadPoolExecutor workerPool;
     private ArrayList<SyncWorker> workerList;
+    private ChangedList changedList;
+    private StatusManager statusManager;
 
     /**
      * Creates a SyncManager which, when started, will watch for updates to
@@ -48,16 +50,20 @@ public class SyncManager implements ChangeHandler {
      * @param threads
      * @param frequency
      */
-    public SyncManager(List<File> watchDirs,
+    public SyncManager(ChangedList changedList, 
+                       List<File> watchDirs,
                        SyncEndpoint endpoint,
                        int threads,
-                       long frequency) {
+                       long frequency, 
+                       StatusManager statusManager) {
         logger.info("Starting Sync Manager with " + threads + " threads");
         this.watchDirs = watchDirs;
         this.endpoint = endpoint;
-        changeWatcher = new ChangeWatcher(ChangedList.getInstance(),
+        this.changedList = changedList;
+        changeWatcher = new ChangeWatcher(changedList,
                                           this,
-                                          frequency);
+                                          frequency, 
+                                          statusManager);
 
         // Create thread pool for changeWatcher
         watcherPool = Executors.newFixedThreadPool(1);
@@ -70,6 +76,7 @@ public class SyncManager implements ChangeHandler {
                                    new SynchronousQueue(),
                                    new ThreadPoolExecutor.AbortPolicy());
         workerList = new ArrayList<SyncWorker>();
+        this.statusManager = statusManager;
     }
 
     /**
@@ -105,7 +112,12 @@ public class SyncManager implements ChangeHandler {
      */
     public synchronized boolean handleChangedFile(ChangedFile changedFile) {
         File watchDir = getWatchDir(changedFile.getFile());
-        SyncWorker worker = new SyncWorker(changedFile, watchDir, endpoint);
+        SyncWorker worker =
+            new SyncWorker(changedFile,
+                           watchDir,
+                           endpoint,
+                           changedList,
+                           statusManager);
 
         try {
             addToWorkerList(worker);

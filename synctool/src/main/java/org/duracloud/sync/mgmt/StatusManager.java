@@ -32,28 +32,17 @@ public class StatusManager {
     private ChangedList changedList;
     private String version;
 
-    private static StatusManager instance;
-
-    public static StatusManager getInstance() {
-        if(instance == null) {
-            instance = new StatusManager();
-        }
-        return instance;
-    }
-
-    /*
-     * Not to be used outside of tests
-     */
-    protected StatusManager() {
+    public StatusManager(ChangedList changedList) {
+        this.changedList = changedList;
         init();
+        
     }
 
     private void init() {
-        succeeded = 0;
-        failed = new ArrayList<>();
-        startTime = DateUtil.nowLong();
-        changedList = ChangedList.getInstance();
-        recentlyCompleted = new LinkedList<>();
+        this.succeeded = 0;
+        this.failed = new ArrayList<>();
+        this.startTime = DateUtil.nowLong();
+        this.recentlyCompleted = new LinkedList<>();
     }
 
     public int getQueueSize() {

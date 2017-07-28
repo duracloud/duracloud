@@ -13,6 +13,7 @@ import static junit.framework.Assert.assertEquals;
 import org.apache.commons.io.FileUtils;
 import org.duracloud.sync.SyncTestBase;
 import org.duracloud.sync.mgmt.ChangedFile;
+import org.duracloud.sync.mgmt.ChangedList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class DirectoryUpdateMonitorTest extends SyncTestBase {
         dirs.add(tempDir);
 
         DirectoryUpdateMonitor monitor =
-            new DirectoryUpdateMonitor(dirs, 100, true);
+            new DirectoryUpdateMonitor(dirs, 100, true, changedList);
         monitor.startMonitor();
 
         // Create file
@@ -77,7 +78,7 @@ public class DirectoryUpdateMonitorTest extends SyncTestBase {
         dirs.add(tempFile);
 
         DirectoryUpdateMonitor monitor =
-            new DirectoryUpdateMonitor(dirs, 100, true);
+            new DirectoryUpdateMonitor(dirs, 100, true, changedList);
         monitor.startMonitor();
         
         Thread.sleep(1000);
@@ -102,7 +103,7 @@ public class DirectoryUpdateMonitorTest extends SyncTestBase {
         dirs.add(tempDir);
 
         DirectoryUpdateMonitor monitor =
-            new DirectoryUpdateMonitor(dirs, 100, false);
+            new DirectoryUpdateMonitor(dirs, 100, false, changedList);
         monitor.startMonitor();
 
         // Create file
