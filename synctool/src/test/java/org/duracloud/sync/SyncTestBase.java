@@ -7,12 +7,11 @@
  */
 package org.duracloud.sync;
 
-import org.duracloud.sync.mgmt.ChangedList;
-import org.junit.Before;
-import org.junit.After;
-import static junit.framework.Assert.assertNull;
-
 import java.io.File;
+
+import org.duracloud.sync.mgmt.ChangedList;
+import org.junit.After;
+import org.junit.Before;
 
 /**
  * @author: Bill Branan
@@ -24,7 +23,7 @@ public class SyncTestBase {
 
     @Before
     public void setUp() throws Exception {
-        changedList = ChangedList.getInstance();
+        changedList = new ChangedList();
         changedList.clear();
     }
 

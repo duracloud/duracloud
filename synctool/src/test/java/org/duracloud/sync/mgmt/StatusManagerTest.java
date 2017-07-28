@@ -13,7 +13,6 @@ import java.io.File;
 import java.util.Date;
 
 import org.duracloud.sync.endpoint.SyncResultType;
-import org.duracloud.sync.mgmt.SyncSummary.Status;
 import org.junit.Test;
 
 /**
@@ -24,7 +23,7 @@ public class StatusManagerTest {
 
     @Test
     public void testStatusManager() {
-        StatusManager status = new StatusManager();
+        StatusManager status = new StatusManager(new ChangedList());
         assertEquals(0, status.getInWork());
         assertEquals(0, status.getSucceeded());
         assertEquals(0, status.getFailed().size());

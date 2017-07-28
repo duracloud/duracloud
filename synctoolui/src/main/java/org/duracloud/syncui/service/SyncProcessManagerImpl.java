@@ -83,6 +83,8 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     private ChangedListListener changedListListener;
     private SyncBackupManager syncBackupManager;
     private File backupDir;
+    private ChangedList changedList;
+    private StatusManager statusManager;
 
     private class InternalChangedListListener implements ChangedListListener {
         @Override
@@ -132,7 +134,8 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     public SyncProcessManagerImpl(
         SyncConfigurationManager syncConfigurationManager,
             ContentStoreManagerFactory contentStoreManagerFactory,
-            SyncOptimizeManager syncOptimizeManager) {
+            SyncOptimizeManager syncOptimizeManager,
+            ChangedList changedList) {
         this.syncConfigurationManager = syncConfigurationManager;
         this.currentState = this.stoppedState;
         this.listeners = new EventListenerSupport<>(SyncStateChangeListener.class);
@@ -142,12 +145,14 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         this.contentStoreManagerFactory = contentStoreManagerFactory;
         this.syncOptimizeManager = syncOptimizeManager;
         this.backupDir = new File(syncConfigurationManager.getWorkDirectory(), "backup");
+        this.changedList = changedList;
+        this.statusManager = new StatusManager(this.changedList);
         syncBackupManager =
-            new SyncBackupManager(this.backupDir,
+            new SyncBackupManager(this.changedList, this.backupDir,
                                   BACKUP_FREQUENCY,
                                   syncConfigurationManager.retrieveDirectoryConfigs().toFileList());
 
-        ChangedList.getInstance()
+        this.changedList
                    .addListener(this.changedListListener = new InternalChangedListListener());
 
     }
@@ -323,7 +328,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             
             this.backupDir.mkdirs();
 
-            syncBackupManager = new SyncBackupManager(this.backupDir, 
+            syncBackupManager = new SyncBackupManager(changedList, this.backupDir, 
                                                       BACKUP_FREQUENCY, 
                                                       dirs);
             
@@ -332,15 +337,15 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                 backup = syncBackupManager.attemptRestart();
             }
             
-            syncManager = new SyncManager(dirs, syncEndpoint, 
+            syncManager = new SyncManager(changedList, dirs, syncEndpoint, 
                                           this.syncConfigurationManager.getThreadCount(), // threads
-                                          CHANGE_LIST_MONITOR_FREQUENCY); // change list poll frequency
+                                          CHANGE_LIST_MONITOR_FREQUENCY, statusManager); // change list poll frequency
             syncManager.beginSync();
 
             RunMode mode = this.syncConfigurationManager.getMode();
                 
             if(backup < 0){
-                dirWalker = DirWalker.start(dirs, null);
+                dirWalker = DirWalker.start(dirs, this.changedList);
             }else if(mode.equals(RunMode.CONTINUOUS)){
                 dirWalker = RestartDirWalker.start(dirs, null, backup);
             }
@@ -350,7 +355,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             dirMonitor =
                 new DirectoryUpdateMonitor(dirs,
                                            CHANGE_LIST_MONITOR_FREQUENCY,
-                                           syncDeletes);
+                                           syncDeletes, changedList);
             
             configureMode(mode);
             if(syncDeletes) {
@@ -402,9 +407,9 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         try {
             if (mode.equals(RunMode.CONTINUOUS)) {
                 dirMonitor.startMonitor();
-                ChangedList.getInstance().removeListener(changedListListener);
+                this.changedList.removeListener(changedListListener);
             } else {
-                ChangedList.getInstance().addListener(changedListListener);
+                this.changedList.addListener(changedListListener);
                 dirMonitor.stopMonitor();
             }
         } catch (Exception ex) {
@@ -427,8 +432,8 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     }
 
     private SyncProcessStats getProcessStatsImpl() {
-        int queueSize = ChangedList.getInstance().getListSize();
-        int errorSize = StatusManager.getInstance().getFailed().size();
+        int queueSize = this.changedList.getListSize();
+        int errorSize = this.statusManager.getFailed().size();
         return new SyncProcessStats(this.syncStartedDate,
                                     null,
                                     errorSize,
@@ -460,7 +465,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     }
     
     private void resetChangeList() {
-        ChangedList.getInstance().clear();
+        changedList.clear();
         syncBackupManager.endBackups();
         syncBackupManager.clearBackups();
     }
@@ -671,7 +676,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     @Override
     public List<SyncSummary> getFailures() {
         if (this.syncManager != null) {
-            return StatusManager.getInstance().getFailed();
+            return statusManager.getFailed();
         }
         return new LinkedList<SyncSummary>();
     }
@@ -679,7 +684,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     @Override
     public List<SyncSummary> getRecentlyCompleted() {
         if (this.syncManager != null) {
-            return StatusManager.getInstance().getRecentlyCompleted();
+            return statusManager.getRecentlyCompleted();
         }
         return new LinkedList<SyncSummary>();
     }
@@ -687,17 +692,17 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
     @Override
     public List<File> getQueuedFiles() {
-        return ChangedList.getInstance().peek(10);
+        return changedList.peek(10);
     }
     
     @Override
     public void clearFailures() {
-        StatusManager.getInstance().clearFailed();
+        statusManager.clearFailed();
     }
     
     @PreDestroy
     public void shutdown(){
         this.syncBackupManager.endBackups();
-        ChangedList.getInstance().shutdown();
+        changedList.shutdown();
     }
 }

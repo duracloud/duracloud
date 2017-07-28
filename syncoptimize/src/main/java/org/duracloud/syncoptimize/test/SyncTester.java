@@ -35,7 +35,9 @@ public class SyncTester {
     private File workDir;
     private ContentStore contentStore;
     private String prefix;
-
+    private ChangedList changedList;
+    private StatusManager statusManager;
+    
     private final Logger log = LoggerFactory.getLogger(SyncTester.class);
 
     public SyncTester(SyncOptimizeConfig syncOptConfig,
@@ -48,6 +50,8 @@ public class SyncTester {
         this.workDir = workDir;
         this.contentStore = contentStore;
         this.prefix = prefix;
+        this.changedList = new ChangedList();
+        this.statusManager = new StatusManager(this.changedList);
     }
 
     public long runSyncTest(int threads) {
@@ -103,8 +107,8 @@ public class SyncTester {
                       e.getMessage());
         }
 
-        ChangedList.getInstance().clear();
-        StatusManager.getInstance().clear();
+        changedList.clear();
+        statusManager.clear();
     }
 
 }

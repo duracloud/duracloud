@@ -23,6 +23,7 @@ import org.duracloud.sync.endpoint.DuraStoreChunkSyncEndpoint;
 import org.duracloud.sync.endpoint.EndPointLogger;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.duracloud.sync.mgmt.ChangedList;
+import org.duracloud.sync.mgmt.FileExclusionManager;
 import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.monitor.DirectoryUpdateMonitor;
@@ -66,18 +67,31 @@ public class SyncTool {
     private DirWalker dirWalker;
     private DeleteChecker deleteChecker;
     private String version;
-
-    public SyncTool() {
+    private ChangedList changedList;
+    private StatusManager statusManager;
+    
+    public SyncTool(SyncToolConfig syncConfig) {
         Properties props =
             ApplicationConfig.getPropsFromResource(SYNCTOOL_PROPERTIES);
         this.version = props.getProperty("version");
+        setSyncConfig(syncConfig);
+        File file = syncConfig.getExcludeList();
+        if(file != null){
+            new FileExclusionManager(syncConfig.getExcludeList());
+        }
+        
+        this.changedList =
+            new ChangedList(file != null
+                ? new FileExclusionManager(file) : new FileExclusionManager());
+        
+        this.statusManager = new StatusManager(this.changedList);
     }
 
     /**
      * Sets the configuration of the sync tool.
      * @param syncConfig to use for running the Sync Tool
      */
-    protected void setSyncConfig(SyncToolConfig syncConfig) {
+    private void setSyncConfig(SyncToolConfig syncConfig) {
         this.syncConfig = syncConfig;
         this.syncConfig.setVersion(version);
     }
@@ -172,22 +186,33 @@ public class SyncTool {
         
         this.syncEndpoint.addEndPointListener(new EndPointLogger());
         
-        syncManager = new SyncManager(syncConfig.getContentDirs(),
-                                      syncEndpoint,
-                                      syncConfig.getNumThreads(),
-                                      syncConfig.getPollFrequency());
+        syncManager = new SyncManager(this.changedList,
+                                      this.syncConfig.getContentDirs(),
+                                      this.syncEndpoint,
+                                      this.syncConfig.getNumThreads(),
+                                      this.syncConfig.getPollFrequency(), 
+                                      this.statusManager);
         syncManager.beginSync();
     }
 
     private void startDirWalker() {
-        dirWalker = DirWalker.start(syncConfig.getContentDirs(),
-                                    syncConfig.getExcludeList());
+        dirWalker =
+            DirWalker.start(syncConfig.getContentDirs(),
+                            this.changedList);
     }
 
     private void startRestartDirWalker(long lastBackup) {
-        dirWalker = RestartDirWalker.start(syncConfig.getContentDirs(),
-                                           syncConfig.getExcludeList(),
-                                           lastBackup);
+        dirWalker =
+            RestartDirWalker.start(syncConfig.getContentDirs(),
+                                   this.changedList,
+                                   lastBackup);
+    }
+
+    protected FileExclusionManager
+              createFileExclusionManager(File excludeList) {
+        return excludeList == null
+               ? new FileExclusionManager()
+               : new FileExclusionManager(excludeList);
     }
 
     private void startDeleteChecker() {
@@ -200,12 +225,12 @@ public class SyncTool {
     private void startDirMonitor() {
         dirMonitor = new DirectoryUpdateMonitor(syncConfig.getContentDirs(),
                                                 syncConfig.getPollFrequency(),
-                                                syncConfig.syncDeletes());
+                                                syncConfig.syncDeletes(),
+                                                this.changedList);
         dirMonitor.startMonitor();
     }
 
     private void listenForExit() {
-        StatusManager statusManager = StatusManager.getInstance();
         statusManager.setVersion(version);
         BufferedReader br =
             new BufferedReader(new InputStreamReader(System.in));
@@ -234,7 +259,7 @@ public class SyncTool {
     }
 
     private void waitForExit() {
-        StatusManager statusManager = StatusManager.getInstance();
+        StatusManager statusManager = this.statusManager;
         statusManager.setVersion(version);
         boolean syncDeletes = syncConfig.syncDeletes();
 
@@ -244,7 +269,7 @@ public class SyncTool {
             if(dirWalker.walkComplete()) {
                 if(!syncDeletes ||
                    (syncDeletes && deleteChecker.checkComplete())) {
-                    if(ChangedList.getInstance().getListSize() <= 0) {
+                    if(changedList.getListSize() <= 0) {
                         if(statusManager.getInWork() <= 0) {
                             exit = true;
                             System.out.println(
@@ -278,9 +303,9 @@ public class SyncTool {
         syncBackupManager.endBackups();
         syncManager.endSync();
         dirMonitor.stopMonitor();
-        ChangedList.getInstance().shutdown();
+        changedList.shutdown();
 
-        long inWork = StatusManager.getInstance().getInWork();
+        long inWork = this.statusManager.getInWork();
         if(inWork > 0) {
             System.out.println("\nThe Sync Tool will exit after the remaining "
                                + inWork + " work items have completed\n");
@@ -301,7 +326,7 @@ public class SyncTool {
         File backupDir = new File(syncConfig.getWorkDir(), "backup");
         backupDir.mkdirs();
         syncBackupManager =
-            new SyncBackupManager(backupDir,
+            new SyncBackupManager(this.changedList, backupDir,
                                   syncConfig.getBackupFrequency(),
                                   syncConfig.getContentDirs());
 

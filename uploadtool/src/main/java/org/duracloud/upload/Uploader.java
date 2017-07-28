@@ -33,6 +33,7 @@ public class Uploader {
 
     private SyncManager syncManager;
     private StatusManager statusManager;
+    private ChangedList changedList;
     private DirWalker dirWalker;
     private ContentStore contentStore;
 
@@ -42,6 +43,7 @@ public class Uploader {
     private String password;
     private String spaceId;
     private String storeId;
+    
 
     public Uploader(String host,
                     int port,
@@ -64,6 +66,9 @@ public class Uploader {
                                           username,
                                           password,
                                           storeId);
+        this.changedList = new ChangedList();
+        this.statusManager = new StatusManager(this.changedList);
+        
     }
 
     public void startUpload(List<File> contentItems) {
@@ -76,14 +81,15 @@ public class Uploader {
                                            false,
                                            false,
                                            1073741824); // 1GB chunk size)
-        syncManager = new SyncManager(contentItems,
+        syncManager = new SyncManager(this.changedList, contentItems,
                                       syncEndpoint,
                                       3, // threads
-                                      10000); // change list poll frequency
+                                      10000, 
+                                      statusManager); // change list poll frequency
         syncManager.beginSync();
 
         dirWalker = DirWalker.start(contentItems, null);
-        statusManager = StatusManager.getInstance();
+        statusManager = new StatusManager(changedList);
     }
 
     public UploadStatus getUploadStatus() {
@@ -115,7 +121,7 @@ public class Uploader {
     public void stopUpload() {
         dirWalker.stopWalk();
         syncManager.terminateSync();
-        ChangedList.getInstance().shutdown();
+        changedList.shutdown();
         log.info("Upload Stopped");
     }
 

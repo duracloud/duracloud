@@ -72,7 +72,7 @@ public class RestartDirWalkerTest extends SyncTestBase {
 
         // Run the restart walker
         RestartDirWalker rDirWalker =
-            new RestartDirWalker(dirs, null, restartTime);
+            new RestartDirWalker(dirs, changedList, restartTime);
         assertFalse(rDirWalker.walkComplete());
         rDirWalker.walkDirs();
         assertTrue(rDirWalker.walkComplete());

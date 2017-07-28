@@ -31,9 +31,9 @@ public class SyncBackupManager {
     
     private ExecutorService execPool;
 
-    public SyncBackupManager(File backupDir, long frequency, List<File> contentDirs) {
+    public SyncBackupManager(ChangedList changedList, File backupDir, long frequency, List<File> contentDirs) {
         logger.info("Starting Sync Backup Manager");
-        backupManager = new ChangedListBackupManager(ChangedList.getInstance(),
+        backupManager = new ChangedListBackupManager(changedList,
                                                      backupDir,
                                                      frequency, 
                                                      contentDirs);

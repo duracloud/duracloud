@@ -29,8 +29,7 @@ public class SyncToolInitializer {
         SyncToolConfig syncConfig = syncConfigParser.processCommandLine(args);
 
         // Start up the SyncTool
-        SyncTool syncTool = new SyncTool();
-        syncTool.setSyncConfig(syncConfig);
+        SyncTool syncTool = new SyncTool(syncConfig);
         syncTool.runSyncTool();
     }
 

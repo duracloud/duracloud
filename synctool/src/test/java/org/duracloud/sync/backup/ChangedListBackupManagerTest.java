@@ -55,7 +55,7 @@ public class ChangedListBackupManagerTest  extends SyncTestBase {
         bkMan.endBackup();
 
         ChangedFile changedFile = changedList.reserve();
-        changedFile.remove();
+        changedList.remove(changedFile);
         assertNotNull(changedFile);
         assertEquals(testFileName, changedFile.getFile().getName());
         assertNull(changedList.reserve());
