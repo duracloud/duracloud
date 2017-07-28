@@ -561,8 +561,6 @@ public class S3StorageProvider extends StorageProviderBase {
                 } else if (!statusCode.equals(HttpStatus.SC_SERVICE_UNAVAILABLE)
                            && !statusCode.equals(HttpStatus.SC_NOT_FOUND)) {
                     log.error(message, e);                            
-                    throw new StorageException(message, e, NO_RETRY);
-
                 }else{
                     log.warn(message, e);                            
                 }
@@ -572,12 +570,9 @@ public class S3StorageProvider extends StorageProviderBase {
                                                   bucketName,
                                                   e.getMessage());
                 log.error(err, e);
-                throw new StorageException(err,
-                                           e,
-                                           NO_RETRY);
             }
-            
-            
+
+            // Check to see if file landed successfully in S3, despite the exception
             etag = doesContentExistWithExpectedChecksum(bucketName, contentId, contentChecksum);
             if(null == etag) {
                 String err = "Could not add content " + contentId +
