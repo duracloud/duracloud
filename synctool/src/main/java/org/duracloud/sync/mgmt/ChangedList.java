@@ -107,7 +107,7 @@ public class ChangedList implements Serializable {
         return fileList.size() + reservedFiles.size();
     }
 
-    protected synchronized boolean addChangedFile(ChangedFile changedFile) {
+    synchronized boolean addChangedFile(ChangedFile changedFile) {
         File file = changedFile.getFile();
         if(fileExclusionManager.isExcluded(file)){
             return false;
@@ -268,13 +268,27 @@ public class ChangedList implements Serializable {
         return files;
     }
 
-    public synchronized void  remove(ChangedFile changedFile) {
+    /**
+     * Removes a previously reserved ChangedFile from the list of
+     * reserved files, effectively removing it from the ChangedList. 
+     * However if this instance of the ChangedFile or a new 
+     * ChangedFile with an identical file path is re-added to the ChangedList 
+     * before the reserved file is removed,  calling remove will only remove 
+     * the changed file from the reserved list.
+     * @param changedFile
+     */
+    synchronized void  remove(ChangedFile changedFile) {
        this.reservedFiles.remove(getKey(changedFile));
     }
     
-    public synchronized void  unreserve(ChangedFile changedFile){
+    /**
+     * Releases the reservation on the file (if still reserved) and returns 
+     * it to the list.
+     * @param changedFile
+     */
+    synchronized void  unreserve(ChangedFile changedFile){
         ChangedFile removedFile = this.reservedFiles.remove(getKey(changedFile));
-        if(removedFile != null){
+        if(removedFile != null && !this.fileList.containsKey(getKey(removedFile))){
             addChangedFile(removedFile);
         }
     }
