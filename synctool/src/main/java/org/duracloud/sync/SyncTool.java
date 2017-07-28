@@ -23,6 +23,7 @@ import org.duracloud.sync.endpoint.DuraStoreChunkSyncEndpoint;
 import org.duracloud.sync.endpoint.EndPointLogger;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.duracloud.sync.mgmt.ChangedList;
+import org.duracloud.sync.mgmt.FileExclusionManager;
 import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.monitor.DirectoryUpdateMonitor;
@@ -80,6 +81,11 @@ public class SyncTool {
     protected void setSyncConfig(SyncToolConfig syncConfig) {
         this.syncConfig = syncConfig;
         this.syncConfig.setVersion(version);
+        File exclusionListFile = this.syncConfig.getExcludeList();
+        if(exclusionListFile != null){
+            ChangedList.getInstance()
+                       .setFileExclusionManager(new FileExclusionManager(exclusionListFile));
+        }
     }
 
     /**
@@ -180,13 +186,11 @@ public class SyncTool {
     }
 
     private void startDirWalker() {
-        dirWalker = DirWalker.start(syncConfig.getContentDirs(),
-                                    syncConfig.getExcludeList());
+        dirWalker = DirWalker.start(syncConfig.getContentDirs());
     }
 
     private void startRestartDirWalker(long lastBackup) {
         dirWalker = RestartDirWalker.start(syncConfig.getContentDirs(),
-                                           syncConfig.getExcludeList(),
                                            lastBackup);
     }
 
