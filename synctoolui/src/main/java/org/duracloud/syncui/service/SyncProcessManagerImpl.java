@@ -340,9 +340,9 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             RunMode mode = this.syncConfigurationManager.getMode();
                 
             if(backup < 0){
-                dirWalker = DirWalker.start(dirs, null);
+                dirWalker = DirWalker.start(dirs);
             }else if(mode.equals(RunMode.CONTINUOUS)){
-                dirWalker = RestartDirWalker.start(dirs, null, backup);
+                dirWalker = RestartDirWalker.start(dirs, backup);
             }
             
             startBackupsOnDirWalkerCompletion();

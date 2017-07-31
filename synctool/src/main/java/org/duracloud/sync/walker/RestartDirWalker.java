@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.duracloud.sync.mgmt.ChangedList;
+
 /**
  * Walks a set of directory trees just like a DirWalker, but only adds files
  * to the changed list if their modified date is more recent than the time of
@@ -29,13 +31,10 @@ public class RestartDirWalker extends DirWalker {
 
     private long lastBackup;
     private List<File> changedDirs;
-    private File excludeFile;
 
     protected RestartDirWalker(List<File> topDirs,
-                               File excludeFile,
                                long lastBackup) {
-        super(topDirs, excludeFile);
-        this.excludeFile = excludeFile;
+        super(topDirs);
         this.lastBackup = lastBackup;
         changedDirs = new ArrayList<File>();
     }
@@ -46,7 +45,7 @@ public class RestartDirWalker extends DirWalker {
 
         // Walk and add all files in directories which have changed
         if(changedDirs.size() > 0) {
-            DirWalker dirWalker = new DirWalker(changedDirs, excludeFile);
+            DirWalker dirWalker = new DirWalker(changedDirs);
             dirWalker.walkDirs();
         }
     }
@@ -69,10 +68,9 @@ public class RestartDirWalker extends DirWalker {
     }
 
     public static DirWalker start(List<File> topDirs,
-                                  File excludeFile,
                                   long lastBackup) {
         RestartDirWalker dirWalker =
-            new RestartDirWalker(topDirs, excludeFile, lastBackup);
+            new RestartDirWalker(topDirs, lastBackup);
         (new Thread(dirWalker)).start();
         return dirWalker;
     }
