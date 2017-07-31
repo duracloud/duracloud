@@ -67,6 +67,7 @@ public class SyncTool {
     private DirWalker dirWalker;
     private DeleteChecker deleteChecker;
     private String version;
+    private FileExclusionManager fileExclusionManager;
 
     public SyncTool() {
         Properties props =
@@ -83,9 +84,14 @@ public class SyncTool {
         this.syncConfig.setVersion(version);
         File exclusionListFile = this.syncConfig.getExcludeList();
         if(exclusionListFile != null){
-            ChangedList.getInstance()
-                       .setFileExclusionManager(new FileExclusionManager(exclusionListFile));
+            this.fileExclusionManager = new FileExclusionManager(exclusionListFile);
+        } else{
+            fileExclusionManager = new FileExclusionManager();
         }
+        
+        ChangedList.getInstance()
+                   .setFileExclusionManager(this.fileExclusionManager);
+
     }
 
     /**
@@ -186,12 +192,13 @@ public class SyncTool {
     }
 
     private void startDirWalker() {
-        dirWalker = DirWalker.start(syncConfig.getContentDirs());
+        dirWalker = DirWalker.start(syncConfig.getContentDirs(), fileExclusionManager);
     }
 
     private void startRestartDirWalker(long lastBackup) {
         dirWalker = RestartDirWalker.start(syncConfig.getContentDirs(),
-                                           lastBackup);
+                                           lastBackup, 
+                                           fileExclusionManager);
     }
 
     private void startDeleteChecker() {

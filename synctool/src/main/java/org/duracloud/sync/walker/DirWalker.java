@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.apache.commons.io.DirectoryWalker;
 import org.duracloud.sync.mgmt.ChangedList;
+import org.duracloud.sync.mgmt.FileExclusionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +40,13 @@ public class DirWalker extends DirectoryWalker implements Runnable {
     protected final ChangedList changedList;
     private int files = 0;
     private boolean complete = false;
-
-    protected DirWalker(List<File> filesAndDirs) {
+    protected FileExclusionManager fileExclusionManager;
+    
+    protected DirWalker(List<File> filesAndDirs, FileExclusionManager fileExclusionManager) {
         super();
         this.filesAndDirs = filesAndDirs;
         this.changedList = ChangedList.getInstance();
+        this.fileExclusionManager = fileExclusionManager;
     }
 
 
@@ -59,7 +62,8 @@ public class DirWalker extends DirectoryWalker implements Runnable {
         try{
             continueWalk = true;
             for(File item : filesAndDirs) {
-                if(null != item && item.exists() && continueWalk) {
+                if (null != item && item.exists() && continueWalk) {
+
                     if(item.isDirectory()) { // Directory
                         try {
                             List results = new ArrayList();
@@ -76,6 +80,12 @@ public class DirWalker extends DirectoryWalker implements Runnable {
                     if(item !=null){
                         filename = item.getAbsolutePath();
                     }
+                    
+                    if(!continueWalk){
+                        logger.info("Walk discontinued. Exiting walkDirs routine...");
+                        break;
+                    }
+                    
                     logger.warn("Skipping " + filename +
                                 ", as it does not exist");
                 }
@@ -91,15 +101,25 @@ public class DirWalker extends DirectoryWalker implements Runnable {
     }
 
     @Override
+    protected boolean handleDirectory(File directory,
+                                      int depth,
+                                      Collection results)
+        throws IOException {
+        return !this.fileExclusionManager.isExcluded(directory);
+    }
+    
+    
+    @Override
     protected void handleFile(File file, int depth, Collection results) {
         if( null == file){
             logger.warn("The file parameter is unexpectedly null. Ignoring...");
-        } else {
+        } else if(!this.fileExclusionManager.isExcluded(file)) {
             if(changedList.addChangedFile(file)){
                 ++files;
             }
         } 
     }
+
 
     @Override
     protected boolean handleIsCancelled(File file,
@@ -108,8 +128,8 @@ public class DirWalker extends DirectoryWalker implements Runnable {
         return !continueWalk;
     }
 
-    public static DirWalker start(List<File> topDirs) {
-        dirWalker = new DirWalker(topDirs);
+    public static DirWalker start(List<File> topDirs, FileExclusionManager fileExclusionManager) {
+        dirWalker = new DirWalker(topDirs, fileExclusionManager);
         (new Thread(dirWalker)).start();
         return dirWalker;
     }
