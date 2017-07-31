@@ -54,7 +54,7 @@ public class ChangedList implements Serializable {
         return instance;
     }
     
-    public ChangedList() {
+    private ChangedList() {
         fileList = new LinkedHashMap<String,ChangedFile>();
         reservedFiles = new LinkedHashMap<String,ChangedFile>();
         this.fileExclusionManager = new FileExclusionManager();
