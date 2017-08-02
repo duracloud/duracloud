@@ -10,6 +10,7 @@ package org.duracloud.sync.walker;
 import org.apache.commons.io.FileUtils;
 import org.duracloud.sync.SyncTestBase;
 import org.duracloud.sync.mgmt.ChangedFile;
+import org.duracloud.sync.mgmt.FileExclusionManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,7 +73,7 @@ public class RestartDirWalkerTest extends SyncTestBase {
 
         // Run the restart walker
         RestartDirWalker rDirWalker =
-            new RestartDirWalker(dirs, restartTime);
+            new RestartDirWalker(dirs, restartTime, new FileExclusionManager());
         assertFalse(rDirWalker.walkComplete());
         rDirWalker.walkDirs();
         assertTrue(rDirWalker.walkComplete());

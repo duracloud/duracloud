@@ -12,7 +12,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.duracloud.sync.mgmt.ChangedList;
+import org.duracloud.sync.mgmt.FileExclusionManager;
+
 
 /**
  * Walks a set of directory trees just like a DirWalker, but only adds files
@@ -33,8 +34,9 @@ public class RestartDirWalker extends DirWalker {
     private List<File> changedDirs;
 
     protected RestartDirWalker(List<File> topDirs,
-                               long lastBackup) {
-        super(topDirs);
+                               long lastBackup,
+                               FileExclusionManager fileExclusionManager) {
+        super(topDirs, fileExclusionManager);
         this.lastBackup = lastBackup;
         changedDirs = new ArrayList<File>();
     }
@@ -45,7 +47,7 @@ public class RestartDirWalker extends DirWalker {
 
         // Walk and add all files in directories which have changed
         if(changedDirs.size() > 0) {
-            DirWalker dirWalker = new DirWalker(changedDirs);
+            DirWalker dirWalker = new DirWalker(changedDirs, fileExclusionManager);
             dirWalker.walkDirs();
         }
     }
@@ -68,9 +70,10 @@ public class RestartDirWalker extends DirWalker {
     }
 
     public static DirWalker start(List<File> topDirs,
-                                  long lastBackup) {
+                                  long lastBackup, 
+                                  FileExclusionManager fileExclusionManager) {
         RestartDirWalker dirWalker =
-            new RestartDirWalker(topDirs, lastBackup);
+            new RestartDirWalker(topDirs, lastBackup, fileExclusionManager);
         (new Thread(dirWalker)).start();
         return dirWalker;
     }
