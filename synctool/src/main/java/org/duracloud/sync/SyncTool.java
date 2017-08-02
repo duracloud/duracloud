@@ -86,7 +86,7 @@ public class SyncTool {
         if(exclusionListFile != null){
             this.fileExclusionManager = new FileExclusionManager(exclusionListFile);
         } else{
-            fileExclusionManager = new FileExclusionManager();
+            this.fileExclusionManager = new FileExclusionManager();
         }
         
         ChangedList.getInstance()
