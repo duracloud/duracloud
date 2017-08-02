@@ -36,7 +36,7 @@ public class ChangedFile implements Serializable {
     }
     
     /**
-     * Removes a previously reserved from the ChangedList. 
+     * Removes a previously reserved file from the ChangedList. 
      */
     public void remove(){
         ChangedList.getInstance().remove(this);
