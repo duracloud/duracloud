@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 echo 'Starting before-deploy.sh'
 if [ "$TRAVIS_BRANCH" = 'master' ] || [ "$TRAVIS_BRANCH" = 'develop' ]; then
     if [ "$TRAVIS_PULL_REQUEST" == 'false' ]; then
