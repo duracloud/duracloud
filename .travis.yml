@@ -45,6 +45,6 @@ env:
     - secure: "BSEN+HcXsDUQaqW5aq5Wdwqgvlp82IsofhkOdhDEmU4xyEIZnDYFE0xfRZx+GY/DjS1Iq3LGSqUqTUBh+KfQtUqp6xWl2XVS6QvVrQ/qCVA3YYlLUN2RPQmfka5x9Zh4xksI+8bFjvmnW4zImGIWG+j9/j/KrEJOEnNNYtGh2dw="
     - # ^^ GPG_PASSPHRASE
 after_success:
-  - chmod +x *.sh
-  - ./before-deploy.sh
-  - ./deploy.sh
+  - chmod +x resources/travis/*.sh
+  - ./resources/travis/before-deploy.sh
+  - ./resources/travis/deploy.sh
