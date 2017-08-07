@@ -9,7 +9,7 @@ notifications:
     on_failure: always
   slack: duraspace:vOBySuKUwM95j2kfbwh0SNxq
 install:
-  - mvn install -DskipTests -DskipDeploy
+  - mvn install -DskipTests -DskipDeploy --batch-mode
 script:
   - mvn test -DskipIntTests
 sudo: false
