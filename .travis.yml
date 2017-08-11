@@ -31,7 +31,7 @@ deploy:
     region: $ARTIFACTS_REGION
     skip_cleanup: true
     local_dir: $TRAVIS_BUILD_DIR/target
-    upload-dir: duracloud/releases
+    upload-dir: duracloud/tagged-releases/$TRAVIS_TAG
     on:
       tags: true 
   - provider: s3
