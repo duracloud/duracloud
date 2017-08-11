@@ -1236,8 +1236,14 @@ public class ContentStoreImpl implements ContentStore {
                 return null;
             }
             checkResponse(response, HttpStatus.SC_OK);
-            BitIntegrityReportProperties properties =
-                extractBitIntegrityProperties(response);
+            //This is a workaround for duracloud-1137
+            //for reasons that are not clear, in the beanstalk environment
+            //the httpclient is swallowing the Content-Length header
+            //leading the BitIntegrityReportProperties.getSize() method to
+            //return 0.  This appears to be the case only on the GET call. 
+            //To work around it,  we are loading the properties with a separate
+            //call that uses the HEAD path.
+            BitIntegrityReportProperties properties = getBitIntegrityReportProperties(spaceId);
             BitIntegrityReport report =
                 new BitIntegrityReport(response.getResponseStream(), properties);
             return report;

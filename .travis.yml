@@ -15,7 +15,7 @@ install:
   - mvn install -DskipTests -DskipDeploy --batch-mode
 script:
   - mvn test -DskipIntTests
-sudo: false
+sudo: true
 deploy:
   - provider: s3
     access_key_id: $ARTIFACTS_KEY
@@ -27,6 +27,16 @@ deploy:
     upload-dir: duracloud/master
     on:
       branch: master
+  - provider: s3
+    access_key_id: $ARTIFACTS_KEY
+    secret_access_key: $ARTIFACTS_SECRET
+    bucket: $ARTIFACTS_BUCKET
+    region: $ARTIFACTS_REGION
+    skip_cleanup: true
+    local_dir: $TRAVIS_BUILD_DIR/target
+    upload-dir: duracloud/tagged-releases/$TRAVIS_TAG
+    on:
+      tags: true 
   - provider: s3
     access_key_id: $ARTIFACTS_KEY
     secret_access_key: $ARTIFACTS_SECRET
