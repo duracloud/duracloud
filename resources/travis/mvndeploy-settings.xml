@@ -24,5 +24,15 @@
         <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
       </properties>
     </profile>
+
+    <profile>
+      <id>install-builder</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <installbuilder.executable.path>/opt/installbuilder-17.7.0/bin/builder</installbuilder.executable.path>
+      </properties>
+    </profile>
   </profiles>
 </settings>
