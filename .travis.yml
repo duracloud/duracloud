@@ -38,7 +38,6 @@ deploy:
     api_key:
       secure: hNuckzskswfCkY5tXzY9uxFyp9M7ZAfAdo0ys5rtJa2vmT2zRymj3mAAfxO6WBchrEnEyd2amMUBYny2lItz3PuOQiYs8caxAjWFlxIsJhMRVIlLlrZpkYs7PMu9CD//Q8AdhhRFITIZj+i/iH50FeOXRy7Lhs/CuwyAMVIDkxU= 
     file: 
-      - "target/duracloud-beanstalk*.zip"
       - "synctoolui/target/duracloudsync-*.jar"
       - "synctoolui/target/duraclousync-*-linux-installer.run"
       - "synctoolui/target/duraclousync-*-osx-installer.zip"
