@@ -51,7 +51,7 @@ if [ ! -z "$TRAVIS_TAG" ]; then
 
     echo "Generating  javadocs..."
     # the irodsstorageprovider is excluded due to maven complaining about it. This exclusion will likely be temporary.
-    mvn javadoc:aggregate -Dadditionalparam="-Xdoclint:none" -Pjava8-disable-strict-javadoc  -pl \!irodsstorageprovider
+    mvn javadoc:aggregate -Dadditionalparam="-Xdoclint:none" -Pjava8-disable-strict-javadoc  -pl \!irodsstorageprovider,\!duradmin
     cd target/site/apidocs
     zipFile=duracloud-${TRAVIS_TAG}-apidocs.zip
     echo "Zipping javadocs..."
