@@ -1,6 +1,6 @@
 #!/bin/bash
 echo 'Starting before-install.sh'
-if [ "$TRAVIS_TAG" != null ]; then
+if [ ! -z "$TRAVIS_TAG" ]; then
     echo `Installing BitRock InstallBuilder`
     wget https://installbuilder.bitrock.com/installbuilder-enterprise-17.7.0-linux-x64-installer.run
     chmod +x installbuilder-enterprise-17.7.0-linux-x64-installer.run
