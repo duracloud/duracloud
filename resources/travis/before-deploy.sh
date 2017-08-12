@@ -20,6 +20,7 @@ generateBeanstalkZip ()
    mvn process-resources -Ds3.config.bucket=${s3Bucket}  --non-recursive
    cd target
    zip -r ${zipFile} duradmin.war durastore.war ROOT.war .ebextensions
+   rm -rf duradmin.war durastore.war ROOT.war .ebextensions
    cd ..
 }
 
@@ -46,12 +47,14 @@ if [ ! -z "$TRAVIS_TAG" ]; then
     echo "Zipping installation package"
     package="installation-package-${TRAVIS_TAG}.zip"
     zip -r -j target/${package} $LOCAL_INSTALL/
-
+    rm -rf ${LOCAL_INSTALL}
+    
     generateBeanstalkZip "duracloud-production-config" duracloud-production-beanstalk-${TRAVIS_TAG}.zip
-
+ 
     echo "Generating  javadocs..."
     # the irodsstorageprovider is excluded due to maven complaining about it. This exclusion will likely be temporary.
-    mvn javadoc:aggregate -Dadditionalparam="-Xdoclint:none" -Pjava8-disable-strict-javadoc  -pl \!irodsstorageprovider,\!duradmin
+    # same goes for duradmin and synctoolui due to dependencies on unconventional setup of org.duracloud:jquery* dependencies.
+    mvn javadoc:aggregate -Dadditionalparam="-Xdoclint:none" -Pjava8-disable-strict-javadoc  -pl \!irodsstorageprovider,\!duradmin,\!synctoolui
     cd target/site/apidocs
     zipFile=duracloud-${TRAVIS_TAG}-apidocs.zip
     echo "Zipping javadocs..."
