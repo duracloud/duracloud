@@ -59,6 +59,10 @@ if [ ! -z "$TRAVIS_TAG" ]; then
     zipFile=duracloud-${TRAVIS_TAG}-apidocs.zip
     echo "Zipping javadocs..."
     zip -r ${zipFile} .
+    mv ${zipFile} $TRAVIS_BUILD_DIR/target
+    cd $TRAVIS_BUILD_DIR/target
+    rm -rf site javadoc-bundle-options
+    
 fi
 
 echo 'Completed before-deploy.sh'
