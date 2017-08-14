@@ -51,18 +51,17 @@ deploy:
     api_key:
       secure: hNuckzskswfCkY5tXzY9uxFyp9M7ZAfAdo0ys5rtJa2vmT2zRymj3mAAfxO6WBchrEnEyd2amMUBYny2lItz3PuOQiYs8caxAjWFlxIsJhMRVIlLlrZpkYs7PMu9CD//Q8AdhhRFITIZj+i/iH50FeOXRy7Lhs/CuwyAMVIDkxU=
     skip_cleanup: true
-    local_dir: $TRAVIS_BUILD_DIR/target
     file-glob: true
     file:
-      - "retrievaltool-*-driver.jar"
-      - "syncoptimize-*-driver.jar"
-      - "installation-package-*.zip"
-      - "duracloud-*-apidocs.zip"
-      - "duracloudsync-*.jar"
-      - "duracloudsync-*-linux-installer.run"
-      - "duracloudsync-*-osx-installer.zip"
-      - "duracloudsync-*-windows-installer.exe"
-      - "duracloud-beanstalk-v*.zip"
+      - "target/retrievaltool-*-driver.jar"
+      - "target/syncoptimize-*-driver.jar"
+      - "target/installation-package-*.zip"
+      - "target/duracloud-*-apidocs.zip"
+      - "target/duracloudsync-*.jar"
+      - "target/duracloudsync-*-linux-installer.run"
+      - "target/duracloudsync-*-osx-installer.zip"
+      - "target/duracloudsync-*-windows-installer.exe"
+      - "target/duracloud-beanstalk-v*.zip"
     on:
       tags: true
 env:
