@@ -42,19 +42,18 @@ if [ ! -z "$TRAVIS_TAG" ]; then
     cp resources/readme.txt ${LOCAL_INSTALL}/
     cp target/durastore.war ${LOCAL_INSTALL}/
     cp target/duradmin.war ${LOCAL_INSTALL}/
-    cp target/duradmin.war ${LOCAL_INSTALL}/
     cp target/ROOT.war ${LOCAL_INSTALL}/
     echo "Zipping installation package"
     package="installation-package-${TRAVIS_TAG}.zip"
     zip -r -j target/${package} $LOCAL_INSTALL/
     rm -rf ${LOCAL_INSTALL}
-    
+
     generateBeanstalkZip "duracloud-production-config" duracloud-production-beanstalk-${TRAVIS_TAG}.zip
- 
+
     echo "Generating  javadocs..."
     # the irodsstorageprovider is excluded due to maven complaining about it. This exclusion will likely be temporary.
     # same goes for duradmin and synctoolui due to dependencies on unconventional setup of org.duracloud:jquery* dependencies.
-    mvn javadoc:aggregate -Dadditionalparam="-Xdoclint:none" -Pjava8-disable-strict-javadoc  -pl \!irodsstorageprovider,\!duradmin,\!synctoolui
+    mvn javadoc:aggregate -Dadditionalparam="-Xdoclint:none" -Pjava8-disable-strict-javadoc  -pl \!irodsstorageprovider,\!duradmin,\!synctoolui --batch-mode
     cd target/site/apidocs
     zipFile=duracloud-${TRAVIS_TAG}-apidocs.zip
     echo "Zipping javadocs..."
@@ -62,7 +61,6 @@ if [ ! -z "$TRAVIS_TAG" ]; then
     mv ${zipFile} $TRAVIS_BUILD_DIR/target
     cd $TRAVIS_BUILD_DIR/target
     rm -rf site javadoc-bundle-options
-    
 fi
 
 echo 'Completed before-deploy.sh'

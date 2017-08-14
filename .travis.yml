@@ -36,7 +36,7 @@ deploy:
     local_dir: $TRAVIS_BUILD_DIR/target
     upload-dir: duracloud/tagged-releases/$TRAVIS_TAG
     on:
-      tags: true 
+      tags: true
   - provider: s3
     access_key_id: $ARTIFACTS_KEY
     secret_access_key: $ARTIFACTS_SECRET
@@ -50,8 +50,9 @@ deploy:
   - provider: releases
     api_key:
       secure: hNuckzskswfCkY5tXzY9uxFyp9M7ZAfAdo0ys5rtJa2vmT2zRymj3mAAfxO6WBchrEnEyd2amMUBYny2lItz3PuOQiYs8caxAjWFlxIsJhMRVIlLlrZpkYs7PMu9CD//Q8AdhhRFITIZj+i/iH50FeOXRy7Lhs/CuwyAMVIDkxU=
+    skip_cleanup: true
     file-glob: true
-    file: 
+    file:
       - "retrievaltool/target/retrievaltool-*-driver.jar"
       - "syncoptimize/target/syncoptimize-*-driver.jar"
       - "target/installation-package-*.zip"
