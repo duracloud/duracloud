@@ -8,59 +8,73 @@ if [ "$TRAVIS_BRANCH" = 'master' ] || [ "$TRAVIS_BRANCH" = 'develop' ]; then
     fi
 fi
 
-# function that generates a beanstalk zip based on twp params: s3 bucket and zip file.
+
+# function that generates a beanstalk zip 
 generateBeanstalkZip ()
-{
-   echo "Generating beanstalk zip"
-   s3Bucket=$1
-   echo "s3Bucket = ${s3Bucket}"
-   zipFile=$2
+{ echo "Generating beanstalk zip"
+   zipFile=$1
    echo "zipFile=${zipFile}"
    echo "stage beanstalk package"
-   mvn process-resources -Ds3.config.bucket=${s3Bucket}  --non-recursive
+   mvn process-resources --non-recursive
    cd target
    zip -r ${zipFile} duradmin.war durastore.war ROOT.war .ebextensions
-   rm -rf duradmin.war durastore.war ROOT.war .ebextensions
    cd ..
 }
 
-if [ "$TRAVIS_BRANCH" = 'develop' ]; then
-   currentGitCommit=`git rev-parse HEAD`;
-   projectVersion=`mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec`
+targetDir=$TRAVIS_BUILD_DIR/target
+currentGitCommit=`git rev-parse HEAD`;
+projectVersion=`mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec`
+
+if [ "$TRAVIS_BRANCH" = 'develop' ] || [ "$TRAVIS_BRANCH" = 'master' ] || [ ! -z "$TRAVIS_TAG" ]; then
    echo "Generating beanstalk zip for $projectVersion ${currentGitCommit}..."
-   generateBeanstalkZip "duracloud-dev-config" "duracloud-dev-beanstalk-$projectVersion-${currentGitCommit:0:7}.zip"
+   beanstalkFile="duracloud-beanstalk-v$projectVersion-${currentGitCommit:0:7}.zip"
+   generateBeanstalkZip ${beanstalkFile} 
+
+   #make a copy of the beanstalk file using fixed name:
+   cp $targetDir/${beanstalkFile} $targetDir/duracloud-beanstalk-latest.zip
+
+   echo "Building SyncTool installers"
+   mvn clean install -DskipTests -Pinstallers -pl synctoolui --settings resources/travis/mvndeploy-settings.xml --batch-mode
+   # copy artifacts into parent target dir
+   cp syncoptimize/target/syncoptimize*-driver.jar $targetDir 
+   cp retrievaltool/target/retrievaltool*-driver.jar $targetDir
+   cp synctoolui/target/duracloudsync*.jar $targetDir
+   cp synctoolui/target/duracloudsync*.exe $targetDir
+   cp synctoolui/target/duracloudsync*.run $targetDir
+   cp synctoolui/target/duracloudsync*.zip $targetDir
 fi
 
-echo TRAVIS_TAG=$TRAVIS_TAG
 if [ ! -z "$TRAVIS_TAG" ]; then
-    echo "Building SyncTool installers"
-    mvn clean install -DskipTests -Pinstallers -pl synctoolui --settings resources/travis/mvndeploy-settings.xml --batch-mode
-
-    LOCAL_INSTALL=target/install
+    # build install package only for tagged releases
+    LOCAL_INSTALL=$targetDir/install
     mkdir -p  $LOCAL_INSTALL
     echo "Staging install package"
     cp resources/readme.txt ${LOCAL_INSTALL}/
-    cp target/durastore.war ${LOCAL_INSTALL}/
-    cp target/duradmin.war ${LOCAL_INSTALL}/
-    cp target/ROOT.war ${LOCAL_INSTALL}/
+    cp $targetDir/durastore.war ${LOCAL_INSTALL}/
+    cp $targetDir/duradmin.war ${LOCAL_INSTALL}/
+    cp $targetDir/ROOT.war ${LOCAL_INSTALL}/
     echo "Zipping installation package"
-    package="installation-package-${TRAVIS_TAG}.zip"
-    zip -r -j target/${package} $LOCAL_INSTALL/
+    package="installation-package-${projectVersion}.zip"
+    zip -r -j $targetDir/${package} $LOCAL_INSTALL/
     rm -rf ${LOCAL_INSTALL}
-
-    generateBeanstalkZip "duracloud-production-config" duracloud-production-beanstalk-${TRAVIS_TAG}.zip
-
+    
+    # generate javadocs only for tagged releases
     echo "Generating  javadocs..."
     # the irodsstorageprovider is excluded due to maven complaining about it. This exclusion will likely be temporary.
     # same goes for duradmin and synctoolui due to dependencies on unconventional setup of org.duracloud:jquery* dependencies.
     mvn javadoc:aggregate -Dadditionalparam="-Xdoclint:none" -Pjava8-disable-strict-javadoc  -pl \!irodsstorageprovider,\!duradmin,\!synctoolui --batch-mode
-    cd target/site/apidocs
-    zipFile=duracloud-${TRAVIS_TAG}-apidocs.zip
+    cd $targetDir/site/apidocs
+    zipFile=duracloud-${projectVersion}-apidocs.zip
     echo "Zipping javadocs..."
     zip -r ${zipFile} .
-    mv ${zipFile} $TRAVIS_BUILD_DIR/target
-    cd $TRAVIS_BUILD_DIR/target
-    rm -rf site javadoc-bundle-options
+    mv ${zipFile} $targetDir/ 
+    cd $targetDir 
+    rm -rf install site javadoc-bundle-options
 fi
+
+
+#clean up
+cd $targetDir
+rm -rf duradmin.war durastore.war ROOT.war .ebextensions
 
 echo 'Completed before-deploy.sh'
