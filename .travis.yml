@@ -56,11 +56,11 @@ deploy:
       - "retrievaltool/target/retrievaltool-*-driver.jar"
       - "syncoptimize/target/syncoptimize-*-driver.jar"
       - "target/installation-package-*.zip"
-      - "target/site/apidocs/duracloud-*-apidocs.zip"
+      - "target/apidocs/duracloud-*-apidocs.zip"
       - "synctoolui/target/duracloudsync-*.jar"
-      - "synctoolui/target/duraclousync-*-linux-installer.run"
-      - "synctoolui/target/duraclousync-*-osx-installer.zip"
-      - "synctoolui/target/duraclousync-*-windows-installer.exe"
+      - "synctoolui/target/duracloudsync-*-linux-installer.run"
+      - "synctoolui/target/duracloudsync-*-osx-installer.zip"
+      - "synctoolui/target/duracloudsync-*-windows-installer.exe"
     on:
       tags: true
 env:
