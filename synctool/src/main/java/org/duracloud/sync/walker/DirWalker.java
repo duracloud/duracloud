@@ -7,20 +7,17 @@
  */
 package org.duracloud.sync.walker;
 
-import org.apache.commons.io.DirectoryWalker;
-import org.apache.commons.io.IOCase;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.duracloud.sync.mgmt.ChangedList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.apache.commons.io.DirectoryWalker;
+import org.duracloud.sync.mgmt.ChangedList;
+import org.duracloud.sync.mgmt.FileExclusionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles the walking of a set of directory trees. Each file found in the
@@ -39,42 +36,19 @@ public class DirWalker extends DirectoryWalker implements Runnable {
     private boolean continueWalk;
 
     private List<File> filesAndDirs;
-    private WildcardFileFilter fileFilter;
-    private ChangedList fileList;
+ 
+    protected final ChangedList changedList;
     private int files = 0;
     private boolean complete = false;
-
-    protected DirWalker(List<File> filesAndDirs, File excludeFile) {
+    protected FileExclusionManager fileExclusionManager;
+    
+    protected DirWalker(List<File> filesAndDirs, FileExclusionManager fileExclusionManager) {
         super();
         this.filesAndDirs = filesAndDirs;
-        fileList = ChangedList.getInstance();
-
-        if(null != excludeFile) {
-            List<String> excludeList = readExcludeFile(excludeFile);
-            setExcludeList(excludeList);
-        }
+        this.changedList = ChangedList.getInstance();
+        this.fileExclusionManager = fileExclusionManager;
     }
 
-    private List<String> readExcludeFile(File excludeFile) {
-        List<String> excludeList = new ArrayList<>();
-        try (BufferedReader excludeReader =
-                 new BufferedReader(new FileReader(excludeFile))) {
-            String excludeItem = excludeReader.readLine();
-            while(excludeItem != null) {
-                excludeList.add(excludeItem.trim());
-                excludeItem = excludeReader.readLine();
-            }
-        } catch(IOException e) {
-            throw new RuntimeException("Unable to read exclude file " +
-                                       excludeFile.getAbsolutePath() +
-                                       " due to: " + e.getMessage());
-        }
-        return excludeList;
-    }
-
-    protected void setExcludeList(List<String> excludeList) {
-        fileFilter = new WildcardFileFilter(excludeList, IOCase.INSENSITIVE);
-    }
 
     public void run() {
         walkDirs();
@@ -88,7 +62,8 @@ public class DirWalker extends DirectoryWalker implements Runnable {
         try{
             continueWalk = true;
             for(File item : filesAndDirs) {
-                if(null != item && item.exists() && continueWalk) {
+                if (null != item && item.exists() && continueWalk) {
+
                     if(item.isDirectory()) { // Directory
                         try {
                             List results = new ArrayList();
@@ -105,6 +80,12 @@ public class DirWalker extends DirectoryWalker implements Runnable {
                     if(item !=null){
                         filename = item.getAbsolutePath();
                     }
+                    
+                    if(!continueWalk){
+                        logger.info("Walk discontinued. Exiting walkDirs routine...");
+                        break;
+                    }
+                    
                     logger.warn("Skipping " + filename +
                                 ", as it does not exist");
                 }
@@ -120,28 +101,25 @@ public class DirWalker extends DirectoryWalker implements Runnable {
     }
 
     @Override
+    protected boolean handleDirectory(File directory,
+                                      int depth,
+                                      Collection results)
+        throws IOException {
+        return !this.fileExclusionManager.isExcluded(directory);
+    }
+    
+    
+    @Override
     protected void handleFile(File file, int depth, Collection results) {
         if( null == file){
             logger.warn("The file parameter is unexpectedly null. Ignoring...");
-        } else if(!excluded(file)) {
-            ++files;
-            fileList.addChangedFile(file);
-        } else {
-            logger.info("Skipping excluded file: " + file.getAbsolutePath());
-        }
+        } else if(!this.fileExclusionManager.isExcluded(file)) {
+            if(changedList.addChangedFile(file)){
+                ++files;
+            }
+        } 
     }
 
-    protected boolean excluded(File file) {
-        if(null != fileFilter) {
-            do {
-                if(fileFilter.accept(file)) {
-                    return true;
-                }
-                file = file.getParentFile();
-            } while (file != null);
-        }
-        return false;
-    }
 
     @Override
     protected boolean handleIsCancelled(File file,
@@ -150,8 +128,8 @@ public class DirWalker extends DirectoryWalker implements Runnable {
         return !continueWalk;
     }
 
-    public static DirWalker start(List<File> topDirs, File excludeFile) {
-        dirWalker = new DirWalker(topDirs, excludeFile);
+    public static DirWalker start(List<File> topDirs, FileExclusionManager fileExclusionManager) {
+        dirWalker = new DirWalker(topDirs, fileExclusionManager);
         (new Thread(dirWalker)).start();
         return dirWalker;
     }

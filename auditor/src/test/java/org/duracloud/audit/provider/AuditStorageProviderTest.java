@@ -42,8 +42,6 @@ import static org.junit.Assert.assertTrue;
 @RunWith(EasyMockRunner.class)
 public class AuditStorageProviderTest extends EasyMockSupport {
 
-    @TestSubject
-    private AuditStorageProvider provider;
     @Mock
     private StorageProvider targetProvider;
     @Mock
@@ -70,10 +68,13 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     private String sourceSpaceId = "source-space-id";
     private String sourceContentId = "source-content-id";
 
+    @TestSubject
+    private AuditStorageProvider provider =
+        new AuditStorageProvider(targetProvider, account, storeId,
+                                 storeType, userUtil, taskQueue);
+
     @Before
     public void setup() {
-        provider = new AuditStorageProvider(targetProvider, account, storeId,
-                                            storeType, userUtil, taskQueue);
         provider.setLoggers(readLogger, writeLogger);
     }
 
@@ -334,7 +335,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         Map<String,String> props = new HashMap<>();
         props.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
         props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, contentSize+"");
-        
+
         EasyMock.expect(targetProvider.getContentProperties(sourceSpaceId, sourceContentId))
                 .andReturn(props);
 
@@ -350,11 +351,11 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         assertEquals(sourceContentId,
                      taskProps.get(AuditTask.SOURCE_CONTENT_ID_PROP));
         assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
-        
+
         assertNotNull(taskProps.get(AuditTask.CONTENT_PROPERTIES_PROP));
         assertEquals(contentSize+"", taskProps.get(AuditTask.CONTENT_SIZE_PROP));
         assertEquals(contentMimeType, taskProps.get(AuditTask.CONTENT_MIMETYPE_PROP));
-        
+
     }
 
     @Test
@@ -365,7 +366,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         props.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
         props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, contentSize+"");
         props.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, contentChecksum);
-        
+
         EasyMock.expect(targetProvider.getContentProperties(spaceId, contentId))
                 .andReturn(props);
 

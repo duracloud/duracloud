@@ -35,10 +35,17 @@ public class ChangedFile implements Serializable {
         syncAttempts++;
     }
     
+    /**
+     * Removes a previously reserved file from the ChangedList. 
+     */
     public void remove(){
         ChangedList.getInstance().remove(this);
     }
 
+    /**
+     * Releases the reservation on the file (if still reserved)
+     * and returns it to the list of unreserved ChangedFiles.
+     */
     public void unreserve(){
         ChangedList.getInstance().unreserve(this);
     }

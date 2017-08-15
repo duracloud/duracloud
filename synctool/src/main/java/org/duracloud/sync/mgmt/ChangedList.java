@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author: Bill Branan
  * Date: Mar 15, 2010
  */
-public class ChangedList {
+public class ChangedList implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(ChangedList.class);
     private LinkedHashMap<String, ChangedFile> fileList;
@@ -40,39 +41,53 @@ public class ChangedList {
     private ExecutorService executorService;
     private long listVersion;
     private boolean shutdown = false;
-
+    
     private static ChangedList instance;
 
+    private FileExclusionManager fileExclusionManager;
     private EventListenerSupport<ChangedListListener> listeners;
 
     public static synchronized ChangedList getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new ChangedList();
         }
         return instance;
     }
-
+    
     private ChangedList() {
         fileList = new LinkedHashMap<String,ChangedFile>();
         reservedFiles = new LinkedHashMap<String,ChangedFile>();
+        this.fileExclusionManager = new FileExclusionManager();
         listVersion = 0;
         listeners =
             new EventListenerSupport<ChangedListListener>(ChangedListListener.class);
         this.executorService = Executors.newSingleThreadExecutor();
     }
 
+    public void setFileExclusionManager(FileExclusionManager fileExclusionManager){
+        if (fileExclusionManager == null)
+            throw new IllegalArgumentException("fileExclusionManager must not be null");
+
+        this.fileExclusionManager = fileExclusionManager;
+    }
+
     /**
-     * Adds a changed file to the list of items to be processed.
-     * Note that only the most current update to any given file is
-     * provided to the change processor.
+     * Adds a changed file to the list of items to be processed. If the file
+     * happens to match exclusion rules it will not be added to the list (and
+     * the method will return false). Note that only the most current update to
+     * any given file is provided to the change processor.
      *
-     * @param changedFile a file which has changed on the file system
+     * @param changedFile
+     *            a file which has changed on the file system
+     * @return false if the changedFile is null or matches at least one
+     *         exclusion rule.
      */
-    public void addChangedFile(final File changedFile) {
+    public boolean addChangedFile(final File changedFile) {
         if(null != changedFile){
-            addChangedFile(new ChangedFile(changedFile));
+            return addChangedFile(new ChangedFile(changedFile));
         }else{
             log.warn("The changedFile parameter was unexpectedly null. Ignored.");
+            return false;
         }
     }
 
@@ -92,10 +107,15 @@ public class ChangedList {
         return fileList.size() + reservedFiles.size();
     }
 
-    protected synchronized void addChangedFile(ChangedFile changedFile) {
-        fileList.put(changedFile.getFile().getAbsolutePath(), changedFile);
+    synchronized boolean addChangedFile(ChangedFile changedFile) {
+        File file = changedFile.getFile();
+        if(fileExclusionManager.isExcluded(file)){
+            return false;
+        }
+        fileList.put(file.getAbsolutePath(), changedFile);
         incrementVersion();
         fireChangedEvent();
+        return true;
     }
 
     protected void fireChangedEvent() {
@@ -198,15 +218,15 @@ public class ChangedList {
         try {
             FileInputStream fileStream = new FileInputStream(persistFile);
             ObjectInputStream oStream = new ObjectInputStream(fileStream);
-
+            log.info("Restoring changed list from backup: {}", persistFile.getAbsolutePath());
             synchronized(this) {
-                fileList = (LinkedHashMap<String, ChangedFile>) oStream.readObject();
-
+                LinkedHashMap<String, ChangedFile> fileListFromDisk = (LinkedHashMap<String, ChangedFile>) oStream.readObject();
+                
                 //remove files in change list that are not in the content dir list.
                 if (contentDirs != null && !contentDirs.isEmpty()) {
 
                     Iterator<Entry<String, ChangedFile>> entries =
-                        fileList.entrySet().iterator();
+                        fileListFromDisk.entrySet().iterator();
                     while (entries.hasNext()) {
                         Entry<String, ChangedFile> entry = entries.next();
                         ChangedFile file = entry.getValue();
@@ -214,7 +234,8 @@ public class ChangedList {
                         for (File contentDir : contentDirs) {
                             if (file.getFile()
                                     .getAbsolutePath()
-                                    .startsWith(contentDir.getAbsolutePath())) {
+                                    .startsWith(contentDir.getAbsolutePath()) &&
+                                    !this.fileExclusionManager.isExcluded(file.getFile())) {
                                 watched = true;
                                 break;
                             }
@@ -225,6 +246,8 @@ public class ChangedList {
                         }
                     }
                 }
+                
+                this.fileList = fileListFromDisk;
             }
             oStream.close();
         } catch(Exception e) {
@@ -245,13 +268,27 @@ public class ChangedList {
         return files;
     }
 
+    /**
+     * Removes a previously reserved ChangedFile from the list of
+     * reserved files, effectively removing it from the ChangedList. 
+     * However if this instance of the ChangedFile or a new 
+     * ChangedFile with an identical file path is re-added to the ChangedList 
+     * before the reserved file is removed,  calling remove will only remove 
+     * the changed file from the reserved list.
+     * @param changedFile
+     */
     synchronized void  remove(ChangedFile changedFile) {
        this.reservedFiles.remove(getKey(changedFile));
     }
     
+    /**
+     * Releases the reservation on the file (if still reserved) and returns 
+     * it to the list.
+     * @param changedFile
+     */
     synchronized void  unreserve(ChangedFile changedFile){
         ChangedFile removedFile = this.reservedFiles.remove(getKey(changedFile));
-        if(removedFile != null){
+        if(removedFile != null && !this.fileList.containsKey(getKey(removedFile))){
             addChangedFile(removedFile);
         }
     }
@@ -263,7 +300,6 @@ public class ChangedList {
     public void shutdown() {
         executorService.shutdown();
         shutdown = true;
-        ChangedList.instance = null;
     }
 
 }

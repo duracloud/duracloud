@@ -11,5 +11,7 @@ unit-test-db/testUnitDB
 *.iml
 *.ipr
 *.iws
+*.idea
+integration/Storage-Providers-Metrics.txt
 synctoolui/overlays/
 target/

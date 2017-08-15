@@ -23,6 +23,7 @@ import org.duracloud.sync.endpoint.DuraStoreChunkSyncEndpoint;
 import org.duracloud.sync.endpoint.EndPointLogger;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.duracloud.sync.mgmt.ChangedList;
+import org.duracloud.sync.mgmt.FileExclusionManager;
 import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.monitor.DirectoryUpdateMonitor;
@@ -66,6 +67,7 @@ public class SyncTool {
     private DirWalker dirWalker;
     private DeleteChecker deleteChecker;
     private String version;
+    private FileExclusionManager fileExclusionManager;
 
     public SyncTool() {
         Properties props =
@@ -80,6 +82,16 @@ public class SyncTool {
     protected void setSyncConfig(SyncToolConfig syncConfig) {
         this.syncConfig = syncConfig;
         this.syncConfig.setVersion(version);
+        File exclusionListFile = this.syncConfig.getExcludeList();
+        if(exclusionListFile != null){
+            this.fileExclusionManager = new FileExclusionManager(exclusionListFile);
+        } else{
+            this.fileExclusionManager = new FileExclusionManager();
+        }
+        
+        ChangedList.getInstance()
+                   .setFileExclusionManager(this.fileExclusionManager);
+
     }
 
     /**
@@ -180,14 +192,13 @@ public class SyncTool {
     }
 
     private void startDirWalker() {
-        dirWalker = DirWalker.start(syncConfig.getContentDirs(),
-                                    syncConfig.getExcludeList());
+        dirWalker = DirWalker.start(syncConfig.getContentDirs(), fileExclusionManager);
     }
 
     private void startRestartDirWalker(long lastBackup) {
         dirWalker = RestartDirWalker.start(syncConfig.getContentDirs(),
-                                           syncConfig.getExcludeList(),
-                                           lastBackup);
+                                           lastBackup, 
+                                           fileExclusionManager);
     }
 
     private void startDeleteChecker() {

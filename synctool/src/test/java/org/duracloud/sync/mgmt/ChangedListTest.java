@@ -68,7 +68,7 @@ public class ChangedListTest extends SyncTestBase {
                      retrievedFile.getFile().getAbsolutePath());
         assertNull(changedList.reserve());
 
-        changedList.restore(persistFile, new ArrayList<File>());
+        changedList.restore(persistFile, Arrays.asList(changedFile.getParentFile()));
 
         retrievedFile = changedList.reserve();
         assertEquals(changedFile.getAbsolutePath(),
@@ -85,7 +85,7 @@ public class ChangedListTest extends SyncTestBase {
         changedList.reserve();
         File persistFile = File.createTempFile("persist", "file");
         changedList.persist(persistFile);
-        changedList.restore(persistFile, new ArrayList<File>());
+        changedList.restore(persistFile,Arrays.asList(changedFile.getParentFile()));
         assertEquals(1, changedList.getListSize());
         persistFile.delete();
     }
@@ -113,6 +113,40 @@ public class ChangedListTest extends SyncTestBase {
         assertEquals(1, changedList.getListSize());
     }
 
+    @Test
+    public void testDuplicateFilesReplacedOnAdd() throws Exception {
+        changedList.addChangedFile(changedFile);
+        assertEquals(1, changedList.getListSize());
+        File dupFile = new File(changedFile.getAbsolutePath());
+        changedList.addChangedFile(dupFile);
+        assertEquals(1, changedList.getListSize());
+        ChangedFile changedFileDup = new ChangedFile(dupFile);
+        changedList.addChangedFile(changedFileDup);
+        assertEquals(1, changedList.getListSize());
+    }
+
+    @Test
+    public void testUnreserveFileAfterSameFileIsAddded(){
+        changedList.addChangedFile(changedFile);
+        ChangedFile reserved = changedList.reserve();
+        reserved.incrementSyncAttempts();
+        assertEquals(1, reserved.getSyncAttempts());
+        
+        assertEquals(0, changedList.getListSize());
+        assertEquals(1, changedList.getListSizeIncludingReservedFiles());
+        ChangedFile dupFile = new ChangedFile(new File(changedFile.getAbsolutePath()));
+        changedList.addChangedFile(dupFile);
+        assertEquals(1, changedList.getListSize());
+        assertEquals(2, changedList.getListSizeIncludingReservedFiles());
+        reserved.unreserve();
+        assertEquals(1, changedList.getListSize());
+        assertEquals(1, changedList.getListSizeIncludingReservedFiles());
+        //verify that the changed that was added after the reservation was not 
+        //overwritten by the reservedFile.
+        assertEquals(0, changedList.reserve().getSyncAttempts());
+        
+    }
+    
     @Test
     public void testChangedListContainsFilesThatDoNotMatchContentDirs() throws Exception {
         changedList.addChangedFile(changedFile);

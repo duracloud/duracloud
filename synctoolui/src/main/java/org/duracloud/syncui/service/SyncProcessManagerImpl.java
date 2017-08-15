@@ -29,6 +29,7 @@ import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.duracloud.sync.mgmt.ChangedList;
 import org.duracloud.sync.mgmt.ChangedListListener;
+import org.duracloud.sync.mgmt.FileExclusionManager;
 import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.mgmt.SyncSummary;
@@ -339,10 +340,13 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
             RunMode mode = this.syncConfigurationManager.getMode();
                 
-            if(backup < 0){
-                dirWalker = DirWalker.start(dirs, null);
-            }else if(mode.equals(RunMode.CONTINUOUS)){
-                dirWalker = RestartDirWalker.start(dirs, null, backup);
+            if (backup < 0) {
+                dirWalker = DirWalker.start(dirs, new FileExclusionManager());
+            } else if (mode.equals(RunMode.CONTINUOUS)) {
+                dirWalker =
+                    RestartDirWalker.start(dirs,
+                                           backup,
+                                           new FileExclusionManager());
             }
             
             startBackupsOnDirWalkerCompletion();
