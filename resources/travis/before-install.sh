@@ -1,7 +1,7 @@
 #!/bin/bash
 echo 'Starting before-install.sh'
-if [ ! -z "$TRAVIS_TAG" ] || [ "$TRAVIS_TAG" = 'master' ] || [ "$TRAVIS_TAG" = 'develop' ]; then
-    echo `Installing BitRock InstallBuilder`
+if [ ! -z "$TRAVIS_TAG" ] || [ "$TRAVIS_BRANCH" = 'master' ] || [ "$TRAVIS_BRANCH" = 'develop' ]; then
+    echo "Installing BitRock InstallBuilder"
     wget https://installbuilder.bitrock.com/installbuilder-enterprise-17.7.0-linux-x64-installer.run
     chmod +x installbuilder-enterprise-17.7.0-linux-x64-installer.run
     # Using sudo to ensure installbuilder is installed to /opt rather than under /home
