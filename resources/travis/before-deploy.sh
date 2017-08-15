@@ -72,10 +72,5 @@ if [ ! -z "$TRAVIS_TAG" ]; then
     rm -rf install site javadoc-bundle-options
 fi
 
-
-#clean up
-cd $targetDir
-rm -rf duradmin.war durastore.war ROOT.war .ebextensions
-
 cd $TRAVIS_BUILD_DIR
 echo 'Completed before-deploy.sh'
