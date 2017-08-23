@@ -1,6 +1,6 @@
 #!/bin/bash
 echo 'Starting before-deploy.sh'
-if [ "$TRAVIS_BRANCH" = 'master' ] || [ "$TRAVIS_BRANCH" = 'develop' ]; then
+if [ "$TRAVIS_BRANCH" = 'master' ] || [ "$TRAVIS_BRANCH" = 'develop' ] || [ ! -z "$TRAVIS_TAG" ]; then
     if [ "$TRAVIS_PULL_REQUEST" == 'false' ]; then
         echo "Decrypting code signing key"
         openssl aes-256-cbc -K $encrypted_01c7144b0525_key -iv $encrypted_01c7144b0525_iv -in resources/travis/codesignkey.asc.enc -out codesignkey.asc -d
