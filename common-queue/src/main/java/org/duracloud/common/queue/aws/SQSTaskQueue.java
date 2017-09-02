@@ -31,7 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.sqs.AmazonSQSClient;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.BatchResultErrorEntry;
 import com.amazonaws.services.sqs.model.ChangeMessageVisibilityRequest;
 import com.amazonaws.services.sqs.model.DeleteMessageBatchRequest;
@@ -62,7 +63,7 @@ import com.amazonaws.services.sqs.model.SendMessageRequest;
 public class SQSTaskQueue implements TaskQueue {
     private static Logger log = LoggerFactory.getLogger(SQSTaskQueue.class);
 
-    private AmazonSQSClient sqsClient;
+    private AmazonSQS sqsClient;
     private String queueName;
     private String queueUrl;
     private Integer visibilityTimeout;  // in seconds
@@ -79,10 +80,10 @@ public class SQSTaskQueue implements TaskQueue {
      * http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/sqs/AmazonSQSClient.html#AmazonSQSClient()
      */
     public SQSTaskQueue(String queueName) {
-        this(new AmazonSQSClient(), queueName);
+        this(AmazonSQSClientBuilder.defaultClient(), queueName);
     }
 
-    public SQSTaskQueue(AmazonSQSClient sqsClient, String queueName) {
+    public SQSTaskQueue(AmazonSQS sqsClient, String queueName) {
         this.sqsClient = sqsClient;
         this.queueName = queueName;
         this.queueUrl = getQueueUrl();
