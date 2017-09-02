@@ -8,6 +8,7 @@
 package org.duracloud.s3storage;
 
 import com.amazonaws.AmazonClientException;
+import com.amazonaws.regions.Region;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.AccessControlList;
@@ -84,7 +85,7 @@ public class S3StorageProvider extends StorageProviderBase {
     protected AmazonS3Client s3Client = null;
 
     public S3StorageProvider(String accessKey, String secretKey) {
-        this(S3ProviderUtil.getAmazonS3Client(accessKey, secretKey),
+        this(S3ProviderUtil.getAmazonS3Client(accessKey, secretKey, null),
              accessKey,
              null);
     }
@@ -92,7 +93,7 @@ public class S3StorageProvider extends StorageProviderBase {
     public S3StorageProvider(String accessKey,
                              String secretKey,
                              Map<String, String> options) {
-        this(S3ProviderUtil.getAmazonS3Client(accessKey, secretKey),
+        this(S3ProviderUtil.getAmazonS3Client(accessKey, secretKey, options),
              accessKey,
              options);
     }
