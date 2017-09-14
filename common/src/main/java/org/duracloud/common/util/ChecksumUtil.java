@@ -19,7 +19,11 @@ import java.io.UnsupportedEncodingException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
+/**
+ * A utility class for generating checksums.  Beware this class it not threadsafe.
+ * @author danny
+ *
+ */
 public class ChecksumUtil {
 
     private final Logger log = LoggerFactory.getLogger(ChecksumUtil.class);
@@ -43,6 +47,7 @@ public class ChecksumUtil {
 
     /**
      * This method generates checksum of content in arg stream.
+     * Warning: this method is NOT threadsafe. 
      * @param inStream Content used as target of checksum.
      * @return string representation of the generated checksum.
      */
