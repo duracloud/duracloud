@@ -37,7 +37,6 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
 
     private FileStitcher stitcher;
     
-    private long maxFileSize;
     private boolean jumpStart;
     private FileChunkerOptions chunkerOptions;
     
@@ -83,9 +82,8 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
             throw new RuntimeException("Max file size must be factor of 1000");
         }
 
-        this.maxFileSize = maxFileSize;
         this.jumpStart = jumpStart;
-        this.chunkerOptions = new FileChunkerOptions(this.maxFileSize);
+        this.chunkerOptions = new FileChunkerOptions(maxFileSize);
 
         stitcher = new FileStitcherImpl(new DuraStoreDataSource(contentStore));
     }
