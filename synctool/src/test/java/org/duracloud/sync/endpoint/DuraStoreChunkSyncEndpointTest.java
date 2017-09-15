@@ -10,7 +10,9 @@ package org.duracloud.sync.endpoint;
 import static org.duracloud.chunk.manifest.ChunksManifest.*;
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
@@ -20,6 +22,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -27,8 +32,8 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.ChecksumUtil.Algorithm;
+import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.util.OperationTimer;
-
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
@@ -123,6 +128,7 @@ public class DuraStoreChunkSyncEndpointTest {
         setEndpoint(maxFileSize);
     }
 
+
     @Test
     public void testAddUpdateFile() throws Exception {
         String contentId = "contentId";
@@ -165,8 +171,13 @@ public class DuraStoreChunkSyncEndpointTest {
     }
 
     @Test
-    public void testAddUpdate3MBFileWith1MBChunks() throws Exception {
-        testAddChunkedFile(3, 10 * 1000 * 1000);
+    public void testAddUpdate3MBFileWith1MBChunksSingleThreaded() throws Exception {
+        testAddChunkedFile(3, 1000*1000, 1);
+    }
+
+    @Test
+    public void testAddUpdateChunksMultiThreaded() throws Exception {
+        testAddChunkedFile(10, 1* 1000 * 1000, 40);
     }
 
     // /**
@@ -181,104 +192,83 @@ public class DuraStoreChunkSyncEndpointTest {
     // testAddChunkedFile(150,1000*1000*1000);
     // }
 
-    protected void testAddChunkedFile(int chunkCount, long chunkSize)
+    protected void testAddChunkedFile(int chunkCount, int chunkSize, int threadCount)
         throws Exception {
         String contentId = "contentId";
         File tmpFile = File.createTempFile("test", "txt");
         tmpFile.deleteOnExit();
 
         EasyMock.expect(contentStore.getSpaceContents(spaceId))
-                .andReturn(new ArrayList<String>().iterator());
+                .andReturn(new ArrayList<String>().iterator()).times(1);
         EasyMock.expect(contentStore.getSpaceACLs(spaceId))
                 .andReturn(new HashMap<String, AclType>())
                 .anyTimes();
-        long fileSize = chunkCount * chunkSize;
-        int fileCount = chunkCount + 1;
+        int fileSize = chunkCount * chunkSize;
+        int fileCount = (chunkCount + 1)*threadCount;
 
-        final Capture<InputStream> isCapture = new Capture<>();
+
+        final Capture<InputStream> isCapture = EasyMock.newCapture();
+        final Capture<String> checksumCapture = EasyMock.newCapture();
 
         EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
                                                 EasyMock.isA(String.class),
                                                 EasyMock.capture(isCapture),
                                                 EasyMock.anyLong(),
                                                 EasyMock.isA(String.class),
-                                                EasyMock.isA(String.class),
+                                                EasyMock.capture(checksumCapture),
                                                 EasyMock.isA(Map.class)))
                 .andAnswer(new IAnswer<String>() {
                     @Override
                     public String answer() throws Throwable {
-                        InputStream is = isCapture.getValue();
-                        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
-                        return (new OperationTimer<String>("Generate the checksum") {
-                            public String executeImpl() {
-                                String checksum = util.generateChecksum(is);
-                                return checksum;
+                        try (InputStream is = isCapture.getValue()){
+                            ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
+                            String checksum = util.generateChecksum(is);
+                            IOUtils.closeQuietly(is);
+                            if (!checksum.equals(checksumCapture.getValue())) {
+                                throw new ContentStoreException("checksum did not match");
                             }
-                        }).execute();
+                            return (new OperationTimer<String>("Generate the checksum") {
+                                public String executeImpl() {
+                                    return checksum;
+                                }
+                            }).execute();
+                        }
                     }
-                })
-                .times(fileCount);
+                }).times(fileCount);
+
         
         EasyMock.expect(contentStore.contentExists(EasyMock.eq(spaceId),
                                                    EasyMock.isA(String.class)))
                 .andReturn(false)
-                .times(chunkCount);
+                .times(chunkCount*threadCount);
 
-        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
-        InputStream checksumIs = getInputStream(fileSize);
-        String wholeFileChecksum = null;
-        try{ 
-            wholeFileChecksum = util.generateChecksum(checksumIs);
-        }finally {
-            IOUtils.closeQuietly(checksumIs);
+        // setup file
+        File contentFile  = IOUtil.writeStreamToFile(new ByteArrayInputStream(new byte[fileSize]));
+        contentFile.deleteOnExit();
+        replayMocks();
+        setEndpoint(chunkSize);
+
+        CountDownLatch latch = new CountDownLatch(threadCount);
+        AtomicInteger successes = new AtomicInteger(0);
+        for(int i = 0; i < threadCount; i++){
+            new Thread(new Runnable(){
+                @Override
+                public void run() {
+                    try {
+                        endpoint.addUpdateContent(contentId, new MonitoredFile(contentFile));
+                        successes.incrementAndGet();
+                    }catch(Exception ex){
+                        ex.printStackTrace();
+                    }
+                    
+                    latch.countDown();
+
+                }
+            }).start();
+            
         }
         
-        PipedInputStream is = getInputStream(fileSize);
-        MonitoredInputStream mfis = new MonitoredInputStream(is);
-
-        try {
-            EasyMock.expect(monitoredFile.getAbsolutePath())
-                    .andReturn(tmpFile.getAbsolutePath());
-            EasyMock.expect(monitoredFile.getChecksum()).andReturn(wholeFileChecksum);
-            EasyMock.expect(monitoredFile.length()).andReturn(fileSize);
-
-            EasyMock.expect(monitoredFile.getStream()).andReturn(mfis);
-            replayMocks();
-            setEndpoint(chunkSize);
-
-            endpoint.addUpdateContent(contentId, monitoredFile);
-
-        } finally {
-            IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(mfis);
-
-        }
-
-    }
-
-    protected PipedInputStream getInputStream(long fileSize)
-        throws IOException {
-        int bufferSize = 1000000;
-        PipedOutputStream os = new PipedOutputStream();
-        PipedInputStream is = new PipedInputStream(bufferSize);
-        os.connect(is);
-        final Thread t = new Thread(() -> {
-            byte[] buf = new byte[bufferSize];
-            try {
-                long iterations = fileSize / buf.length;
-
-                for (long i = 0; i < iterations; i++) {
-                    os.write(buf);
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                IOUtils.closeQuietly(os);
-            }
-        });
-
-        t.start();
-        return is;
+        assertTrue(latch.await(10, TimeUnit.SECONDS));
+        assertEquals(threadCount, successes.get());
     }
 }

@@ -20,10 +20,14 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.security.DigestInputStream;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class ChecksumUtilTest {
 
@@ -217,5 +221,30 @@ public class ChecksumUtilTest {
         }
     }
 
+    @Test
+    public void testNotThreadSafe() throws Exception {
+        byte[] data = new byte[1024*1024];
+        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
+        String checksum = util.generateChecksum(new ByteArrayInputStream(data));
+        int count = 40;
+        CountDownLatch latch = new CountDownLatch(count);
+        AtomicInteger successes = new AtomicInteger(0); 
+        for(int i = 0; i < 40; i++){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if(util.generateChecksum(new ByteArrayInputStream(data)).equals(checksum)){
+                        successes.incrementAndGet();
+                    }
+                    
+                    latch.countDown();
+
+                }
+            }).start();
+        }
+        
+        assertTrue(latch.await(10, TimeUnit.SECONDS));
+        assertTrue(count != successes.get());
+    }
 
 }
