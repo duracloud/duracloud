@@ -39,6 +39,7 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
     
     private long maxFileSize;
     private boolean jumpStart;
+    private FileChunkerOptions chunkerOptions;
     
     public DuraStoreChunkSyncEndpoint(ContentStore contentStore,
                                       String username,
@@ -84,6 +85,8 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
 
         this.maxFileSize = maxFileSize;
         this.jumpStart = jumpStart;
+        this.chunkerOptions = new FileChunkerOptions(this.maxFileSize);
+
         stitcher = new FileStitcherImpl(new DuraStoreDataSource(contentStore));
     }
 
@@ -195,7 +198,6 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
         Map<String,String> properties = createProps(syncFile.getAbsolutePath(),getUsername());
         DuracloudContentWriter contentWriter =
             new DuracloudContentWriter(getContentStore(), getUsername(), true, this.jumpStart);
-        FileChunkerOptions chunkerOptions = new FileChunkerOptions(this.maxFileSize);
         FileChunker chunker = new FileChunker(contentWriter, chunkerOptions);
 
         chunker.addContent(getSpaceId(),

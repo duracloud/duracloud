@@ -220,18 +220,19 @@ public class DuraStoreChunkSyncEndpointTest {
                 .andAnswer(new IAnswer<String>() {
                     @Override
                     public String answer() throws Throwable {
-                        InputStream is = isCapture.getValue();
-                        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
-                        String checksum = util.generateChecksum(is);
-
-                        if (!checksum.equals(checksumCapture.getValue())) {
-                            throw new ContentStoreException("checksum did not match");
-                        }
-                        return (new OperationTimer<String>("Generate the checksum") {
-                            public String executeImpl() {
-                                return checksum;
+                        try (InputStream is = isCapture.getValue()){
+                            ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
+                            String checksum = util.generateChecksum(is);
+                            IOUtils.closeQuietly(is);
+                            if (!checksum.equals(checksumCapture.getValue())) {
+                                throw new ContentStoreException("checksum did not match");
                             }
-                        }).execute();
+                            return (new OperationTimer<String>("Generate the checksum") {
+                                public String executeImpl() {
+                                    return checksum;
+                                }
+                            }).execute();
+                        }
                     }
                 }).times(fileCount);
 
