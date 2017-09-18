@@ -6,3 +6,7 @@ if [ "$TRAVIS_BRANCH" = 'master' ] || [ "$TRAVIS_BRANCH" = 'develop' ]; then
         echo 'Completed deploy.sh'
   fi
 fi
+
+# remove staging files in order to prevent them from being uploaded to s3.
+targetDir=$TRAVIS_BUILD_DIR/target
+rm -rf nexus-staging ROOT.war .ebextensions duradmin.war durastore.war

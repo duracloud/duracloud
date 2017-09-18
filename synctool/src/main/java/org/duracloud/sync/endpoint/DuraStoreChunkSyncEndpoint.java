@@ -35,9 +35,11 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
     private final Logger log = LoggerFactory.getLogger(
         DuraStoreChunkSyncEndpoint.class);
 
-    private FileChunker chunker;
     private FileStitcher stitcher;
-
+    
+    private boolean jumpStart;
+    private FileChunkerOptions chunkerOptions;
+    
     public DuraStoreChunkSyncEndpoint(ContentStore contentStore,
                                       String username,
                                       String spaceId,
@@ -80,11 +82,9 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
             throw new RuntimeException("Max file size must be factor of 1000");
         }
 
-        DuracloudContentWriter contentWriter =
-            new DuracloudContentWriter(contentStore, username, true, jumpStart);
-        FileChunkerOptions chunkerOptions = new FileChunkerOptions(maxFileSize);
+        this.jumpStart = jumpStart;
+        this.chunkerOptions = new FileChunkerOptions(maxFileSize);
 
-        chunker = new FileChunker(contentWriter, chunkerOptions);
         stitcher = new FileStitcherImpl(new DuraStoreDataSource(contentStore));
     }
 
@@ -194,6 +194,10 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
     protected void addUpdateContent(String contentId,
                                     MonitoredFile syncFile) {
         Map<String,String> properties = createProps(syncFile.getAbsolutePath(),getUsername());
+        DuracloudContentWriter contentWriter =
+            new DuracloudContentWriter(getContentStore(), getUsername(), true, this.jumpStart);
+        FileChunker chunker = new FileChunker(contentWriter, chunkerOptions);
+
         chunker.addContent(getSpaceId(),
                            contentId,
                            syncFile.getChecksum(),

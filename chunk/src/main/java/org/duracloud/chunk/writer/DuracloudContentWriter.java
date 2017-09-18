@@ -39,7 +39,8 @@ import java.util.Set;
 
 /**
  * This class implements the ContentWriter interface to write the provided
- * content to the Duracloud storeclient interface.
+ * content to the Duracloud storeclient interface. Warning: this class is NOT 
+ * thread-safe.
  *
  * @author Andrew Woods
  *         Date: Feb 5, 2010
@@ -146,6 +147,7 @@ public class DuracloudContentWriter implements ContentWriter {
         log.debug("write: " + spaceId);
         createSpaceIfNotExist(spaceId);
         boolean errorsExist = false;
+        results.clear();
         
         for (ChunkInputStream chunk : chunkable) {
             writeChunk(spaceId, chunk);

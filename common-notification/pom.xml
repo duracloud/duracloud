@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>common-notification</artifactId>
-  <version>4.3.7</version>
+  <version>4.3.8</version>
   <name>Common Notification</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>4.3.7</version>
+    <version>4.3.8</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

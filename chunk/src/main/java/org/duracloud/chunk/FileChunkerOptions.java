@@ -20,7 +20,7 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 public class FileChunkerOptions {
     private IOFileFilter fileFilter = TrueFileFilter.TRUE;
     private IOFileFilter dirFilter = TrueFileFilter.TRUE;
-    private long maxChunkSize = 1073741824; // 1-GB
+    private long maxChunkSize = 1000000000; // 1-GB
     private boolean preserveChunkMD5s = true;
     private boolean ignoreLargeFiles = false;
 
