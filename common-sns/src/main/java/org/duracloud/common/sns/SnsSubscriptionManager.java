@@ -18,8 +18,10 @@ import org.duracloud.common.util.WaitUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.SubscribeResult;
+import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.CreateQueueResult;
@@ -38,16 +40,16 @@ import com.amazonaws.services.sqs.model.SetQueueAttributesRequest;
 public class SnsSubscriptionManager {
     private Logger log = LoggerFactory.getLogger(SnsSubscriptionManager.class);
 
-    private AmazonSQSClient sqsClient;
-    private AmazonSNSClient snsClient;
+    private AmazonSQS sqsClient;
+    private AmazonSNS snsClient;
     private String topicArn;
     private String queueName;
     private String queueUrl;
     private String subscriptionArn;
     private boolean initialized = false;
     private List<MessageListener> messageListeners = new ArrayList<>();
-    public SnsSubscriptionManager(AmazonSQSClient sqsClient,
-                                  AmazonSNSClient snsClient,
+    public SnsSubscriptionManager(AmazonSQS sqsClient,
+                                  AmazonSNS snsClient,
                                   String topicArn,
                                   String queueName) {
         this.topicArn = topicArn;
@@ -73,7 +75,7 @@ public class SnsSubscriptionManager {
         request.setAttributes(attributes);
         CreateQueueResult result;
         try { 
-            result = sqsClient.createQueue(request);
+        	result = sqsClient.createQueue(request);
             this.queueUrl = result.getQueueUrl();
             log.info("sqs queue created: {}", this.queueUrl);
         }catch(QueueNameExistsException ex){
