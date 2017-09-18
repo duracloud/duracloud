@@ -75,9 +75,9 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
         TaskProvider taskProvider;
         if (type.equals(StorageProviderType.AMAZON_S3)) {
             S3StorageProvider unwrappedS3Provider =
-                new S3StorageProvider(username, password);
+                new S3StorageProvider(username, password, account.getOptions());
             AmazonS3Client s3Client =
-                S3ProviderUtil.getAmazonS3Client(username, password);
+                S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
             AmazonCloudFrontClient cfClient =
                 S3ProviderUtil.getAmazonCloudFrontClient(username, password);
             Map<String, String> opts = account.getOptions();
@@ -99,7 +99,7 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
             GlacierStorageProvider unwrappedGlacierProvider =
                 new GlacierStorageProvider(username, password);
             AmazonS3Client s3Client =
-                S3ProviderUtil.getAmazonS3Client(username, password);
+                S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
             taskProvider = new GlacierTaskProvider(storageProvider,
                                                    unwrappedGlacierProvider,
                                                    s3Client, 
@@ -115,7 +115,7 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                     new ChronopolisStorageProvider(username, password);
             }
             AmazonS3Client s3Client =
-                S3ProviderUtil.getAmazonS3Client(username, password);
+                S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
 
             String dcHost = storageAccountManager.getInstanceHost();
             String dcPort = storageAccountManager.getInstancePort();

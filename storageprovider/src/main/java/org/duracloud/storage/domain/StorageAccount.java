@@ -24,6 +24,7 @@ public interface StorageAccount {
         CF_ACCOUNT_ID,
         CF_KEY_ID,
         CF_KEY_PATH,
+        AWS_REGION,
         // iRODS below
         ZONE,
         PORT,
