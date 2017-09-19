@@ -7,16 +7,19 @@
  */
 package org.duracloud.notification;
 
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceAsyncClient;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceAsyncClientBuilder;
 
 /**
  * @author Andrew Woods
@@ -32,9 +35,15 @@ public class AmazonNotificationFactory implements NotificationFactory {
 
     @Override
     public void initialize(String accessKey, String secretKey) {
-        emailService = new AmazonSimpleEmailServiceAsyncClient(new BasicAWSCredentials(
-            accessKey,
-            secretKey));
+		if (StringUtils.isNotBlank(accessKey)) {
+			log.debug("initialize email service with provided credentials");
+			emailService = AmazonSimpleEmailServiceAsyncClientBuilder.standard()
+					.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+					.build();
+		} else {
+			log.debug("initialize email service using the default AWS Default Credentials Chain provider");
+			emailService = AmazonSimpleEmailServiceAsyncClientBuilder.defaultClient();
+		}
     }
 
     @Override
