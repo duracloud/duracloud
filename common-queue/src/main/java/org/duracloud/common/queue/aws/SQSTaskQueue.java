@@ -72,11 +72,13 @@ public class SQSTaskQueue implements TaskQueue {
         MSG_ID, RECEIPT_HANDLE;
     }
 
-    /**
+	/**
 	 * Creates a SQSTaskQueue that serves as a handle to interacting with a
-	 * remote Amazon SQS Queue. The AmazonSQSClient will search for Amazon
-	 * credentials on the system as described here:
+	 * remote Amazon SQS Queue. 
+	 * The AmazonSQSClient will search for Amazon credentials on the system as
+	 * described here:
 	 * http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/auth/DefaultAWSCredentialsProviderChain.html
+	 * 
 	 * Moreover, it is possible to set the region to use via the AWS_REGION
 	 * environment variable or one of the other methods described here:
 	 * http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-region-selection.html

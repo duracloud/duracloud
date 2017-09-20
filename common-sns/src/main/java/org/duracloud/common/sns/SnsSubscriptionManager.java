@@ -74,11 +74,11 @@ public class SnsSubscriptionManager {
         attributes.put("ReceiveMessageWaitTimeSeconds", "20");
         request.setAttributes(attributes);
         CreateQueueResult result;
-        try { 
-        	result = sqsClient.createQueue(request);
+        try {
+            result = sqsClient.createQueue(request);
             this.queueUrl = result.getQueueUrl();
             log.info("sqs queue created: {}", this.queueUrl);
-        }catch(QueueNameExistsException ex){
+        } catch (QueueNameExistsException ex) {
             log.info("queue with name {} already exists.");
             GetQueueUrlResult queueUrlResult = sqsClient.getQueueUrl(this.queueName);
             this.queueUrl = queueUrlResult.getQueueUrl();

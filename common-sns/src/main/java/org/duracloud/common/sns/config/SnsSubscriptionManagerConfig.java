@@ -60,9 +60,10 @@ public class SnsSubscriptionManagerConfig {
                                + Inet4Address.getLocalHost()
                                              .getHostName()
                                              .replace(".", "_");
-			SnsSubscriptionManager subscriptionManager = new SnsSubscriptionManager(
-					AmazonSQSClientBuilder.defaultClient(), AmazonSNSClientBuilder.defaultClient(),
-					props.getInstanceNotificationTopicArn(), queueName);
+            SnsSubscriptionManager subscriptionManager = 
+                    new SnsSubscriptionManager(AmazonSQSClientBuilder.defaultClient(), 
+                                               AmazonSNSClientBuilder.defaultClient(),
+                                               props.getInstanceNotificationTopicArn(), queueName);
 
             subscriptionManager.addListener(new MessageListener() {
                 @Override
