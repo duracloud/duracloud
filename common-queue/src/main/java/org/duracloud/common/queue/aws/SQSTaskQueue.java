@@ -31,7 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.sqs.AmazonSQSClient;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.BatchResultErrorEntry;
 import com.amazonaws.services.sqs.model.ChangeMessageVisibilityRequest;
 import com.amazonaws.services.sqs.model.DeleteMessageBatchRequest;
@@ -62,7 +63,7 @@ import com.amazonaws.services.sqs.model.SendMessageRequest;
 public class SQSTaskQueue implements TaskQueue {
     private static Logger log = LoggerFactory.getLogger(SQSTaskQueue.class);
 
-    private AmazonSQSClient sqsClient;
+    private AmazonSQS sqsClient;
     private String queueName;
     private String queueUrl;
     private Integer visibilityTimeout;  // in seconds
@@ -72,17 +73,21 @@ public class SQSTaskQueue implements TaskQueue {
     }
 
     /**
-     * Creates a SQSTaskQueue that serves as a handle to interacting with a remote
-     * Amazon SQS Queue.
+     * Creates a SQSTaskQueue that serves as a handle to interacting with a
+     * remote Amazon SQS Queue. 
      * The AmazonSQSClient will search for Amazon credentials on the system as
      * described here:
-     * http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/sqs/AmazonSQSClient.html#AmazonSQSClient()
+     * http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/auth/DefaultAWSCredentialsProviderChain.html
+     * 
+     * Moreover, it is possible to set the region to use via the AWS_REGION
+     * environment variable or one of the other methods described here:
+     * http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-region-selection.html
      */
     public SQSTaskQueue(String queueName) {
-        this(new AmazonSQSClient(), queueName);
+        this(AmazonSQSClientBuilder.defaultClient(), queueName);
     }
 
-    public SQSTaskQueue(AmazonSQSClient sqsClient, String queueName) {
+    public SQSTaskQueue(AmazonSQS sqsClient, String queueName) {
         this.sqsClient = sqsClient;
         this.queueName = queueName;
         this.queueUrl = getQueueUrl();

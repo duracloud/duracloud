@@ -27,8 +27,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClient;
+import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.Message;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -56,11 +60,10 @@ public class SnsSubscriptionManagerConfig {
                                + Inet4Address.getLocalHost()
                                              .getHostName()
                                              .replace(".", "_");
-            SnsSubscriptionManager subscriptionManager =
-                new SnsSubscriptionManager(new AmazonSQSClient(),
-                                           new AmazonSNSClient(),
-                                           props.getInstanceNotificationTopicArn(),
-                                           queueName);
+            SnsSubscriptionManager subscriptionManager = 
+                    new SnsSubscriptionManager(AmazonSQSClientBuilder.defaultClient(), 
+                                               AmazonSNSClientBuilder.defaultClient(),
+                                               props.getInstanceNotificationTopicArn(), queueName);
 
             subscriptionManager.addListener(new MessageListener() {
                 @Override
