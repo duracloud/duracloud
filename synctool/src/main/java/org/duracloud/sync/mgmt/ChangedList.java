@@ -300,6 +300,7 @@ public class ChangedList implements Serializable {
     public void shutdown() {
         executorService.shutdown();
         shutdown = true;
+        ChangedList.instance = null;
     }
 
 }
