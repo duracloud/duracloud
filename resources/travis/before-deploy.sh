@@ -72,8 +72,9 @@ if [ ! -z "$TRAVIS_TAG" ]; then
     rm -rf install site javadoc-bundle-options
 
     # generate signed checksum file
-    sha512sum * > sha512sum.txt
-    echo $GPG_PASSPHRASE | gpg --passphrase-fd 0 --clearsign sha512sum.txt
+    checksumFile="sha512sum-$projectVersion.txt"
+    sha512sum * > ${checksumFile}
+    echo $GPG_PASSPHRASE | gpg --passphrase-fd 0 --clearsign ${checksumFile}
 fi
 
 cd $TRAVIS_BUILD_DIR
