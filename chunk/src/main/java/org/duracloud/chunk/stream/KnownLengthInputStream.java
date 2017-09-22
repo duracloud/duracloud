@@ -20,8 +20,13 @@ public class KnownLengthInputStream extends ByteArrayInputStream {
     private int length;
 
     public KnownLengthInputStream(String content) {
-        super(content.getBytes());
-        this.length = content.length();
+        this(content.getBytes());
+    }
+    
+    public KnownLengthInputStream(byte[] bytes){
+        super(bytes);
+        this.length = bytes.length;
+        
     }
 
     public int getLength() {
