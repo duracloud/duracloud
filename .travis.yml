@@ -62,7 +62,7 @@ deploy:
       - "target/duracloudsync-*-osx-installer.zip"
       - "target/duracloudsync-*-windows-installer.exe"
       - "target/duracloud-beanstalk-v*.zip"
-      - "target/sha512sum.txt.asc"
+      - "target/sha512sum-*.txt.asc"
     on:
       tags: true
 env:
