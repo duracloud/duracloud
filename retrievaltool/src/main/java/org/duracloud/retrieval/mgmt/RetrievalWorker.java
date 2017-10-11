@@ -142,11 +142,15 @@ public class RetrievalWorker implements Runnable {
 
             if(createSpaceDir) {
                 File spaceDir = new File(contentDir, contentItem.getSpaceId());
+                logger.debug("spaceDir.absolutePath={}", spaceDir.getAbsolutePath());
                 this.localFile = new File(spaceDir, contentId);
             } else {
                 this.localFile = new File(contentDir, contentId);
             }
         }
+        
+        logger.debug("localFile.absolutePath={}", this.localFile.getAbsolutePath());
+        
         return this.localFile;
     }
 
