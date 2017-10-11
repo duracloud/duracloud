@@ -17,10 +17,11 @@
       <MaxFileSize>20MB</MaxFileSize>
     </triggeringPolicy>
   </appender>
-  <logger name="org.duracloud.retrieval" level="INFO">
+  <logger name="org.duracloud.retrieval" level="${log.level}">
     <appender-ref ref="SYNC_LOG"/>
+    <appender-ref ref="COMPLETE_LOG"/>
   </logger>
-
+  
   <property name="COMPLETE_LOG_FILENAME" value="${retrieval.work}/logs/complete.log" />
   <appender name="COMPLETE_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
@@ -36,8 +37,8 @@
       <MaxFileSize>20MB</MaxFileSize>
     </triggeringPolicy>
   </appender>
-  <root level="INFO">
+  <root level="INFO"/>
+  <logger name="org.duracloud" level="${log.level}">
     <appender-ref ref="COMPLETE_LOG"/>
-  </root>
-
+  </logger>
 </configuration>
