@@ -93,6 +93,7 @@ public class RetrievalManager implements Runnable {
 
     private boolean retrieveContent(ContentItem contentItem) {
         try {
+            logger.debug("contentItem={}", contentItem);
             RetrievalWorker worker = new RetrievalWorker(contentItem, 
                                                          source,
                                                          contentDir,
