@@ -48,7 +48,7 @@ public class DuraStoreStitchingRetrievalSource extends DuraStoreRetrievalSource 
     }
 
     @Override
-    public ContentItem getNextContentItem() {
+    public synchronized ContentItem getNextContentItem() {
         log.debug("enter getNextContentItem()");
         ContentItem item = super.getNextContentItem();
 
