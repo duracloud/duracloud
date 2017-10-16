@@ -52,20 +52,24 @@ public class ChecksumUtil {
      * @return string representation of the generated checksum.
      */
     public String generateChecksum(InputStream inStream) {
-        byte[] buf = new byte[4096];
-        int numRead = 0;
-        long totalBytesRead = 0;
-        while ((numRead = readFromStream(inStream, buf)) != -1) {
-            digest.update(buf, 0, numRead);
-            totalBytesRead += numRead;
-            
-            if(log.isDebugEnabled()){
-                if(totalBytesRead % (1000*1000*1000) == 0 ) {
-                    log.debug("Total bytes read: {}", totalBytesRead);
+        try {
+            byte[] buf = new byte[4096];
+            int numRead = 0;
+            long totalBytesRead = 0;
+            while ((numRead = readFromStream(inStream, buf)) != -1) {
+                digest.update(buf, 0, numRead);
+                totalBytesRead += numRead;
+
+                if (log.isDebugEnabled()) {
+                    if (totalBytesRead % (1000 * 1000 * 1000) == 0) {
+                        log.debug("Total bytes read: {}", totalBytesRead);
+                    }
                 }
             }
+            return checksumBytesToString(digest.digest());
+        } finally {
+            digest.reset();
         }
-        return checksumBytesToString(digest.digest());
     }
 
     /**
@@ -85,6 +89,8 @@ public class ChecksumUtil {
             return digest.digest();
         } catch(UnsupportedEncodingException e) {
             throw new RuntimeException(e);
+        } finally {
+            digest.reset();
         }
     }
 

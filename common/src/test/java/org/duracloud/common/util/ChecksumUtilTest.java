@@ -8,14 +8,19 @@
 package org.duracloud.common.util;
 
 import org.duracloud.common.util.ChecksumUtil.Algorithm;
+import org.easymock.EasyMock;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -23,11 +28,6 @@ import java.security.DigestInputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 public class ChecksumUtilTest {
 
@@ -177,6 +177,31 @@ public class ChecksumUtilTest {
         String base64Checksum = util.generateChecksumBase64(shortContent);
 
         assertEquals(shortContentMd5Base64, base64Checksum);
+    }
+    
+    @Test
+    public void testReusable() throws Exception {
+        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
+        
+        String checksum = util.generateChecksum(new ByteArrayInputStream("test".getBytes()));
+        
+        InputStream is = EasyMock.createMock(InputStream.class);
+        EasyMock.expect(is.available()).andReturn(100).anyTimes();
+        EasyMock.expect(is.read((byte[])EasyMock.anyObject())).andReturn(100).times(1);
+        EasyMock.expect(is.read((byte[])EasyMock.anyObject())).andThrow(new IOException("test exception"));
+        EasyMock.replay(is);
+        try {
+            util.generateChecksum(is);
+            Assert.fail("expected previous statement to throw exception");
+        }catch(Exception ex){}
+
+        EasyMock.verify(is);
+
+        String checksum2 = util.generateChecksum(new ByteArrayInputStream("test".getBytes()));
+        assertEquals("same stream, same checksum util instance should produce same results.",
+                     checksum,
+                     checksum2);
+
     }
 
     @Test
