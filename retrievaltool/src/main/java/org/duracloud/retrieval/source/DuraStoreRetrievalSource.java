@@ -76,7 +76,7 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
     }
 
     @Override
-    public ContentItem getNextContentItem() {
+    public synchronized ContentItem getNextContentItem() {
         if(currentContentList != null && currentContentList.hasNext()) {
             return new ContentItem(currentSpaceId, currentContentList.next());
         } else if(spaceIds.hasNext()) {
@@ -87,7 +87,7 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
         }
     }
 
-    protected void getNextSpace() {
+    protected synchronized void  getNextSpace() {
         if(spaceIds.hasNext()) {
             currentSpaceId = spaceIds.next();
             try {

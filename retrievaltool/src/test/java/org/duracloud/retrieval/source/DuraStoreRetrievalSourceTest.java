@@ -7,15 +7,8 @@
  */
 package org.duracloud.retrieval.source;
 
-import org.apache.commons.io.IOUtils;
-import org.duracloud.client.ContentStore;
-import org.duracloud.common.model.ContentItem;
-import org.duracloud.domain.Content;
-import org.easymock.IAnswer;
-import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,9 +17,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import org.apache.commons.io.IOUtils;
+import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.ContentItem;
+import org.duracloud.domain.Content;
+import org.easymock.EasyMock;
+import org.easymock.IAnswer;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author: Bill Branan
@@ -68,6 +71,37 @@ public class DuraStoreRetrievalSourceTest {
         for(count = 0; source.getNextContentItem() != null; count++) {}
         assertEquals(9, count);
     }
+    
+    @Test
+    public void testGetNextItemMultithreaded() throws Exception {
+
+        int spaceCount = 4;
+        int contentCount = 100;
+        store = createMockContentStore(spaceCount, contentCount);
+        // Spaces list
+        RetrievalSource source =
+            new DuraStoreRetrievalSource(store, null, true);
+        
+        int threadCount = 20;
+        
+        final CountDownLatch latch = new CountDownLatch(spaceCount*contentCount);
+        
+        for(int i = 0; i < threadCount; i++){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ContentItem item = null;
+                    while((item = source.getNextContentItem()) != null){
+                        assertNotNull(item.getSpaceId());
+                        assertNotNull(item.getContentId());
+                        latch.countDown();
+                    }
+                }
+            }).start();
+        }
+
+        Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+    }
 
     @Test
     public void testGetSourceChecksum() throws Exception {
@@ -96,16 +130,20 @@ public class DuraStoreRetrievalSourceTest {
     }
 
     private ContentStore createMockContentStore() throws Exception {
+        return createMockContentStore(3, 3);
+    }
+
+    private ContentStore createMockContentStore(int spaceCount, int contentItemCount) throws Exception {
         ContentStore contentStore = EasyMock.createMock(ContentStore.class);
 
         EasyMock
             .expect(contentStore.getSpaces())
-            .andAnswer(new GetSpacesAnswer())
+            .andAnswer(new GetSpacesAnswer(spaceCount))
             .anyTimes();
 
         EasyMock
             .expect(contentStore.getSpaceContents(EasyMock.isA(String.class)))
-            .andAnswer(new GetSpaceContentsAnswer())
+            .andAnswer(new GetSpaceContentsAnswer(contentItemCount))
             .anyTimes();
 
         Map<String, String> properties = new HashMap<String, String>();
@@ -133,28 +171,36 @@ public class DuraStoreRetrievalSourceTest {
         return contentStore;
     }
 
-    private class GetSpacesAnswer implements IAnswer {
+    private class GetSpacesAnswer implements IAnswer<List<String>> {
+        private int spaceCount;
+
+        public GetSpacesAnswer(int spaceCount) {
+            this.spaceCount = spaceCount;
+        }
+
         @Override
         public List<String> answer() throws Exception {
             List<String> spaces = new ArrayList<String>();
-            spaces.add("space1");
-            spaces.add("space2");
-            spaces.add("space3");
-
-            // Default method body
+            for (int i = 0; i < spaceCount; i++) {
+                spaces.add("space" + i);
+            }
             return spaces;
         }
     }
 
-    private class GetSpaceContentsAnswer implements IAnswer {
+    private class GetSpaceContentsAnswer implements IAnswer<Iterator<String>> {
+        private int count;
+
+        public GetSpaceContentsAnswer(int count) {
+            this.count = count;
+        }
+
         @Override
         public Iterator<String> answer() throws Exception {
             List<String> contents = new ArrayList<String>();
-            contents.add("content1");
-            contents.add("content2");
-            contents.add("content3");
-
-            // Default method body
+            for (int i = 0; i < count; i++) {
+                contents.add("content" + i);
+            }
             return contents.iterator();
         }
     }
