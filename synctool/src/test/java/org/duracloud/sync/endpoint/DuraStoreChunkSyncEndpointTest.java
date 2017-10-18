@@ -236,11 +236,17 @@ public class DuraStoreChunkSyncEndpointTest {
                     }
                 }).times(fileCount);
 
-        
+
+        EasyMock.expect(contentStore.contentExists(EasyMock.eq(spaceId),
+                                                   EasyMock.eq(contentId)))
+                .andReturn(false)
+                .times(threadCount);
+
         EasyMock.expect(contentStore.contentExists(EasyMock.eq(spaceId),
                                                    EasyMock.isA(String.class)))
                 .andReturn(false)
                 .times(chunkCount*threadCount);
+
 
         // setup file
         File contentFile  = IOUtil.writeStreamToFile(new ByteArrayInputStream(new byte[fileSize]));

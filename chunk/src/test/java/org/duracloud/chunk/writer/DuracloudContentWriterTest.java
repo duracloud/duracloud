@@ -44,6 +44,8 @@ public class DuracloudContentWriterTest {
     private ContentStore contentStoreThrow;
     private String username = "user-1";
     private final String checksum = "this-is-a-checksum";
+    private String spaceId = "test-spaceId";
+    private String contentId = "test-contentId";
 
     @Before
     public void setUp() throws ContentStoreException {
@@ -207,8 +209,23 @@ public class DuracloudContentWriterTest {
     @Test
     public void testWriteJumpstart() throws Exception {
         createMockContentStore(true, true);
+        expectDelete(false);
         doTestWrite(false, true);
     }
+    
+    private void expectDelete(boolean expect) throws Exception {
+        
+        EasyMock.expect(contentStore.contentExists(EasyMock.eq(spaceId),
+                                                   EasyMock.eq(contentId)))
+            .andReturn(expect).times(1);
+
+        if(expect){
+            contentStore.deleteContent(EasyMock.eq(spaceId),
+                                       EasyMock.eq(contentId));
+            EasyMock.expectLastCall().times(1);
+        }
+    }
+
 
     /*
      * Tests a write under the condition that the space exists
@@ -216,6 +233,7 @@ public class DuracloudContentWriterTest {
      */
     @Test
     public void testWriteWrongChunkExists() throws Exception {
+        expectDelete(false);
         createMockContentStore(true, true);
         updateMockContentStoreContentCheck(true);
         doTestWrite(false, false);
@@ -227,8 +245,23 @@ public class DuracloudContentWriterTest {
      */
     @Test
     public void testWriteCorrectChunkExists() throws Exception {
+        expectDelete(false);
         createMockContentStore(true, false);
         updateMockContentStoreContentCheck(true);
+        doTestWrite(true, false);
+    }
+
+    
+    /*
+     * Tests a write under the condition that the space exists,
+     * the content chunk does not exist and an unchunked version
+     * exists.
+     */
+    @Test
+    public void testWriteUnchunkedVersionExists() throws Exception {
+        expectDelete(true);
+        createMockContentStore(true, true);
+        updateMockContentStoreContentCheck(false);
         doTestWrite(true, false);
     }
 
@@ -258,9 +291,6 @@ public class DuracloudContentWriterTest {
         replayMocks();
         long contentSize = 4000;
         InputStream contentStream = createContentStream(contentSize);
-
-        String spaceId = "test-spaceId";
-        String contentId = "test-contentId";
 
         long maxChunkSize = 1000;
         ChunkableContent chunkable = new ChunkableContent(contentId,
