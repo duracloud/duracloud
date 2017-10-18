@@ -14,6 +14,7 @@ import org.duracloud.chunk.error.NotFoundException;
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.stream.ChunkInputStream;
 import org.duracloud.chunk.stream.KnownLengthInputStream;
+import org.duracloud.chunk.util.ChunkUtil;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
@@ -29,6 +30,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -148,10 +150,8 @@ public class DuracloudContentWriter implements ContentWriter {
         createSpaceIfNotExist(spaceId);
         boolean errorsExist = false;
         results.clear();
-        
         for (ChunkInputStream chunk : chunkable) {
             writeChunk(spaceId, chunk);
-            
             if(errorsExist = errorsExist()){
                 break;
             }
@@ -161,6 +161,21 @@ public class DuracloudContentWriter implements ContentWriter {
 
         if(!errorsExist){
             addManifest(spaceId, manifest, contentProperties,lastAttempt);
+            
+            String contentId =
+                new ChunkUtil().preChunkedContentId(chunkable.getManifest()
+                                                             .getManifestId());
+            //check if an unchunked version of the file exists and, if so, 
+            //delete it.
+            try {
+                if(contentStore.contentExists(spaceId, contentId)){
+                    contentStore.deleteContent(spaceId, contentId);
+                }
+            } catch (ContentStoreException e) {
+                log.warn(MessageFormat.format("Failed to delete formerly unchunked content item \"{0}\" in space \"{1}\".",
+                                              contentId),
+                         e);
+            }
         }
 
         log.debug("written: " + spaceId + ", " + manifest.getManifestId());
