@@ -20,7 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.services.sns.AmazonSNSClient;
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 /**
  * 
  * @author Daniel Bernstein
@@ -29,7 +30,7 @@ import com.amazonaws.services.sns.AmazonSNSClient;
 @Component("accountChangeNotifier")
 public class AccountChangeNotifierImpl implements AccountChangeNotifier {
     
-    private AmazonSNSClient snsClient;
+    private AmazonSNS snsClient;
     
     private GlobalPropertiesRepo globalPropertiesRepo;
 
@@ -40,7 +41,7 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
      */
     @Autowired
     public AccountChangeNotifierImpl(GlobalPropertiesRepo globalPropertiesRepo) {
-        this.snsClient = new AmazonSNSClient();
+        this.snsClient = AmazonSNSClientBuilder.defaultClient();
         this.globalPropertiesRepo = globalPropertiesRepo;
     }
     

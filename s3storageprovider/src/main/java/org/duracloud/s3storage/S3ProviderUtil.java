@@ -7,23 +7,25 @@
  */
 package org.duracloud.s3storage;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.AmazonS3URI;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-
-import org.duracloud.storage.error.StorageException;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
+import static org.duracloud.common.error.RetryFlaggableException.RETRY;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.duracloud.storage.error.StorageException.RETRY;
+import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.error.StorageException;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3URI;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 
 /**
  * @author: Bill Branan
@@ -35,10 +37,16 @@ public class S3ProviderUtil {
     private static Map<String, AmazonCloudFrontClient> cloudFrontClients = new HashMap<>();
 
     public static AmazonS3Client getAmazonS3Client(String accessKey,
-                                                   String secretKey) {
+                                                   String secretKey,
+                                                   Map<String, String> options) {
         AmazonS3Client client = s3Clients.get(key(accessKey, secretKey));
         if (null == client) {
-            client = newS3Client(accessKey, secretKey);
+        	Region region = null;
+        	if (options != null && options.get(StorageAccount.OPTS.AWS_REGION.name()) != null) {
+    			region = com.amazonaws.services.s3.model.Region.fromValue(
+    					options.get(StorageAccount.OPTS.AWS_REGION.name())).toAWSRegion();
+            }
+            client = newS3Client(accessKey, secretKey, region);
             s3Clients.put(key(accessKey, secretKey), client);
         }
         return client;
@@ -49,11 +57,16 @@ public class S3ProviderUtil {
     }
 
     private static AmazonS3Client newS3Client(String accessKey,
-                                              String secretKey) {
+                                              String secretKey, 
+                                              com.amazonaws.regions.Region region) {
         BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey,
                                                                      secretKey);
         try {
-            return new AmazonS3Client(awsCredentials);
+            AmazonS3Client amazonS3Client = new AmazonS3Client(awsCredentials);
+            if (region != null) {
+            	amazonS3Client.setRegion(region);
+            }
+			return amazonS3Client;
         } catch (AmazonServiceException e) {
             String err = "Could not create connection to Amazon S3 due " +
                          "to error: " + e.getMessage();
