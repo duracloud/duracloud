@@ -227,9 +227,9 @@ $(function() {
       var unpopped = ('state' in history);
       if (unpopped) {
         setTimeout(function() {
-          var evt = document.createEvent("PopStateEvent");
-          evt.initEvent("popstate", false, false);
-          window.dispatchEvent(evt);
+          //without this line, firefox won't load 
+          //the ui properly.
+          $(window).trigger('popstate');
         });
       }
     }
