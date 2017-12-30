@@ -38,6 +38,10 @@ public class GlacierStorageProvider extends S3StorageProvider {
     private final Logger log =
         LoggerFactory.getLogger(GlacierStorageProvider.class);
 
+	public GlacierStorageProvider(String accessKey, String secretKey, Map<String, String> options) {
+		super(accessKey, secretKey, options);
+	}
+    
     public GlacierStorageProvider(String accessKey, String secretKey) {
         super(accessKey, secretKey);
     }
