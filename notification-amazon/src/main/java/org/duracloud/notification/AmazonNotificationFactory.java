@@ -35,15 +35,15 @@ public class AmazonNotificationFactory implements NotificationFactory {
 
     @Override
     public void initialize(String accessKey, String secretKey) {
-		if (StringUtils.isNotBlank(accessKey)) {
-			log.debug("initialize email service with provided credentials");
-			emailService = AmazonSimpleEmailServiceAsyncClientBuilder.standard()
-					.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
-					.build();
-		} else {
-			log.debug("initialize email service using the default AWS Default Credentials Chain provider");
-			emailService = AmazonSimpleEmailServiceAsyncClientBuilder.defaultClient();
-		}
+        if (StringUtils.isNotBlank(accessKey)) {
+            log.debug("initialize email service with provided credentials");
+            emailService = AmazonSimpleEmailServiceAsyncClientBuilder.standard()
+			       .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+                               .build();
+        } else {
+            log.debug("initialize email service using the default AWS Default Credentials Chain provider");
+            emailService = AmazonSimpleEmailServiceAsyncClientBuilder.defaultClient();
+        }
     }
 
     @Override

@@ -97,7 +97,7 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                                               storageAccountId);
         } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
             GlacierStorageProvider unwrappedGlacierProvider =
-                new GlacierStorageProvider(username, password);
+                new GlacierStorageProvider(username, password, account.getOptions());
             AmazonS3Client s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
             taskProvider = new GlacierTaskProvider(storageProvider,
