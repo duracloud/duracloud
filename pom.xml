@@ -383,6 +383,9 @@
         <version>2.19.1</version>
         <configuration>
           <trimStackTrace>false</trimStackTrace>
+          <environmentVariables>
+            <AWS_REGION>us-east-1</AWS_REGION>
+          </environmentVariables>
           <systemProperties>
             <property>
               <name>unit.database.home</name>
@@ -415,6 +418,9 @@
             </goals>
             <configuration>
               <trimStackTrace>false</trimStackTrace>
+              <environmentVariables>
+                <AWS_REGION>us-east-1</AWS_REGION>
+              </environmentVariables>
               <systemProperties>
                 <property>
                   <name>unit.database.home</name>
