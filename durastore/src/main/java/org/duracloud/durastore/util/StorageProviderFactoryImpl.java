@@ -215,7 +215,7 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
                                                     password,
                                                     account.getOptions());
         } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
-			storageProvider = new GlacierStorageProvider(username,
+	    storageProvider = new GlacierStorageProvider(username,
                                                          password,
                                                          account.getOptions());
         } else if (type.equals(StorageProviderType.RACKSPACE)) {
