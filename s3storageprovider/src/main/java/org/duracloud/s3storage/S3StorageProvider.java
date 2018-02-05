@@ -587,26 +587,11 @@ public class S3StorageProvider extends StorageProviderBase {
 
         // Compare checksum
         String providerChecksum = getETagValue(etag);
-
-        try {
-            String checksum = wrappedContent.getMD5();
-            StorageProviderUtil.compareChecksum(providerChecksum,
-                                                spaceId,
-                                                contentId,
-                                                checksum);
-        } catch(ChecksumMismatchException e) {
-            try { // Clean up
-                s3Client.deleteObject(bucketName, contentId);
-            } catch (AmazonClientException amazonException) {
-                log.debug("Content item {} in space {} failed checksum test " +
-                          "and call to delete content item failed as well. " +
-                          "The content item was most likely never added to " +
-                          "storage.", contentId, spaceId);
-            }
-            // Rethrow to let the client know the file was not stored properly
-            throw e;
-        }
-
+        String checksum = wrappedContent.getMD5();
+        StorageProviderUtil.compareChecksum(providerChecksum,
+                                            spaceId,
+                                            contentId,
+                                            checksum);
         return providerChecksum;
     }
 
@@ -621,7 +606,7 @@ public class S3StorageProvider extends StorageProviderBase {
               doesContentExistWithExpectedChecksum(String bucketName,
                                                    String contentId,
                                                    String expectedChecksum) {
-        int maxAttempts = 90;
+        int maxAttempts = 20;
         int waitInSeconds = 2;
         int attempts = 0;
         String etag = null;
@@ -648,7 +633,7 @@ public class S3StorageProvider extends StorageProviderBase {
             }
 
             attempts++;
-            wait(waitInSeconds);
+            wait(waitInSeconds*i);
         }
 
         if(etag == null){
@@ -1060,7 +1045,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
     /**
      * Ensures compliance with  https://tools.ietf.org/html/rfc5987#section-3.2.2
-     * @param userMetaValue
+     * @param userMetaName
      * @return
      */
     static protected String encodeHeaderKey(String userMetaName) {
