@@ -294,9 +294,6 @@ public class S3StorageProviderTest {
         EasyMock.expect(s3Client.putObject(EasyMock.capture(capturedRequest)))
                 .andReturn(result);
 
-        s3Client.deleteObject(accessKey + "." + spaceId, contentId);
-        EasyMock.expectLastCall().once();
-
         EasyMock.replay(s3Client);
         return capturedRequest;
     }

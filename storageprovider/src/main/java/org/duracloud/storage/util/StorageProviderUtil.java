@@ -142,8 +142,8 @@ public class StorageProviderUtil {
                 spaceId + " but the checksum, either provided or computed " +
                 "enroute, (" + checksum + ") does not match the checksum " +
                 "computed by the storage provider (" + providerChecksum +
-                "). This content has been removed, and should be checked and " +
-                "retransmitted.";
+                "). This content should be retransmitted.";
+            log.warn(err);
             throw new ChecksumMismatchException(err, NO_RETRY);
         }
         return providerChecksum;
