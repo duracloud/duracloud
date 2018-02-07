@@ -609,6 +609,7 @@ public class S3StorageProvider extends StorageProviderBase {
         int maxAttempts = 20;
         int waitInSeconds = 2;
         int attempts = 0;
+        int totalSecondsWaited = 0;
         String etag = null;
         for (int i = 0; i < maxAttempts; i++) {
             try {
@@ -616,10 +617,10 @@ public class S3StorageProvider extends StorageProviderBase {
                     s3Client.getObjectMetadata(bucketName, contentId);
                 if (null != metadata) {
                     if (attempts > 5) {
-                        log.warn("contentId={} found in bucket={} after waiting for {} seconds...",
+                        log.info("contentId={} found in bucket={} after waiting for {} seconds...",
                                  contentId,
                                  bucketName,
-                                 attempts * waitInSeconds);
+                                 totalSecondsWaited);
                     }
                     
                     etag = metadata.getETag();
@@ -633,7 +634,9 @@ public class S3StorageProvider extends StorageProviderBase {
             }
 
             attempts++;
-            wait(waitInSeconds*i);
+            int waitNow = waitInSeconds*i;
+            wait(waitNow);
+            totalSecondsWaited += waitNow;
         }
 
         if(etag == null){
