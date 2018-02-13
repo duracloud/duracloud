@@ -5,7 +5,7 @@
   <groupId>org.duracloud</groupId>
   <artifactId>duracloud</artifactId>
   <packaging>pom</packaging>
-  <version>4.4.2</version>
+  <version>4.4.3</version>
   <name>DuraCloud</name>
   <description>Cloud-based digital content preservation system</description>
   <url>http://duracloud.org</url>
@@ -383,6 +383,9 @@
         <version>2.19.1</version>
         <configuration>
           <trimStackTrace>false</trimStackTrace>
+          <environmentVariables>
+            <AWS_REGION>us-east-1</AWS_REGION>
+          </environmentVariables>
           <systemProperties>
             <property>
               <name>unit.database.home</name>
@@ -415,6 +418,9 @@
             </goals>
             <configuration>
               <trimStackTrace>false</trimStackTrace>
+              <environmentVariables>
+                <AWS_REGION>us-east-1</AWS_REGION>
+              </environmentVariables>
               <systemProperties>
                 <property>
                   <name>unit.database.home</name>
