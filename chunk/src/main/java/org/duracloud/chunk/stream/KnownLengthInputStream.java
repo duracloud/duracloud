@@ -8,6 +8,8 @@
 package org.duracloud.chunk.stream;
 
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This wraps ByteArrayInputStream and adds a length field.
@@ -19,14 +21,13 @@ public class KnownLengthInputStream extends ByteArrayInputStream {
 
     private int length;
 
-    public KnownLengthInputStream(String content) {
-        this(content.getBytes());
+    public KnownLengthInputStream(String content) throws UnsupportedEncodingException {
+        this(content.getBytes(StandardCharsets.UTF_8.name()));
     }
-    
-    public KnownLengthInputStream(byte[] bytes){
+
+    public KnownLengthInputStream(byte[] bytes) {
         super(bytes);
         this.length = bytes.length;
-        
     }
 
     public int getLength() {

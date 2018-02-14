@@ -13,6 +13,7 @@ import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 /**
@@ -92,7 +93,11 @@ public class ChunksManifest extends ChunksManifestBean {
         String xml = ManifestDocumentBinding.createDocumentFrom(this);
         log.debug("Manifest body: '" + xml + "'");
 
-        return new KnownLengthInputStream(xml);
+        try {
+            return new KnownLengthInputStream(xml);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String getMimetype() {
