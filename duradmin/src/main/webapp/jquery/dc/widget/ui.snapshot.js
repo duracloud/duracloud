@@ -112,8 +112,25 @@ $.widget("ui.snapshot",
                                                     textStatus, 
                                                     errorThrown ) {
                                         dc.done();
-                                        dc.displayErrorDialog(jqXHR, 
-                                                              SnapshotErrorMessage.UNAVAILABLE, 
+
+                                        var message = SnapshotErrorMessage.UNAVAILABLE;
+
+                                        var responseText = jqXHR.responseText;
+
+                                        if(jqXHR.status == 409){
+                                        	message = responseText;
+										}
+
+                                        if(responseText.startsWith("{")){
+                                        	var json = JSON.parse(responseText);
+                                        	if(json['exception.message']){
+                                                message = json['exception.message'];
+											}
+										}
+
+
+                                        dc.displayErrorDialog(jqXHR,
+                                                              message,
                                                               null,
                                                               false);
                                     });

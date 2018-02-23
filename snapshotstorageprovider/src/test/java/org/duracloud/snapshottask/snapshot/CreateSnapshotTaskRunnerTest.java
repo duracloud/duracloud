@@ -18,8 +18,8 @@ import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.duracloud.storage.error.ServerConflictException;
 import org.duracloud.storage.error.StorageStateException;
-import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -276,10 +276,33 @@ public class CreateSnapshotTaskRunnerTest {
         try {
             taskRunner.callBridge(restHelper, snapshotURL, snapshotBody);
             fail("Exception expected on 500 response");
-        } catch(TaskException e) {
+        } catch(RuntimeException e) {
         }
     }
-    
+
+    @Test
+    public void testCallBridgeFailureConflict() throws Exception {
+        String snapshotURL = "snapshot-url";
+        String snapshotBody = "snapshot-body";
+        String errorMessage = "Error";
+        InputStream resultStream = IOUtil.writeStringToStream(errorMessage);
+        RestHttpHelper.HttpResponse response =
+            RestHttpHelper.HttpResponse.buildMock(409, null, resultStream);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        EasyMock.expect(restHelper.put(snapshotURL, snapshotBody, headers))
+            .andReturn(response);
+
+        replayMocks();
+
+        try {
+            taskRunner.callBridge(restHelper, snapshotURL, snapshotBody);
+            fail("Exception expected on 409 response");
+        } catch(ServerConflictException e) {
+            assertEquals(errorMessage, e.getMessage());
+        }
+    }
+
     @Test
     public void testPerformSnapshotPropertiesAlreadyExists() throws Exception {
         String spaceId= "space-id";
