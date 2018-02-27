@@ -22,6 +22,7 @@ import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.error.UnauthorizedException;
+import org.duracloud.storage.error.ServerConflictException;
 import org.duracloud.storage.error.StorageStateException;
 import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.TaskProvider;
@@ -117,6 +118,8 @@ public class TaskRest extends BaseRest {
             return responseBad(msg, e, FORBIDDEN);
         } catch (StorageStateException e) {
             return responseBad(msg, e, CONFLICT);
+        } catch (ServerConflictException e){
+            return responseBad(msg, e, Response.Status.CONFLICT);
         } catch (Exception e) {
             return responseBad(msg, e, INTERNAL_SERVER_ERROR);
         }

@@ -15,9 +15,9 @@ import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeParameters;
 import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
-import org.duracloud.snapshot.error.SnapshotDataException;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.duracloud.storage.error.ServerConflictException;
 import org.duracloud.storage.error.StorageStateException;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -144,7 +144,7 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
             // Make call to DPN bridge ingest app to kick off transfer
             callResult =
                 callBridge(createRestHelper(), snapshotURL, snapshotBody);
-        } catch(TaskException | SnapshotDataException e) {
+        } catch(Exception e) {
             // Bridge call did not complete successfully, clean up!
             try{
                 removeSnapshotProps(spaceId);
@@ -153,10 +153,12 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
                 log.error("Failed to fully clean up snapshot props for " +
                           spaceId + ": " + ex.getMessage(), ex);
             }
-            String msg = MessageFormat.format("Call to create snapshot failed, " +
-                "snapshot properties have been removed from space {0}. " +
-                "Error message: {1}", spaceId, e.getMessage());
-            throw new TaskException(msg, e);
+
+            if(!(e instanceof TaskException)){
+                throw new TaskException(e.getMessage());
+            }else{
+                throw (TaskException)e;
+            }
         }
 
         CreateSnapshotBridgeResult bridgeResult =
@@ -176,7 +178,6 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
             new SnapshotIdentifier(dcAccountName, dcStoreId, spaceId, timestamp);
         return snapshotIdentifier.getSnapshotId();
     }
-
 
     /*
      * Create URL to call bridge app
@@ -200,7 +201,6 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
         return bridgeParams.serialize();
     }
 
-    
     /**
      * Constructs the contents of a properties file given a set of
      * key/value pairs
@@ -230,26 +230,33 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
      */
     protected String callBridge(RestHttpHelper restHelper,
                                 String snapshotURL,
-                                String snapshotBody) {
+                                String snapshotBody) throws Exception {
         log.info("Making SNAPSHOT call to URL {} with body {}",
                  snapshotURL, snapshotBody);
 
-        try {
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaders.CONTENT_TYPE, "application/json");
-            RestHttpHelper.HttpResponse response =
-                restHelper.put(snapshotURL, snapshotBody, headers);
+            RestHttpHelper.HttpResponse response = restHelper.put(snapshotURL, snapshotBody, headers);
             int statusCode = response.getStatusCode();
             if(statusCode != 200 && statusCode != 201) {
-                throw new RuntimeException("Unexpected response code: " +
-                                           statusCode);
+                String responseStr = response.getResponseBody();
+
+                try {
+                    String m = getMessageValue(responseStr);
+                    if(m != null){
+                        responseStr = m;
+                    }
+                } catch (IOException ex) {
+                    log.warn(ex.getMessage(), ex);
+                }
+
+                if(statusCode == 409){
+                    throw new ServerConflictException(responseStr);
+                }else {
+                    throw new RuntimeException(responseStr + " (" + statusCode + ")");
+                }
+
             }
             return response.getResponseBody();
-        } catch(Exception e) {
-            throw new TaskException("Exception encountered attempting to " +
-                                    "initiate snapshot request. " +
-                                    "Error reported: " + e.getMessage(), e);
-        }
     }
-
 }

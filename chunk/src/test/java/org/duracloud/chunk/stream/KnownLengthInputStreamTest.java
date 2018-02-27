@@ -32,13 +32,11 @@ public class KnownLengthInputStreamTest {
     }
 
     protected void testString(String string)
-        throws IOException,
-            UnsupportedEncodingException {
+        throws IOException, UnsupportedEncodingException {
         int length = string.getBytes(StandardCharsets.UTF_8.name()).length;
         try (KnownLengthInputStream is = new KnownLengthInputStream(string)) {
             assertEquals(length, is.getLength());
         }
-        ;
     }
 
 }
