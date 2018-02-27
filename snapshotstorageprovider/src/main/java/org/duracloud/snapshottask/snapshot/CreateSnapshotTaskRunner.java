@@ -9,7 +9,6 @@ package org.duracloud.snapshottask.snapshot;
 
 import org.apache.http.HttpHeaders;
 import org.duracloud.common.constant.Constants;
-import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.SnapshotConstants;
@@ -171,7 +170,6 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
         return callResult;
     }
 
-
     /*
      * Generates a snapshot Id based on a set of variables
      */
@@ -180,7 +178,6 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
             new SnapshotIdentifier(dcAccountName, dcStoreId, spaceId, timestamp);
         return snapshotIdentifier.getSnapshotId();
     }
-
 
     /*
      * Create URL to call bridge app
@@ -204,7 +201,6 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
         return bridgeParams.serialize();
     }
 
-    
     /**
      * Constructs the contents of a properties file given a set of
      * key/value pairs
@@ -243,27 +239,24 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
             RestHttpHelper.HttpResponse response = restHelper.put(snapshotURL, snapshotBody, headers);
             int statusCode = response.getStatusCode();
             if(statusCode != 200 && statusCode != 201) {
-                String message = response.getResponseBody();
+                String responseStr = response.getResponseBody();
 
                 try {
-                    HashMap map = new JaxbJsonSerializer<HashMap>(HashMap.class).deserialize(message);
-                    String m = (String)map.get("message");
+                    String m = getMessageValue(responseStr);
                     if(m != null){
-                        message = m;
+                        responseStr = m;
                     }
-                } catch (IOException ex) {}
-
+                } catch (IOException ex) {
+                    log.warn(ex.getMessage(), ex);
+                }
 
                 if(statusCode == 409){
-                    throw new ServerConflictException(message);
+                    throw new ServerConflictException(responseStr);
                 }else {
-                    throw new RuntimeException(message + " (" + statusCode + ")");
+                    throw new RuntimeException(responseStr + " (" + statusCode + ")");
                 }
 
             }
             return response.getResponseBody();
     }
-
-
-
 }
