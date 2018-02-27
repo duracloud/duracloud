@@ -6,19 +6,13 @@
  *     http://duracloud.org/license/
  */
 
-/**
- * A stack layout control:  a vertical stack of div.
- * created by Daniel Bernstein
- */
-
-
-
 (function() {
-/**
- * ACL Editor: used for displaying and manipulating acls on a space.
- * created by Daniel Bernstein
- */
-$.widget("ui.snapshot",
+    /**
+    * A snapshot display panel
+    * created by Daniel Bernstein
+    */
+
+    $.widget("ui.snapshot",
 	$.extend({}, $.ui.expandopanel.prototype, 
 		{  
 	        _listPanel: null, 
@@ -119,15 +113,14 @@ $.widget("ui.snapshot",
 
                                         if(jqXHR.status == 409){
                                         	message = responseText;
-										}
+                                        }
 
                                         if(responseText.startsWith("{")){
                                         	var json = JSON.parse(responseText);
                                         	if(json['exception.message']){
                                                 message = json['exception.message'];
-											}
-										}
-
+                                            }
+                                        }
 
                                         dc.displayErrorDialog(jqXHR,
                                                               message,
