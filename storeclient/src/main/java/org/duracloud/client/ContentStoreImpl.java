@@ -973,14 +973,16 @@ public class ContentStoreImpl implements ContentStore {
         }
         int responseCode = response.getStatusCode();
         if (responseCode != expectedCode) {
-            String errMsg = "Response code was " + responseCode +
-                            ", expected value was " + expectedCode + ". ";
+            String errMsg = "";
             try {
-                String responseBody = response.getResponseBody();
-                errMsg += ("Response body value: " + responseBody);
+                errMsg += response.getResponseBody();
             } catch(IOException e) {
                 // Do not included response body in error
             }
+
+            log.warn("Return code: {}; expected code: {}; responseBody={}",
+                        responseCode, expectedCode, errMsg);
+
             if(responseCode == HttpStatus.SC_NOT_FOUND) {
                 throw new NotFoundException(errMsg);
             } else if (responseCode == HttpStatus.SC_BAD_REQUEST) {
@@ -1164,9 +1166,11 @@ public class ContentStoreImpl implements ContentStore {
         } catch(UnauthorizedException e) {
             throw new UnauthorizedException("Not authorized to perform task: " +
                                             taskName, e);
+        } catch(ContentStateException e) {
+            throw e;
         } catch (Exception e) {
-            throw new ContentStoreException("Error performing task: " +
-                                            taskName + e.getMessage(), e);
+            throw new ContentStoreException("Error performing task (" +
+                                            taskName + "):  " + e.getMessage(), e);
         }
     }
     

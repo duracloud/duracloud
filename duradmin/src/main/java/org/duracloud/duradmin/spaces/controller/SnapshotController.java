@@ -26,6 +26,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.task.SnapshotTaskClient;
 import org.duracloud.client.task.SnapshotTaskClientManager;
 import org.duracloud.common.constant.Constants;
+import org.duracloud.error.ContentStateException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
@@ -91,9 +92,15 @@ public class SnapshotController {
             String userEmail = getUserEmail(username);
 
             SnapshotTaskClient taskClient = getTaskClient(storeId);
-            CreateSnapshotTaskResult result = taskClient.createSnapshot(spaceId, description, userEmail);
-            response.setStatus(HttpStatus.SC_ACCEPTED);
-            return result.serialize();
+            try {
+                CreateSnapshotTaskResult result = taskClient.createSnapshot(spaceId, description, userEmail);
+                response.setStatus(HttpStatus.SC_ACCEPTED);
+                return result.serialize();
+
+            } catch (ContentStateException ex) {
+                response.setStatus(HttpStatus.SC_CONFLICT);
+                return ex.getMessage();
+            }
         }
     }
 
