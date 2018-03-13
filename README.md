@@ -24,7 +24,8 @@ DuraCloud documentation is found on the [DuraCloud Wiki](https://wiki.duraspace.
 
 ## Overview
 
-DuraCloud, as both an open source project and a hosted service, distilled to a single presentation slide:
+DuraCloud is an open source project and a hosted service. This summary articulates our current and aspirational parameters of product and community development, community engagement, project execution, and unique value proposition.
+
 <p align="center">
   <img src="https://wiki.duraspace.org/download/attachments/96993626/Open%20Canvas%20for%20DuraCloud.jpg?version=1&modificationDate=1520456029303&api=v2" alt="DuraCloud Open Canvas"  width="100%" />
 </p>
