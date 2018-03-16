@@ -540,7 +540,7 @@
             https://raw.githubusercontent.com/duraspace/resources/master/checkstyle/duraspace-checkstyle.xml
           </configLocation>
           <suppressionsLocation>
-            C:/work/code/duraspace-resources/checkstyle/duraspace-checkstyle-suppressions.xml
+            https://raw.githubusercontent.com/duraspace/resources/master/checkstyle/duraspace-checkstyle-suppressions.xml
           </suppressionsLocation>
           <encoding>UTF-8</encoding>
           <consoleOutput>true</consoleOutput>
