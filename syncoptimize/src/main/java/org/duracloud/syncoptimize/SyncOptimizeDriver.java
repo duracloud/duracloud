@@ -7,6 +7,11 @@
  */
 package org.duracloud.syncoptimize;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.Properties;
+
 import org.apache.commons.io.FileUtils;
 import org.duracloud.common.util.ApplicationConfig;
 import org.duracloud.syncoptimize.config.SyncOptimizeConfig;
@@ -17,11 +22,6 @@ import org.duracloud.syncoptimize.test.SyncTestManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.Properties;
-
 /**
  * This is the starting point the for Sync optimizer. The purpose of this tool
  * is to determine the optimal number of threads that should be used to run
@@ -29,7 +29,7 @@ import java.util.Properties;
  * achieved.
  *
  * @author Bill Branan
- *         Date: 5/16/14
+ * Date: 5/16/14
  */
 public class SyncOptimizeDriver {
 
@@ -50,6 +50,7 @@ public class SyncOptimizeDriver {
 
     /**
      * Creates the SyncToolDriver
+     *
      * @param printStatus indicates whether or not status information should be
      *                    printed to the console while the tool is running
      */
@@ -98,6 +99,7 @@ public class SyncOptimizeDriver {
     /**
      * Gets a listing of status events that have occurred (mostly test
      * completion events) as the tests are running.
+     *
      * @return sync status
      */
     public SyncTestStatus getSyncTestStatus() {
@@ -110,7 +112,7 @@ public class SyncOptimizeDriver {
         syncOptConfig.setVersion(version);
 
         log.info("### Running Sync Thread Optimizer with configuration: " +
-                     syncOptConfig.getPrintableConfig());
+                 syncOptConfig.getPrintableConfig());
 
         return syncOptConfig;
     }

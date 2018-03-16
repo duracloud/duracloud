@@ -7,13 +7,13 @@
  */
 package org.duracloud.sync.endpoint;
 
-import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.common.util.MimetypeUtil;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+
+import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.MimetypeUtil;
 
 /**
  * @author: Bill Branan
@@ -37,7 +37,6 @@ public class MonitoredFile {
         return file;
     }
 
-    
     public boolean exists() {
         return file.exists();
     }
@@ -59,27 +58,27 @@ public class MonitoredFile {
     }
 
     public long getStreamBytesRead() {
-        if(null == stream) {
+        if (null == stream) {
             return 0;
         }
         return stream.getBytesRead();
     }
 
     public MonitoredInputStream getStream() {
-        if(null == stream) {
+        if (null == stream) {
             try {
                 stream = new MonitoredInputStream(file);
-            } catch(FileNotFoundException e) {
+            } catch (FileNotFoundException e) {
                 throw new RuntimeException("Could not get stream for " +
-                    "file: " + file.getAbsolutePath() + " due to " +
-                    e.getMessage(), e);
+                                           "file: " + file.getAbsolutePath() + " due to " +
+                                           e.getMessage(), e);
             }
         }
         return stream;
     }
 
     public String getChecksum() {
-        if(null == checksum) {
+        if (null == checksum) {
             checksum = computeChecksum(file);
         }
         return checksum;
@@ -93,16 +92,16 @@ public class MonitoredFile {
             ChecksumUtil cksumUtil =
                 new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
             return cksumUtil.generateChecksum(file);
-        } catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             throw new RuntimeException("File not found: " +
                                        file.getAbsolutePath(), e);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public String getMimetype() {
-        if(null == mimetype) {
+        if (null == mimetype) {
             mimetype = computeMimetype();
         }
         return mimetype;

@@ -16,5 +16,5 @@ public interface TaskRunner {
     public String getName();
 
     public String performTask(String taskParameters);
-    
+
 }

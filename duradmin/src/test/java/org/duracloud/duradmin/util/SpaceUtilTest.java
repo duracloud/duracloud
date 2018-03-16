@@ -32,10 +32,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
- * 
  * @author Daniel Bernstein
- *         Date: 11/29/2011
- *
+ * Date: 11/29/2011
  */
 public class SpaceUtilTest {
     private String group = "group-testgroup";
@@ -44,14 +42,14 @@ public class SpaceUtilTest {
     private ContentStore contentStore;
     private Authentication authentication;
     private DuracloudUserDetails userDetails;
-    
+
     @Before
     public void setUp() throws Exception {
         contentStore = EasyMock.createMock(ContentStore.class);
         authentication = EasyMock.createMock(Authentication.class);
         userDetails = EasyMock.createMock(DuracloudUserDetails.class);
         userDetails = EasyMock.createMock(DuracloudUserDetails.class);
-        EasyMock.expect(userDetails.getGroups()).andReturn(Arrays.asList(new String[]{group})).anyTimes();
+        EasyMock.expect(userDetails.getGroups()).andReturn(Arrays.asList(new String[] {group})).anyTimes();
         EasyMock.expect(userDetails.getUsername()).andReturn(username).anyTimes();
 
         EasyMock.expect(authentication.getPrincipal()).andReturn(userDetails).anyTimes();
@@ -64,50 +62,49 @@ public class SpaceUtilTest {
         EasyMock.verify(userDetails);
     }
 
-    private void expectedAmazonS3StorageProviderType(){
+    private void expectedAmazonS3StorageProviderType() {
         expectGetStorageProviderType(StorageProviderType.AMAZON_S3);
     }
 
-    private void expectGetStorageProviderType(StorageProviderType spType){
+    private void expectGetStorageProviderType(StorageProviderType spType) {
         EasyMock.expect(contentStore.getStorageProviderType()).andReturn(spType.getName());
     }
-    
+
     @Test
-    public void testAdmin() throws Exception{
+    public void testAdmin() throws Exception {
         expectAdminAuthority();
         expectedAmazonS3StorageProviderType();
         replay();
-        
-        AclType result = SpaceUtil.resolveCallerAcl(spaceId, contentStore, new HashMap<String,AclType>(), authentication);
+
+        AclType result =
+            SpaceUtil.resolveCallerAcl(spaceId, contentStore, new HashMap<String, AclType>(), authentication);
         Assert.assertEquals(AclType.WRITE, result);
-        
-        
+
     }
 
     protected void expectAdminAuthority() {
         expectAuthority("ROLE_ADMIN", 2);
     }
-    
-    protected void expectAuthority(String role, int times){
-        Collection auths = Arrays.asList(new GrantedAuthority[] { 
-            new SimpleGrantedAuthority(role) });
+
+    protected void expectAuthority(String role, int times) {
+        Collection auths = Arrays.asList(new GrantedAuthority[] {
+            new SimpleGrantedAuthority(role)});
         EasyMock.expect(authentication.getAuthorities())
-        .andReturn(auths)
-        .times(times);
+                .andReturn(auths)
+                .times(times);
     }
 
     @Test
-    public void testReadOnlyNonAdmin() throws Exception{
-        
-        
+    public void testReadOnlyNonAdmin() throws Exception {
+
         expectSubAdminAuthority();
         expectedAmazonS3StorageProviderType();
 
-        Map<String,AclType> acls = new HashMap<String,AclType>();
+        Map<String, AclType> acls = new HashMap<String, AclType>();
         acls.put(username, AclType.READ);
-        
+
         replay();
-        
+
         AclType result = SpaceUtil.resolveCallerAcl(spaceId, contentStore, acls, authentication);
         Assert.assertEquals(AclType.READ, result);
     }
@@ -123,65 +120,63 @@ public class SpaceUtilTest {
     }
 
     @Test
-    public void testReadWriteNonAdmin() throws Exception{
+    public void testReadWriteNonAdmin() throws Exception {
         expectedAmazonS3StorageProviderType();
-        
-        Map<String,AclType> acls = new HashMap<String,AclType>();
+
+        Map<String, AclType> acls = new HashMap<String, AclType>();
         acls.put(username, AclType.WRITE);
 
         expectSubAdminAuthority();
 
         replay();
-        
+
         AclType result = SpaceUtil.resolveCallerAcl(spaceId, contentStore, acls, authentication);
         Assert.assertEquals(AclType.WRITE, result);
     }
 
     @Test
-    public void testReadWriteGroupNonAdmin() throws Exception{
+    public void testReadWriteGroupNonAdmin() throws Exception {
         expectedAmazonS3StorageProviderType();
-        
-        Map<String,AclType> acls = new HashMap<String,AclType>();
+
+        Map<String, AclType> acls = new HashMap<String, AclType>();
         acls.put(group, AclType.WRITE);
 
         expectSubAdminAuthority();
 
         replay();
-        
+
         AclType result = SpaceUtil.resolveCallerAcl(spaceId, contentStore, acls, authentication);
         Assert.assertEquals(AclType.WRITE, result);
     }
 
     @Test
-    public void testSnashotInProgress() throws Exception{
-        Map<String,String> map = new HashMap<String,String>();
+    public void testSnashotInProgress() throws Exception {
+        Map<String, String> map = new HashMap<String, String>();
         map.put(Constants.SNAPSHOT_ID_PROP, "test");
         expectGetStorageProviderType(StorageProviderType.DPN);
-        EasyMock.expect(this.contentStore.getSpaceProperties(
-                                               EasyMock.isA(String.class)))
-                                          .andReturn(map);
+        EasyMock.expect(this.contentStore.getSpaceProperties(EasyMock.isA(String.class)))
+                .andReturn(map);
         expectAuthority("ROLE_ADMIN", 1);
-        
+
         replay();
-        
+
         AclType result = SpaceUtil.resolveCallerAcl(spaceId, contentStore, null, authentication);
-        
+
         Assert.assertEquals(AclType.READ, result);
     }
 
-    
-    
     @Test
-    public void testUnauthorized() throws Exception{
+    public void testUnauthorized() throws Exception {
         expectedAmazonS3StorageProviderType();
 
         expectSubAdminAuthority();
-        
+
         replay();
-        AclType result = SpaceUtil.resolveCallerAcl(spaceId, contentStore, new HashMap<String,AclType>(), authentication);
+        AclType result = SpaceUtil.resolveCallerAcl(spaceId, contentStore, new HashMap<String, AclType>(),
+                                                    authentication);
         Assert.assertNull(result);
     }
-    
+
     @Test
     public void testAclSort() {
         replay(); //necessary since mocks are defined in setup and teardown.
@@ -193,18 +188,18 @@ public class SpaceUtilTest {
         acls.add(new Acl("group-z"));
 
         SpaceUtil.sortAcls(acls);
-        
+
         assertPosition(acls, 0, "group-public");
         assertPosition(acls, 1, "group-a");
         assertPosition(acls, 2, "group-z");
         assertPosition(acls, 3, "user-a");
         assertPosition(acls, 4, "user-z");
-        
+
     }
 
     private void assertPosition(List<Acl> acls, int index, String name) {
         Assert.assertEquals(name, acls.get(index).getName());
-        
+
     }
 
 }

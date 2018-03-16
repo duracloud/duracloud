@@ -16,7 +16,6 @@ import org.duracloud.error.ContentStoreException;
  * the process of making calls to S3 storage provider tasks.
  *
  * @author Bill Branan
- *
  */
 public class S3TaskClientManager {
 

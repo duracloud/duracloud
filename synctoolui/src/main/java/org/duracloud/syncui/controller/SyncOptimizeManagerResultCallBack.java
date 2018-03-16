@@ -6,12 +6,14 @@
  *     http://duracloud.org/license/
  */
 package org.duracloud.syncui.controller;
+
 /**
  * Callback for asynchronous calls to the SyncOptimizeManager.
- * @author danny
  *
+ * @author Daniel Bernstein
  */
 public interface SyncOptimizeManagerResultCallBack {
     void onSuccess();
+
     void onFailure(Exception ex, String status);
 }

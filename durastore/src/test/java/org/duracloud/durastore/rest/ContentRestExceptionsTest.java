@@ -7,18 +7,18 @@
  */
 package org.duracloud.durastore.rest;
 
+import javax.ws.rs.core.Response;
+
 import org.duracloud.common.rest.RestUtil;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.ws.rs.core.Response;
-
 /**
  * This class tests top-level error handling of ContentRest.
  *
  * @author Andrew Woods
- *         Date: Aug 31, 2010
+ * Date: Aug 31, 2010
  */
 public class ContentRestExceptionsTest {
 
@@ -43,8 +43,8 @@ public class ContentRestExceptionsTest {
             support.createRuntimeException()).anyTimes();
         resource.deleteContent(null, null, null);
         EasyMock.expectLastCall()
-            .andThrow(support.createRuntimeException())
-            .anyTimes();
+                .andThrow(support.createRuntimeException())
+                .anyTimes();
 
         EasyMock.replay(resource);
         return resource;
@@ -71,7 +71,7 @@ public class ContentRestExceptionsTest {
 
     @Test
     public void testAddContent() throws Exception {
-        Response response = contentRest.putContent(null, null, null, null,null);
+        Response response = contentRest.putContent(null, null, null, null, null);
         support.verifyErrorResponse(response);
     }
 

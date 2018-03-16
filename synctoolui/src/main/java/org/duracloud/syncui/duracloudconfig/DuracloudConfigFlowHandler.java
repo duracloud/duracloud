@@ -16,60 +16,56 @@ import org.duracloud.syncui.domain.SpaceForm;
 import org.duracloud.syncui.service.SyncConfigurationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.webflow.core.collection.LocalAttributeMap;
 import org.springframework.webflow.core.collection.MutableAttributeMap;
 import org.springframework.webflow.execution.FlowExecutionOutcome;
 import org.springframework.webflow.mvc.servlet.AbstractFlowHandler;
 
 /**
- * 
- * @author Daniel Bernstein 
- * 
+ * @author Daniel Bernstein
  */
 @Component(DuracloudConfigFlowHandler.FLOW_ID)
 public class DuracloudConfigFlowHandler extends AbstractFlowHandler {
     public static final String FLOW_ID = "duracloud-config";
     private SyncConfigurationManager syncConfigurationManager;
-    
+
     @Autowired
-    public DuracloudConfigFlowHandler(SyncConfigurationManager synConfigurationManager){
+    public DuracloudConfigFlowHandler(SyncConfigurationManager synConfigurationManager) {
         this.syncConfigurationManager = synConfigurationManager;
     }
-    
+
     @Override
     public String getFlowId() {
         return FLOW_ID;
     }
-    
+
     @Override
     public String handleExecutionOutcome(FlowExecutionOutcome outcome,
                                          HttpServletRequest request,
                                          HttpServletResponse response) {
         String path = "/";
-        if("restart".equals(outcome.getOutput().get("action"))){
-            path+="status";
+        if ("restart".equals(outcome.getOutput().get("action"))) {
+            path += "status";
         }
-        return "contextRelative:"+path;
+        return "contextRelative:" + path;
     }
-    
+
     @Override
-    public MutableAttributeMap
-        createExecutionInputMap(HttpServletRequest request) {
-        MutableAttributeMap map =  super.createExecutionInputMap(request);
-        if(map == null){
+    public MutableAttributeMap createExecutionInputMap(HttpServletRequest request) {
+        MutableAttributeMap map = super.createExecutionInputMap(request);
+        if (map == null) {
             map = new LocalAttributeMap();
         }
         DuracloudConfiguration config =
             this.syncConfigurationManager.retrieveDuracloudConfiguration();
         DuracloudCredentialsForm cf = new DuracloudCredentialsForm(config);
-        
+
         map.put("duracloudCredentialsForm", cf);
-        
+
         SpaceForm sf = new SpaceForm();
         sf.setSpaceId(config.getSpaceId());
         map.put("spaceForm", sf);
-        
+
         return map;
     }
 }

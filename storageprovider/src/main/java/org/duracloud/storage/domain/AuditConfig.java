@@ -9,7 +9,7 @@ package org.duracloud.storage.domain;
 
 /**
  * @author Bill Branan
- *         Date: 3/18/14
+ * Date: 3/18/14
  */
 public class AuditConfig {
 

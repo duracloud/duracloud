@@ -7,7 +7,10 @@
  */
 package org.duracloud.durastore.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +59,7 @@ public class StorageProviderFactoryTest {
 
     private List<String> storageAccountIds;
     private StorageProviderFactory factory;
-    
+
     private DuraCloudRequestContextUtil contextUtil;
     private AccountChangeNotifier notifier;
 
@@ -78,8 +81,8 @@ public class StorageProviderFactoryTest {
         storageAccountIds.add(acctId2);
 
         EasyMock.expect(mockSAM.isInitialized())
-            .andReturn(true)
-            .anyTimes();
+                .andReturn(true)
+                .anyTimes();
 
         factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, mockUserUtil, contextUtil, notifier);
 
@@ -91,7 +94,7 @@ public class StorageProviderFactoryTest {
 
     @After
     public void teardown() {
-        EasyMock.verify(mockSAM, mockSSP, mockUserUtil,contextUtil, notifier);
+        EasyMock.verify(mockSAM, mockSSP, mockUserUtil, contextUtil, notifier);
     }
 
     @Test
@@ -105,15 +108,15 @@ public class StorageProviderFactoryTest {
 
     private void setUpMocksGetStorageAccounts() {
         EasyMock.expect(mockSAM.getStorageAccountIds())
-            .andReturn(storageAccountIds.iterator())
-            .times(1);
+                .andReturn(storageAccountIds.iterator())
+                .times(1);
 
         EasyMock.expect(mockSAM.getStorageAccount(EasyMock.isA(String.class)))
-            .andReturn(acct1)
-            .times(1);
+                .andReturn(acct1)
+                .times(1);
         EasyMock.expect(mockSAM.getStorageAccount(EasyMock.isA(String.class)))
-            .andReturn(acct2)
-            .times(1);
+                .andReturn(acct2)
+                .times(1);
 
         replayMocks();
     }
@@ -126,17 +129,17 @@ public class StorageProviderFactoryTest {
         assertNotNull(provider);
         assertTrue(provider instanceof BrokeredStorageProvider);
         StorageProviderType type =
-            ((BrokeredStorageProvider)provider).getTargetType();
+            ((BrokeredStorageProvider) provider).getTargetType();
         assertEquals(StorageProviderType.AMAZON_S3, type);
     }
 
     private void setUpMocksGetStorageProvider() {
         EasyMock.expect(mockSAM.getPrimaryStorageAccount())
-            .andReturn(acct1)
-            .times(1);
+                .andReturn(acct1)
+                .times(1);
         EasyMock.expect(mockSAM.getStorageAccount(acctId1))
-            .andReturn(acct1)
-            .times(1);
+                .andReturn(acct1)
+                .times(1);
         EasyMock.expect(mockSAM.getAccountName()).andReturn(acct1Name);
 
         replayMocks();
@@ -149,14 +152,14 @@ public class StorageProviderFactoryTest {
         StorageProvider provider = factory.getStorageProvider(acctId1);
         assertNotNull(provider);
         StorageProviderType type =
-            ((BrokeredStorageProvider)provider).getTargetType();
+            ((BrokeredStorageProvider) provider).getTargetType();
         assertEquals(StorageProviderType.AMAZON_S3, type);
     }
 
     private void setUpMocksGetStorageProviderById() {
         EasyMock.expect(mockSAM.getStorageAccount(acctId1))
-            .andReturn(acct1)
-            .times(1);
+                .andReturn(acct1)
+                .times(1);
         EasyMock.expect(mockSAM.getAccountName()).andReturn(acct1Name);
 
         replayMocks();
@@ -169,7 +172,7 @@ public class StorageProviderFactoryTest {
         try {
             StorageProvider provider = factory.getStorageProvider(acctId2);
             fail("Exception expected when requesting invalid store ID");
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             assertNotNull(e);
         }
     }
@@ -192,7 +195,7 @@ public class StorageProviderFactoryTest {
         assertNotNull(provider);
         assertTrue(provider instanceof BrokeredStorageProvider);
         StorageProviderType type =
-            ((BrokeredStorageProvider)provider).getTargetType();
+            ((BrokeredStorageProvider) provider).getTargetType();
         assertEquals(StorageProviderType.AMAZON_S3, type);
         EasyMock.verify(sam);
 
@@ -204,7 +207,7 @@ public class StorageProviderFactoryTest {
         EasyMock.expectLastCall().once();
 
         replayMocks();
-        factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, mockUserUtil,  contextUtil, notifier);
+        factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, mockUserUtil, contextUtil, notifier);
         factory.initialize(createConfig(), instanceHost, instancePort, "account");
 
         //Test retrieving from accountManager now that the cache has been cleared
@@ -213,14 +216,12 @@ public class StorageProviderFactoryTest {
 
     protected DuraStoreInitConfig createConfig() {
         DuraStoreInitConfig config = new DuraStoreInitConfig();
-        config.setStorageAccounts(Arrays.asList((StorageAccount) new StorageAccountImpl("id",
-                                                                                        "username",
-                                                                                        "password",
-                                                                                        StorageProviderType.AMAZON_S3)));
+        config.setStorageAccounts(
+            Arrays.asList((StorageAccount) new StorageAccountImpl("id", "username", "password",
+                                                                  StorageProviderType.AMAZON_S3)));
         config.setMillDbConfig(new DatabaseConfig());
         return config;
     }
-
 
     @Test
     public void testInitilizeWithCachingEnabled() {
@@ -229,10 +230,10 @@ public class StorageProviderFactoryTest {
         EasyMock.expectLastCall().once();
 
         EasyMock.expect(mockSAM.getStorageAccountIds())
-        .andReturn(Arrays.asList(new String[]{acctId1}).iterator());
+                .andReturn(Arrays.asList(new String[] {acctId1}).iterator());
 
         EasyMock.expect(mockSAM.getStorageAccount(EasyMock.isA(String.class)))
-            .andReturn(acct1);
+                .andReturn(acct1);
 
         EasyMock.expect(mockSAM.getAccountName()).andReturn(acct1Name);
 
@@ -241,7 +242,6 @@ public class StorageProviderFactoryTest {
 
         replayMocks();
 
-        
         factory =
             new StorageProviderFactoryImpl(mockSAM,
                                            mockSSP,
@@ -250,22 +250,22 @@ public class StorageProviderFactoryTest {
                                            notifier,
                                            true);
 
-        factory.initialize(createConfig(), instanceHost, instancePort,"account");
+        factory.initialize(createConfig(), instanceHost, instancePort, "account");
     }
-    
+
     private StorageAccountManager getProvider() {
         StorageAccountManager sam =
             EasyMock.createMock(StorageAccountManager.class);
 
         EasyMock.expect(sam.isInitialized())
-            .andReturn(true)
-            .anyTimes();
+                .andReturn(true)
+                .anyTimes();
 
         EasyMock.expect(sam.getPrimaryStorageAccount())
-            .andReturn(acct1)
-            .times(2);
+                .andReturn(acct1)
+                .times(2);
         EasyMock.expect(sam.getStorageAccount(acctId1))
-            .andReturn(acct1);
+                .andReturn(acct1);
         EasyMock.expect(sam.getAccountName()).andReturn(acct1Name);
 
         EasyMock.replay(sam);
@@ -280,7 +280,7 @@ public class StorageProviderFactoryTest {
         assertNotNull(provider);
         assertTrue(provider instanceof BrokeredStorageProvider);
         StorageProviderType type =
-            ((BrokeredStorageProvider)provider).getTargetType();
+            ((BrokeredStorageProvider) provider).getTargetType();
         assertEquals(StorageProviderType.AMAZON_S3, type);
 
         return sam;

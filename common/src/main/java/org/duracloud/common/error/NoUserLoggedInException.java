@@ -9,8 +9,8 @@ package org.duracloud.common.error;
 
 /**
  * @author Andrew Woods
- *         Date: Mar 27, 2010
+ * Date: Mar 27, 2010
  */
 public class NoUserLoggedInException extends DuraCloudCheckedException {
-    
+
 }

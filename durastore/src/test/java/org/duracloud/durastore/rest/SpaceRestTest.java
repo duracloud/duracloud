@@ -7,6 +7,13 @@
  */
 package org.duracloud.durastore.rest;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
 import org.duracloud.common.model.AclType;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.security.context.SecurityContextUtil;
@@ -18,16 +25,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * @author Andrew Woods
- *         Date: 11/15/11
+ * Date: 11/15/11
  */
 public class SpaceRestTest {
 
@@ -51,7 +51,6 @@ public class SpaceRestTest {
         StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
     private final static String aclHeader =
         StorageProvider.PROPERTIES_SPACE_ACL;
-
 
     @BeforeClass
     public static void beforeClass() {

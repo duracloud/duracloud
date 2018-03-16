@@ -17,20 +17,19 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 /**
- * 
- * @author Daniel Bernstein 
- * 
+ * @author Daniel Bernstein
  */
 @Component
 public class StartSyncAction extends AbstractAction {
 
     private static Logger log = LoggerFactory.getLogger(StartSyncAction.class);
     private SyncProcessManager syncProcessManager;
-    
+
     @Autowired
-    public StartSyncAction(SyncProcessManager syncProcessManager){
+    public StartSyncAction(SyncProcessManager syncProcessManager) {
         this.syncProcessManager = syncProcessManager;
     }
+
     public Event doExecute(RequestContext context) throws Exception {
         log.debug("executing...");
         this.syncProcessManager.start();

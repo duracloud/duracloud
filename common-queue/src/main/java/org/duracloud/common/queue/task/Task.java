@@ -7,31 +7,31 @@
  */
 package org.duracloud.common.queue.task;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Represents a basic unit of work. In essence it describes "what" is to be
  * done. It knows nothing of the "how".
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 public class Task {
 
     public static final String KEY_TYPE = "type";
+
     public enum Type {
-        BIT, BIT_REPORT, BIT_ERROR,  DUP, AUDIT, STORAGE_STATS, NOOP;
+        BIT, BIT_REPORT, BIT_ERROR, DUP, AUDIT, STORAGE_STATS, NOOP;
     }
 
     private Type type;
     private Map<String, String> properties = new HashMap<>();
     private Integer visibilityTimeout;
-    
+
     public Type getType() {
         return type;
     }
@@ -63,17 +63,18 @@ public class Task {
     public void setVisibilityTimeout(Integer visibilityTimeout) {
         this.visibilityTimeout = visibilityTimeout;
     }
-    
+
     /**
      * The number of completed attempts to process this task.
+     *
      * @return
      */
     public int getAttempts() {
         String attempts = this.properties.get("attempts");
-        if(attempts == null){
+        if (attempts == null) {
             attempts = "0";
         }
-        
+
         return Integer.parseInt(attempts);
     }
 
@@ -82,8 +83,8 @@ public class Task {
      * TaskQueue implementations.
      */
     public void incrementAttempts() {
-        int attempts = getAttempts()+1;
-        this.properties.put("attempts", attempts+"");
+        int attempts = getAttempts() + 1;
+        this.properties.put("attempts", attempts + "");
     }
 
     /* (non-Javadoc)
@@ -93,7 +94,7 @@ public class Task {
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
@@ -101,7 +102,7 @@ public class Task {
     public int hashCode() {
         return HashCodeBuilder.reflectionHashCode(this);
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
@@ -109,7 +110,5 @@ public class Task {
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
-
-
 
 }

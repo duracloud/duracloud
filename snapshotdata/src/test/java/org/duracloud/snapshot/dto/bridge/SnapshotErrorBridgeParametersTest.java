@@ -7,17 +7,14 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
-
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 9/17/2015
+ * Date: 9/17/2015
  */
 public class SnapshotErrorBridgeParametersTest {
 
@@ -30,7 +27,7 @@ public class SnapshotErrorBridgeParametersTest {
         String cleanResult = result.replaceAll("\\s+", "");
 
         assertThat(cleanResult,
-                   containsString("\"error\":\""+error+"\""));
+                   containsString("\"error\":\"" + error + "\""));
     }
 
 }

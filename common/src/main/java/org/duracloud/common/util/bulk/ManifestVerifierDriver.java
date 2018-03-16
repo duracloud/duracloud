@@ -7,15 +7,19 @@
  */
 package org.duracloud.common.util.bulk;
 
-import org.duracloud.common.error.ManifestVerifyException;
-
 import java.io.File;
+
+import org.duracloud.common.error.ManifestVerifyException;
 
 /**
  * @author Andrew Woods
- *         Date: Oct 24, 2009
+ * Date: Oct 24, 2009
  */
 public class ManifestVerifierDriver {
+
+    private ManifestVerifierDriver() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     private static void verify(File file0, File file1, String[] filters) {
         ManifestVerifier verifier = new ManifestVerifier(file0, file1);
@@ -35,7 +39,6 @@ public class ManifestVerifierDriver {
     private static void success() {
         System.out.println("valid");
     }
-
 
     private static void usage() {
         StringBuilder sb = new StringBuilder();
@@ -72,6 +75,5 @@ public class ManifestVerifierDriver {
         }
         verify(file0, file1, filters);
     }
-
 
 }

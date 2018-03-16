@@ -7,18 +7,18 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.duracloud.durastore.error.ResourceException;
-import org.duracloud.storage.error.InvalidIdException;
-
 import java.io.InputStream;
 import java.util.Map;
 
+import org.duracloud.durastore.error.ResourceException;
+import org.duracloud.storage.error.InvalidIdException;
+
 /**
  * @author Andrew Woods
- *         Date: Aug 19, 2010
+ * Date: Aug 19, 2010
  */
 public interface ContentResource {
-    
+
     InputStream getContent(String spaceID, String contentID, String storeID)
         throws ResourceException;
 

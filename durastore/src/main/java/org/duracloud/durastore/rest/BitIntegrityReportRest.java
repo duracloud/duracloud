@@ -10,7 +10,6 @@ package org.duracloud.durastore.rest;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Map;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
@@ -42,7 +41,7 @@ import org.springframework.util.CollectionUtils;
  * REST interface for serving bit integrity reports.
  *
  * @author Daniel Bernstein
- *         Date: Oct 31, 2014
+ * Date: Oct 31, 2014
  */
 @Path("/bit-integrity")
 @Component
@@ -53,6 +52,7 @@ public class BitIntegrityReportRest extends BaseRest {
 
     private JpaBitIntegrityReportRepo repo;
     private StorageProviderFactory storageProviderFactory;
+
     @Autowired
     public BitIntegrityReportRest(JpaBitIntegrityReportRepo repo,
                                   StorageProviderFactory storageProviderFactory) {
@@ -63,8 +63,8 @@ public class BitIntegrityReportRest extends BaseRest {
 
     @Path("/{spaceId}")
     @GET
-    public Response getReport (@PathParam("spaceId") String spaceId,
-                                 @QueryParam("storeID") String storeId) {
+    public Response getReport(@PathParam("spaceId") String spaceId,
+                              @QueryParam("storeID") String storeId) {
         log.debug("getting report for {} , {} ", spaceId, storeId);
 
         return getReport(spaceId, storeId, false);
@@ -72,29 +72,29 @@ public class BitIntegrityReportRest extends BaseRest {
 
     @Path("/{spaceId}")
     @HEAD
-    public Response getReportHead (@PathParam("spaceId") String spaceId,
-                                 @QueryParam("storeID") String storeId) {
+    public Response getReportHead(@PathParam("spaceId") String spaceId,
+                                  @QueryParam("storeID") String storeId) {
         log.debug("getting report head for {} , {} ", spaceId, storeId);
         return getReport(spaceId, storeId, true);
     }
 
     private Response getReport(String spaceId,
-                                 String storeId,
-                                 boolean headOnly) {
+                               String storeId,
+                               boolean headOnly) {
         String account = getSubdomain();
-        
-        log.info("getting bit integrity report log for account:{}, storeId:{}, spaceId:{}",
-                 new Object[]{account, storeId, spaceId});
 
-        if(StringUtils.isBlank(storeId)){
-            for(StorageAccount storageAccount: this.storageProviderFactory.getStorageAccounts()){
-                if(storageAccount.isPrimary()){
+        log.info("getting bit integrity report log for account:{}, storeId:{}, spaceId:{}",
+                 new Object[] {account, storeId, spaceId});
+
+        if (StringUtils.isBlank(storeId)) {
+            for (StorageAccount storageAccount : this.storageProviderFactory.getStorageAccounts()) {
+                if (storageAccount.isPrimary()) {
                     storeId = storageAccount.getId();
                     break;
                 }
             }
-            
-            if(StringUtils.isBlank(storeId)){
+
+            if (StringUtils.isBlank(storeId)) {
                 throw new DuraCloudRuntimeException("storeId is blank and no primary storage account is indicated.");
             }
         }
@@ -103,46 +103,46 @@ public class BitIntegrityReportRest extends BaseRest {
             PageRequest pageRequest = new PageRequest(0, 1);
             Page<BitIntegrityReport> page =
                 repo.findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(storeId, spaceId, pageRequest);
-            
-            if(page == null || CollectionUtils.isEmpty(page.getContent())){
+
+            if (page == null || CollectionUtils.isEmpty(page.getContent())) {
                 StorageProvider storage = storageProviderFactory.getStorageProvider(storeId);
                 try { // Determine if space exists in order to return the right error
                     storage.getSpaceACLs(spaceId);
-                } catch(NotFoundException e) {
+                } catch (NotFoundException e) {
                     return responseNotFound("Space with ID " + spaceId + " does not exist");
                 }
                 return responseBad("No reports matching the criteria found.",
                                    Response.Status.NO_CONTENT);
             }
-            
+
             BitIntegrityReport report = page.getContent().get(0);
             //retrieve report info from primary store.
             StorageProvider provider = this.storageProviderFactory.getStorageProvider();
             String reportSpaceId = report.getReportSpaceId();
             String reportContentId = report.getReportContentId();
-            Map<String,String> props = provider.getContentProperties(reportSpaceId, reportContentId);
+            Map<String, String> props = provider.getContentProperties(reportSpaceId, reportContentId);
             String contentLength = props.get(StorageProvider.PROPERTIES_CONTENT_SIZE);
-            
+
             ResponseBuilder responseBuilder;
-            
-            if(headOnly){
+
+            if (headOnly) {
                 responseBuilder = Response.ok();
-            }else{
+            } else {
                 InputStream is = provider.getContent(reportSpaceId, reportContentId);
                 responseBuilder = Response.ok(is);
             }
-            
+
             responseBuilder.header(HttpHeaders.BIT_INTEGRITY_REPORT_RESULT, report.getResult().name());
             responseBuilder.header(HttpHeaders.BIT_INTEGRITY_REPORT_COMPLETION_DATE,
                                    DateUtil.convertToString(report.getCompletionDate()
                                                                   .getTime()));
             responseBuilder.header(HttpHeaders.CONTENT_LENGTH, contentLength);
-            
+
             return responseBuilder.build();
-            
+
         } catch (Exception e) {
             log.error(MessageFormat.format("Error for  account:{0}, storeId:{1}, spaceId:{2} -> {3}",
-                      account, storeId, spaceId, e.getMessage()));
+                                           account, storeId, spaceId, e.getMessage()));
             return responseBad(e);
         }
     }

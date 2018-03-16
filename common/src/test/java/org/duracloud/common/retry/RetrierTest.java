@@ -7,13 +7,14 @@
  */
 package org.duracloud.common.retry;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 /**
  * @author Bill Branan
- *         Date: 10/25/13
+ * Date: 10/25/13
  */
 public class RetrierTest {
 
@@ -26,7 +27,7 @@ public class RetrierTest {
         response = retrier.execute(new Retriable() {
             @Override
             public String retry() throws Exception {
-              return expectedResponse;
+                return expectedResponse;
             }
         });
 
@@ -95,7 +96,6 @@ public class RetrierTest {
         }
     }
 
-    
     private class RetryTester {
         private int failuresBeforeSuccess;
         private int attempts;
@@ -107,7 +107,7 @@ public class RetrierTest {
 
         public Integer doWork() {
             attempts++;
-            if(attempts <= failuresBeforeSuccess) {
+            if (attempts <= failuresBeforeSuccess) {
                 throw new RuntimeException(String.valueOf(attempts));
             }
             return attempts;

@@ -7,11 +7,6 @@
  */
 package org.duracloud.sync.mgmt;
 
-import org.duracloud.sync.endpoint.MonitoredFile;
-import org.duracloud.sync.endpoint.SyncEndpoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +16,11 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import org.duracloud.sync.endpoint.MonitoredFile;
+import org.duracloud.sync.endpoint.SyncEndpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The SyncManager is responsible to watch for new entries in the ChangedList
@@ -111,7 +111,7 @@ public class SyncManager implements ChangeHandler {
             addToWorkerList(worker);
             workerPool.execute(worker);
             return true;
-        } catch(RejectedExecutionException e) {
+        } catch (RejectedExecutionException e) {
             workerList.remove(worker);
             return false;
         }
@@ -122,10 +122,10 @@ public class SyncManager implements ChangeHandler {
      * Returns null if the file is not included in any watch directories.
      */
     protected File getWatchDir(File changedFile) {
-        for(File watchDir : watchDirs) {
+        for (File watchDir : watchDirs) {
             File changedFileParent = changedFile.getParentFile();
-            while(changedFileParent != null) {
-                if(changedFileParent.equals(watchDir)) {
+            while (changedFileParent != null) {
+                if (changedFileParent.equals(watchDir)) {
                     return watchDir;
                 } else {
                     changedFileParent = changedFileParent.getParentFile();
@@ -137,10 +137,10 @@ public class SyncManager implements ChangeHandler {
 
     private void addToWorkerList(SyncWorker workerToAdd) {
         cleanWorkerList();
-        for(int i=0; i<workerList.size(); i++) {
+        for (int i = 0; i < workerList.size(); i++) {
             SyncWorker worker = workerList.get(i);
-            if(worker.getMonitoredFile().getAbsolutePath().equals(
-               workerToAdd.getMonitoredFile().getAbsolutePath())) {
+            if (worker.getMonitoredFile().getAbsolutePath().equals(
+                workerToAdd.getMonitoredFile().getAbsolutePath())) {
                 workerList.remove(i);
             }
         }
@@ -148,9 +148,9 @@ public class SyncManager implements ChangeHandler {
     }
 
     private void cleanWorkerList() {
-        for(int i=0; i<workerList.size(); i++) {
+        for (int i = 0; i < workerList.size(); i++) {
             SyncWorker worker = workerList.get(i);
-            if(worker.isComplete()) {
+            if (worker.isComplete()) {
                 workerList.remove(i);
             }
         }
@@ -160,7 +160,7 @@ public class SyncManager implements ChangeHandler {
         cleanWorkerList();
         List<MonitoredFile> monitoredFiles = new ArrayList<MonitoredFile>();
         List<SyncWorker> workers = new ArrayList<>(workerList);
-        for(SyncWorker worker : workers) {
+        for (SyncWorker worker : workers) {
             monitoredFiles.add(worker.getMonitoredFile());
         }
         return monitoredFiles;

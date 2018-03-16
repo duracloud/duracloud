@@ -10,19 +10,20 @@ package org.duracloud.common.util;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  * A handy class that lets you wrap any operation in a stopwatch that will output
- * elapsed time  and an arbitrary message to the log. 
- * @author Daniel Bernstein
- * 
+ * elapsed time  and an arbitrary message to the log.
+ *
  * @param <T>
+ * @author Daniel Bernstein
  */
 public abstract class OperationTimer<T> {
     private Logger logger = LoggerFactory.getLogger(OperationTimer.class);
     private StopWatch stopWatch = new StopWatch();
-    private String message = ""; 
-    
-    public OperationTimer(String message){
+    private String message = "";
+
+    public OperationTimer(String message) {
         this.message = message;
     }
 
@@ -33,9 +34,10 @@ public abstract class OperationTimer<T> {
         logger.debug("Message={} - Elapsed time: {}", message, stopWatch.toString());
         return result;
     }
-    
+
     /**
      * Implements the execution of the operation to be timed.
+     *
      * @return
      * @throws Exception
      */

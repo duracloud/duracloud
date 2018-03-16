@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.amazonaws.util.CollectionUtils;
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.manifest.ChunksManifestBean.ManifestEntry;
 import org.duracloud.client.ContentStore;
@@ -19,16 +20,11 @@ import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.util.CollectionUtils;
-
 /**
  * This class is responsible for verifying that all the chunks listed in a given
  * chunk manifest exactly match the actual chunks stored in a specified space.
- * 
  *
- * 
  * @author dbernstein
- *
  */
 public class ChunksManifestVerifier {
     private static final Logger log = LoggerFactory.getLogger(ChunksManifestVerifier.class);
@@ -41,11 +37,11 @@ public class ChunksManifestVerifier {
 
     /**
      * Verifies the bytes and checksums of the chunks specified in the manifest
-     * match what is in DuraCloud and returns a listing of the chunks with a flag 
+     * match what is in DuraCloud and returns a listing of the chunks with a flag
      * indicating whether the check was successful as well as an error message if it
      * was not. You can use the result.isSuccess() method as a shortcut for determining
      * whether all the items in the manifest matched on another.
-     * 
+     *
      * @param spaceId
      * @param manifest
      * @return a list of results - one for each chunk.
@@ -66,19 +62,19 @@ public class ChunksManifestVerifier {
                 String remoteChecksum = props.get(ContentStore.CONTENT_CHECKSUM);
                 long remoteByteSize = Long.valueOf(props.get(ContentStore.CONTENT_SIZE));
 
-                if(!checksum.equals(remoteChecksum)){
+                if (!checksum.equals(remoteChecksum)) {
                     results.add(chunkId,
                                 "manifest checksum (" + checksum
-                                         + ") does not match DuraCloud checksum ("
-                                         + remoteChecksum
-                                         + ")",
+                                + ") does not match DuraCloud checksum ("
+                                + remoteChecksum
+                                + ")",
                                 false);
-                } else if(byteSize != remoteByteSize){
+                } else if (byteSize != remoteByteSize) {
                     results.add(chunkId,
                                 "manifest byte size (" + byteSize
-                                         + ") does not match DuraCloud byte size ("
-                                         + remoteByteSize
-                                         + ")",
+                                + ") does not match DuraCloud byte size ("
+                                + remoteByteSize
+                                + ")",
                                 false);
                 } else {
                     results.add(chunkId, null, true);
@@ -91,18 +87,20 @@ public class ChunksManifestVerifier {
 
         if (CollectionUtils.isNullOrEmpty(results.get())) {
             throw new DuraCloudRuntimeException("failed to retrieve any chunks at list in chunk manifest:  "
-                                            + spaceId
-                                            + "/"
-                                            + manifest.getManifestId());
-        }else{
+                                                + spaceId
+                                                + "/"
+                                                + manifest.getManifestId());
+        } else {
             return results;
         }
     }
 
     public static final class Results {
         private List<Result> resultList = null;
-        private Results() {}
-        
+
+        private Results() {
+        }
+
         @SuppressWarnings("unused")
         public boolean isSuccess() {
             if (!CollectionUtils.isNullOrEmpty(resultList)) {
@@ -124,11 +122,11 @@ public class ChunksManifestVerifier {
             }
 
             this.resultList.add(new Result(chunkId, error, success));
-            
-            if(success){
+
+            if (success) {
                 log.debug("chunk successfully verified: {}", chunkId);
-            }else{
-                log.warn("unable to verify chunk {} due to : {}",  chunkId, error);
+            } else {
+                log.warn("unable to verify chunk {} due to : {}", chunkId, error);
             }
 
         }

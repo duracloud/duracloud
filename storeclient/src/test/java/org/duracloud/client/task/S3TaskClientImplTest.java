@@ -7,33 +7,24 @@
  */
 package org.duracloud.client.task;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.client.ContentStore;
 import org.duracloud.s3storageprovider.dto.DeleteStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.DisableStreamingTaskResult;
-import org.duracloud.s3storageprovider.dto.EnableStreamingTaskParameters;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskResult;
-import org.duracloud.snapshot.SnapshotConstants;
-import org.duracloud.snapshot.dto.RestoreStatus;
-import org.duracloud.snapshot.dto.SnapshotContentItem;
-import org.duracloud.snapshot.dto.SnapshotStatus;
-import org.duracloud.snapshot.dto.SnapshotSummary;
-import org.duracloud.snapshot.dto.task.*;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 /**
  * @author Bill Branan
- *         Date: 3/5/14
+ * Date: 3/5/14
  */
 public class S3TaskClientImplTest {
 
@@ -73,7 +64,7 @@ public class S3TaskClientImplTest {
         String taskName = StorageTaskConstants.ENABLE_STREAMING_TASK_NAME;
         String streamingHost = "streaming-host";
 
-        EnableStreamingTaskResult preparedResult= new EnableStreamingTaskResult();
+        EnableStreamingTaskResult preparedResult = new EnableStreamingTaskResult();
         preparedResult.setResult(completionResult);
         preparedResult.setStreamingHost(streamingHost);
 
@@ -89,7 +80,7 @@ public class S3TaskClientImplTest {
     public void testDisableStreaming() throws Exception {
         String taskName = StorageTaskConstants.DISABLE_STREAMING_TASK_NAME;
 
-        DisableStreamingTaskResult preparedResult= new DisableStreamingTaskResult();
+        DisableStreamingTaskResult preparedResult = new DisableStreamingTaskResult();
         preparedResult.setResult(completionResult);
 
         setupMock(taskName, preparedResult.serialize());
@@ -103,7 +94,7 @@ public class S3TaskClientImplTest {
     public void testDeleteStreaming() throws Exception {
         String taskName = StorageTaskConstants.DELETE_STREAMING_TASK_NAME;
 
-        DeleteStreamingTaskResult preparedResult= new DeleteStreamingTaskResult();
+        DeleteStreamingTaskResult preparedResult = new DeleteStreamingTaskResult();
         preparedResult.setResult(completionResult);
 
         setupMock(taskName, preparedResult.serialize());
@@ -118,7 +109,7 @@ public class S3TaskClientImplTest {
         String taskName = StorageTaskConstants.GET_URL_TASK_NAME;
         String streamingUrl = "streaming-url";
 
-        GetUrlTaskResult preparedResult= new GetUrlTaskResult();
+        GetUrlTaskResult preparedResult = new GetUrlTaskResult();
         preparedResult.setStreamUrl(streamingUrl);
 
         setupMock(taskName, preparedResult.serialize());
@@ -133,7 +124,7 @@ public class S3TaskClientImplTest {
         String taskName = StorageTaskConstants.GET_SIGNED_URL_TASK_NAME;
         String signedUrl = "signed-url";
 
-        GetSignedUrlTaskResult preparedResult= new GetSignedUrlTaskResult();
+        GetSignedUrlTaskResult preparedResult = new GetSignedUrlTaskResult();
         preparedResult.setSignedUrl(signedUrl);
 
         setupMock(taskName, preparedResult.serialize());
@@ -149,7 +140,7 @@ public class S3TaskClientImplTest {
         String taskName = StorageTaskConstants.GET_SIGNED_URL_TASK_NAME;
         String signedUrl = "signed-url";
 
-        GetSignedUrlTaskResult preparedResult= new GetSignedUrlTaskResult();
+        GetSignedUrlTaskResult preparedResult = new GetSignedUrlTaskResult();
         preparedResult.setSignedUrl(signedUrl);
 
         setupMock(taskName, preparedResult.serialize());

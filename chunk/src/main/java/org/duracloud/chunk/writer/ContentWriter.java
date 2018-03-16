@@ -17,7 +17,7 @@ import org.duracloud.chunk.stream.ChunkInputStream;
 
 /**
  * @author Andrew Woods
- *         Date: Feb 5, 2010
+ * Date: Feb 5, 2010
  */
 public interface ContentWriter {
 
@@ -36,8 +36,8 @@ public interface ContentWriter {
     /**
      * This method writes the ChunkableContent to the arg space.
      *
-     * @param spaceId   destination where arg chunkable content will be written
-     * @param chunkable content to be written
+     * @param spaceId           destination where arg chunkable content will be written
+     * @param chunkable         content to be written
      * @param contentProperties user defined properties to be stored with chunkable content
      * @return ChunksManifest of written content
      * @throws NotFoundException on error
@@ -52,17 +52,17 @@ public interface ContentWriter {
      * It is intended for use when when the arg chunk is actually a complete
      * piece of content
      *
-     * @param spaceId destination where arg chunk content will be written
-     * @param chunkChecksum md5 checksum of the chunk if known, null otherwise     
-     * @param chunk   content to be written
-     * @param properties user-defined properties for the content
+     * @param spaceId       destination where arg chunk content will be written
+     * @param chunkChecksum md5 checksum of the chunk if known, null otherwise
+     * @param chunk         content to be written
+     * @param properties    user-defined properties for the content
      * @return MD5 of content
      * @throws NotFoundException on error
      */
     public String writeSingle(String spaceId,
                               String chunkChecksum,
                               ChunkInputStream chunk,
-                              Map<String,String> properties)
+                              Map<String, String> properties)
         throws NotFoundException;
 
     /**
@@ -70,10 +70,10 @@ public interface ContentWriter {
      * It is intended for use when when the arg chunk is actually a complete
      * piece of content
      *
-     * @param spaceId destination where arg chunk content will be written
-     * @param chunkChecksum md5 checksum of the chunk if known, null otherwise     
-     * @param chunk   content to be written
-     * @param properties user-defined properties for the content
+     * @param spaceId       destination where arg chunk content will be written
+     * @param chunkChecksum md5 checksum of the chunk if known, null otherwise
+     * @param chunk         content to be written
+     * @param properties    user-defined properties for the content
      * @return MD5 of content
      * @throws NotFoundException on error
      */
@@ -81,6 +81,7 @@ public interface ContentWriter {
                               String chunkChecksum,
                               ChunkInputStream chunk)
         throws NotFoundException;
+
     /**
      * This method helps with the book-keeping of which files are ignored.
      *

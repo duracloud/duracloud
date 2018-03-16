@@ -36,7 +36,7 @@ public class HomeTest extends SeleniumTestBase {
         HttpGet get = new HttpGet(getBaseURL() + "favicon.ico");
         HttpResponse response = client.execute(get);
         assertEquals(200, response.getStatusLine().getStatusCode());
-        assertTrue(response.getHeaders("Content-Type").length  == 0);
+        assertTrue(response.getHeaders("Content-Type").length == 0);
     }
 
 }

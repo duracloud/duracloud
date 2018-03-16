@@ -7,6 +7,10 @@
  */
 package org.duracloud.snapshotstorage;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
 import org.easymock.EasyMock;
@@ -15,13 +19,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author Bill Branan
- *         Date: 1/28/14
+ * Date: 1/28/14
  */
 public class SnapshotStorageProviderTest {
 

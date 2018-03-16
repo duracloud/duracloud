@@ -11,13 +11,13 @@ import org.duracloud.common.event.AccountChangeEvent;
 
 /**
  * An interface for accessing cached components associated with an account.
- * @author Daniel Bernstein
  *
  * @param <T>
+ * @author Daniel Bernstein
  */
 public interface AccountComponentCache<T> {
 
     public T get(String accountId);
-    
+
     void onEvent(AccountChangeEvent event);
 }

@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * all the unchunked items as they appear in the original manifest, 2) filtering
  * out all chunks, and 3) reading and parsing from any *.dura-manifest files the
  * checksum of the stitched file.
- * 
+ *
  * @author Daniel Bernstein Date: 08/28/2015
  */
 public class StitchedManifestGenerator {
@@ -50,32 +50,32 @@ public class StitchedManifestGenerator {
         this.store = store;
     }
 
-    public InputStream generate(String spaceId, ManifestFormat format) throws IOException  {
+    public InputStream generate(String spaceId, ManifestFormat format) throws IOException {
 
         final File stitchedManifestFile =
             File.createTempFile("stitched-manifest-" + spaceId,
                                 "." + format.name().toLowerCase());
         //download manifest and process each line.
-        try(InputStream manifest = store.getManifest(spaceId, format);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(manifest));
-            BufferedWriter writer =
-                new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stitchedManifestFile)));) {
+        try (InputStream manifest = store.getManifest(spaceId, format);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(manifest));
+             BufferedWriter writer =
+                 new BufferedWriter(new OutputStreamWriter(new FileOutputStream(stitchedManifestFile)));) {
             ManifestFormatter formatter = new ManifestFormatterFactory().create(format);
             String header = formatter.getHeader();
             String line = null;
             try {
-                while((line = reader.readLine()) != null){
+                while ((line = reader.readLine()) != null) {
                     //ignore any whitespace
-                    if(line.trim().length() == 0){
+                    if (line.trim().length() == 0) {
                         continue;
                     }
-                    
+
                     //write header if there is one.
-                    if(header != null && line.equals(header)){
+                    if (header != null && line.equals(header)) {
                         writeLine(line, writer);
                         continue;
                     }
-                    
+
                     //process the line
                     processLine(line, formatter, writer);
                 }
@@ -86,8 +86,8 @@ public class StitchedManifestGenerator {
             log.error("failed to generate stitched manifest: " + e.getMessage(), e);
             throw new IOException(e);
         }
-        
-        return  new AutoCloseInputStream(new FileInputStream(stitchedManifestFile){
+
+        return new AutoCloseInputStream(new FileInputStream(stitchedManifestFile) {
             @Override
             public void close() throws IOException {
                 super.close();
@@ -99,8 +99,7 @@ public class StitchedManifestGenerator {
     private void processLine(String line,
                              ManifestFormatter formatter,
                              BufferedWriter writer)
-                                 throws IOException,
-                                     ContentStoreException {
+        throws IOException, ContentStoreException {
         // parse manifest entry
         ManifestItem item = null;
         try {
@@ -126,7 +125,7 @@ public class StitchedManifestGenerator {
                                         ManifestFormatter formatter) throws ContentStoreException {
         String contentId = item.getContentId();
         String spaceId = item.getSpaceId();
-        
+
         //extract checksum from chunk manifest.
         Content content = store.getContent(spaceId, contentId);
         try (InputStream is = content.getStream()) {

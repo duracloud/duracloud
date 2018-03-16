@@ -10,7 +10,6 @@ package org.duracloud.chunk;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.duracloud.chunk.manifest.ChunksManifest;
@@ -25,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * size specified by maxChunkSize.
  *
  * @author Andrew Woods
- *         Date: Feb 2, 2010
+ * Date: Feb 2, 2010
  */
 public class ChunkableContent implements Iterable<ChunkInputStream>, Iterator<ChunkInputStream> {
 
@@ -95,9 +94,9 @@ public class ChunkableContent implements Iterable<ChunkInputStream>, Iterator<Ch
 
         // Find maximum block factor less than or equal to 8-KB.
         long size = maxChunkSize;
-        for(int i=1; i <= maxChunkSize; i++) {
+        for (int i = 1; i <= maxChunkSize; i++) {
             // MaxChunkSize must be divisible by buffer size
-            if((maxChunkSize % i == 0) && ((maxChunkSize / i) <= (8*KB))) {
+            if ((maxChunkSize % i == 0) && ((maxChunkSize / i) <= (8 * KB))) {
                 size = maxChunkSize / i;
                 break;
             }
@@ -107,7 +106,6 @@ public class ChunkableContent implements Iterable<ChunkInputStream>, Iterator<Ch
         return (int) size;
     }
 
-
     /**
      * This method indicates if there are any more chunks.
      *
@@ -115,7 +113,7 @@ public class ChunkableContent implements Iterable<ChunkInputStream>, Iterator<Ch
      */
     public boolean hasNext() {
         return null == currentChunk ||
-            (currentChunk.numBytesRead() + bytesRead) < contentSize;
+               (currentChunk.numBytesRead() + bytesRead) < contentSize;
     }
 
     /**
@@ -197,7 +195,7 @@ public class ChunkableContent implements Iterable<ChunkInputStream>, Iterator<Ch
 
     public ChunksManifest finalizeManifest() {
         addEntry();
-        
+
         manifest.setMD5OfSourceContent(largeStream.getMD5());
         IOUtils.closeQuietly(largeStream);
         return manifest;

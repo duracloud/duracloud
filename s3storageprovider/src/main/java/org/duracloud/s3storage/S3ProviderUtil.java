@@ -13,11 +13,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.duracloud.storage.domain.StorageAccount;
-import org.duracloud.storage.error.StorageException;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
@@ -26,6 +21,10 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3URI;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.error.StorageException;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 
 /**
  * @author: Bill Branan
@@ -36,15 +35,19 @@ public class S3ProviderUtil {
     private static Map<String, AmazonS3Client> s3Clients = new HashMap<>();
     private static Map<String, AmazonCloudFrontClient> cloudFrontClients = new HashMap<>();
 
+    private S3ProviderUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     public static AmazonS3Client getAmazonS3Client(String accessKey,
                                                    String secretKey,
                                                    Map<String, String> options) {
         AmazonS3Client client = s3Clients.get(key(accessKey, secretKey));
         if (null == client) {
-        	Region region = null;
-        	if (options != null && options.get(StorageAccount.OPTS.AWS_REGION.name()) != null) {
-    			region = com.amazonaws.services.s3.model.Region.fromValue(
-    					options.get(StorageAccount.OPTS.AWS_REGION.name())).toAWSRegion();
+            Region region = null;
+            if (options != null && options.get(StorageAccount.OPTS.AWS_REGION.name()) != null) {
+                region = com.amazonaws.services.s3.model.Region.fromValue(
+                    options.get(StorageAccount.OPTS.AWS_REGION.name())).toAWSRegion();
             }
             client = newS3Client(accessKey, secretKey, region);
             s3Clients.put(key(accessKey, secretKey), client);
@@ -57,16 +60,16 @@ public class S3ProviderUtil {
     }
 
     private static AmazonS3Client newS3Client(String accessKey,
-                                              String secretKey, 
+                                              String secretKey,
                                               com.amazonaws.regions.Region region) {
         BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey,
                                                                      secretKey);
         try {
             AmazonS3Client amazonS3Client = new AmazonS3Client(awsCredentials);
             if (region != null) {
-            	amazonS3Client.setRegion(region);
+                amazonS3Client.setRegion(region);
             }
-			return amazonS3Client;
+            return amazonS3Client;
         } catch (AmazonServiceException e) {
             String err = "Could not create connection to Amazon S3 due " +
                          "to error: " + e.getMessage();
@@ -112,7 +115,7 @@ public class S3ProviderUtil {
 
         // Remove duplicate separators (. and -)
         while (bucketName.contains("--") || bucketName.contains("..")
-                || bucketName.contains("-.") || bucketName.contains(".-")) {
+               || bucketName.contains("-.") || bucketName.contains(".-")) {
             bucketName = bucketName.replaceAll("[-]+", "-");
             bucketName = bucketName.replaceAll("[.]+", ".");
             bucketName = bucketName.replaceAll("-[.]", "-");
@@ -126,10 +129,9 @@ public class S3ProviderUtil {
             bucketName = bucketName.substring(0, bucketName.length() - 1);
         }
         return bucketName;
-    }  
+    }
 
     /**
-     * 
      * @param s3Url using the s3://bucket/object syntax.
      * @return
      * @throws IOException
@@ -139,7 +141,7 @@ public class S3ProviderUtil {
         AmazonS3URI s3Uri = new AmazonS3URI(s3Url);
         S3Object s3Obj = client.getObject(new GetObjectRequest(s3Uri.getBucket(), s3Uri.getKey()));
         s3Obj.getObjectContent();
-        Resource resource =   new InputStreamResource(s3Obj.getObjectContent());
+        Resource resource = new InputStreamResource(s3Obj.getObjectContent());
         return resource;
     }
 }

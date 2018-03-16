@@ -7,16 +7,16 @@
  */
 package org.duracloud.snapshot.dto.task;
 
-import org.duracloud.snapshot.dto.SnapshotStatus;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.duracloud.snapshot.dto.SnapshotStatus;
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 7/25/14
+ * Date: 7/25/14
  */
 public class CreateSnapshotTaskResultTest {
 
@@ -32,23 +32,22 @@ public class CreateSnapshotTaskResultTest {
         String result = taskResult.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
         assertThat(cleanResult,
-                   containsString("\"snapshotId\":\""+snapshotId+"\""));
+                   containsString("\"snapshotId\":\"" + snapshotId + "\""));
         assertThat(cleanResult,
                    containsString(
-                       "\"status\":\""+SnapshotStatus.INITIALIZED.name()+"\""));
+                       "\"status\":\"" + SnapshotStatus.INITIALIZED.name() + "\""));
     }
 
     @Test
     public void testDeserialize() {
         // Verify valid params
         String resultSerialized = "{\"snapshotId\" : \"snapshot-id\"," +
-                                    "\"status\":\"" + SnapshotStatus.INITIALIZED +"\"}";
+                                  "\"status\":\"" + SnapshotStatus.INITIALIZED + "\"}";
 
         CreateSnapshotTaskResult taskResult =
             CreateSnapshotTaskResult.deserialize(resultSerialized);
         assertEquals("snapshot-id", taskResult.getSnapshotId());
         assertEquals(SnapshotStatus.INITIALIZED, taskResult.getStatus());
     }
-
 
 }

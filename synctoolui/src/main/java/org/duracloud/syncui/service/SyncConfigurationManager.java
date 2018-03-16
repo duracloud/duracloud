@@ -7,24 +7,21 @@
  */
 package org.duracloud.syncui.service;
 
+import java.io.File;
+
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudConfiguration;
 
-import java.io.File;
-
 /**
  * Provides persist operations for configuration related operations.
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 public interface SyncConfigurationManager {
 
-    
-    long GIGABYTES = 1000*1000*1000;
+    long GIGABYTES = 1000 * 1000 * 1000;
 
     /**
-     * 
      * @param username
      * @param password
      * @param host
@@ -32,26 +29,22 @@ public interface SyncConfigurationManager {
      * @param spaceId
      */
     public void persistDuracloudConfiguration(String username,
-                                            String password,
-                                            String host,
-                                            String port,
-                                            String spaceId);
+                                              String password,
+                                              String host,
+                                              String port,
+                                              String spaceId);
 
     /**
-     * 
      * @return
      */
     public DuracloudConfiguration retrieveDuracloudConfiguration();
 
-    
     /**
-     * 
      * @return
      */
     public DirectoryConfigs retrieveDirectoryConfigs();
-    
+
     /**
-     * 
      * @return
      */
     public boolean isConfigurationComplete();
@@ -59,13 +52,13 @@ public interface SyncConfigurationManager {
     public void persistDirectoryConfigs(DirectoryConfigs configs);
 
     public void setConfigXmlPath(String configXml);
-    
+
     public void persist();
 
     public void purgeWorkDirectory();
-    
+
     public void setSyncDeletes(boolean flag);
-    
+
     public boolean isSyncDeletes();
 
     public boolean isSyncUpdates();
@@ -83,21 +76,21 @@ public interface SyncConfigurationManager {
     public String getPrefix();
 
     public void setPrefix(String prefix);
-    
+
     public int getThreadCount();
-    
+
     public void setThreadCount(int threadCount);
 
     public void setJumpStart(boolean jumpStart);
 
     public boolean isJumpStart();
-    
+
     public void setMode(RunMode mode);
-    
+
     public RunMode getMode();
 
     public long getMaxFileSizeInBytes();
-    
+
     public void setMaxFileSizeInBytes(long maxFileSize);
-    
+
 }

@@ -1,52 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-    <bean name="jsonView" class="org.springframework.web.servlet.view.json.JsonView">
-	    <property name="encoding"><value>UTF-8</value></property>
-	    <property name="contentType"><value>application/json</value></property>
-	    <property name="jsonWriter"><ref bean="jsonlibJsonWriterWithDates"/></property>
-    	<property name="jsonErrors">
-	    	<list>
-	        	<ref bean="modelflagError" />
-	        </list>
-        </property>
-    </bean>
-    <!-- 
-    	I added this second json view entry, which differs from the above only in contentType, due to a problem
-    	I was running into with the file upload process. In short, using when performing an ajaxSubmit of a form
-    	the response was sending back content as application/json as expected.  Safari and Chrome handle it correctly
-    	but firefox does not. Unable to understand application/json, it opens a download dialog.
-     -->
-    <bean name="javascriptJsonView" class="org.springframework.web.servlet.view.json.JsonView">
-	    <property name="encoding"><value>UTF-8</value></property>
-	    <property name="contentType"><value>text/plain</value></property>
-	    <property name="jsonWriter"><ref bean="jsonlibJsonWriterWithDates"/></property>
-    	<property name="jsonErrors">
-	    	<list>
-	        	<ref bean="modelflagError" />
-	        </list>
-        </property>
-    </bean>
+  <bean name="jsonView" class="org.springframework.web.servlet.view.json.JsonView">
+    <property name="encoding">
+      <value>UTF-8</value>
+    </property>
+    <property name="contentType">
+      <value>application/json</value>
+    </property>
+    <property name="jsonWriter">
+      <ref bean="jsonlibJsonWriterWithDates"/>
+    </property>
+    <property name="jsonErrors">
+      <list>
+        <ref bean="modelflagError"/>
+      </list>
+    </property>
+  </bean>
+  <!--
+    I added this second json view entry, which differs from the above only in contentType, due to a problem
+    I was running into with the file upload process. In short, using when performing an ajaxSubmit of a form
+    the response was sending back content as application/json as expected.  Safari and Chrome handle it correctly
+    but firefox does not. Unable to understand application/json, it opens a download dialog.
+   -->
+  <bean name="javascriptJsonView" class="org.springframework.web.servlet.view.json.JsonView">
+    <property name="encoding">
+      <value>UTF-8</value>
+    </property>
+    <property name="contentType">
+      <value>text/plain</value>
+    </property>
+    <property name="jsonWriter">
+      <ref bean="jsonlibJsonWriterWithDates"/>
+    </property>
+    <property name="jsonErrors">
+      <list>
+        <ref bean="modelflagError"/>
+      </list>
+    </property>
+  </bean>
 
-	<!-- New jsonlib string writer that supports parsing java.util.Date as long (epoch time) instead of using toString() 
+  <!-- New jsonlib string writer that supports parsing java.util.Date as long (epoch time) instead of using toString()
                 -Gad
          -->
-    <bean name="jsonlibJsonWriterWithDates" class="org.duracloud.duradmin.util.JsonlibJsonStringWriterWithDates">
-        <property name="convertAllMapValues"><value>true</value></property>
-        <property name="keepNullProperties"><value>true</value></property>
-    </bean>
+  <bean name="jsonlibJsonWriterWithDates" class="org.duracloud.duradmin.util.JsonlibJsonStringWriterWithDates">
+    <property name="convertAllMapValues">
+      <value>true</value>
+    </property>
+    <property name="keepNullProperties">
+      <value>true</value>
+    </property>
+  </bean>
 
-	<bean name="modelflagError" class="org.springframework.web.servlet.view.json.error.ModelFlagError">
-      <property name="name"><value>failure</value></property>
-      <property name="value"><value>true</value></property>
-	</bean>
-  
-    <bean name="statusError" class="org.springframework.web.servlet.view.json.error.HttpStatusError">
-      <property name="errorCode"><value>500</value></property>
-    </bean>
-  
+  <bean name="modelflagError" class="org.springframework.web.servlet.view.json.error.ModelFlagError">
+    <property name="name">
+      <value>failure</value>
+    </property>
+    <property name="value">
+      <value>true</value>
+    </property>
+  </bean>
+
+  <bean name="statusError" class="org.springframework.web.servlet.view.json.error.HttpStatusError">
+    <property name="errorCode">
+      <value>500</value>
+    </property>
+  </bean>
+
 </beans>

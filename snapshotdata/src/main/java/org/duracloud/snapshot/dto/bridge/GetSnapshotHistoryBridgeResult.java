@@ -9,7 +9,6 @@ package org.duracloud.snapshot.dto.bridge;
 
 import java.io.IOException;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlValue;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
@@ -19,7 +18,7 @@ import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * @author Gad Krumholz
- *         Date: 6/23/15
+ * Date: 6/23/15
  */
 public class GetSnapshotHistoryBridgeResult extends BaseDTO {
 
@@ -38,7 +37,7 @@ public class GetSnapshotHistoryBridgeResult extends BaseDTO {
     public void setHistoryItems(List<SnapshotHistoryItem> historyItems) {
         this.historyItems = historyItems;
     }
-    
+
     public Long getTotalCount() {
         return totalCount;
     }
@@ -57,7 +56,7 @@ public class GetSnapshotHistoryBridgeResult extends BaseDTO {
             new JaxbJsonSerializer<>(GetSnapshotHistoryBridgeResult.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException("Unable to create bridge result due to: " +
                                             e.getMessage());
         }
@@ -73,7 +72,7 @@ public class GetSnapshotHistoryBridgeResult extends BaseDTO {
             new JaxbJsonSerializer<>(GetSnapshotHistoryBridgeResult.class);
         try {
             return serializer.deserialize(bridgeResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to deserialize result due to: " + e.getMessage());
         }

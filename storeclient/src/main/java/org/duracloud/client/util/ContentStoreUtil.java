@@ -7,6 +7,11 @@
  */
 package org.duracloud.client.util;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.error.DuraCloudRuntimeException;
@@ -15,14 +20,9 @@ import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-
 /**
  * @author Andrew Woods
- *         Date: 6/8/11
+ * Date: 6/8/11
  */
 public class ContentStoreUtil {
     private final Logger log = LoggerFactory.getLogger(ContentStoreUtil.class);
@@ -110,9 +110,9 @@ public class ContentStoreUtil {
             sb.append(file.getPath());
             log.error(sb.toString());
             throw new DuraCloudRuntimeException(sb.toString(), e);
-        }        
+        }
     }
-    
+
     public void storeContentStream(File file,
                                    String spaceId,
                                    String contentId) {

@@ -13,7 +13,6 @@ import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletResponse;
 
 import org.duracloud.client.ContentStore;
@@ -34,9 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * 
  * @author "Daniel Bernstein (dbernstein@duraspace.org)"
- * 
  */
 @Controller
 @RequestMapping("/servicesreport")
@@ -49,46 +46,41 @@ public class ServiceReportController {
         this.contentStoreManager = contentStoreManager;
     }
 
-    @RequestMapping(value="/htmltable")
+    @RequestMapping(value = "/htmltable")
     public ModelAndView getReportAsHtmlTable(HttpServletResponse response,
-            @RequestParam(required=false, value="storeId" ) String storeId,            
-            @RequestParam(required=true, value="spaceId" ) String spaceId)
+                                             @RequestParam(required = false, value = "storeId") String storeId,
+                                             @RequestParam(required = true, value = "spaceId") String spaceId)
 
-                throws ContentStoreException, IOException {
-       
+        throws ContentStoreException, IOException {
+
         ContentStore store = contentStoreManager.getPrimaryContentStore();
-        
-        if(storeId != null){
+
+        if (storeId != null) {
             store = contentStoreManager.getContentStore(storeId);
         }
-        
+
         BitIntegrityReport report = store.getBitIntegrityReport(spaceId);
         BitIntegrityReportProperties props = report.getProperties();
         BufferedReader reader = new BufferedReader(new InputStreamReader(report.getStream()));
-        
+
         //defaults to tab separated parser
         LineParsingIterator iterator = new LineParsingIterator(reader);
         ModelAndView mav = new ModelAndView("simple-report");
         mav.addObject("title", "Report: " + spaceId + " as of " + props.getCompletionDate());
         mav.addObject("data", iterator);
-        mav.addObject("reportLink", "/duradmin/servicesreport/raw?"+
-                                    "spaceId=" + spaceId + 
-                                    (storeId != null ? "&storeId="+storeId : "") +
+        mav.addObject("reportLink", "/duradmin/servicesreport/raw?" +
+                                    "spaceId=" + spaceId +
+                                    (storeId != null ? "&storeId=" + storeId : "") +
                                     "&attachment=true");
-        
+
         return mav;
     }
 
+    @RequestMapping(value = "/info")
+    public ModelAndView getInfo(@RequestParam(required = false, value = "storeId") String storeId,
+                                @RequestParam(required = true, value = "spaceId") String spaceId)
 
-    @RequestMapping(value="/info")
-    public ModelAndView
-        getInfo(@RequestParam(required = false, value = "storeId") String storeId,
-                @RequestParam(required = true, value = "spaceId") String spaceId)
-
-            throws 
-                NotFoundException,
-                ContentStoreException,
-                IOException {
+        throws NotFoundException, ContentStoreException, IOException {
 
         ContentStore store = contentStoreManager.getPrimaryContentStore();
 
@@ -100,15 +92,14 @@ public class ServiceReportController {
 
         long size = props.getSize();
         Map<String, String> fileInfo = new HashMap<String, String>();
-        fileInfo.put("size", size+"");
+        fileInfo.put("size", size + "");
         return new ModelAndView("jsonView", "fileInfo", fileInfo);
     }
-    
+
     @RequestMapping(value = "/raw", method = RequestMethod.GET)
-    public ModelAndView
-        getRaw(@RequestParam(required = false, value = "storeId") String storeId,
-               @RequestParam(required = true, value = "spaceId") String spaceId,
-               HttpServletResponse response) throws Exception {
+    public ModelAndView getRaw(@RequestParam(required = false, value = "storeId") String storeId,
+                               @RequestParam(required = true, value = "spaceId") String spaceId,
+                               HttpServletResponse response) throws Exception {
 
         ContentStore store = contentStoreManager.getContentStore(storeId);
         BitIntegrityReport report = store.getBitIntegrityReport(spaceId);

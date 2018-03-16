@@ -7,17 +7,17 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
+import java.io.IOException;
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
-import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
-
 /**
  * @author Bill Branan
- *         Date: 7/24/14
+ * Date: 7/24/14
  */
 public class CreateSnapshotBridgeResult extends BaseDTO {
 
@@ -68,7 +68,7 @@ public class CreateSnapshotBridgeResult extends BaseDTO {
             new JaxbJsonSerializer<>(CreateSnapshotBridgeResult.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException("Unable to create task result due to: " +
                                             e.getMessage());
         }
@@ -84,7 +84,7 @@ public class CreateSnapshotBridgeResult extends BaseDTO {
             new JaxbJsonSerializer<>(CreateSnapshotBridgeResult.class);
         try {
             return serializer.deserialize(bridgeResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task result due to: " + e.getMessage());
         }

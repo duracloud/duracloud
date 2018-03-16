@@ -7,14 +7,14 @@
  */
 package org.duracloud.storage.provider;
 
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.common.model.AclType;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
-
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.List;
 
 public interface StatelessStorageProvider {
 
@@ -29,7 +29,7 @@ public interface StatelessStorageProvider {
                                       long contentSize,
                                       String contentChecksum,
                                       InputStream content)
-            throws StorageException;
+        throws StorageException;
 
     public String copyContent(StorageProvider targetProvider,
                               String storeId,
@@ -37,41 +37,41 @@ public interface StatelessStorageProvider {
                               String sourceContentId,
                               String destSpaceId,
                               String destContentId)
-            throws StorageException;
+        throws StorageException;
 
     public abstract void createSpace(StorageProvider targetProvider,
                                      String storeId,
                                      String spaceId)
-            throws StorageException;
+        throws StorageException;
 
     public abstract void deleteContent(StorageProvider targetProvider,
                                        String storeId,
                                        String spaceId,
                                        String contentId)
-            throws StorageException;
+        throws StorageException;
 
     public abstract void deleteSpace(StorageProvider targetProvider,
                                      String storeId,
                                      String spaceId)
-            throws StorageException;
+        throws StorageException;
 
     public abstract InputStream getContent(StorageProvider targetProvider,
                                            String storeId,
                                            String spaceId,
                                            String contentId)
-            throws StorageException;
+        throws StorageException;
 
     public abstract Map<String, String> getContentProperties(StorageProvider targetProvider,
                                                              String storeId,
                                                              String spaceId,
                                                              String contentId)
-            throws StorageException;
+        throws StorageException;
 
     public abstract Iterator<String> getSpaceContents(StorageProvider targetProvider,
                                                       String storeId,
                                                       String spaceId,
                                                       String prefix)
-            throws StorageException;
+        throws StorageException;
 
     public List<String> getSpaceContentsChunked(StorageProvider targetProvider,
                                                 String storeId,
@@ -79,12 +79,12 @@ public interface StatelessStorageProvider {
                                                 String prefix,
                                                 long maxResults,
                                                 String marker)
-            throws StorageException;
+        throws StorageException;
 
     public abstract Map<String, String> getSpaceProperties(StorageProvider targetProvider,
                                                            String storeId,
                                                            String spaceId)
-            throws StorageException;
+        throws StorageException;
 
     public abstract Map<String, AclType> getSpaceACLs(StorageProvider targetProvider,
                                                       String storeId,
@@ -93,14 +93,14 @@ public interface StatelessStorageProvider {
 
     public abstract Iterator<String> getSpaces(StorageProvider targetProvider,
                                                String storeId)
-            throws StorageException;
+        throws StorageException;
 
     public abstract void setContentProperties(StorageProvider targetProvider,
                                               String storeId,
                                               String spaceId,
                                               String contentId,
                                               Map<String, String> contentProperties)
-            throws StorageException;
+        throws StorageException;
 
     public abstract void setSpaceACLs(StorageProvider targetProvider,
                                       String storeId,

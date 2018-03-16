@@ -21,7 +21,6 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.ProtectionDomain;
-
 import javax.imageio.ImageIO;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -45,12 +44,16 @@ public class SyncUIDriver {
     private final static Logger log =
         LoggerFactory.getLogger(org.duracloud.syncui.SyncUIDriver.class);
 
+    private SyncUIDriver() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     public static void main(String[] args) throws Exception {
         String url = "http://localhost:" + SyncUIConfig.getPort() +
                      SyncUIConfig.getContextPath();
         CloseableHttpClient client = HttpClients.createDefault();
 
-        if(isAppRunning(url, client)) {
+        if (isAppRunning(url, client)) {
             log.info("Sync Application already running, launching browser...");
             launchBrowser(url);
         } else {
@@ -81,7 +84,7 @@ public class SyncUIDriver {
             port = SyncUIConfig.getPort();
             contextPath = SyncUIConfig.getContextPath();
             Server srv = new Server(port);
-            
+
             ProtectionDomain protectionDomain =
                 org.duracloud.syncui.SyncUIDriver.class.getProtectionDomain();
             String warFile =
@@ -103,7 +106,7 @@ public class SyncUIDriver {
                         }
 
                         sleep(2000);
-                        if(isAppRunning(url, client)) {
+                        if (isAppRunning(url, client)) {
                             break;
                         }
                     }
@@ -132,7 +135,7 @@ public class SyncUIDriver {
         try {
             response = client.execute(get);
             responseCode = response.getStatusLine().getStatusCode();
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.debug("Attempt to connect to synctool app at url " + url +
                       " failed due to: " + e.getMessage());
             responseCode = 0;
@@ -144,7 +147,8 @@ public class SyncUIDriver {
     private static void sleep(int millis) {
         try {
             Thread.sleep(2000);
-        } catch(InterruptedException e) {
+        } catch (InterruptedException e) {
+            // Exit sleep on interruption
         }
     }
 
@@ -155,8 +159,9 @@ public class SyncUIDriver {
             if (SystemTray.isSupported()) {
 
                 SystemTray tray = SystemTray.getSystemTray();
-                InputStream is =  org.duracloud.syncui.SyncUIDriver.class.getClassLoader().getResourceAsStream("tray.png");
-                
+                InputStream is =
+                    org.duracloud.syncui.SyncUIDriver.class.getClassLoader().getResourceAsStream("tray.png");
+
                 Image image = ImageIO.read(is);
                 MouseListener mouseListener = new MouseListener() {
 
@@ -186,13 +191,13 @@ public class SyncUIDriver {
                         log.info("Exiting...");
                         try {
                             srv.stop();
-                            while(!srv.isStopped()){
+                            while (!srv.isStopped()) {
                                 WaitUtil.wait(1);
                             }
                         } catch (Exception e1) {
                             e1.printStackTrace();
                         }
-                        
+
                         System.exit(0);
                     }
                 };

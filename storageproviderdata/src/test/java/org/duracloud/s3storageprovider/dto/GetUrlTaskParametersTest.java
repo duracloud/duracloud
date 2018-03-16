@@ -7,15 +7,17 @@
  */
 package org.duracloud.s3storageprovider.dto;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.junit.matchers.JUnitMatchers.containsString;
+
 import org.duracloud.error.TaskDataException;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
-
 /**
  * @author Bill Branan
- *         Date: 3/23/15
+ * Date: 3/23/15
  */
 public class GetUrlTaskParametersTest {
 
@@ -33,18 +35,18 @@ public class GetUrlTaskParametersTest {
 
         String result = taskParams.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId+"\""));
-        assertThat(cleanResult, containsString("\"contentId\":\""+contentId+"\""));
-        assertThat(cleanResult, containsString("\"resourcePrefix\":\""+resourcePrefix+"\""));
+        assertThat(cleanResult, containsString("\"spaceId\":\"" + spaceId + "\""));
+        assertThat(cleanResult, containsString("\"contentId\":\"" + contentId + "\""));
+        assertThat(cleanResult, containsString("\"resourcePrefix\":\"" + resourcePrefix + "\""));
     }
 
     @Test
     public void testDeserialize() {
         // Verify valid params
         String taskParamsSerialized =
-            "{\"spaceId\" : \""+spaceId+"\"," +
-            " \"contentId\" : \""+contentId+"\"," +
-            " \"resourcePrefix\" : \""+resourcePrefix+"\"}";
+            "{\"spaceId\" : \"" + spaceId + "\"," +
+            " \"contentId\" : \"" + contentId + "\"," +
+            " \"resourcePrefix\" : \"" + resourcePrefix + "\"}";
 
         GetUrlTaskParameters taskParams =
             GetUrlTaskParameters.deserialize(taskParamsSerialized);
@@ -61,14 +63,16 @@ public class GetUrlTaskParametersTest {
         try {
             GetUrlTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
-        } catch(TaskDataException e) {
+        } catch (TaskDataException e) {
+            // Expected exception
         }
 
         // Verify that empty params throw
         try {
             GetUrlTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
-        } catch(TaskDataException e) {
+        } catch (TaskDataException e) {
+            // Expected exception
         }
     }
 

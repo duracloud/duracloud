@@ -12,6 +12,10 @@ import java.io.IOException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Calendar;
 
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
+import com.amazonaws.services.cloudfront.util.SignerUtils;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.s3storage.S3ProviderUtil;
@@ -24,11 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
-import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
-import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
-import com.amazonaws.services.cloudfront.util.SignerUtils;
-
 /**
  * Retrieves a signed URL for a media file that is streamed through
  * Amazon Cloudfront via a secure distribution
@@ -36,7 +35,7 @@ import com.amazonaws.services.cloudfront.util.SignerUtils;
  * @author: Bill Branan
  * Date: 3/9/2015
  */
-public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
+public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner {
 
     public static final int DEFAULT_MINUTES_TO_EXPIRE = 480;
 
@@ -74,13 +73,13 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
         String resourcePrefix = taskParams.getResourcePrefix();
         String ipAddress = taskParams.getIpAddress();
         int minutesToExpire = taskParams.getMinutesToExpire();
-        if(minutesToExpire <= 0) {
+        if (minutesToExpire <= 0) {
             minutesToExpire = DEFAULT_MINUTES_TO_EXPIRE;
         }
 
-        log.info("Performing " + TASK_NAME + " task with parameters: spaceId="+spaceId+
-                 ", contentId="+contentId+", resourcePrefix="+resourcePrefix+
-                 ", minutesToExpire="+minutesToExpire+", ipAddress="+ipAddress);
+        log.info("Performing " + TASK_NAME + " task with parameters: spaceId=" + spaceId +
+                 ", contentId=" + contentId + ", resourcePrefix=" + resourcePrefix +
+                 ", minutesToExpire=" + minutesToExpire + ", ipAddress=" + ipAddress);
 
         // Will throw if bucket does not exist
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
@@ -94,19 +93,19 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
             getExistingDistribution(bucketName);
         if (null == existingDist) {
             throw new UnsupportedTaskException(TASK_NAME,
-                "The " + TASK_NAME + " task can only be used after a space " +
-                "has been configured to enable secure streaming. Use " +
-                StorageTaskConstants.ENABLE_STREAMING_TASK_NAME +
-                " to enable secure streaming on this space.");
+                                               "The " + TASK_NAME + " task can only be used after a space " +
+                                               "has been configured to enable secure streaming. Use " +
+                                               StorageTaskConstants.ENABLE_STREAMING_TASK_NAME +
+                                               " to enable secure streaming on this space.");
         }
         String domainName = existingDist.getDomainName();
 
         // Verify that this is a secure distribution
         if (existingDist.getTrustedSigners().getItems().isEmpty()) {
             throw new UnsupportedTaskException(TASK_NAME,
-                "The " + TASK_NAME + " task cannot be used to request a " +
-                "stream from an open distribution. Use " +
-                StorageTaskConstants.GET_URL_TASK_NAME + " instead.");
+                                               "The " + TASK_NAME + " task cannot be used to request a " +
+                                               "stream from an open distribution. Use " +
+                                               StorageTaskConstants.GET_URL_TASK_NAME + " instead.");
         }
 
         // Make sure resourcePrefix is a valid string
@@ -119,7 +118,7 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
         expireCalendar.add(Calendar.MINUTE, minutesToExpire);
 
         try {
-            
+
             File cfKeyPathFile = getCfKeyPathFile(this.cfKeyPath);
             String signedUrl =
                 CloudFrontUrlSigner.getSignedURLWithCustomPolicy(
@@ -133,29 +132,29 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
                     ipAddress);
             taskResult.setSignedUrl("rtmp://" + domainName + "/cfx/st/" +
                                     resourcePrefix + signedUrl);
-        } catch(InvalidKeySpecException | IOException e) {
+        } catch (InvalidKeySpecException | IOException e) {
             throw new RuntimeException("Error encountered attempting to sign URL for" +
                                        " task " + TASK_NAME + ": " + e.getMessage(), e);
         }
-        
+
         String toReturn = taskResult.serialize();
         log.info("Result of " + TASK_NAME + " task: " + toReturn);
         return toReturn;
     }
 
     private File getCfKeyPathFile(String cfKeyPath) throws IOException {
-        if(this.cfKeyPath.startsWith("s3://")){
+        if (this.cfKeyPath.startsWith("s3://")) {
             File keyFile = new File(System.getProperty("java.io.tmpdir"),
-                     "cloudfront-key.der");
-            if(!keyFile.exists()){
-                Resource resource =   S3ProviderUtil.getS3ObjectByUrl(this.cfKeyPath);
+                                    "cloudfront-key.der");
+            if (!keyFile.exists()) {
+                Resource resource = S3ProviderUtil.getS3ObjectByUrl(this.cfKeyPath);
                 File tmpFile = IOUtil.writeStreamToFile(resource.getInputStream());
                 tmpFile.renameTo(keyFile);
                 keyFile.deleteOnExit();
             }
-            
+
             return keyFile;
-        }else{
+        } else {
             return new File(this.cfKeyPath);
         }
     }

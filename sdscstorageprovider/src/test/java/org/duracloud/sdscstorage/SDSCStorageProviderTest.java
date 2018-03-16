@@ -7,6 +7,8 @@
  */
 package org.duracloud.sdscstorage;
 
+import static org.junit.Assert.assertEquals;
+
 import junit.framework.Assert;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.easymock.EasyMock;
@@ -15,11 +17,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Andrew Woods
- *         Date: 6/6/12
+ * Date: 6/6/12
  */
 public class SDSCStorageProviderTest {
 

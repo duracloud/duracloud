@@ -7,20 +7,21 @@
  */
 package org.duracloud.sync.monitor;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertEquals;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.duracloud.sync.SyncTestBase;
 import org.duracloud.sync.mgmt.ChangedFile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author: Bill Branan
@@ -40,7 +41,7 @@ public class DirectoryUpdateMonitorTest extends SyncTestBase {
     public void tearDown() throws Exception {
         super.tearDown();
         FileUtils.deleteDirectory(tempDir);
-    }    
+    }
 
     @Test
     public void testDirectoryUpdateMonitor() throws Exception {
@@ -67,7 +68,7 @@ public class DirectoryUpdateMonitorTest extends SyncTestBase {
 
         monitor.stopMonitor();
     }
-    
+
     @Test
     public void testDirectoryUpdateMonitorWithASingleFile() throws Exception {
         List<File> dirs = new ArrayList<File>();
@@ -79,7 +80,7 @@ public class DirectoryUpdateMonitorTest extends SyncTestBase {
         DirectoryUpdateMonitor monitor =
             new DirectoryUpdateMonitor(dirs, 100, true);
         monitor.startMonitor();
-        
+
         Thread.sleep(1000);
         assertNull(changedList.reserve());
 

@@ -7,11 +7,15 @@
  */
 package org.duracloud.durastore.rest;
 
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -25,14 +29,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 /**
  * @author Bill Branan
- *         Date: Sep 10, 2010
+ * Date: Sep 10, 2010
  */
 public class ContentRestTest {
 
@@ -50,7 +49,6 @@ public class ContentRestTest {
     private static final String destContentId = "destContentId";
     private static final String storeId = "0";
     private static final String copySource = srcSpaceId + "/" + srcContentId;
-
 
     @Before
     public void setUp() {
@@ -161,7 +159,7 @@ public class ContentRestTest {
         response = contentRest.addContentPropertiesToResponse(Response.ok(), props);
         assertHeaderMissing(response, HttpHeaders.DATE);
         assertHeaderMissing(response, HttpHeaders.CONNECTION);
-        
+
         // Verify standard http headers are passed through
         String age = "age";
         String cacheControl = "cachecontrol";
@@ -192,7 +190,7 @@ public class ContentRestTest {
         props.put(HttpHeaders.TRANSFER_ENCODING, transferEncoding);
         props.put(HttpHeaders.UPGRADE, upgrade);
         props.put(HttpHeaders.WARNING, warning);
-        
+
         response = contentRest.addContentPropertiesToResponse(Response.ok(), props);
         assertEquals(age, getHeader(response, HttpHeaders.AGE));
         assertEquals(cacheControl, getHeader(response, HttpHeaders.CACHE_CONTROL));
@@ -229,13 +227,13 @@ public class ContentRestTest {
         assertHeaderMissing(response, StorageProvider.PROPERTIES_CONTENT_CHECKSUM);
 
         // Verify only one value for each header
-        for(String headerName : response.getMetadata().keySet()) {
+        for (String headerName : response.getMetadata().keySet()) {
             assertEquals(1, response.getMetadata().get(headerName).size());
         }
     }
 
     private String getHeader(Response response, String headerName) {
-        return (String)response.getMetadata().get(headerName).get(0);
+        return (String) response.getMetadata().get(headerName).get(0);
     }
 
     private void assertHeaderMissing(Response response, String headerName) {
@@ -290,7 +288,7 @@ public class ContentRestTest {
     private void createCopyContentMocks() throws Exception {
         // request content
         EasyMock.expect(restUtil.getRequestContent(request, httpHeaders))
-            .andReturn(null);
+                .andReturn(null);
 
         // uriInfo
         EasyMock.expect(uriInfo.getRequestUri()).andReturn(new URI(
@@ -308,12 +306,12 @@ public class ContentRestTest {
     private void createCopyContentMocksError() throws Exception {
         RestUtil.RequestContent content = EasyMock.createMock("RequestContent",
                                                               RestUtil.RequestContent.class);
-        
+
         EasyMock.expect(content.getSize()).andReturn(5l).times(2);
         EasyMock.replay(content);
 
         EasyMock.expect(restUtil.getRequestContent(request, httpHeaders))
-            .andReturn(content);
+                .andReturn(content);
     }
 
 }

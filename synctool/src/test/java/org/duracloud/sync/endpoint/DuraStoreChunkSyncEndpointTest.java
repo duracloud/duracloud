@@ -7,16 +7,15 @@
  */
 package org.duracloud.sync.endpoint;
 
-import static org.duracloud.chunk.manifest.ChunksManifest.*;
-import static org.junit.Assert.*;
+import static org.duracloud.chunk.manifest.ChunksManifest.chunkSuffix;
+import static org.duracloud.chunk.manifest.ChunksManifest.manifestSuffix;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -128,7 +127,6 @@ public class DuraStoreChunkSyncEndpointTest {
         setEndpoint(maxFileSize);
     }
 
-
     @Test
     public void testAddUpdateFile() throws Exception {
         String contentId = "contentId";
@@ -172,12 +170,12 @@ public class DuraStoreChunkSyncEndpointTest {
 
     @Test
     public void testAddUpdate3MBFileWith1MBChunksSingleThreaded() throws Exception {
-        testAddChunkedFile(3, 1000*1000, 1);
+        testAddChunkedFile(3, 1000 * 1000, 1);
     }
 
     @Test
     public void testAddUpdateChunksMultiThreaded() throws Exception {
-        testAddChunkedFile(10, 1* 1000 * 1000, 40);
+        testAddChunkedFile(10, 1 * 1000 * 1000, 40);
     }
 
     // /**
@@ -204,8 +202,7 @@ public class DuraStoreChunkSyncEndpointTest {
                 .andReturn(new HashMap<String, AclType>())
                 .anyTimes();
         int fileSize = chunkCount * chunkSize;
-        int fileCount = (chunkCount + 1)*threadCount;
-
+        int fileCount = (chunkCount + 1) * threadCount;
 
         final Capture<InputStream> isCapture = EasyMock.newCapture();
         final Capture<String> checksumCapture = EasyMock.newCapture();
@@ -220,7 +217,7 @@ public class DuraStoreChunkSyncEndpointTest {
                 .andAnswer(new IAnswer<String>() {
                     @Override
                     public String answer() throws Throwable {
-                        try (InputStream is = isCapture.getValue()){
+                        try (InputStream is = isCapture.getValue()) {
                             ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
                             String checksum = util.generateChecksum(is);
                             IOUtils.closeQuietly(is);
@@ -236,7 +233,6 @@ public class DuraStoreChunkSyncEndpointTest {
                     }
                 }).times(fileCount);
 
-
         EasyMock.expect(contentStore.contentExists(EasyMock.eq(spaceId),
                                                    EasyMock.eq(contentId)))
                 .andReturn(false)
@@ -245,35 +241,34 @@ public class DuraStoreChunkSyncEndpointTest {
         EasyMock.expect(contentStore.contentExists(EasyMock.eq(spaceId),
                                                    EasyMock.isA(String.class)))
                 .andReturn(false)
-                .times(chunkCount*threadCount);
-
+                .times(chunkCount * threadCount);
 
         // setup file
-        File contentFile  = IOUtil.writeStreamToFile(new ByteArrayInputStream(new byte[fileSize]));
+        File contentFile = IOUtil.writeStreamToFile(new ByteArrayInputStream(new byte[fileSize]));
         contentFile.deleteOnExit();
         replayMocks();
         setEndpoint(chunkSize);
 
         CountDownLatch latch = new CountDownLatch(threadCount);
         AtomicInteger successes = new AtomicInteger(0);
-        for(int i = 0; i < threadCount; i++){
-            new Thread(new Runnable(){
+        for (int i = 0; i < threadCount; i++) {
+            new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         endpoint.addUpdateContent(contentId, new MonitoredFile(contentFile));
                         successes.incrementAndGet();
-                    }catch(Exception ex){
+                    } catch (Exception ex) {
                         ex.printStackTrace();
                     }
-                    
+
                     latch.countDown();
 
                 }
             }).start();
-            
+
         }
-        
+
         assertTrue(latch.await(10, TimeUnit.SECONDS));
         assertEquals(threadCount, successes.get());
     }

@@ -7,15 +7,15 @@
  */
 package org.duracloud.s3storageprovider.dto;
 
+import java.io.IOException;
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.error.TaskDataException;
 
-import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
-
 /**
  * @author Bill Branan
- *         Date: 09/25/2015
+ * Date: 09/25/2015
  */
 public class SetStoragePolicyTaskResult {
 
@@ -23,7 +23,8 @@ public class SetStoragePolicyTaskResult {
     private String result;
 
     // Required by JAXB
-    public SetStoragePolicyTaskResult() {}
+    public SetStoragePolicyTaskResult() {
+    }
 
     public SetStoragePolicyTaskResult(String result) {
         this.result = result;
@@ -47,7 +48,7 @@ public class SetStoragePolicyTaskResult {
             new JaxbJsonSerializer<>(SetStoragePolicyTaskResult.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new TaskDataException(
                 "Unable to create task result due to: " + e.getMessage());
         }
@@ -63,10 +64,10 @@ public class SetStoragePolicyTaskResult {
             new JaxbJsonSerializer<>(SetStoragePolicyTaskResult.class);
         try {
             return serializer.deserialize(taskResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new TaskDataException(
                 "Unable to create task result due to: " + e.getMessage());
         }
     }
-    
+
 }

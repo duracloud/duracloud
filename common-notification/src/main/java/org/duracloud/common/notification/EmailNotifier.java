@@ -7,15 +7,15 @@
  */
 package org.duracloud.common.notification;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.duracloud.notification.AmazonNotificationFactory;
 import org.duracloud.notification.Emailer;
 import org.duracloud.notification.NotificationFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Notifier which pushes notifications out via email.
@@ -37,17 +37,21 @@ public class EmailNotifier implements Notifier {
                            notificationConfig.getPassword());
         emailer = factory.getEmailer(notificationConfig.getOriginator());
         adminEmails = notificationConfig.getAdmins();
-        if(null == adminEmails) {
+        if (null == adminEmails) {
             adminEmails = new ArrayList<String>();
         }
     }
 
-    /** Intended for testing only */
+    /**
+     * Intended for testing only
+     */
     protected void setEmailer(Emailer emailer) {
         this.emailer = emailer;
     }
 
-    /** Intended for testing only */
+    /**
+     * Intended for testing only
+     */
     protected void setAdminEmails(List<String> adminEmails) {
         this.adminEmails = adminEmails;
     }
@@ -63,7 +67,7 @@ public class EmailNotifier implements Notifier {
 
         log.debug("Sending email to " + Arrays.toString(emailAddrs) +
                   " with subject: [" + subject +
-                  "] and message: [" +  message + "]");
+                  "] and message: [" + message + "]");
 
         emailer.send(subject, message, emailAddrs);
     }
@@ -74,7 +78,7 @@ public class EmailNotifier implements Notifier {
 
         log.debug("Sending email to " + adminEmails.size() +
                   " administrators with subject: [" + subject +
-                  "] and message: [" +  message + "]");
+                  "] and message: [" + message + "]");
 
         emailer.send(subject,
                      message,
@@ -82,7 +86,7 @@ public class EmailNotifier implements Notifier {
     }
 
     private void checkInitialized() {
-        if(null == emailer) {
+        if (null == emailer) {
             throw new RuntimeException("The Email Notifier must be " +
                                        "initialized prior to use!");
         }

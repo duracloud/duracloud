@@ -25,9 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 @Component("syncConfigurationManager")
 public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
@@ -88,7 +86,7 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         this.syncToolConfig.setPassword(password);
         this.syncToolConfig.setHost(host);
         this.syncToolConfig.setPort(Integer.parseInt(port));
-        
+
         this.syncToolConfig.setSpaceId(spaceId);
         persistSyncToolConfig();
 
@@ -147,12 +145,12 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
 
     @Override
     public void setConfigXmlPath(String configXml) {
-        if(this.configXmlPath != configXml){
+        if (this.configXmlPath != configXml) {
             this.configXmlPath = configXml;
             initializeSyncToolConfig();
         }
         log.info("xml config path set to {}", this.configXmlPath);
-        
+
     }
 
     @Override
@@ -169,38 +167,37 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     public void purgeWorkDirectory() {
         try {
             FileUtils.cleanDirectory(SyncUIConfig.getWorkDir());
-        } catch(IOException e) {
-            log.error("Unable to clean work directory due to: " +
-                      e.getMessage());
+        } catch (IOException e) {
+            log.error("Unable to clean work directory due to: " + e.getMessage());
         }
     }
-    
+
     @Override
     public boolean isSyncDeletes() {
         return this.syncToolConfig.syncDeletes();
     }
-    
+
     @Override
     public void setSyncDeletes(boolean flag) {
-        if(flag && this.syncToolConfig.isRenameUpdates()){
+        if (flag && this.syncToolConfig.isRenameUpdates()) {
             //sync deletes cannot be used if rename updates is enabled.
             return;
         }
         this.syncToolConfig.setSyncDeletes(flag);
         persistSyncToolConfig();
     }
-    
+
     @Override
     public String getUpdateSuffix() {
         return this.syncToolConfig.getUpdateSuffix();
-    } 
-    
+    }
+
     @Override
     public void setSyncUpdates(boolean b) {
         this.syncToolConfig.setSyncUpdates(b);
         persistSyncToolConfig();
     }
-    
+
     @Override
     public boolean isSyncUpdates() {
         return this.syncToolConfig.isSyncUpdates();
@@ -208,7 +205,7 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
 
     @Override
     public void setRenameUpdates(boolean b) {
-        if(b && this.syncToolConfig.syncDeletes()){
+        if (b && this.syncToolConfig.syncDeletes()) {
             //rename updates cannot be used if syncDeletes is enabled.
             return;
         }
@@ -225,20 +222,19 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     public String getPrefix() {
         return this.syncToolConfig.getPrefix();
     }
-    
-    
+
     @Override
     public void setPrefix(String prefix) {
         this.syncToolConfig.setPrefix(prefix);
         persistSyncToolConfig();
     }
-    
+
     @Override
     public int getThreadCount() {
         return this.syncToolConfig.getNumThreads();
-        
+
     }
-    
+
     @Override
     public void setThreadCount(int threadCount) {
         this.syncToolConfig.setNumThreads(threadCount);
@@ -247,8 +243,8 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
 
     @Override
     public void setJumpStart(boolean jumpStart) {
-        if((jumpStart && !this.syncToolConfig.isSyncUpdates()) ||
-           (jumpStart && this.syncToolConfig.isRenameUpdates())) {
+        if ((jumpStart && !this.syncToolConfig.isSyncUpdates()) ||
+            (jumpStart && this.syncToolConfig.isRenameUpdates())) {
             // Jump-start requires updates to be synced as overwrites
             return;
         }
@@ -260,40 +256,39 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     public boolean isJumpStart() {
         return this.syncToolConfig.isJumpStart();
     }
-    
+
     @Override
     public RunMode getMode() {
-        return this.syncToolConfig.exitOnCompletion()
-            ? RunMode.SINGLE_PASS : RunMode.CONTINUOUS;
+        return this.syncToolConfig.exitOnCompletion() ? RunMode.SINGLE_PASS : RunMode.CONTINUOUS;
     }
-    
+
     @Override
     public void setMode(RunMode mode) {
         RunMode oldValue = getMode();
         RunMode newValue = mode;
-        
-        if(oldValue != newValue){
+
+        if (oldValue != newValue) {
             this.syncToolConfig.setExitOnCompletion(newValue.equals(RunMode.SINGLE_PASS) ? true : false);
             persistSyncToolConfig();
         }
     }
-    
+
     @Override
     public void setMaxFileSizeInBytes(long maxFileSize) {
-        int gigs =(int)(maxFileSize/SyncConfigurationManager.GIGABYTES);
-        if(maxFileSize % SyncConfigurationManager.GIGABYTES != 0  || gigs < 1  || gigs > 5 ){
+        int gigs = (int) (maxFileSize / SyncConfigurationManager.GIGABYTES);
+        if (maxFileSize % SyncConfigurationManager.GIGABYTES != 0 || gigs < 1 || gigs > 5) {
             throw new RuntimeException("Max file size must be divisible by 1000 and between 1 and 5 GBs inclusive");
         }
         long oldValue = getMaxFileSizeInBytes();
-        if(oldValue != maxFileSize){
+        if (oldValue != maxFileSize) {
             this.syncToolConfig.setMaxFileSize(maxFileSize);
             persistSyncToolConfig();
         }
-        
+
     }
-    
+
     @Override
     public long getMaxFileSizeInBytes() {
-         return this.syncToolConfig.getMaxFileSize();
+        return this.syncToolConfig.getMaxFileSize();
     }
 }

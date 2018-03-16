@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.duracloud.common.constant.Constants;
-import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
@@ -29,9 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author: Daniel Bernstein
- *          Date: 2/1/13
+ * Date: 2/1/13
  */
 public abstract class SpaceModifyingSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
 
@@ -42,28 +40,26 @@ public abstract class SpaceModifyingSnapshotTaskRunner extends AbstractSnapshotT
     private String dcSnapshotUser;
 
     public SpaceModifyingSnapshotTaskRunner(StorageProvider snapshotProvider,
-                                    SnapshotStorageProvider unwrappedSnapshotProvider,
-                                    String dcSnapshotUser,
-                                    String bridgeAppHost,
-                                    String bridgeAppPort,
-                                    String bridgeAppUser,
-                                    String bridgeAppPass) {
+                                            SnapshotStorageProvider unwrappedSnapshotProvider,
+                                            String dcSnapshotUser,
+                                            String bridgeAppHost,
+                                            String bridgeAppPort,
+                                            String bridgeAppUser,
+                                            String bridgeAppPass) {
         super(bridgeAppHost, bridgeAppPort, bridgeAppUser, bridgeAppPass);
         this.snapshotProvider = snapshotProvider;
         this.unwrappedSnapshotProvider = unwrappedSnapshotProvider;
         this.dcSnapshotUser = dcSnapshotUser;
     }
-    
-    protected StorageProvider getStorageProvider(){
+
+    protected StorageProvider getStorageProvider() {
         return this.snapshotProvider;
     }
 
-
-    protected String getSnapshotUser(){
+    protected String getSnapshotUser() {
         return this.dcSnapshotUser;
     }
-    
-    
+
     /*
      * Adds a snapshot ID property to the space
      */
@@ -73,58 +69,55 @@ public abstract class SpaceModifyingSnapshotTaskRunner extends AbstractSnapshotT
         spaceProps.put(Constants.SNAPSHOT_ID_PROP, snapshotId);
         unwrappedSnapshotProvider.setNewSpaceProperties(spaceId, spaceProps);
     }
-    
-    
-      /**
-      * Stores a set of snapshot properties in the given space as a properties
-      * file.
-      *
-      * @param spaceId the space in which the properties file should be stored
-      * @param serializedProps properties in serialized format
-      */
-     protected void storeSnapshotProps(String spaceId, String serializedProps) {
-         InputStream propsStream;
-         try {
-             propsStream = IOUtil.writeStringToStream(serializedProps);
-         } catch(IOException e) {
-             throw new TaskException("Unable to build stream from serialized " +
-                                     "snapshot properties due to: " +
-                                     e.getMessage());
-         }
-         ChecksumUtil checksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
-         String propsChecksum = checksumUtil.generateChecksum(serializedProps);
-    
-         snapshotProvider.addContent(spaceId,
-                                     Constants.SNAPSHOT_PROPS_FILENAME,
-                                     "text/x-java-properties",
-                                     null,
-                                     // Ensures that length is based on UTF-8 encoded bytes
-                                     serializedProps.getBytes(StandardCharsets.UTF_8).length,
-                                     propsChecksum,
-                                     propsStream);
-     }
-    
-     /**
-      * Returns snapshot from the snapshot properties file if it exists
-      *
-      * @param spaceId
-      * @return snapshot from the snapshot properties file if it exists, otherwise null
-      */
-     protected String getSnapshotIdFromProperties(String spaceId){
-         Properties props = new Properties();
-         try(InputStream is = this.snapshotProvider.getContent(spaceId, Constants.SNAPSHOT_PROPS_FILENAME)) {
+
+    /**
+     * Stores a set of snapshot properties in the given space as a properties file.
+     *
+     * @param spaceId         the space in which the properties file should be stored
+     * @param serializedProps properties in serialized format
+     */
+    protected void storeSnapshotProps(String spaceId, String serializedProps) {
+        InputStream propsStream;
+        try {
+            propsStream = IOUtil.writeStringToStream(serializedProps);
+        } catch (IOException e) {
+            throw new TaskException("Unable to build stream from serialized " +
+                                    "snapshot properties due to: " +
+                                    e.getMessage());
+        }
+        ChecksumUtil checksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
+        String propsChecksum = checksumUtil.generateChecksum(serializedProps);
+
+        snapshotProvider.addContent(spaceId,
+                                    Constants.SNAPSHOT_PROPS_FILENAME,
+                                    "text/x-java-properties",
+                                    null,
+                                    // Ensures that length is based on UTF-8 encoded bytes
+                                    serializedProps.getBytes(StandardCharsets.UTF_8).length,
+                                    propsChecksum,
+                                    propsStream);
+    }
+
+    /**
+     * Returns snapshot from the snapshot properties file if it exists
+     *
+     * @param spaceId
+     * @return snapshot from the snapshot properties file if it exists, otherwise null
+     */
+    protected String getSnapshotIdFromProperties(String spaceId) {
+        Properties props = new Properties();
+        try (InputStream is = this.snapshotProvider.getContent(spaceId, Constants.SNAPSHOT_PROPS_FILENAME)) {
             props.load(is);
             return props.getProperty(Constants.SNAPSHOT_ID_PROP);
-        } catch(NotFoundException ex){
+        } catch (NotFoundException ex) {
             return null;
-        }catch (Exception e) {
-            throw new TaskException( MessageFormat.format("Call to create snapshot failed, " +
-                "unable to determine existence of snapshot properties file in {0}. " + 
-                "Error: {1}",  spaceId, e.getMessage()));
+        } catch (Exception e) {
+            throw new TaskException(
+                MessageFormat.format("Call to create snapshot failed, unable to determine existence of " +
+                                     "snapshot properties file in {0}. Error: {1}", spaceId, e.getMessage()));
         }
-     }
+    }
 
-     
     /*
      * Removes the snapshot ID property from a space
      */
@@ -133,16 +126,17 @@ public abstract class SpaceModifyingSnapshotTaskRunner extends AbstractSnapshotT
                   " property from space " + spaceId);
         Map<String, String> spaceProps =
             snapshotProvider.getSpaceProperties(spaceId);
-        if(spaceProps.remove(Constants.SNAPSHOT_ID_PROP) != null){
+        if (spaceProps.remove(Constants.SNAPSHOT_ID_PROP) != null) {
             unwrappedSnapshotProvider.setNewSpaceProperties(spaceId, spaceProps);
             log.info("Removed " + Constants.SNAPSHOT_ID_PROP +
                      " from  space properties for space " + spaceId);
-        }else{
+        } else {
             log.debug("Property " + Constants.SNAPSHOT_ID_PROP +
                       " does not exist in space properties for " + spaceId +
                       ". No need to update space properties.");
         }
     }
+
     /*
      * Give the snapshot user the necessary permissions to pull content from
      * the snapshot space.
@@ -162,13 +156,13 @@ public abstract class SpaceModifyingSnapshotTaskRunner extends AbstractSnapshotT
                     return spaceId;
                 }
             });
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new TaskException("Unable to create snapshot, failed" +
                                     "setting space permissions due to: " +
                                     e.getMessage(), e);
         }
     }
-    
+
     /*
      * Give the snapshot user the necessary permissions to pull content from
      * the snapshot space.
@@ -183,12 +177,12 @@ public abstract class SpaceModifyingSnapshotTaskRunner extends AbstractSnapshotT
                     Map<String, AclType> spaceACLs =
                         snapshotProvider.getSpaceACLs(spaceId);
                     spaceACLs.remove(StorageProvider.PROPERTIES_SPACE_ACL +
-                                  dcSnapshotUser);
+                                     dcSnapshotUser);
                     snapshotProvider.setSpaceACLs(spaceId, spaceACLs);
                     return spaceId;
                 }
             });
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new TaskException("Failed" +
                                     "to remove read only permissions " +
                                     "for snapshot user due to: " +
@@ -196,13 +190,13 @@ public abstract class SpaceModifyingSnapshotTaskRunner extends AbstractSnapshotT
         }
     }
 
- 
     protected void removeSnapshotProps(String spaceId) {
         snapshotProvider.deleteContent(spaceId, Constants.SNAPSHOT_PROPS_FILENAME);
     }
 
     /**
      * Checks if the snapshot props file is in the space.
+     *
      * @param spaceId
      * @return
      */
@@ -210,7 +204,7 @@ public abstract class SpaceModifyingSnapshotTaskRunner extends AbstractSnapshotT
         try {
             snapshotProvider.getContentProperties(spaceId, Constants.SNAPSHOT_PROPS_FILENAME);
             return true;
-        }catch(NotFoundException ex){
+        } catch (NotFoundException ex) {
             return false;
         }
     }

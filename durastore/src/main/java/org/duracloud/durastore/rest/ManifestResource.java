@@ -7,6 +7,8 @@
  */
 package org.duracloud.durastore.rest;
 
+import java.io.InputStream;
+
 import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.manifest.error.ManifestArgumentException;
@@ -14,11 +16,9 @@ import org.duracloud.manifest.error.ManifestNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-
 /**
  * @author Andrew Woods
- *         Date: 3/17/12
+ * Date: 3/17/12
  */
 public class ManifestResource {
 
@@ -36,7 +36,7 @@ public class ManifestResource {
                                    String fmt)
         throws ManifestArgumentException, ManifestNotFoundException {
 
-        return manifestGenerator.getManifest(account, 
+        return manifestGenerator.getManifest(account,
                                              storeId,
                                              spaceId,
                                              validateFormat(fmt));
@@ -66,7 +66,5 @@ public class ManifestResource {
             throw new ManifestArgumentException(err.toString());
         }
     }
-
- 
 
 }

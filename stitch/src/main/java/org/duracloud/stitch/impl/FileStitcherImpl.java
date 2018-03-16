@@ -7,7 +7,10 @@
  */
 package org.duracloud.stitch.impl;
 
-import static org.duracloud.storage.provider.StorageProvider.*;
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_MD5;
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_SIZE;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -34,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * This class implements the FileStitcher interface.
  *
  * @author Andrew Woods
- *         Date: 9/2/11
+ * Date: 9/2/11
  */
 public class FileStitcherImpl implements FileStitcher {
 
@@ -68,22 +71,22 @@ public class FileStitcherImpl implements FileStitcher {
         Content content = new Content();
         content.setStream(multiStream);
         content.setId(manifest.getHeader().getSourceContentId());
-        
+
         //merge properties by overlaying stitched props over manifest props
-        Map<String,String> stitchedProps = getContentProperties(manifest);
-        Map<String,String> manifestProps = manifestContent.getProperties();
-        if(manifestProps == null){
+        Map<String, String> stitchedProps = getContentProperties(manifest);
+        Map<String, String> manifestProps = manifestContent.getProperties();
+        if (manifestProps == null) {
             manifestProps = stitchedProps;
-        }else{
+        } else {
             manifestProps.putAll(stitchedProps);
         }
         content.setProperties(manifestProps);
         return content;
     }
-    
+
     private boolean isManifest(String contentId) {
         return null != contentId &&
-            contentId.endsWith(ChunksManifest.manifestSuffix);
+               contentId.endsWith(ChunksManifest.manifestSuffix);
     }
 
     @Override
@@ -91,8 +94,7 @@ public class FileStitcherImpl implements FileStitcher {
         throws InvalidManifestException {
         return getManifest(dataSource.getContent(spaceId, manifestId), spaceId, manifestId);
     }
-    
-    
+
     private ChunksManifest getManifest(Content content, String spaceId, String manifestId)
         throws InvalidManifestException {
         if (null == content) {
@@ -101,7 +103,7 @@ public class FileStitcherImpl implements FileStitcher {
             throw new InvalidManifestException(spaceId, manifestId, msg);
         }
 
-        try(InputStream is = content.getStream()) {
+        try (InputStream is = content.getStream()) {
             return ManifestDocumentBinding.createManifestFrom(is);
 
         } catch (Exception e) {
@@ -132,17 +134,17 @@ public class FileStitcherImpl implements FileStitcher {
             String contentId = manifest.getHeader().getSourceContentId();
             throw new InvalidManifestException(spaceId, contentId, msg);
         }
-        
-        return new MultiContentInputStream(dataSource,
-                                           chunks,
-                                           new MultiContentInputStreamListener() {
-                                               public void
-                                                      contentIdRead(String contentId) {
-                                                   if (listener != null) {
-                                                       listener.chunkStitched(contentId);
-                                                   }
-                                               }
-                                           });
+
+        MultiContentInputStreamListener contentListener =
+            new MultiContentInputStreamListener() {
+                public void contentIdRead(String contentId) {
+                    if (listener != null) {
+                        listener.chunkStitched(contentId);
+                    }
+                }
+            };
+
+        return new MultiContentInputStream(dataSource, chunks, contentListener);
     }
 
     private Map<String, String> getContentProperties(ChunksManifest manifest) {

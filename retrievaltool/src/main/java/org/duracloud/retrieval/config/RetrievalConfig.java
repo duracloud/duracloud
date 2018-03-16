@@ -11,17 +11,20 @@ import java.io.File;
 
 /**
  * @author Bill Branan
- *         Date: 10/16/14
+ * Date: 10/16/14
  */
 public class RetrievalConfig {
 
     public static final String RETRIEVAL_WORK_PROP = "retrieval.work";
 
     public static final String DEFAULT_WORK_DIR =
-        System.getProperty("user.home") + File.separator +
-            "duracloud-retrieval-work";
+        System.getProperty("user.home") + File.separator + "duracloud-retrieval-work";
 
     private static File workDir;
+
+    private RetrievalConfig() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     public static void setWorkDir(File newWorkDir) {
         workDir = newWorkDir;
@@ -30,7 +33,7 @@ public class RetrievalConfig {
     public static File getWorkDir() {
         // Determine the work dir. If a value was provided by the user, it
         // will be used, otherwise a default work dir in the user home is used.
-        if(null == workDir) {
+        if (null == workDir) {
             workDir = new File(System.getProperty(RETRIEVAL_WORK_PROP,
                                                   DEFAULT_WORK_DIR));
         }

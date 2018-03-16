@@ -25,7 +25,7 @@ import org.junit.Test;
 
 /**
  * @author Andrew Woods
- *         Date: Mar 28, 2010
+ * Date: Mar 28, 2010
  */
 public class SecurityAdviceTest {
 
@@ -87,7 +87,7 @@ public class SecurityAdviceTest {
                 credential);
         } else {
             EasyMock.expect(securityContextUtil.getCurrentUser())
-                .andThrow(new NoUserLoggedInException());
+                    .andThrow(new NoUserLoggedInException());
         }
 
         EasyMock.replay(securityContextUtil);

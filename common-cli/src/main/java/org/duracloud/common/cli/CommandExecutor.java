@@ -11,9 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 public class CommandExecutor {
     private Map<String, Command> commandMap = new HashMap<>();

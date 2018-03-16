@@ -7,10 +7,10 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import org.duracloud.common.model.ContentItem;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+
+import org.duracloud.common.model.ContentItem;
 
 /**
  * Interface for the writing retrieval tool output

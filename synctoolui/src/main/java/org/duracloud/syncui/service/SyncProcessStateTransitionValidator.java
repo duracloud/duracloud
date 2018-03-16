@@ -11,13 +11,11 @@ import org.duracloud.syncui.domain.SyncProcessState;
 
 /**
  * This class encapsulates the state change rules for the SyncProcessManager.
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 public class SyncProcessStateTransitionValidator {
     /**
-     * 
      * @param currentState
      * @param newState
      * @return true if the state transition is valid
@@ -32,7 +30,7 @@ public class SyncProcessStateTransitionValidator {
                 return true;
             }
         } else if (from == SyncProcessState.RUNNING) {
-            if (to == SyncProcessState.STOPPING || to == SyncProcessState.PAUSING ||  to == SyncProcessState.ERROR) {
+            if (to == SyncProcessState.STOPPING || to == SyncProcessState.PAUSING || to == SyncProcessState.ERROR) {
                 return true;
             }
         } else if (from == SyncProcessState.STOPPING) {
@@ -44,8 +42,8 @@ public class SyncProcessStateTransitionValidator {
                 return true;
             }
         } else if (from == SyncProcessState.PAUSED) {
-            if (to == SyncProcessState.RESUMING || to == SyncProcessState.ERROR || 
-                    to == SyncProcessState.STOPPING) {
+            if (to == SyncProcessState.RESUMING || to == SyncProcessState.ERROR ||
+                to == SyncProcessState.STOPPING) {
                 return true;
             }
         } else if (from == SyncProcessState.RESUMING) {

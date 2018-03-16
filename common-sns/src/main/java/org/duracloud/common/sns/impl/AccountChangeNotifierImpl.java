@@ -10,6 +10,8 @@ package org.duracloud.common.sns.impl;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import org.duracloud.account.db.model.GlobalProperties;
 import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.event.AccountChangeEvent;
@@ -20,23 +22,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 @Component("accountChangeNotifier")
 public class AccountChangeNotifierImpl implements AccountChangeNotifier {
-    
+
     private AmazonSNS snsClient;
-    
+
     private GlobalPropertiesRepo globalPropertiesRepo;
 
     private static Logger log = LoggerFactory.getLogger(AccountChangeNotifierImpl.class);
+
     /**
-     * 
      * @param globalPropertiesConfigService
      */
     @Autowired
@@ -44,13 +42,12 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
         this.snsClient = AmazonSNSClientBuilder.defaultClient();
         this.globalPropertiesRepo = globalPropertiesRepo;
     }
-    
+
     @Override
     public void accountChanged(String account) {
         publish(AccountChangeEvent.EventType.ACCOUNT_CHANGED, account);
     }
 
-    
     private void publish(EventType eventType, String account) {
         String host;
         try {
@@ -61,18 +58,17 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
         }
 
         AccountChangeEvent event = new AccountChangeEvent(eventType, account, host);
-        
+
         try {
             log.debug("publishing event={}", event);
             GlobalProperties props = globalPropertiesRepo.findAll().get(0);
             this.snsClient.publish(props.getInstanceNotificationTopicArn(),
-                    AccountChangeEvent.serialize(event));
+                                   AccountChangeEvent.serialize(event));
             log.info("published event={}", event);
-        }catch(Exception e){
-            log.error("Failed to publish event: " + event +" : " + e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Failed to publish event: " + event + " : " + e.getMessage(), e);
         }
     }
-
 
     @Override
     public void storageProvidersChanged(String accountId) {

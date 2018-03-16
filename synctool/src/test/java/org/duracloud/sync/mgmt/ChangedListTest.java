@@ -7,7 +7,9 @@
  */
 package org.duracloud.sync.mgmt;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,12 +17,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.Assert;
-
 import org.duracloud.sync.SyncTestBase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 
 /**
  * @author: Bill Branan
@@ -52,7 +52,7 @@ public class ChangedListTest extends SyncTestBase {
         ChangedFile retrievedFile = changedList.reserve();
         assertEquals(changedFile.getAbsolutePath(),
                      retrievedFile.getFile().getAbsolutePath());
-        assertEquals(version + 2, changedList.getVersion());        
+        assertEquals(version + 2, changedList.getVersion());
     }
 
     @Test
@@ -63,7 +63,7 @@ public class ChangedListTest extends SyncTestBase {
         changedList.persist(persistFile);
 
         ChangedFile retrievedFile = changedList.reserve();
-        
+
         assertEquals(changedFile.getAbsolutePath(),
                      retrievedFile.getFile().getAbsolutePath());
         assertNull(changedList.reserve());
@@ -85,7 +85,7 @@ public class ChangedListTest extends SyncTestBase {
         changedList.reserve();
         File persistFile = File.createTempFile("persist", "file");
         changedList.persist(persistFile);
-        changedList.restore(persistFile,Arrays.asList(changedFile.getParentFile()));
+        changedList.restore(persistFile, Arrays.asList(changedFile.getParentFile()));
         assertEquals(1, changedList.getListSize());
         persistFile.delete();
     }
@@ -102,7 +102,7 @@ public class ChangedListTest extends SyncTestBase {
         assertEquals(0, changedList.getListSize());
         persistFile.delete();
     }
-    
+
     @Test
     public void testReserveUnreserve() throws Exception {
         changedList.addChangedFile(changedFile);
@@ -126,12 +126,12 @@ public class ChangedListTest extends SyncTestBase {
     }
 
     @Test
-    public void testUnreserveFileAfterSameFileIsAddded(){
+    public void testUnreserveFileAfterSameFileIsAddded() {
         changedList.addChangedFile(changedFile);
         ChangedFile reserved = changedList.reserve();
         reserved.incrementSyncAttempts();
         assertEquals(1, reserved.getSyncAttempts());
-        
+
         assertEquals(0, changedList.getListSize());
         assertEquals(1, changedList.getListSizeIncludingReservedFiles());
         ChangedFile dupFile = new ChangedFile(new File(changedFile.getAbsolutePath()));
@@ -141,16 +141,16 @@ public class ChangedListTest extends SyncTestBase {
         reserved.unreserve();
         assertEquals(1, changedList.getListSize());
         assertEquals(1, changedList.getListSizeIncludingReservedFiles());
-        //verify that the changed that was added after the reservation was not 
+        //verify that the changed that was added after the reservation was not
         //overwritten by the reservedFile.
         assertEquals(0, changedList.reserve().getSyncAttempts());
-        
+
     }
-    
+
     @Test
     public void testChangedListContainsFilesThatDoNotMatchContentDirs() throws Exception {
         changedList.addChangedFile(changedFile);
-        File contentDir = new File(System.getProperty("java.io.tmp"), System.currentTimeMillis()+"");
+        File contentDir = new File(System.getProperty("java.io.tmp"), System.currentTimeMillis() + "");
         assertTrue(contentDir.mkdir());
         contentDir.deleteOnExit();
         File persistFile = File.createTempFile("persist", "file");
@@ -161,7 +161,7 @@ public class ChangedListTest extends SyncTestBase {
                      retrievedFile.getFile().getAbsolutePath());
         assertNull(changedList.reserve());
 
-        changedList.restore(persistFile, Arrays.asList(new File[]{contentDir}));
+        changedList.restore(persistFile, Arrays.asList(new File[] {contentDir}));
 
         retrievedFile = changedList.reserve();
         assertNull(changedList.reserve());
@@ -173,34 +173,34 @@ public class ChangedListTest extends SyncTestBase {
     public void testPeek() throws Exception {
         int fileCount = 100;
         List<File> files = new ArrayList<File>(fileCount);
-        for(int i = 0; i < fileCount; i++){
-            File f = new File("changedListTest-"+i+".tmp");
+        for (int i = 0; i < fileCount; i++) {
+            File f = new File("changedListTest-" + i + ".tmp");
             files.add(f);
             changedList.addChangedFile(f);
         }
-        
+
         Assert.assertEquals(fileCount, changedList.getListSize());
-        
-        List<File> peekedFiles = changedList.peek(fileCount-1);
-        
-        for(int i = 0; i < peekedFiles.size(); i++){
+
+        List<File> peekedFiles = changedList.peek(fileCount - 1);
+
+        for (int i = 0; i < peekedFiles.size(); i++) {
             Assert.assertEquals(files.get(i), peekedFiles.get(i));
         }
-        
+
     }
 
     @Test
     public void testClear() throws Exception {
         int fileCount = 5;
         List<File> files = new ArrayList<File>(fileCount);
-        for(int i = 0; i < fileCount; i++){
-            File f = new File("changedListTest-"+i+".tmp");
+        for (int i = 0; i < fileCount; i++) {
+            File f = new File("changedListTest-" + i + ".tmp");
             files.add(f);
             changedList.addChangedFile(f);
         }
-        
+
         Assert.assertEquals(fileCount, changedList.getListSize());
-        
+
         changedList.clear();
         Assert.assertEquals(0, changedList.getListSize());
     }

@@ -8,7 +8,6 @@
 package org.duracloud.snapshot.dto.bridge;
 
 import java.io.IOException;
-
 import javax.xml.bind.annotation.XmlValue;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
@@ -18,12 +17,12 @@ import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * @author Gad Krumholz
- *         Date: 6/03/15
+ * Date: 6/03/15
  */
 public class UpdateSnapshotHistoryBridgeResult extends BaseDTO {
 
     /**
-     * The snapshot status 
+     * The snapshot status
      */
     @XmlValue
     private SnapshotSummary snapshot;
@@ -34,10 +33,11 @@ public class UpdateSnapshotHistoryBridgeResult extends BaseDTO {
     @XmlValue
     private String history;
 
-    public UpdateSnapshotHistoryBridgeResult(){}
+    public UpdateSnapshotHistoryBridgeResult() {
+    }
 
     public UpdateSnapshotHistoryBridgeResult(SnapshotSummary snapshot,
-                                          String history) {
+                                             String history) {
         this.snapshot = snapshot;
         this.history = history;
     }
@@ -57,7 +57,7 @@ public class UpdateSnapshotHistoryBridgeResult extends BaseDTO {
     public void setHistory(String history) {
         this.history = history;
     }
-    
+
     /**
      * Creates a serialized version of bridge result
      *
@@ -68,7 +68,7 @@ public class UpdateSnapshotHistoryBridgeResult extends BaseDTO {
             new JaxbJsonSerializer<>(UpdateSnapshotHistoryBridgeResult.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException("Unable to create task result due to: " +
                                             e.getMessage());
         }
@@ -84,7 +84,7 @@ public class UpdateSnapshotHistoryBridgeResult extends BaseDTO {
             new JaxbJsonSerializer<>(UpdateSnapshotHistoryBridgeResult.class);
         try {
             return serializer.deserialize(bridgeResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to deserialize result due to: " + e.getMessage());
         }

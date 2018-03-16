@@ -7,9 +7,8 @@
  */
 package org.duracloud.syncui.util;
 
-
 public class FileSizeFormatter {
-    public String format(long fileSize){
+    public String format(long fileSize) {
         return FormatUtil.readableFileSize(fileSize);
     }
 }

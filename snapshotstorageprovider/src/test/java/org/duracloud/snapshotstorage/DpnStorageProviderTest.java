@@ -7,17 +7,14 @@
  */
 package org.duracloud.snapshotstorage;
 
-import java.util.HashMap;
+import static org.junit.Assert.assertEquals;
 
-import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
 /**
- * @author bill
- *         Date: 6/7/2016
+ * @author Bill Branan
+ * Date: 6/7/2016
  */
 public class DpnStorageProviderTest {
 

@@ -13,7 +13,6 @@ import java.io.File;
 import java.util.Date;
 
 import org.duracloud.sync.endpoint.SyncResultType;
-import org.duracloud.sync.mgmt.SyncSummary.Status;
 import org.junit.Test;
 
 /**
@@ -29,7 +28,7 @@ public class StatusManagerTest {
         assertEquals(0, status.getSucceeded());
         assertEquals(0, status.getFailed().size());
 
-        for(int i=0; i<100; i++) {
+        for (int i = 0; i < 100; i++) {
             status.startingWork();
         }
 
@@ -49,12 +48,12 @@ public class StatusManagerTest {
         assertEquals(50, status.getSucceeded());
         assertEquals(0, status.getFailed().size());
 
-        for(int i=0; i<50; i++) {
+        for (int i = 0; i < 50; i++) {
             status.failedCompletion(new SyncSummary(new File("test"),
-                                                        new Date(),
-                                                        new Date(),
-                                                        SyncResultType.FAILED,
-                                                        "failure"));
+                                                    new Date(),
+                                                    new Date(),
+                                                    SyncResultType.FAILED,
+                                                    "failure"));
         }
 
         assertEquals(0, status.getInWork());

@@ -7,8 +7,14 @@
  */
 package org.duracloud.stitch.impl;
 
-import static org.duracloud.stitch.impl.FileStitcherImplTest.MODE.*;
-import static org.duracloud.storage.provider.StorageProvider.*;
+import static org.duracloud.stitch.impl.FileStitcherImplTest.MODE.ERROR_DESERIALIZE;
+import static org.duracloud.stitch.impl.FileStitcherImplTest.MODE.ERROR_NAME;
+import static org.duracloud.stitch.impl.FileStitcherImplTest.MODE.ERROR_NULL;
+import static org.duracloud.stitch.impl.FileStitcherImplTest.MODE.VALID_CHUNKS;
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_MD5;
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_SIZE;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,7 +42,7 @@ import org.junit.Test;
 
 /**
  * @author Andrew Woods
- *         Date: 9/3/11
+ * Date: 9/3/11
  */
 public class FileStitcherImplTest {
 
@@ -69,7 +75,7 @@ public class FileStitcherImplTest {
     }
 
     private void replayMocks() {
-        EasyMock.replay(dataSource,listener);
+        EasyMock.replay(dataSource, listener);
     }
 
     @Test
@@ -115,11 +121,11 @@ public class FileStitcherImplTest {
 
     private void testGetContentFromManifest(FileStitcherListener listener) throws Exception {
         createMocks(VALID_CHUNKS);
-        if(listener != null){
-           for(int i = 0; i < NUM_CHUNKS; i++){
-               listener.chunkStitched(buildChunkId(i));
-               EasyMock.expectLastCall().once();
-           }
+        if (listener != null) {
+            for (int i = 0; i < NUM_CHUNKS; i++) {
+                listener.chunkStitched(buildChunkId(i));
+                EasyMock.expectLastCall().once();
+            }
         }
         replayMocks();
         stitcher = new FileStitcherImpl(dataSource);
@@ -255,10 +261,10 @@ public class FileStitcherImplTest {
         String xml = ManifestDocumentBinding.createDocumentFrom(manifest);
 
         content.setId(contentId);
-        Map<String,String> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
         properties.put(StorageProvider.PROPERTIES_CONTENT_SIZE, "xxx");
         properties.put(COLOR_PROPERTY, "green");
-        
+
         content.setProperties(properties);
         content.setStream(getStream(xml));
 

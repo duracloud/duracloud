@@ -2,10 +2,10 @@
 
 <configuration debug="true" scan="true">
   <jmxConfigurator/>
-  <property name="LOG_FILENAME" value="${duracloud.home}/logs/duracloud-durastore.log" />
-  <property name="READ_LOG_FILENAME" value="${duracloud.home}/logs/duracloud-durastore-read.log" />
-  <property name="WRITE_LOG_FILENAME" value="${duracloud.home}/logs/duracloud-durastore-write.log" />
-  <property name="CLIENT_INFO_LOG_FILENAME" value="${duracloud.home}/logs/duracloud-durastore-client.log" />
+  <property name="LOG_FILENAME" value="${duracloud.home}/logs/duracloud-durastore.log"/>
+  <property name="READ_LOG_FILENAME" value="${duracloud.home}/logs/duracloud-durastore-read.log"/>
+  <property name="WRITE_LOG_FILENAME" value="${duracloud.home}/logs/duracloud-durastore-write.log"/>
+  <property name="CLIENT_INFO_LOG_FILENAME" value="${duracloud.home}/logs/duracloud-durastore-client.log"/>
 
   <appender name="DURACLOUD" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
@@ -51,7 +51,7 @@
       <MaxFileSize>20MB</MaxFileSize>
     </triggeringPolicy>
   </appender>
-  
+
   <appender name="CLIENT-INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
     <File>${CLIENT_INFO_LOG_FILENAME}</File>

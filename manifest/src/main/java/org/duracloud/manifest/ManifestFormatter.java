@@ -17,7 +17,7 @@ import org.duracloud.mill.db.model.ManifestItem;
  * This class defines the contract for Manifest Formatters.
  *
  * @author Andrew Woods
- *         Date: 3/29/12
+ * Date: 3/29/12
  */
 public interface ManifestFormatter {
 
@@ -29,22 +29,23 @@ public interface ManifestFormatter {
      */
     public void writeEventsToOutput(Collection<ContentMessage> events,
                                     OutputStream output);
-    
+
     /**
-     * 
-     * @param item to write
+     * @param item         to write
      * @param outputStream destination of formatted items.  Null manifest items are ignored.
      */
     public void writeManifestItemToOutput(ManifestItem item, OutputStream outputStream);
 
     /**
      * Returns the header if there is one, otherwise null.
+     *
      * @return
      */
     public String getHeader();
-    
+
     /**
      * Parses a line into a ManifestItem
+     *
      * @param line
      * @return
      * @throws ParseException
@@ -53,6 +54,7 @@ public interface ManifestFormatter {
 
     /**
      * Formats a manifest item into an appropriate line.
+     *
      * @param item
      * @return
      */

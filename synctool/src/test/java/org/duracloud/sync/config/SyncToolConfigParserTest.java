@@ -7,23 +7,23 @@
  */
 package org.duracloud.sync.config;
 
-import org.apache.commons.cli.ParseException;
-import org.duracloud.common.util.ConsolePrompt;
-import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.apache.commons.cli.ParseException;
+import org.duracloud.common.util.ConsolePrompt;
+import org.easymock.EasyMock;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author: Bill Branan
@@ -38,7 +38,7 @@ public class SyncToolConfigParserTest {
     @Before
     public void setUp() throws Exception {
         syncConfigParser = createSyncToolParser();
-        
+
         tempDir = new File(System.getProperty("java.io.tmpdir"));
     }
 
@@ -46,13 +46,13 @@ public class SyncToolConfigParserTest {
     public void tearDown() throws Exception {
         File backupFile =
             new File(tempDir, SyncToolConfigParser.BACKUP_FILE_NAME);
-        if(backupFile.exists()) {
+        if (backupFile.exists()) {
             backupFile.delete();
         }
 
         File prevBackupFile =
             new File(tempDir, SyncToolConfigParser.PREV_BACKUP_FILE_NAME);
-        if(prevBackupFile.exists()) {
+        if (prevBackupFile.exists()) {
             prevBackupFile.delete();
         }
     }
@@ -62,7 +62,7 @@ public class SyncToolConfigParserTest {
         syncConfigParser = new SyncToolConfigParser() {
             protected ConsolePrompt getConsole() {
                 ConsolePrompt console = EasyMock.createMock(ConsolePrompt.class);
-                char[] charPass = {'p','r','o','m','p','t','P','a','s','s','w','o','r','d'};
+                char[] charPass = {'p', 'r', 'o', 'm', 'p', 't', 'P', 'a', 's', 's', 'w', 'o', 'r', 'd'};
                 EasyMock.expect(console.readPassword("DuraCloud password: ")).andReturn(charPass);
                 EasyMock.replay(console);
                 return console;
@@ -80,7 +80,7 @@ public class SyncToolConfigParserTest {
         SyncToolConfig syncConfig =
             syncConfigParser.processStandardOptions(mapToArray(argsMap));
         checkStandardOptions(argsMap, syncConfig);
-        
+
         // Remove optional params
         argsMap.remove("-f");
         argsMap.remove("-r");
@@ -121,7 +121,7 @@ public class SyncToolConfigParserTest {
         assertFalse(syncConfig.isJumpStart());
 
         // Make sure error is thrown on missing required params
-        for(String arg : argsMap.keySet()) {
+        for (String arg : argsMap.keySet()) {
             String failMsg = "An exception should have been thrown due to " +
                              "missing arg: " + arg;
             removeArgFailTest(argsMap, arg, failMsg);
@@ -188,7 +188,7 @@ public class SyncToolConfigParserTest {
 
     private String[] mapToArray(HashMap<String, String> map) {
         ArrayList<String> list = new ArrayList<String>();
-        for(String key : map.keySet()) {
+        for (String key : map.keySet()) {
             list.add(key);
             list.add(map.get(key));
         }
@@ -200,12 +200,12 @@ public class SyncToolConfigParserTest {
                                 String value,
                                 String failMsg) {
         HashMap<String, String> cloneMap =
-            (HashMap<String, String>)argsMap.clone();
+            (HashMap<String, String>) argsMap.clone();
         cloneMap.put(arg, value);
         try {
             syncConfigParser.processStandardOptions(mapToArray(cloneMap));
             fail(failMsg);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             assertNotNull(e);
         }
     }
@@ -214,12 +214,12 @@ public class SyncToolConfigParserTest {
                                    String arg,
                                    String failMsg) {
         HashMap<String, String> cloneMap =
-            (HashMap<String, String>)argsMap.clone();
+            (HashMap<String, String>) argsMap.clone();
         cloneMap.remove(arg);
         try {
             syncConfigParser.processStandardOptions(mapToArray(cloneMap));
             fail(failMsg);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             assertNotNull(e);
         }
     }
@@ -246,7 +246,7 @@ public class SyncToolConfigParserTest {
         compareArrays(args, retrieveArgs);
 
         HashMap<String, String> newArgsMap =
-            (HashMap<String, String>)argsMap.clone();
+            (HashMap<String, String>) argsMap.clone();
         newArgsMap.put("-z", "new");
         String[] newArgs = mapToArray(newArgsMap);
 
@@ -280,7 +280,7 @@ public class SyncToolConfigParserTest {
 
     private void compareArrays(String[] arr1, String[] arr2) {
         assertEquals(arr1.length, arr2.length);
-        for(int i=0; i<arr1.length; i++) {
+        for (int i = 0; i < arr1.length; i++) {
             assertTrue(arr1[i].equals(arr2[i]));
         }
     }
@@ -309,7 +309,7 @@ public class SyncToolConfigParserTest {
     }
 
     private SyncToolConfigParser createSyncToolParser() {
-        return new SyncToolConfigParser(){
+        return new SyncToolConfigParser() {
             protected String getPasswordEnvVariable() {
                 return "password";
             }

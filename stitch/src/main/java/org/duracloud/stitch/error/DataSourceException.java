@@ -11,7 +11,7 @@ import org.duracloud.common.error.DuraCloudRuntimeException;
 
 /**
  * @author Andrew Woods
- *         Date: 9/2/11
+ * Date: 9/2/11
  */
 public class DataSourceException extends DuraCloudRuntimeException {
 

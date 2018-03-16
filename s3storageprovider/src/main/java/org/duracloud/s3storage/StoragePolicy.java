@@ -15,7 +15,7 @@ import com.amazonaws.services.s3.model.StorageClass;
  * content from S3 standard storage to another storage class.
  *
  * @author Bill Branan
- *         Date: 9/25/2015
+ * Date: 9/25/2015
  */
 public class StoragePolicy {
 

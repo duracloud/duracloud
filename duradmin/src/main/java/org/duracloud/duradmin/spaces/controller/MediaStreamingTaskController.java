@@ -14,8 +14,6 @@ import org.duracloud.client.task.S3TaskClient;
 import org.duracloud.client.task.S3TaskClientImpl;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.s3task.streaming.DisableStreamingTaskRunner;
-import org.duracloud.s3task.streaming.EnableStreamingTaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * 
  * @author Daniel Bernstein Date: April 2, 2012
  */
 @Controller
@@ -40,22 +37,23 @@ public class MediaStreamingTaskController {
     private ContentStoreManager contentStoreManager;
 
     @Autowired
-    public MediaStreamingTaskController(ContentStoreManager contentStoreManager){
+    public MediaStreamingTaskController(ContentStoreManager contentStoreManager) {
         this.contentStoreManager = contentStoreManager;
     }
+
     @RequestMapping(method = RequestMethod.POST)
     public ModelAndView post(@RequestParam(required = true) String storeId,
                              @RequestParam(required = true) String spaceId,
                              @RequestParam(required = true) boolean enable)
         throws Exception {
-        try{
+        try {
             ContentStore store = this.contentStoreManager.getContentStore(storeId);
             S3TaskClient taskClient = new S3TaskClientImpl(store);
 
-            if(enable) {
-                try{
+            if (enable) {
+                try {
                     taskClient.enableStreaming(spaceId, false);
-                }catch(ContentStoreException e){
+                } catch (ContentStoreException e) {
                     log.warn("failed to enable streaming on space " + spaceId + ": due to " + e.getMessage(), e);
                     log.info("attempting to enable secure streaming.");
                     taskClient.enableStreaming(spaceId, true);
@@ -65,18 +63,18 @@ public class MediaStreamingTaskController {
             } else {
                 taskClient.disableStreaming(spaceId);
             }
-            
+
             log.info("successfully "
-                + (enable ? "enabled" : "disabled")
-                + " the stream service for space (" + spaceId
-                + ") on storage provider (" + storeId + ")");
+                     + (enable ? "enabled" : "disabled")
+                     + " the stream service for space (" + spaceId
+                     + ") on storage provider (" + storeId + ")");
             ModelAndView mav =
                 new ModelAndView("jsonView", STREAMING_ENABLED_KEY, enable);
             return mav;
-            
-        }catch(Exception ex){
+
+        } catch (Exception ex) {
             throw new DuraCloudRuntimeException(ex);
         }
     }
- 
+
 }

@@ -7,7 +7,8 @@
  */
 package org.duracloud.integration.durastore.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.util.Random;
@@ -22,7 +23,7 @@ import org.junit.BeforeClass;
  */
 public abstract class BaseRestTester {
 
-    protected static RestHttpHelper restHelper = RestTestHelper.getAuthorizedRestHelper();    
+    protected static RestHttpHelper restHelper = RestTestHelper.getAuthorizedRestHelper();
 
     protected static String baseUrl;
 

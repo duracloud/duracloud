@@ -7,15 +7,15 @@
  */
 package org.duracloud.s3storageprovider.dto;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 3/5/15
+ * Date: 3/5/15
  */
 public class DeleteStreamingTaskResultTest {
 
@@ -28,18 +28,17 @@ public class DeleteStreamingTaskResultTest {
 
         String result = taskResult.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"result\":\""+resultValue+"\""));
+        assertThat(cleanResult, containsString("\"result\":\"" + resultValue + "\""));
     }
 
     @Test
     public void testDeserialize() {
         // Verify valid params
-        String resultSerialized = "{\"result\" : \""+resultValue+"\"}";
+        String resultSerialized = "{\"result\" : \"" + resultValue + "\"}";
 
         DeleteStreamingTaskResult taskResult =
             DeleteStreamingTaskResult.deserialize(resultSerialized);
         assertEquals(resultValue, taskResult.getResult());
     }
-
 
 }

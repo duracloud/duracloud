@@ -7,6 +7,14 @@
  */
 package org.duracloud.sync.mgmt;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.sync.SyncTestBase;
 import org.duracloud.sync.endpoint.EndPointListener;
@@ -15,14 +23,6 @@ import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.duracloud.sync.endpoint.SyncResultType;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
 
 /**
  * @author: Bill Branan
@@ -49,7 +49,7 @@ public class SyncManagerTest extends SyncTestBase {
         syncManager.beginSync();
 
         int changedFiles = 10;
-        for(int i=0; i < changedFiles; i++) {
+        for (int i = 0; i < changedFiles; i++) {
             changedList.addChangedFile(new File(tempDir, "test-file-" + i));
         }
         Thread.sleep(2000);
@@ -67,24 +67,26 @@ public class SyncManagerTest extends SyncTestBase {
         public Iterator<String> getFilesList() {
             return null;
         }
-        
+
         @Override
-        public SyncResultType
-            syncFileAndReturnDetailedResult(MonitoredFile monitoredFile,
-                                            File watchDir) {
+        public SyncResultType syncFileAndReturnDetailedResult(MonitoredFile monitoredFile,
+                                                              File watchDir) {
             handledFiles++;
             return SyncResultType.ADDED;
         }
-        
-        @Override
-        public void addEndPointListener(EndPointListener listener) {}
 
         @Override
-        public void removeEndPointListener(EndPointListener listener) {}
+        public void addEndPointListener(EndPointListener listener) {
+        }
+
+        @Override
+        public void removeEndPointListener(EndPointListener listener) {
+        }
 
         @Override
         public void deleteContent(String spaceId, String contentId)
-            throws ContentStoreException {}
+            throws ContentStoreException {
+        }
     }
 
     @Test

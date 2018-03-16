@@ -7,17 +7,17 @@
  */
 package org.duracloud.snapshot.dto.task;
 
-import org.duracloud.snapshot.error.SnapshotDataException;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.duracloud.snapshot.error.SnapshotDataException;
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 7/25/14
+ * Date: 7/25/14
  */
 public class CreateSnapshotTaskParametersTest {
 
@@ -35,11 +35,11 @@ public class CreateSnapshotTaskParametersTest {
 
         String result = taskParams.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId +"\""));
+        assertThat(cleanResult, containsString("\"spaceId\":\"" + spaceId + "\""));
         assertThat(cleanResult,
-                   containsString("\"description\":\""+description +"\""));
+                   containsString("\"description\":\"" + description + "\""));
         assertThat(cleanResult,
-                   containsString("\"userEmail\":\""+userEmail +"\""));
+                   containsString("\"userEmail\":\"" + userEmail + "\""));
     }
 
     @Test
@@ -65,14 +65,16 @@ public class CreateSnapshotTaskParametersTest {
         try {
             CreateSnapshotTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
 
         // Verify that empty params throw
         try {
             CreateSnapshotTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
     }
 

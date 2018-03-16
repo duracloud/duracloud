@@ -7,9 +7,9 @@
  */
 package org.duracloud.integration.client;
 
-import org.duracloud.common.util.ApplicationConfig;
-
 import java.util.Properties;
+
+import org.duracloud.common.util.ApplicationConfig;
 
 /**
  * @author: Bill Branan

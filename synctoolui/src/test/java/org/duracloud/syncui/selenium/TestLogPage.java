@@ -8,13 +8,10 @@
 package org.duracloud.syncui.selenium;
 
 import junit.framework.Assert;
-
 import org.junit.Test;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 public class TestLogPage extends BasePostSetupPage {
 
@@ -22,6 +19,6 @@ public class TestLogPage extends BasePostSetupPage {
     public void testGet() {
         sc.open(getAppRoot() + "/log");
         Assert.assertTrue(isElementPresent("id=log"));
-        
+
     }
 }

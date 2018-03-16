@@ -13,6 +13,8 @@ package org.duracloud.common.util;
  */
 public interface ExtendedCountListener {
     public void setCount(long count);
+
     public void setIntermediaryCount(long count);
+
     public void setCountComplete();
 }

@@ -8,12 +8,10 @@
 package org.duracloud.audit.reader;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class AuditLogReaderNotEnabledException extends AuditLogReaderException {
-    public AuditLogReaderNotEnabledException(){
+    public AuditLogReaderNotEnabledException() {
         super("The audit log reader is not enabled.");
     }
 }

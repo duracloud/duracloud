@@ -8,9 +8,10 @@
 package org.duracloud.sync.util;
 
 import static junit.framework.Assert.assertTrue;
-import org.junit.Test;
 
 import java.io.File;
+
+import org.junit.Test;
 
 /**
  * @author: Bill Branan
@@ -25,7 +26,7 @@ public class DirectoryUtilTest {
         File[] sortedDir = DirectoryUtil.listFilesSortedByModDate(tempDir);
 
         long prevFileMod = Long.MAX_VALUE;
-        for(File file : sortedDir) {
+        for (File file : sortedDir) {
             long fileMod = file.lastModified();
             assertTrue(fileMod <= prevFileMod);
             prevFileMod = fileMod;

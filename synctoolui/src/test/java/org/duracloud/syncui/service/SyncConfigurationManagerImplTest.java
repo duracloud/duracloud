@@ -7,7 +7,10 @@
  */
 package org.duracloud.syncui.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
@@ -18,9 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 public class SyncConfigurationManagerImplTest extends AbstractTest {
     private SyncConfigurationManagerImpl syncConfigurationManager;
@@ -30,8 +31,8 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
     public void setUp() throws Exception {
         super.setup();
         configPath = System.getProperty("java.io.tmpdir")
-            + File.separator + ".sync-config" + System.currentTimeMillis();
-        
+                     + File.separator + ".sync-config" + System.currentTimeMillis();
+
         setupConfigurationManager();
     }
 
@@ -39,7 +40,7 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
         syncConfigurationManager = new SyncConfigurationManagerImpl();
         syncConfigurationManager.setConfigXmlPath(configPath);
     }
-    
+
     @Override
     public void tearDown() {
         new File(configPath).delete();
@@ -54,8 +55,11 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
     @Test
     public void testPersistDuracloudConfiguration() {
 
-        String username = "username", password = "password", host =
-            "host.duracloud.org", spaceId = "test-space-id", port = "8080";
+        String username = "username";
+        String password = "password";
+        String host = "host.duracloud.org";
+        String spaceId = "test-space-id";
+        String port = "8080";
 
         this.syncConfigurationManager.persistDuracloudConfiguration(username,
                                                                     password,
@@ -77,47 +81,47 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
             this.syncConfigurationManager.retrieveDuracloudConfiguration();
         assertNotNull(dc);
     }
-    
+
     @Test
     public void testGetSetRunMode() {
         this.syncConfigurationManager.setMode(RunMode.CONTINUOUS);
         setupConfigurationManager();
-        assertEquals(RunMode.CONTINUOUS,this.syncConfigurationManager.getMode());
+        assertEquals(RunMode.CONTINUOUS, this.syncConfigurationManager.getMode());
         this.syncConfigurationManager.setMode(RunMode.SINGLE_PASS);
         setupConfigurationManager();
-        assertEquals(RunMode.SINGLE_PASS,this.syncConfigurationManager.getMode());
+        assertEquals(RunMode.SINGLE_PASS, this.syncConfigurationManager.getMode());
     }
 
     @Test
     public void testGetSetMaxFileSize() {
         long mfs = SyncConfigurationManager.GIGABYTES;
-        long mfs2 = 2*SyncConfigurationManager.GIGABYTES;
+        long mfs2 = 2 * SyncConfigurationManager.GIGABYTES;
 
         this.syncConfigurationManager.setMaxFileSizeInBytes(mfs);
         setupConfigurationManager();
-        assertEquals(mfs,this.syncConfigurationManager.getMaxFileSizeInBytes());
+        assertEquals(mfs, this.syncConfigurationManager.getMaxFileSizeInBytes());
         this.syncConfigurationManager.setMaxFileSizeInBytes(mfs2);
         setupConfigurationManager();
-        assertEquals(mfs2,this.syncConfigurationManager.getMaxFileSizeInBytes());
+        assertEquals(mfs2, this.syncConfigurationManager.getMaxFileSizeInBytes());
     }
 
     @Test
     public void testPurgeWorkDirectory() {
         File workDir = this.syncConfigurationManager.getWorkDirectory();
-        if(workDir != null){
+        if (workDir != null) {
 
-            if(!workDir.exists()){
+            if (!workDir.exists()) {
                 workDir.mkdirs();
             }
-            
-            if(workDir.list().length == 0){
-                new File(workDir, "test"+System.currentTimeMillis()).mkdir();
+
+            if (workDir.list().length == 0) {
+                new File(workDir, "test" + System.currentTimeMillis()).mkdir();
             }
         }
 
         this.syncConfigurationManager.purgeWorkDirectory();
 
-        if(workDir != null){
+        if (workDir != null) {
             assertTrue(workDir.list().length == 0);
         }
     }

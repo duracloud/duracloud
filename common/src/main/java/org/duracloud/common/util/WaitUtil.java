@@ -11,9 +11,13 @@ package org.duracloud.common.util;
  * A utility that provides a simple wait
  *
  * @author Bill Branan
- *         Date: 7/19/13
+ * Date: 7/19/13
  */
 public class WaitUtil {
+
+    private WaitUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     /**
      * Causes the current thread to waits for a given number of seconds.
@@ -21,7 +25,7 @@ public class WaitUtil {
      * @param seconds - the number of seconds to wait
      */
     public static void wait(int seconds) {
-        waitMs(seconds*1000);
+        waitMs(seconds * 1000);
     }
 
     /**
@@ -32,7 +36,8 @@ public class WaitUtil {
     public static void waitMs(long milliseconds) {
         try {
             Thread.sleep(milliseconds);
-        } catch(InterruptedException e) {
+        } catch (InterruptedException e) {
+            // Return on interruption
         }
     }
 }

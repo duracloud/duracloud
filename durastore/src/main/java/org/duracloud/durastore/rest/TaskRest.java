@@ -7,9 +7,13 @@
  */
 package org.duracloud.durastore.rest;
 
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+
 import java.io.InputStream;
 import java.util.List;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -33,15 +37,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.CONFLICT;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 /**
  * Allows for calling storage provider specific tasks
  *
  * @author Bill Branan
- *         Date: May 20, 2010
+ * Date: May 20, 2010
  */
 @Path(StorageTaskConstants.TASK_BASE_PATH)
 @Component
@@ -53,7 +53,7 @@ public class TaskRest extends BaseRest {
     private RestUtil restUtil;
 
     @Autowired
-    
+
     public TaskRest(@Qualifier("taskProviderFactory") TaskProviderFactory taskProviderFactory,
                     RestUtil restUtil) {
         this.taskProviderFactory = taskProviderFactory;
@@ -66,8 +66,7 @@ public class TaskRest extends BaseRest {
      * @return 200 on success
      */
     @GET
-    public Response getSupportedTasks(@QueryParam("storeID")
-                                      String storeID){
+    public Response getSupportedTasks(@QueryParam("storeID") String storeID) {
         String msg = "getting suppported tasks(" + storeID + ")";
         try {
             TaskProvider taskProvider =
@@ -90,10 +89,8 @@ public class TaskRest extends BaseRest {
      */
     @Path("/{taskName}")
     @POST
-    public Response performTask(@PathParam("taskName")
-                                String taskName,
-                                @QueryParam("storeID")
-                                String storeID){
+    public Response performTask(@PathParam("taskName") String taskName,
+                                @QueryParam("storeID") String storeID) {
         String msg = "performing task(" + taskName + ", " + storeID + ")";
 
         String taskParameters = null;
@@ -105,10 +102,8 @@ public class TaskRest extends BaseRest {
         }
 
         try {
-            TaskProvider taskProvider = taskProviderFactory.getTaskProvider(
-                storeID);
-            String responseText = taskProvider.performTask(taskName,
-                                                           taskParameters);
+            TaskProvider taskProvider = taskProviderFactory.getTaskProvider(storeID);
+            String responseText = taskProvider.performTask(taskName, taskParameters);
 
             return responseOk(msg, responseText);
 
@@ -118,7 +113,7 @@ public class TaskRest extends BaseRest {
             return responseBad(msg, e, FORBIDDEN);
         } catch (StorageStateException e) {
             return responseBad(msg, e, CONFLICT);
-        } catch (ServerConflictException e){
+        } catch (ServerConflictException e) {
             return responseBad(msg, e, Response.Status.CONFLICT);
         } catch (Exception e) {
             return responseBad(msg, e, INTERNAL_SERVER_ERROR);
@@ -131,9 +126,9 @@ public class TaskRest extends BaseRest {
         RestUtil.RequestContent content =
             restUtil.getRequestContent(request, headers);
 
-        if(content != null) {
+        if (content != null) {
             InputStream contentStream = content.getContentStream();
-            if(contentStream != null) {
+            if (contentStream != null) {
                 taskParams = IOUtil.readStringFromStream(contentStream);
             }
         }
@@ -151,9 +146,7 @@ public class TaskRest extends BaseRest {
         return Response.ok(text, APPLICATION_XML).build();
     }
 
-    private Response responseBad(String msg,
-                              Exception e,
-                              Response.Status status) {
+    private Response responseBad(String msg, Exception e, Response.Status status) {
         log.error("Error: " + msg, e);
         String entity = e.getMessage() == null ? "null" : e.getMessage();
         return Response.status(status).entity(entity).build();

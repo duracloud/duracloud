@@ -7,13 +7,12 @@
  */
 package org.duracloud.common.util;
 
-import org.duracloud.common.util.TagUtil;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class TagUtilTest {
 

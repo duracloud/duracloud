@@ -27,7 +27,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * to this DuraCloud application.
  *
  * @author Andrew Woods
- *         Date: Mar 11, 2010
+ * Date: Mar 11, 2010
  */
 public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
     private final Logger log = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
@@ -35,10 +35,8 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
     private Map<String, DuracloudUserDetails> usersTable =
         new HashMap<String, DuracloudUserDetails>();
 
-
     public UserDetailsServiceImpl() {
     }
-
 
     /**
      * This method retrieves UserDetails for all users from a flat file in
@@ -129,7 +127,6 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
                                     user.getGroups());
     }
 
-
     private List<String> getGrants(GrantedAuthority[] gAuths) {
         List<String> grants = new ArrayList<String>();
         if (gAuths != null && gAuths.length > 0) {
@@ -139,5 +136,5 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
         }
         return grants;
     }
-    
+
 }

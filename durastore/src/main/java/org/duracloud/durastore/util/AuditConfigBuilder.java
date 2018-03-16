@@ -13,20 +13,20 @@ import org.duracloud.storage.domain.AuditConfig;
 
 /**
  * @author Daniel Bernstein
- * 
  */
-public class AuditConfigBuilder  {
-   private DuracloudMillRepo millRepo; 
-   public AuditConfigBuilder(DuracloudMillRepo millRepo){
-       this.millRepo = millRepo;
-   }
+public class AuditConfigBuilder {
+    private DuracloudMillRepo millRepo;
 
-   public AuditConfig build(){
-       AuditConfig config = new AuditConfig();
-       DuracloudMill mill = millRepo.findAll().get(0);
-       config.setAuditLogSpaceId(mill.getAuditLogSpaceId());
-       config.setAuditQueueName(mill.getAuditQueue());
-       return config;
-   }
-   
+    public AuditConfigBuilder(DuracloudMillRepo millRepo) {
+        this.millRepo = millRepo;
+    }
+
+    public AuditConfig build() {
+        AuditConfig config = new AuditConfig();
+        DuracloudMill mill = millRepo.findAll().get(0);
+        config.setAuditLogSpaceId(mill.getAuditLogSpaceId());
+        config.setAuditQueueName(mill.getAuditQueue());
+        return config;
+    }
+
 }

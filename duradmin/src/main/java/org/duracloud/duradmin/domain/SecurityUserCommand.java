@@ -14,7 +14,7 @@ import org.duracloud.security.domain.SecurityUserBean;
 
 /**
  * @author Andrew Woods
- *         Date: Apr 23, 2010
+ * Date: Apr 23, 2010
  */
 public class SecurityUserCommand {
     private List<SecurityUserBean> users = new ArrayList<SecurityUserBean>();
@@ -35,7 +35,7 @@ public class SecurityUserCommand {
 
     public void removeUser(String username) {
         if (username != null) {
-        	List<SecurityUserBean> readOnlyUserList = new ArrayList<SecurityUserBean>(users);
+            List<SecurityUserBean> readOnlyUserList = new ArrayList<SecurityUserBean>(users);
             for (SecurityUserBean user : readOnlyUserList) {
                 if (username.equalsIgnoreCase(user.getUsername())) {
                     users.remove(user);

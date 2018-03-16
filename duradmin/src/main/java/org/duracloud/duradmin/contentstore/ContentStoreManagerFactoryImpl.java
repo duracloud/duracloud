@@ -12,15 +12,16 @@ import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 
 public class ContentStoreManagerFactoryImpl
-        implements ContentStoreManagerFactory {
+    implements ContentStoreManagerFactory {
 
     private DuraCloudRequestContextUtil requestUtil;
 
-    public ContentStoreManagerFactoryImpl(DuraCloudRequestContextUtil requestUtil){
+    public ContentStoreManagerFactoryImpl(DuraCloudRequestContextUtil requestUtil) {
         this.requestUtil = requestUtil;
     }
+
     public ContentStoreManager create() throws Exception {
         return new ContentStoreManagerImpl(requestUtil.getHost(),
-                                           requestUtil.getPort()+"");
+                                           requestUtil.getPort() + "");
     }
 }

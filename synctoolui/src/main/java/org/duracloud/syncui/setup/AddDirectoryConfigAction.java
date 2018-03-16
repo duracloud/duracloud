@@ -16,9 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 @Component
 public class AddDirectoryConfigAction {
@@ -28,10 +26,10 @@ public class AddDirectoryConfigAction {
 
     public void execute(DirectoryConfigForm form, DirectoryConfigs directoryConfigs) throws Exception {
         String path = form.getDirectoryPath();
-        if(StringUtils.isNotBlank(path)){
+        if (StringUtils.isNotBlank(path)) {
             log.debug("adding selected directory {} to list", form.getDirectoryPath());
             directoryConfigs.add(new DirectoryConfig(path));
-        }else{
+        } else {
             log.debug("the directory path is blank; ignoring...");
         }
     }

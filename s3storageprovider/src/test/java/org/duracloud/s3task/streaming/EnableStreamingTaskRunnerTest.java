@@ -7,6 +7,16 @@
  */
 package org.duracloud.s3task.streaming;
 
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentity;
 import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentityList;
@@ -32,13 +42,6 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.*;
 
 /**
  * @author: Bill Branan
@@ -106,7 +109,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         try {
             runner.performTask(null);
             fail("Exception expected");
-        } catch(Exception expected) {
+        } catch (Exception expected) {
             assertNotNull(expected);
         }
 
@@ -120,7 +123,6 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         testCapturedProps(secure);
         testCreateRequestCapture(secure);
     }
-
 
     /*
      * For testing the case where a distribution and origin access id do not
@@ -189,7 +191,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
                 .withCloudFrontOriginAccessIdentity(oai);
         EasyMock
             .expect(cfClient.getCloudFrontOriginAccessIdentity(
-            EasyMock.isA(GetCloudFrontOriginAccessIdentityRequest.class)))
+                EasyMock.isA(GetCloudFrontOriginAccessIdentityRequest.class)))
             .andReturn(getOaiResult)
             .times(1);
 
@@ -221,7 +223,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         assertEquals(spaceProps.get(streamHostPropName), domainName);
 
         String streamTypePropName = EnableStreamingTaskRunner.STREAMING_TYPE_PROP;
-        if(secure) {
+        if (secure) {
             assertEquals(spaceProps.get(streamTypePropName),
                          EnableStreamingTaskRunner.STREAMING_TYPE.SECURE.name());
         } else {
@@ -238,7 +240,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
                              .getDomainName().startsWith(bucketName));
         assertTrue(distConfig.isEnabled());
         assertNotNull(distConfig.getComment());
-        if(secure) {
+        if (secure) {
             assertTrue(distConfig.getTrustedSigners().isEnabled());
             assertEquals(new Integer(1), distConfig.getTrustedSigners().getQuantity());
         } else {

@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Bill Branan
- *         Date: 7/23/2015
+ * Date: 7/23/2015
  */
 public class LoggingOutputWriter implements OutputWriter {
 
@@ -39,7 +39,7 @@ public class LoggingOutputWriter implements OutputWriter {
     public void writeFailure(ContentItem contentItem, String error, int attempts) {
         log.info(format(new Object[] {
             FAILURE, contentItem.getSpaceId(), contentItem.getContentId(),
-            "attempts:"+attempts, "error:"+error}));
+            "attempts:" + attempts, "error:" + error}));
     }
 
     @Override

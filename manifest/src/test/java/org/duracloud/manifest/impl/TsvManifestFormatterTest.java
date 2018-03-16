@@ -7,19 +7,19 @@
  */
 package org.duracloud.manifest.impl;
 
+import static org.duracloud.common.util.bulk.ManifestVerifier.DELIM;
+
+import java.text.ParseException;
+
 import org.duracloud.manifest.ContentMessage;
 import org.duracloud.mill.db.model.ManifestItem;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.duracloud.common.util.bulk.ManifestVerifier.DELIM;
-
-import java.text.ParseException;
-
 /**
  * @author Andrew Woods
- *         Date: 3/29/12
+ * Date: 3/29/12
  */
 public class TsvManifestFormatterTest {
 
@@ -59,7 +59,7 @@ public class TsvManifestFormatterTest {
         String expected = nil + DELIM + nil + DELIM + nil;
         Assert.assertEquals(expected, line);
     }
-    
+
     @Test
     public void testParseLine() throws Exception {
         String checksum = "checksum-md5";

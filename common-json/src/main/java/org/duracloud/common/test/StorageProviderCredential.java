@@ -7,20 +7,21 @@
  */
 package org.duracloud.common.test;
 
-import org.duracloud.common.model.SimpleCredential;
-
 import javax.xml.bind.annotation.XmlValue;
+
+import org.duracloud.common.model.SimpleCredential;
 
 /**
  * Simple set of information that is needed to connect to a storage provider.
  *
  * @author Bill Branan
- *         Date: 7/29/13
+ * Date: 7/29/13
  */
 public class StorageProviderCredential {
 
-    public static enum
-        ProviderType {AMAZON_S3, RACKSPACE, AMAZON_GLACIER, SDSC};
+    public static enum ProviderType {
+        AMAZON_S3, RACKSPACE, AMAZON_GLACIER, SDSC
+    }
 
     @XmlValue
     private ProviderType type;

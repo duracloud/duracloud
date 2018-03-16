@@ -28,9 +28,8 @@ import org.springframework.stereotype.Component;
 /**
  * This class wraps the SyncOptimizeDriver for use as an asynchronous business
  * service.
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 @Component("syncOptimizeManager")
 public class SyncOptimizeManager {
@@ -53,9 +52,9 @@ public class SyncOptimizeManager {
 
     @Autowired
     public SyncOptimizeManager(SyncConfigurationManager syncConfigurationManager) {
-        this(syncConfigurationManager,new SyncOptimizeDriver(false));
+        this(syncConfigurationManager, new SyncOptimizeDriver(false));
     }
-    
+
     private void reset() {
         status = "";
         failed = false;
@@ -94,7 +93,7 @@ public class SyncOptimizeManager {
             SyncTestEvent best = events.get(0);
             status =
                 MessageFormat.format("Transfer rate optimization underway. "
-                                         + "Current test started at {0}. {1} tests so far run. Best run so far: {2}",
+                                     + "Current test started at {0}. {1} tests so far run. Best run so far: {2}",
                                      startTime,
                                      events.size(),
                                      best.toString());
@@ -105,22 +104,24 @@ public class SyncOptimizeManager {
 
     /**
      * Starts the sync optimization process. On success, the thread count will be updated automatically.
-     * It is up to to caller to detect a successful run (using the callback interface) and responding 
+     * It is up to to caller to detect a successful run (using the callback interface) and responding
      * with an autostart of the SyncProcessManager if appropriate.
+     *
      * @param callback on success
      */
     public void start(final SyncOptimizeManagerResultCallBack callback) {
         if (isRunning()) {
-            throw new IllegalStateException("The start() method cannot be called when the sync optimize process is running.");
+            throw new IllegalStateException(
+                "The start() method cannot be called when the sync optimize process is running.");
         }
 
         running = true;
 
         new Thread(new Runnable() {
             public void run() {
-                
+
                 SyncOptimizeManager.this.reset();
-                
+
                 SyncOptimizeConfig config = new SyncOptimizeConfig();
                 DuracloudConfiguration duracloudConfig =
                     syncConfigurationManager.retrieveDuracloudConfiguration();
@@ -138,25 +139,27 @@ public class SyncOptimizeManager {
                     syncConfigurationManager.setThreadCount(threadCount);
                     status =
                         MessageFormat.format("The optimizer last ran to completion at {0}. "
-                                                 + "The optimal thread count under the prevailing system conditions at that time was {1}.  "
-                                                 + "  The system has been updated with the new thread count.",
+                                             +
+                                             "The optimal thread count under the prevailing system conditions at that" +
+                                             " time was {1}.  "
+                                             + "  The system has been updated with the new thread count.",
                                              new Date(),
                                              threadCount);
-                    
+
                     running = false;
 
-                    try{
+                    try {
                         callback.onSuccess();
-                    }catch(Exception e){
+                    } catch (Exception e) {
                         log.error(e.getMessage());
                     }
-                    
+
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                     status =
                         "The optimizer failed: "
-                            + e.getMessage()
-                            + ". Please try again or contact DuraCloud support.";
+                        + e.getMessage()
+                        + ". Please try again or contact DuraCloud support.";
                     failed = true;
                     running = false;
                     callback.onFailure(e, status);

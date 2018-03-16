@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
-  
+
   <!-- AOP Advice - Retry -->
-  <bean id="retryAdvice" class="org.duracloud.common.aop.RetryAdvice" >
-    <property name="maxRetries" value="3" />
-    <property name="waitTime" value="3000" /> <!-- Milliseconds between attempts -->
-    <property name="order" value="1" /> <!-- Advice ordering, retry has highest precedence -->
+  <bean id="retryAdvice" class="org.duracloud.common.aop.RetryAdvice">
+    <property name="maxRetries" value="3"/>
+    <property name="waitTime" value="3000"/> <!-- Milliseconds between attempts -->
+    <property name="order" value="1"/> <!-- Advice ordering, retry has highest precedence -->
   </bean>
-  
+
 
   <bean id="retryAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
     <property name="advice" ref="retryAdvice"/>
@@ -19,10 +19,10 @@
   </bean>
 
   <!-- AOP Advice - Verify Space Creation -->
-  <bean id="verifySpaceCreationAdvice" class="org.duracloud.durastore.aop.VerifySpaceCreationAdvice" >
-    <property name="maxRetries" value="3" />
-    <property name="waitTime" value="3000" /> <!-- Milliseconds between checks -->
-    <property name="order" value="3" />    
+  <bean id="verifySpaceCreationAdvice" class="org.duracloud.durastore.aop.VerifySpaceCreationAdvice">
+    <property name="maxRetries" value="3"/>
+    <property name="waitTime" value="3000"/> <!-- Milliseconds between checks -->
+    <property name="order" value="3"/>
   </bean>
 
   <bean id="verifySpaceCreationAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
@@ -31,21 +31,21 @@
   </bean>
 
   <!-- AOP Advice - Verify Space Deletion -->
-  <bean id="verifySpaceDeletionAdvice" class="org.duracloud.durastore.aop.VerifySpaceDeletionAdvice" >
-    <property name="maxRetries" value="3" />
-    <property name="waitTime" value="3000" /> <!-- Milliseconds between checks -->
-    <property name="order" value="3" />    
+  <bean id="verifySpaceDeletionAdvice" class="org.duracloud.durastore.aop.VerifySpaceDeletionAdvice">
+    <property name="maxRetries" value="3"/>
+    <property name="waitTime" value="3000"/> <!-- Milliseconds between checks -->
+    <property name="order" value="3"/>
   </bean>
 
   <bean id="verifySpaceDeletionAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
     <property name="advice" ref="verifySpaceDeletionAdvice"/>
     <property name="pattern" value=".*StatelessStorageProvider.deleteSpace"/>
   </bean>
-  
+
   <!-- AOP Advice- Snapshot Access -->
   <bean id="snapshotAccessAdvice" class="org.duracloud.durastore.aop.SnapshotAccessAdvice">
     <constructor-arg ref="authorizationHelper"/>
-    <property name="order" value="3" />    
+    <property name="order" value="3"/>
   </bean>
 
   <bean id="snapshotAccessAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
@@ -55,7 +55,7 @@
 
   <bean id="streamingAccessAdvice" class="org.duracloud.durastore.aop.StreamingAccessAdvice">
     <constructor-arg ref="authorizationHelper"/>
-    <property name="order" value="3" />    
+    <property name="order" value="3"/>
   </bean>
 
   <bean id="streamingAccessAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
@@ -65,5 +65,5 @@
 
   <!-- Enables Auto-AOP Proxy Creation -->
   <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
-  
+
 </beans>

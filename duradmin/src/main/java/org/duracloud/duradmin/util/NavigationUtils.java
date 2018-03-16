@@ -14,6 +14,10 @@ import org.springframework.webflow.execution.FlowExecutionOutcome;
 
 public class NavigationUtils {
 
+    private NavigationUtils() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     public static void setReturnTo(HttpServletRequest request,
                                    MutableAttributeMap map) {
         String returnTo = request.getParameter(NavigationUtils.RETURN_TO_KEY);
@@ -21,8 +25,7 @@ public class NavigationUtils {
     }
 
     public static String getReturnTo(FlowExecutionOutcome outcome) {
-        String returnTo =
-                outcome.getOutput().getString(NavigationUtils.RETURN_TO_KEY);
+        String returnTo = outcome.getOutput().getString(NavigationUtils.RETURN_TO_KEY);
         if (returnTo != null) {
             return "serverRelative:" + returnTo;
         } else {

@@ -7,19 +7,19 @@
  */
 package org.duracloud.chunk.stream;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.duracloud.common.util.MimetypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * This class provides the ability to limit the number of bytes read from the
  * provided InputStream to maxChunkSize.
  *
  * @author Andrew Woods
- *         Date: Feb 2, 2010
+ * Date: Feb 2, 2010
  */
 public class ChunkInputStream extends InputStream {
     private final Logger log = LoggerFactory.getLogger(ChunkInputStream.class);
@@ -58,32 +58,29 @@ public class ChunkInputStream extends InputStream {
 
         return stream.read();
     }
-    
-    
+
     @Override
     public int read(byte[] b) throws IOException {
         return this.read(b, 0, b.length);
     }
 
-    
-    
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
         long byteCount = stream.getByteCount();
-        
+
         if (byteCount >= chunkSize) {
             return -1;
         }
-        
+
         long bytesRemainingInChunk = chunkSize - byteCount;
-        
-        if(bytesRemainingInChunk <= len){
-            len = (int)bytesRemainingInChunk;
+
+        if (bytesRemainingInChunk <= len) {
+            len = (int) bytesRemainingInChunk;
         }
         return stream.read(b, off, len);
 
     }
- 
+
     public void close() throws IOException {
         // do not allow the wrapped stream to be closed.
     }

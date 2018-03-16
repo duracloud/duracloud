@@ -7,14 +7,14 @@
  */
 package org.duracloud.retrieval;
 
+import java.io.File;
+
 import org.apache.commons.io.FileUtils;
-import org.duracloud.retrieval.mgmt.OutputWriter;
 import org.duracloud.common.model.ContentItem;
+import org.duracloud.retrieval.mgmt.OutputWriter;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
-
-import java.io.File;
 
 /**
  * @author: Bill Branan
@@ -34,7 +34,7 @@ public abstract class RetrievalTestBase {
     public void tearDown() throws Exception {
         FileUtils.deleteDirectory(tempDir);
     }
-    
+
     protected OutputWriter createMockOutputWriter() {
         OutputWriter outWriter = EasyMock.createMock(OutputWriter.class);
         outWriter.writeSuccess(EasyMock.isA(ContentItem.class),

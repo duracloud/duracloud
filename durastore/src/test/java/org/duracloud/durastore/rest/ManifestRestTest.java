@@ -7,8 +7,13 @@
  */
 package org.duracloud.durastore.rest;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
+import static org.easymock.EasyMock.anyLong;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -17,7 +22,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 
@@ -40,8 +44,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author Daniel Bernstein 
- *         Date: 03/31/2017
+ * @author Daniel Bernstein
+ * Date: 03/31/2017
  */
 
 public class ManifestRestTest extends EasyMockSupport {
@@ -51,14 +55,13 @@ public class ManifestRestTest extends EasyMockSupport {
     private StorageProviderFactory storageProviderFactory;
     private StorageProvider provider;
     private ManifestResource resource;
-    private HttpServletRequest request; 
-    
+    private HttpServletRequest request;
+
     private String spaceId = "space-id";
     private String storeId = "store-id";
     private String account = "account";
     private String testContent = "test-manifest-contents";
-    
-    
+
     @Before
     public void setUp() throws Exception {
         resource = createMock("ManifestResource", ManifestResource.class);
@@ -85,7 +88,7 @@ public class ManifestRestTest extends EasyMockSupport {
         setupAccountId();
         replayAll();
         Response response = rest.getManifest(spaceId, format, storeId);
-        InputStream is = (InputStream)response.getEntity();
+        InputStream is = (InputStream) response.getEntity();
         assertEquals(testContent, IOUtil.readStringFromStream(is));
     }
 
@@ -100,13 +103,12 @@ public class ManifestRestTest extends EasyMockSupport {
         expect(request.getAttribute(Constants.SERVER_PORT)).andReturn(443);
         expect(request.getContextPath()).andReturn("/context");
 
-
         expectGetManifest(format);
 
         StorageAccount sa = createMock("StorageAccount", StorageAccount.class);
         expect(sa.getId()).andReturn(storeId);
         expect(sa.getType()).andReturn(StorageProviderType.AMAZON_S3);
-        
+
         expect(storageProviderFactory.getStorageAccounts()).andReturn(Arrays.asList(sa));
 
         expect(storageProviderFactory.getStorageProvider()).andReturn(provider);
@@ -114,16 +116,18 @@ public class ManifestRestTest extends EasyMockSupport {
         expect(provider.addContent(isA(String.class),
                                    isA(String.class),
                                    eq(ManifestFormat.TSV.getMimeType()),
-                                   EasyMock.<Map<String,String>>isNull(),
+                                   EasyMock.<Map<String, String>>isNull(),
                                    anyLong(),
                                    isA(String.class),
-                                   isA(InputStream.class))).andAnswer(new IAnswer<String>() {
-                                       @Override
-                                       public String answer() throws Throwable {
-                                           latch.countDown();
-                                           return "checksum";
-                                       }
-                                   });
+                                   isA(InputStream.class)))
+            .andAnswer(
+                new IAnswer<String>() {
+                    @Override
+                    public String answer() throws Throwable {
+                        latch.countDown();
+                        return "checksum";
+                    }
+                });
 
         replayAll();
         Response response = rest.generateManifest(spaceId, format, storeId);
@@ -138,18 +142,18 @@ public class ManifestRestTest extends EasyMockSupport {
 
     protected IExpectationSetters<InputStream> expectGetManifest(String format)
         throws ManifestArgumentException,
-            ManifestNotFoundException {
+        ManifestNotFoundException {
         return expect(resource.getManifest(account,
-                                    storeId,
-                                    spaceId,
-                                    format)).andAnswer(new IAnswer<InputStream>() {
-                                        @Override
-                                        public InputStream answer()
-                                            throws Throwable {
-                                            return createManifestInputStream();
-                                        }
-
-                                    });
+                                           storeId,
+                                           spaceId,
+                                           format))
+            .andAnswer(new IAnswer<InputStream>() {
+                @Override
+                public InputStream answer()
+                    throws Throwable {
+                    return createManifestInputStream();
+                }
+            });
     }
 
     protected void setupAccountId() {

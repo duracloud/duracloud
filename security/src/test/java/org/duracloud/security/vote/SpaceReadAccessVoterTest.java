@@ -7,9 +7,16 @@
  */
 package org.duracloud.security.vote;
 
-import static org.duracloud.storage.provider.StorageProvider.*;
-import static org.easymock.EasyMock.*;
-import static org.springframework.security.access.AccessDecisionVoter.*;
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.getCurrentArguments;
+import static org.easymock.EasyMock.isA;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.springframework.security.access.AccessDecisionVoter.ACCESS_ABSTAIN;
+import static org.springframework.security.access.AccessDecisionVoter.ACCESS_DENIED;
+import static org.springframework.security.access.AccessDecisionVoter.ACCESS_GRANTED;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +25,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.duracloud.common.constant.Constants;
@@ -45,9 +51,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.FilterInvocation;
+
 /**
  * @author Andrew Woods
- *         Date: Nov 18, 2011
+ * Date: Nov 18, 2011
  */
 public class SpaceReadAccessVoterTest {
 
@@ -62,7 +69,7 @@ public class SpaceReadAccessVoterTest {
 
     private StorageProviderFactory providerFactory;
     private StorageProvider provider;
-    
+
     private UserDetailsService userDetailsService;
     private FilterInvocation resource;
     private HttpServletRequest request;
@@ -74,17 +81,12 @@ public class SpaceReadAccessVoterTest {
         acls.put(PROPERTIES_SPACE_ACL + userRead, AclType.READ);
         acls.put(PROPERTIES_SPACE_ACL + groupWrite, AclType.WRITE);
 
+        provider = createMock("StorageProvider", StorageProvider.class);
 
-        provider = createMock("StorageProvider",
-                                                       StorageProvider.class);
-        
         providerFactory = createStorageProviderFactoryMock();
         userDetailsService = createUserDetailsServiceMock();
-        resource = createMock("FilterInvocation",
-                                       FilterInvocation.class);
-        request = createMock("HttpServletRequest",
-                                      HttpServletRequest.class);
-
+        resource = createMock("FilterInvocation", FilterInvocation.class);
+        request = createMock("HttpServletRequest", HttpServletRequest.class);
 
         this.userPathOverrides = new LinkedList<String>();
         voter =
@@ -96,18 +98,18 @@ public class SpaceReadAccessVoterTest {
     @After
     public void tearDown() {
         verify(providerFactory,
-                        provider,
-                        userDetailsService,
-                        resource,
-                        request);
+               provider,
+               userDetailsService,
+               resource,
+               request);
     }
 
     private void replayMocks() {
         replay(providerFactory,
-                        provider,
-                        userDetailsService,
-                        resource,
-                        request);
+               provider,
+               userDetailsService,
+               resource,
+               request);
     }
 
     @Test
@@ -127,7 +129,7 @@ public class SpaceReadAccessVoterTest {
     public void testUserNoAccessMethodsGET() {
         boolean securedSpace = true;
         Authentication caller = registeredUser("joe", "none");
-        createMockInvocation(caller, securedSpace, HttpVerb.GET,3);
+        createMockInvocation(caller, securedSpace, HttpVerb.GET, 3);
         Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         setupGetSpaceAcls();
         replayMocks();
@@ -135,10 +137,8 @@ public class SpaceReadAccessVoterTest {
         int decision = voter.vote(caller, resource, config);
         Assert.assertEquals(ACCESS_DENIED, decision);
     }
-    
 
-
-     @Test
+    @Test
     public void testGroupAccessMethodsGET() {
         boolean securedSpace = true;
         Authentication caller = registeredUser("joe", groupWrite);
@@ -152,13 +152,11 @@ public class SpaceReadAccessVoterTest {
         Assert.assertEquals(ACCESS_GRANTED, decision);
     }
 
-
-
     @Test
     public void testGroupNoAccessMethodsGET() {
         boolean securedSpace = true;
         Authentication caller = registeredUser("joe", "none");
-        createMockInvocation(caller, securedSpace, HttpVerb.GET,3);
+        createMockInvocation(caller, securedSpace, HttpVerb.GET, 3);
         Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         setupGetSpaceAcls();
 
@@ -195,7 +193,6 @@ public class SpaceReadAccessVoterTest {
     public void testVoteReservedResourcesOpenAcl() {
         doTestVoteReservedResourcesOpen("acl");
     }
-
 
     private void doTestVoteReservedResourcesOpen(String spaceId) {
         boolean securedSpace = false;
@@ -235,17 +232,17 @@ public class SpaceReadAccessVoterTest {
     }
 
     @Test
-    public void testManifest(){
+    public void testManifest() {
         testNonSpacesPaths("/manifest/space-id");
     }
 
     @Test
-    public void testBitIntegrity(){
+    public void testBitIntegrity() {
         testNonSpacesPaths("/bit-integrity/space-id");
     }
 
     @Test
-    public void testSpaceReport(){
+    public void testSpaceReport() {
         testNonSpacesPaths("/report/space/space-id");
     }
 
@@ -263,7 +260,7 @@ public class SpaceReadAccessVoterTest {
         boolean securedSpace = true;
         String sourceSpaceRead = "source-read";
         int outcome = success ? ACCESS_GRANTED : ACCESS_DENIED;
-        
+
         Authentication caller = registeredUser("joe", success ? sourceSpaceRead : "none");
         String spaceId = "source-space";
         long timestamp = System.currentTimeMillis();
@@ -271,12 +268,11 @@ public class SpaceReadAccessVoterTest {
         createMockInvocation(caller,
                              securedSpace,
                              HttpVerb.GET,
-                             "/" + Constants.SNAPSHOT_METADATA_SPACE
-                                           + "/"
-                                           + snapshotId.getSnapshotId()+".zip",
+                             "/" + Constants.SNAPSHOT_METADATA_SPACE + "/"
+                             + snapshotId.getSnapshotId() + ".zip",
                              3);
         Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
-        Map<String,AclType> sourceSpaceAcls = new HashMap<String, AclType>();
+        Map<String, AclType> sourceSpaceAcls = new HashMap<String, AclType>();
         sourceSpaceAcls.put(PROPERTIES_SPACE_ACL + sourceSpaceRead, AclType.READ);
         setupGetSpaceAcls();
         setupGetSpaceAcls(spaceId, sourceSpaceAcls);
@@ -285,7 +281,6 @@ public class SpaceReadAccessVoterTest {
         Assert.assertEquals(outcome, decision);
     }
 
-    
     @Test
     public void testVoteOpenAuthenticated() {
         boolean securedSpace = false;
@@ -303,7 +298,6 @@ public class SpaceReadAccessVoterTest {
         boolean securedSpace = true;
         verifyVote(registeredUser("joe", "none"), securedSpace, ACCESS_DENIED, 3);
     }
-
 
     @Test
     public void testVoteClosedAuthenticatedAccess() {
@@ -342,7 +336,7 @@ public class SpaceReadAccessVoterTest {
         groups.add(group);
 
         Collection<GrantedAuthority> authorities =
-            Arrays.asList(new GrantedAuthority[]{new SimpleGrantedAuthority("ROLE_USER")});
+            Arrays.asList(new GrantedAuthority[] {new SimpleGrantedAuthority("ROLE_USER")});
         DuracloudUserDetails user = new DuracloudUserDetails(username,
                                                              "x",
                                                              "email",
@@ -358,18 +352,18 @@ public class SpaceReadAccessVoterTest {
 
     private Authentication anonymousUser() {
         Collection<GrantedAuthority> authorities =
-            Arrays.asList(new GrantedAuthority[]{new SimpleGrantedAuthority("ROLE_ANONYMOUS")});
+            Arrays.asList(new GrantedAuthority[] {new SimpleGrantedAuthority("ROLE_ANONYMOUS")});
         User user = new User("anon", "x", true, true, true, true, authorities);
         return new AnonymousAuthenticationToken("x", user, authorities);
     }
 
     private FilterInvocation createMockInvocation(Authentication caller,
-                                      boolean securedSpace,
-                                      HttpVerb method,
-                                      int times) {
+                                                  boolean securedSpace,
+                                                  HttpVerb method,
+                                                  int times) {
         return createMockInvocation(caller, securedSpace, method, null, times);
     }
-    
+
     private FilterInvocation createMockInvocation(Authentication caller,
                                                   boolean securedSpace,
                                                   HttpVerb method) {
@@ -380,9 +374,9 @@ public class SpaceReadAccessVoterTest {
                                                   boolean securedSpace,
                                                   HttpVerb method, String pathInfo, int times) {
         String spaceId = OPEN_SPACE_ID;
-        if(pathInfo != null){
+        if (pathInfo != null) {
             spaceId = pathInfo;
-        }else{
+        } else {
             if (securedSpace) {
                 spaceId = "some-closed-space";
             }
@@ -428,7 +422,7 @@ public class SpaceReadAccessVoterTest {
 
     private UserDetailsService createUserDetailsServiceMock() {
         userDetailsService = createMock("UserDetailsService",
-                                                 UserDetailsService.class);
+                                        UserDetailsService.class);
         UserDetails userDetails = new User("username",
                                            "password",
                                            true,
@@ -438,30 +432,30 @@ public class SpaceReadAccessVoterTest {
                                            new LinkedList<GrantedAuthority>());
 
         expect(userDetailsService.loadUserByUsername(EasyMock.<String>anyObject()))
-                .andReturn(userDetails)
-                .anyTimes();
+            .andReturn(userDetails)
+            .anyTimes();
 
         return userDetailsService;
     }
 
     private StorageProviderFactory createStorageProviderFactoryMock() {
         StorageProviderFactory providerFactory = createMock("StorageProviderFactory",
-                                     StorageProviderFactory.class);
+                                                            StorageProviderFactory.class);
 
         expect(providerFactory.getStorageProvider(storeId)).andReturn(
             provider).anyTimes();
 
         return providerFactory;
     }
-    
-    private void setupGetSpaceAcls(){
+
+    private void setupGetSpaceAcls() {
         setupGetSpaceAcls(isA(String.class), acls);
 
     }
 
-    private void setupGetSpaceAcls(String spaceId, Map<String,AclType> acls){
+    private void setupGetSpaceAcls(String spaceId, Map<String, AclType> acls) {
         expect(provider.getSpaceACLs(spaceId))
-                .andAnswer(getACLs(acls));
+            .andAnswer(getACLs(acls));
 
     }
 

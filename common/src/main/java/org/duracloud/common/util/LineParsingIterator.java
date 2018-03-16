@@ -17,32 +17,33 @@ import java.util.List;
 /**
  * This class iterates over and parses the lines of a stream.
  * By default it parses tab separated lines.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 public class LineParsingIterator implements Iterator<List<String>> {
     private BufferedReader reader;
     private String currentLine = null;
-    private Parseable parsingStrategy; 
+    private Parseable parsingStrategy;
 
-    private static final Parseable TAB_SEPARATED_STRATEGY; 
+    private static final Parseable TAB_SEPARATED_STRATEGY;
+
     static {
-        TAB_SEPARATED_STRATEGY = new  Parseable() {
+        TAB_SEPARATED_STRATEGY = new Parseable() {
             @Override
             public List<String> parseLine(String line) {
                 return Arrays.asList(line.split("[\t]"));
             }
         };
     }
-    
-    public LineParsingIterator(Reader reader){
+
+    public LineParsingIterator(Reader reader) {
         this(reader, TAB_SEPARATED_STRATEGY);
     }
-    
-    public LineParsingIterator(Reader reader, Parseable parsingStrategy){
+
+    public LineParsingIterator(Reader reader, Parseable parsingStrategy) {
         this.reader = new BufferedReader(reader);
-        
-        if(parsingStrategy == null){
+
+        if (parsingStrategy == null) {
             throw new IllegalArgumentException("parsingStrategy must not be null");
         }
 
@@ -59,14 +60,14 @@ public class LineParsingIterator implements Iterator<List<String>> {
             e.printStackTrace();
         }
     }
-    
+
     private List<String> parseLine(String line) {
         return this.parsingStrategy.parseLine(line);
     }
 
     @Override
     public final List<String> next() {
-        List<String> object =  parseLine(this.currentLine);
+        List<String> object = parseLine(this.currentLine);
         readNextLine();
         return object;
     }
@@ -80,9 +81,9 @@ public class LineParsingIterator implements Iterator<List<String>> {
     public final boolean hasNext() {
         return currentLine != null;
     }
-    
+
     public static interface Parseable {
         List<String> parseLine(String line);
     }
-    
+
 }

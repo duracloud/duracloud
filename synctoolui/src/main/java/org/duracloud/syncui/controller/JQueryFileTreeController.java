@@ -7,35 +7,32 @@
  */
 package org.duracloud.syncui.controller;
 
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 /**
  * A spring controller to support jqueryFileTree.js
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 @Controller
 public class JQueryFileTreeController {
 
-
- 
-    @RequestMapping(value = { "/ajax/jqueryFileTree" })
-    public String get(@RequestParam(value="dir", required=false) String dir, Model model) throws Exception {
+    @RequestMapping(value = {"/ajax/jqueryFileTree"})
+    public String get(@RequestParam(value = "dir", required = false) String dir, Model model) throws Exception {
         // if blank
         List<File> children = new ArrayList<File>();
         model.addAttribute("children", children);
-        
+
         if (StringUtils.isBlank(dir)) {
             File[] roots = File.listRoots();
 

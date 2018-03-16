@@ -8,7 +8,7 @@
 package org.duracloud.sync.mgmt;
 
 /**
-  * @author: Bill Branan
+ * @author: Bill Branan
  * Date: Mar 17, 2010
  */
 public interface ChangeHandler {

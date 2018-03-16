@@ -7,54 +7,54 @@
  */
 package org.duracloud.syncoptimize.config;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.apache.commons.cli.ParseException;
 import org.duracloud.common.util.ConsolePrompt;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.fail;
-
 /**
  * @author Bill Branan
- *         Date: 5/16/14
+ * Date: 5/16/14
  */
 public class SyncOptimizeConfigParserTest {
-    
+
     @Test
     public void testPasswordEnvVariable() throws Exception {
         SyncOptimizeConfigParser envRetConfigParser =
             new SyncOptimizeConfigParser() {
-            protected String getPasswordEnvVariable() {
-                return "envPassword";
-            }
-        };
+                protected String getPasswordEnvVariable() {
+                    return "envPassword";
+                }
+            };
         testStandardOptions(envRetConfigParser, "envPassword");
     }
 
-	@Test
+    @Test
     public void testPasswordPrompt() throws Exception {
         SyncOptimizeConfigParser promptRetConfigParser =
             new SyncOptimizeConfigParser() {
-            protected ConsolePrompt getConsole() {
-                ConsolePrompt console = EasyMock.createMock(ConsolePrompt.class);
-                char[] charPass = {'P','a','s','s','w','o','r','d'};
-                EasyMock.expect(console.readPassword("DuraCloud password: "))
-                        .andReturn(charPass);
-                EasyMock.replay(console);
-                return console;
-            }
-        };
+                protected ConsolePrompt getConsole() {
+                    ConsolePrompt console = EasyMock.createMock(ConsolePrompt.class);
+                    char[] charPass = {'P', 'a', 's', 's', 'w', 'o', 'r', 'd'};
+                    EasyMock.expect(console.readPassword("DuraCloud password: "))
+                            .andReturn(charPass);
+                    EasyMock.replay(console);
+                    return console;
+                }
+            };
         testStandardOptions(promptRetConfigParser, "Password");
     }
 
     public void testStandardOptions(SyncOptimizeConfigParser retConfigParser,
                                     String expectedPassword) throws Exception {
-    	HashMap<String, String> argsMap = getArgsMap();
+        HashMap<String, String> argsMap = getArgsMap();
 
         // Process configs, make sure values match
         SyncOptimizeConfig syncOptConfig =
@@ -77,7 +77,7 @@ public class SyncOptimizeConfigParserTest {
         assertEquals(expectedPassword, syncOptConfig.getPassword());
 
         // Make sure error is thrown on missing required params
-        for(String arg : argsMap.keySet()) {
+        for (String arg : argsMap.keySet()) {
             String failMsg = "An exception should have been thrown due to " +
                              "missing arg: " + arg;
             removeArgFailTest(retConfigParser, argsMap, arg, failMsg);
@@ -109,7 +109,7 @@ public class SyncOptimizeConfigParserTest {
 
     private String[] mapToArray(HashMap<String, String> map) {
         ArrayList<String> list = new ArrayList<>();
-        for(String key : map.keySet()) {
+        for (String key : map.keySet()) {
             list.add(key);
             list.add(map.get(key));
         }
@@ -122,12 +122,12 @@ public class SyncOptimizeConfigParserTest {
                                 String value,
                                 String failMsg) {
         HashMap<String, String> cloneMap =
-            (HashMap<String, String>)argsMap.clone();
+            (HashMap<String, String>) argsMap.clone();
         cloneMap.put(arg, value);
         try {
             retConfigParser.processOptions(mapToArray(cloneMap));
             fail(failMsg);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             assertNotNull(e);
         }
     }
@@ -137,12 +137,12 @@ public class SyncOptimizeConfigParserTest {
                                    String arg,
                                    String failMsg) {
         HashMap<String, String> cloneMap =
-            (HashMap<String, String>)argsMap.clone();
+            (HashMap<String, String>) argsMap.clone();
         cloneMap.remove(arg);
         try {
             retConfigParser.processOptions(mapToArray(cloneMap));
             fail(failMsg);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             assertNotNull(e);
         }
     }

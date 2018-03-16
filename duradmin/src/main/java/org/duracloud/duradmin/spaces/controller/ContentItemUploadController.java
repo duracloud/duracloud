@@ -10,7 +10,6 @@ package org.duracloud.duradmin.spaces.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -35,16 +34,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * 
  * @author Daniel Bernstein
  */
 
 @Controller
-public class ContentItemUploadController  {
+public class ContentItemUploadController {
 
     protected final Logger log =
         LoggerFactory.getLogger(ContentItemUploadController.class);
-
 
     private ContentStoreManager contentStoreManager;
 
@@ -54,7 +51,7 @@ public class ContentItemUploadController  {
         this.contentStoreManager = contentStoreManager;
     }
 
-    @RequestMapping(value="/spaces/content/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/spaces/content/upload", method = RequestMethod.POST)
     public ModelAndView handleRequest(HttpServletRequest request,
                                       HttpServletResponse response)
         throws Exception {

@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
  * Restarts a snapshot that failed to successfully transfer content
  * from DuraCloud to the bridge.
  *
- * @author Daniel Bernstein 
- *         Date: 08/10/15
+ * @author Daniel Bernstein
+ * Date: 08/10/15
  */
 public class RestartSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
 
@@ -31,9 +31,9 @@ public class RestartSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
     private String dcHost;
 
     public RestartSnapshotTaskRunner(String bridgeAppHost,
-                                  String bridgeAppPort,
-                                  String bridgeAppUser,
-                                  String bridgeAppPass) {
+                                     String bridgeAppPort,
+                                     String bridgeAppUser,
+                                     String bridgeAppPass) {
         super(bridgeAppHost, bridgeAppPort, bridgeAppUser, bridgeAppPass);
     }
 
@@ -69,12 +69,12 @@ public class RestartSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
         try {
             RestHttpHelper.HttpResponse response = restHelper.post(bridgeURL, null, null);
             int statusCode = response.getStatusCode();
-            if(statusCode != HttpStatus.SC_ACCEPTED) {
+            if (statusCode != HttpStatus.SC_ACCEPTED) {
                 throw new RuntimeException("Unexpected response code: " +
                                            statusCode);
             }
             return response.getResponseBody();
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new TaskException("Exception encountered attempting to " +
                                     "restart snapshot. " +
                                     "Error reported: " + e.getMessage(), e);

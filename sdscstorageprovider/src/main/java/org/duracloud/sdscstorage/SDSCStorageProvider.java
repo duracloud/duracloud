@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * Provides content storage backed by SDSC's Cloud Storage service.
  *
  * @author Andrew Woods
- *         Oct 04, 2011
+ * Oct 04, 2011
  */
 public class SDSCStorageProvider extends OpenStackStorageProvider {
 

@@ -7,9 +7,9 @@
  */
 package org.duracloud.reportdata.storage.metrics;
 
+import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import java.util.List;
 
 /**
  * @author: Bill Branan
@@ -88,7 +88,7 @@ public abstract class Metrics {
         int result = (int) (totalItems ^ (totalItems >>> 32));
         result = 31 * result + (int) (totalSize ^ (totalSize >>> 32));
         result = 31 * result +
-            (mimetypeMetrics != null ? mimetypeMetrics.hashCode() : 0);
+                 (mimetypeMetrics != null ? mimetypeMetrics.hashCode() : 0);
         return result;
     }
 

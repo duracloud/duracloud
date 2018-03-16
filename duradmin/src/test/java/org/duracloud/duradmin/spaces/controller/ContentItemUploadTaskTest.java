@@ -21,7 +21,7 @@ import org.junit.Test;
 
 /**
  * @author Andrew Woods
- *         Date: Jan 7, 2011
+ * Date: Jan 7, 2011
  */
 public class ContentItemUploadTaskTest {
 
@@ -55,7 +55,7 @@ public class ContentItemUploadTaskTest {
                                          EasyMock.eq(contentItem.getContentMimetype()),
                                          EasyMock.<String>isNull(),
                                          EasyMock.<Map<String, String>>isNull()))
-            .andReturn(null);
+                .andReturn(null);
 
         EasyMock.replay(store);
         return store;
@@ -72,7 +72,6 @@ public class ContentItemUploadTaskTest {
                                          contentStore,
                                          stream,
                                          username);
-
 
         task.execute();
 

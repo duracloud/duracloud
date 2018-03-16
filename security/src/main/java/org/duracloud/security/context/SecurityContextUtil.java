@@ -22,18 +22,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * session.
  *
  * @author Andrew Woods
- *         Date: Mar 27, 2010
+ * Date: Mar 27, 2010
  */
 public class SecurityContextUtil implements UserUtil {
 
     private final Logger log = LoggerFactory.getLogger(SecurityContextUtil.class);
 
     static {
-        //We set this value here in order to ensure that spawned threads do not 
-        //lose their security context. 
+        //We set this value here in order to ensure that spawned threads do not
+        //lose their security context.
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
     }
-    
+
     @Override
     public String getCurrentUsername() throws NoUserLoggedInException {
         DuracloudUserDetails userDetails = getCurrentUserDetails();

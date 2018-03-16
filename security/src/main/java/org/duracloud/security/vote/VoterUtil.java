@@ -14,9 +14,13 @@ import org.springframework.security.core.Authentication;
 
 /**
  * @author Andrew Woods
- *         Date: Mar 14, 2010
+ * Date: Mar 14, 2010
  */
 public class VoterUtil {
+
+    private VoterUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     /**
      * This is small debug utility available to voters in this package.

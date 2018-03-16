@@ -16,16 +16,17 @@ import org.springframework.web.servlet.view.UrlBasedViewResolver;
 import org.springframework.web.servlet.view.tiles2.SpringBeanPreparerFactory;
 import org.springframework.web.servlet.view.tiles2.TilesConfigurer;
 import org.springframework.web.servlet.view.tiles2.TilesView;
+
 /**
  * A bean configuration class supporting the view layer.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 @Configuration
-public class ViewConfig{
-   
+public class ViewConfig {
+
     @Bean
-    public ViewResolver viewResolver(){
+    public ViewResolver viewResolver() {
         UrlBasedViewResolver r = new UrlBasedViewResolver();
         r.setViewClass(TilesView.class);
         r.setOrder(1);
@@ -33,15 +34,15 @@ public class ViewConfig{
     }
 
     @Bean
-    public TilesConfigurer tilesConfigurer(){
+    public TilesConfigurer tilesConfigurer() {
         TilesConfigurer t = new TilesConfigurer();
-        t.setDefinitions(new String[]{
+        t.setDefinitions(new String[] {
             "/WEB-INF/**/views.xml"
         });
         t.setPreparerFactoryClass(SpringBeanPreparerFactory.class);
         return t;
     }
-    
+
     @Bean
     public InternalResourceViewResolver jspViewResolver() {
         InternalResourceViewResolver r = new InternalResourceViewResolver();

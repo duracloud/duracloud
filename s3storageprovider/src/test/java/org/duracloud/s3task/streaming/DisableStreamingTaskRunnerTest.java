@@ -7,6 +7,13 @@
  */
 package org.duracloud.s3task.streaming;
 
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import java.util.Map;
+
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
@@ -14,11 +21,6 @@ import org.duracloud.s3storageprovider.dto.DisableStreamingTaskParameters;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.junit.Test;
-
-import java.util.Map;
-
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.*;
 
 /**
  * @author: Bill Branan
@@ -65,7 +67,7 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
         try {
             runner.performTask(null);
             fail("Exception expected");
-        } catch(Exception expected) {
+        } catch (Exception expected) {
             assertNotNull(expected);
         }
 
@@ -75,7 +77,7 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
         try {
             runner.performTask(taskParams.serialize());
             fail("Exception expected");
-        } catch(Exception expected) {
+        } catch (Exception expected) {
             assertNotNull(expected);
         }
 

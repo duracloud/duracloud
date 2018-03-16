@@ -7,6 +7,9 @@
  */
 package org.duracloud.syncui.validation;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.error.UnauthorizedException;
@@ -15,9 +18,6 @@ import org.duracloud.syncui.service.ContentStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 /**
  * Test to determine if a user has write permissions for a given space.
@@ -34,13 +34,13 @@ public class SpaceWritableValidator
         LoggerFactory.getLogger(SpaceWritableValidator.class);
 
     @Autowired
-    public SpaceWritableValidator (ContentStoreFactory contentStoreFactory) {
+    public SpaceWritableValidator(ContentStoreFactory contentStoreFactory) {
         this.contentStoreFactory = contentStoreFactory;
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.validation.ConstraintValidator#isValid(java.lang.Object,
      * javax.validation.ConstraintValidatorContext)
      */
@@ -54,7 +54,7 @@ public class SpaceWritableValidator
             String spaceId = spaceForm.getSpaceId();
             String contentId =
                 ".duracloud-dummy-item-" + System.currentTimeMillis();
-            contentStore.deleteContent(spaceId,  contentId);
+            contentStore.deleteContent(spaceId, contentId);
             return true;
         } catch (UnauthorizedException e) {
             log.error(e.getMessage(), e);
@@ -63,16 +63,16 @@ public class SpaceWritableValidator
                    .addNode("spaceId")
                    .addConstraintViolation();
             return false;
-        } catch (NotFoundException ex){
+        } catch (NotFoundException ex) {
             return true;
         } catch (Exception ex) {
-            throw new RuntimeException("unexpected exception!:"+ex.getMessage(), ex);
+            throw new RuntimeException("unexpected exception!:" + ex.getMessage(), ex);
         }
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * javax.validation.ConstraintValidator#initialize(java.lang.annotation.
      * Annotation)

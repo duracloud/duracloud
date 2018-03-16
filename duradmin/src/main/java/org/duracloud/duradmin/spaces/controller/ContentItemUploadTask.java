@@ -70,15 +70,11 @@ public class ContentItemUploadTask implements Comparable, ProgressListener {
             log.info("file upload completed successfully: {}", contentItem);
 
         } catch (Exception ex) {
-            log.error(
-                "failed to upload content item: {}, bytesRead={}, totalBytes={},  message: {}",
-                new Object[]{contentItem,
-                             this.bytesRead,
-                             this.totalBytes,
-                             ex.getMessage()});
+            log.error("failed to upload content item: {}, bytesRead={}, totalBytes={},  message: {}",
+                      new Object[] {contentItem, this.bytesRead, this.totalBytes, ex.getMessage()});
 
-                ex.printStackTrace();
-                throw ex;
+            ex.printStackTrace();
+            throw ex;
 
         } finally {
             FileUtils.deleteQuietly(tmpFile);
@@ -96,10 +92,9 @@ public class ContentItemUploadTask implements Comparable, ProgressListener {
 
     public String getId() {
         return this.contentItem.getStoreId() + "/" +
-            this.contentItem.getSpaceId() + "/" +
-            this.contentItem.getContentId();
+               this.contentItem.getSpaceId() + "/" +
+               this.contentItem.getContentId();
     }
-
 
     public Map<String, String> getProperties() {
         Map<String, String> map = new HashMap<String, String>();
@@ -110,7 +105,6 @@ public class ContentItemUploadTask implements Comparable, ProgressListener {
         map.put("storeId", this.contentItem.getStoreId());
         return map;
     }
-
 
     public Date getStartDate() {
         return this.startDate;
@@ -128,11 +122,11 @@ public class ContentItemUploadTask implements Comparable, ProgressListener {
 
     public String toString() {
         return "{startDate: " + startDate + ", bytesRead: " + this.bytesRead +
-            ", totalBytes: " + totalBytes + ", storeId: " +
-            contentItem.getStoreId() + ", spaceId: " +
-            contentItem.getSpaceId() + ", contentId: " +
-            contentItem.getContentId() +
-            "}";
+               ", totalBytes: " + totalBytes + ", storeId: " +
+               contentItem.getStoreId() + ", spaceId: " +
+               contentItem.getSpaceId() + ", contentId: " +
+               contentItem.getContentId() +
+               "}";
     }
 
 }

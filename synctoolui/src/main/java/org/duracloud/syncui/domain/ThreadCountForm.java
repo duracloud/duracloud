@@ -8,9 +8,7 @@
 package org.duracloud.syncui.domain;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class ThreadCountForm {
     private int threadCount;

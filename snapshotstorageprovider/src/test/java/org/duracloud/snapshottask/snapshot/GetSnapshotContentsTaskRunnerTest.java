@@ -7,6 +7,15 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
@@ -18,18 +27,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 /**
  * @author Bill Branan
- *         Date: 8/12/14
+ * Date: 8/12/14
  */
 public class GetSnapshotContentsTaskRunnerTest {
 
@@ -58,7 +58,7 @@ public class GetSnapshotContentsTaskRunnerTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         EasyMock.verify(restHelper);
     }
 
@@ -75,7 +75,7 @@ public class GetSnapshotContentsTaskRunnerTest {
         taskParams.setPrefix(prefix);
 
         String url = taskRunner.buildBridgeURL(taskParams);
-        String expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
+        String expectedUrl = "http://" + bridgeHost + ":" + bridgePort +
                              "/bridge/snapshot/" + snapshotId +
                              "/content?page=" + pageNumber +
                              "&pageSize=" + pageSize + "&prefix=" + prefix;
@@ -89,7 +89,7 @@ public class GetSnapshotContentsTaskRunnerTest {
         taskParams.setPrefix(null);
 
         url = taskRunner.buildBridgeURL(taskParams);
-        expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
+        expectedUrl = "http://" + bridgeHost + ":" + bridgePort +
                       "/bridge/snapshot/" + snapshotId +
                       "/content?page=0&pageSize=1000&prefix=";
         assertEquals(expectedUrl, url);
@@ -147,7 +147,8 @@ public class GetSnapshotContentsTaskRunnerTest {
         try {
             taskRunner.callBridge(restHelper, bridgeURL);
             fail("Exception expected on 500 response");
-        } catch(TaskException e) {
+        } catch (TaskException e) {
+            // Expected exception
         }
     }
 

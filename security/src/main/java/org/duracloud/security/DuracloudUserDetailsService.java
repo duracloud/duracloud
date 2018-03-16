@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * @author Andrew Woods
- *         Date: Apr 15, 2010
+ * Date: Apr 15, 2010
  */
 public interface DuracloudUserDetailsService extends UserDetailsService {
 

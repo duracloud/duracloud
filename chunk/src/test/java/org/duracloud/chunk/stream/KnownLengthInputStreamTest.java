@@ -7,17 +7,16 @@
  */
 package org.duracloud.chunk.stream;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
 /**
- * 
  * @author dbernstein
- *
  */
 public class KnownLengthInputStreamTest {
 

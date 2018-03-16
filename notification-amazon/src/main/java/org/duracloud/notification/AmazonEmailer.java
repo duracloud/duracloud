@@ -7,14 +7,18 @@
  */
 package org.duracloud.notification;
 
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.model.*;
-
 import java.util.Arrays;
+
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
+import com.amazonaws.services.simpleemail.model.Body;
+import com.amazonaws.services.simpleemail.model.Content;
+import com.amazonaws.services.simpleemail.model.Destination;
+import com.amazonaws.services.simpleemail.model.Message;
+import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 
 /**
  * @author Andrew Woods
- *         Date: 3/11/11
+ * Date: 3/11/11
  */
 public class AmazonEmailer implements Emailer {
 
@@ -41,15 +45,11 @@ public class AmazonEmailer implements Emailer {
 
     private void sendEmail(String subject, Body body, String... recipients) {
         Destination destination = new Destination(Arrays.asList(recipients));
-        Message msg = new Message().
-            withBody(body).
-            withSubject(new Content(subject));
+        Message msg = new Message().withBody(body).withSubject(new Content(subject));
 
-        SendEmailRequest request = new SendEmailRequest().
-            withSource(fromAddress).
-            withDestination(destination).
-            withMessage(msg);
-
+        SendEmailRequest request = new SendEmailRequest().withSource(fromAddress)
+                                                         .withDestination(destination)
+                                                         .withMessage(msg);
         emailService.sendEmail(request);
     }
 }

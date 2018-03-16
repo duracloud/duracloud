@@ -7,31 +7,31 @@
  */
 package org.duracloud.syncoptimize.data;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Test;
-
-import java.io.File;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 5/23/14
+ * Date: 5/23/14
  */
 public class TestDataHandlerTest {
 
-     private File dir1 = new File("target/data-handler-test-dir-1");
-     private File dir2 = new File("target/data-handler-test-dir-2");
+    private File dir1 = new File("target/data-handler-test-dir-1");
+    private File dir2 = new File("target/data-handler-test-dir-2");
 
     @After
     public void teardown() {
-        if(dir1.exists()) {
+        if (dir1.exists()) {
             FileUtils.deleteQuietly(dir1);
         }
-        if(dir2.exists()) {
+        if (dir2.exists()) {
             FileUtils.deleteQuietly(dir2);
         }
     }
@@ -66,7 +66,7 @@ public class TestDataHandlerTest {
         dataHandler.createTestData(dir1, numFiles, xMB);
 
         assertEquals(5, dir1.listFiles().length);
-        for(File file : dir1.listFiles()) {
+        for (File file : dir1.listFiles()) {
             assertEquals(2048, file.length());
         }
     }

@@ -8,13 +8,10 @@
 package org.duracloud.syncui.selenium;
 
 import junit.framework.Assert;
-
 import org.junit.Test;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 public class TestStatusPage extends BasePostSetupPage {
 
@@ -27,7 +24,7 @@ public class TestStatusPage extends BasePostSetupPage {
         clickAndWait("css=#errors-tab a");
         Assert.assertTrue(isElementPresent("id=errors"));
         Assert.assertFalse(isElementPresent("id=queued"));
-        
+
     }
 
     @Test

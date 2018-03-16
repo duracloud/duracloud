@@ -8,15 +8,12 @@
 package org.duracloud.audit.reader;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.error.ContentStoreException;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class AuditLogReaderException extends DuraCloudRuntimeException {
-    
+
     private static final long serialVersionUID = 1L;
 
     public AuditLogReaderException(String msg) {

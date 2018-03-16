@@ -17,7 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 /**
  * @author Andrew Woods
- *         Date: 11/11/11
+ * Date: 11/11/11
  */
 public class DuracloudUserDetailsTest {
 

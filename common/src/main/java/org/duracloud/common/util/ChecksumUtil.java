@@ -7,10 +7,6 @@
  */
 package org.duracloud.common.util;
 
-import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,10 +15,15 @@ import java.io.UnsupportedEncodingException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A utility class for generating checksums.  Beware this class it not threadsafe.
- * @author danny
  *
+ * @author Daniel Bernstein
  */
 public class ChecksumUtil {
 
@@ -47,7 +48,8 @@ public class ChecksumUtil {
 
     /**
      * This method generates checksum of content in arg stream.
-     * Warning: this method is NOT threadsafe. 
+     * Warning: this method is NOT threadsafe.
+     *
      * @param inStream Content used as target of checksum.
      * @return string representation of the generated checksum.
      */
@@ -87,7 +89,7 @@ public class ChecksumUtil {
         try {
             digest.update(string.getBytes("UTF-8"));
             return digest.digest();
-        } catch(UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         } finally {
             digest.reset();
@@ -120,7 +122,7 @@ public class ChecksumUtil {
      * Wraps an InputStream with a DigestInputStream in order to compute
      * a checksum as the stream is being read.
      *
-     * @param inStream The stream to wrap
+     * @param inStream  The stream to wrap
      * @param algorithm The algorithm used to compute the digest
      * @return The original stream wrapped as a DigestInputStream
      */
@@ -131,8 +133,8 @@ public class ChecksumUtil {
             streamDigest = MessageDigest.getInstance(algorithm.toString());
         } catch (NoSuchAlgorithmException e) {
             String error = "Could not create a MessageDigest because the " +
-            		       "required algorithm " + algorithm.toString() +
-            		       " is not supported.";
+                           "required algorithm " + algorithm.toString() +
+                           " is not supported.";
             throw new RuntimeException(error);
         }
 
@@ -171,9 +173,9 @@ public class ChecksumUtil {
      */
     public static String checksumBytesToString(byte[] digestBytes) {
         StringBuffer hexString = new StringBuffer();
-        for (int i=0; i<digestBytes.length; i++) {
-            String hex=Integer.toHexString(0xff & digestBytes[i]);
-            if(hex.length() == 1) {
+        for (int i = 0; i < digestBytes.length; i++) {
+            String hex = Integer.toHexString(0xff & digestBytes[i]);
+            if (hex.length() == 1) {
                 hexString.append('0');
             }
             hexString.append(hex);
@@ -183,10 +185,10 @@ public class ChecksumUtil {
 
     public static byte[] hexStringToByteArray(String s) {
         byte[] b = new byte[s.length() / 2];
-        for (int i = 0; i < b.length; i++){
-          int index = i * 2;
-          int v = Integer.parseInt(s.substring(index, index + 2), 16);
-          b[i] = (byte)v;
+        for (int i = 0; i < b.length; i++) {
+            int index = i * 2;
+            int v = Integer.parseInt(s.substring(index, index + 2), 16);
+            b[i] = (byte) v;
         }
         return b;
     }
@@ -207,8 +209,8 @@ public class ChecksumUtil {
      * This class encapsulates the valid values for checksum algorithms. *
      */
     public enum Algorithm {
-        MD2("MD2"), MD5("MD5"), SHA_1("SHA-1"), SHA_256("SHA-256"), SHA_384(
-                "SHA-384"), SHA_512("SHA-512");
+        MD2("MD2"), MD5("MD5"), SHA_1("SHA-1"), SHA_256("SHA-256"),
+        SHA_384("SHA-384"), SHA_512("SHA-512");
 
         private final String text;
 

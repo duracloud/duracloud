@@ -7,6 +7,25 @@
  */
 package org.duracloud.irodsstorage;
 
+import static org.duracloud.storage.domain.StorageAccount.OPTS.BASE_DIRECTORY;
+import static org.duracloud.storage.domain.StorageAccount.OPTS.HOST;
+import static org.duracloud.storage.domain.StorageAccount.OPTS.PORT;
+import static org.duracloud.storage.domain.StorageAccount.OPTS.RESOURCE;
+import static org.duracloud.storage.domain.StorageAccount.OPTS.ZONE;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.TimeZone;
+
 import edu.umiacs.irods.api.IRodsConnection;
 import edu.umiacs.irods.api.IRodsRequestException;
 import edu.umiacs.irods.api.pi.ErrorEnum;
@@ -28,33 +47,14 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.TimeZone;
-
-import static org.duracloud.storage.domain.StorageAccount.OPTS.BASE_DIRECTORY;
-import static org.duracloud.storage.domain.StorageAccount.OPTS.HOST;
-import static org.duracloud.storage.domain.StorageAccount.OPTS.PORT;
-import static org.duracloud.storage.domain.StorageAccount.OPTS.RESOURCE;
-import static org.duracloud.storage.domain.StorageAccount.OPTS.ZONE;
-
 /**
  * The irods provider assumes that storage spaces are subdirectories in the
  * base directory given to the constructor. All files in the subdir will be
  * listed recursively back to a client as contents of that space.
  *
- *  spaceid - directory name under base directory
- *  - spaceid reserved words {spaces,security,stores}
- * 
+ * spaceid - directory name under base directory
+ * - spaceid reserved words {spaces,security,stores}
+ *
  * @author toaster
  */
 public class IrodsStorageProvider implements StorageProvider {
@@ -97,7 +97,7 @@ public class IrodsStorageProvider implements StorageProvider {
     /**
      * Return a list of irods spaces. IRODS spaces are directories under
      * the baseDirectory of this provider.
-     * 
+     *
      * @return
      */
     @Override
@@ -118,7 +118,7 @@ public class IrodsStorageProvider implements StorageProvider {
      * Prefix is assumed to be part of the collection name.
      * This also has an issue where items in /irods/home/account/dir1 will br
      * returned if /irods/home/account/dir is asked for (ie, spaceId=dir)
-     * 
+     *
      * @param spaceId
      * @param prefix
      * @return
@@ -163,7 +163,7 @@ public class IrodsStorageProvider implements StorageProvider {
         }
 
         log.trace(querypath + " prefix " + prefix
-                + " max " + maxResults + " start " + marker);
+                  + " max " + maxResults + " start " + marker);
         if (maxResults > Integer.MAX_VALUE) {
             throw new StorageException("Cannot return list of size: " +
                                        maxResults);
@@ -188,12 +188,13 @@ public class IrodsStorageProvider implements StorageProvider {
             String markerPath = spaceId + "/" + marker;
 
             if (marker != null && !marker.equals("")) {
-                while (qr.next() && !pathMatches(qr, markerPath));
+                while (qr.next() && !pathMatches(qr, markerPath)) {
+                    ;
+                }
             }
 
             qr.resetReturnCount();
             qr.setMaxReturned((int) maxResults);
-
 
             while (qr.next()) {
                 String dir = qr.getValue(GenQueryEnum.COL_COLL_NAME);
@@ -209,7 +210,7 @@ public class IrodsStorageProvider implements StorageProvider {
             log.error("Error listing directories", ex);
             if (ex instanceof IRodsRequestException &&
                 ((IRodsRequestException) ex).getErrorCode() ==
-                    ErrorEnum.CAT_NO_ROWS_FOUND) {
+                ErrorEnum.CAT_NO_ROWS_FOUND) {
                 return retList;
             }
             throw new StorageException(ex);
@@ -226,7 +227,7 @@ public class IrodsStorageProvider implements StorageProvider {
 
     /**
      * Create a new directory under the baseDirectory
-     * 
+     *
      * @param spaceId
      */
     @Override
@@ -266,7 +267,7 @@ public class IrodsStorageProvider implements StorageProvider {
             new ConnectOperation(host, port, username, password, zone);
         try {
             String path = baseDirectory + "/" + spaceId;
-            Map<String,String> properties = getProperties(path,co);
+            Map<String, String> properties = getProperties(path, co);
             IrodsOperations ops = new IrodsOperations(co);
             RodsObjStat_PI stat = ops.stat(path);
             properties.put(PROPERTIES_SPACE_CREATED,
@@ -274,7 +275,7 @@ public class IrodsStorageProvider implements StorageProvider {
             //properties.put(PROPERTIES_SPACE_COUNT, getSpaceCount(co,path);
             properties.put(PROPERTIES_SPACE_COUNT, "1+");
             return properties;
-        }catch (IOException e) {
+        } catch (IOException e) {
             log.error("Could not connect to iRODS", e);
             throw new StorageException(e);
         }
@@ -291,12 +292,12 @@ public class IrodsStorageProvider implements StorageProvider {
     }
 
     /**
-     *  Add new content to irods, content path is baseDirectory /spaceId/contentId
-     * 
+     * Add new content to irods, content path is baseDirectory /spaceId/contentId
+     *
      * @param spaceId
      * @param contentId
      * @param contentMimeType
-     * @param contentSize may be set to 0 in some cases (entry through admin client)
+     * @param contentSize     may be set to 0 in some cases (entry through admin client)
      * @param contentChecksum
      * @param content
      * @return
@@ -323,7 +324,7 @@ public class IrodsStorageProvider implements StorageProvider {
 
             if (contentSize > 0) {
                 ios = new IrodsOutputStream(co.getConnection(), path,
-                        storageResource, contentSize);
+                                            storageResource, contentSize);
             } else {
                 ios = new UnknownSizeOutputStream(co.getConnection(),
                                                   path,
@@ -341,7 +342,7 @@ public class IrodsStorageProvider implements StorageProvider {
                       storageResource + " actual read: " + total +
                       " contentSize: " + contentSize);
 
-            if(userProperties != null) {
+            if (userProperties != null) {
                 MetaDataMap mDataMap = new MetaDataMap(path, co);
                 mDataMap.clear();
                 for (String e : userProperties.keySet()) {
@@ -374,8 +375,8 @@ public class IrodsStorageProvider implements StorageProvider {
             log.trace("Opening inputstream to irods path: " +
                       path + " type " + type);
             return new BufferedInputStream(
-                    new IrodsProxyInputStream(path, co.getConnection()),
-                    BLOCK_SIZE);
+                new IrodsProxyInputStream(path, co.getConnection()),
+                BLOCK_SIZE);
 
         } catch (IOException e) {
             log.error("Could not connect to iRODS", e);
@@ -431,7 +432,7 @@ public class IrodsStorageProvider implements StorageProvider {
         ConnectOperation co =
             new ConnectOperation(host, port, username, password, zone);
         try {
-            Map<String,String> results = getProperties(path,co);
+            Map<String, String> results = getProperties(path, co);
             IrodsOperations ops = new IrodsOperations(co);
             RodsObjStat_PI stat = ops.stat(path);
             if (stat != null) {
@@ -445,8 +446,7 @@ public class IrodsStorageProvider implements StorageProvider {
                             stat.getChksum());
             }
             return results;
-        }
-        catch (IOException e) {        
+        } catch (IOException e) {
             log.error("Could not connect to iRODS", e);
             throw new StorageException(e);
         }
@@ -537,7 +537,7 @@ public class IrodsStorageProvider implements StorageProvider {
         }
     }
 
-    private Map<String, String> getProperties(String path,ConnectOperation co) {
+    private Map<String, String> getProperties(String path, ConnectOperation co) {
         Map<String, String> results = new HashMap<String, String>();
 
         try {

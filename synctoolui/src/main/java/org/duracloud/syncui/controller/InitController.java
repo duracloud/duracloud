@@ -7,6 +7,9 @@
  */
 package org.duracloud.syncui.controller;
 
+import java.io.InputStream;
+import java.util.Properties;
+
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.syncui.domain.DirectoryConfig;
 import org.duracloud.syncui.domain.DirectoryConfigs;
@@ -20,15 +23,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.io.InputStream;
-import java.util.Properties;
-
 /**
  * A controller for initializing the app programmatically. It is intended to be
  * used by tests.
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 @Controller
 public class InitController {
@@ -43,7 +42,7 @@ public class InitController {
         this.syncConfigurationManager = syncConfigurationManager;
     }
 
-    @RequestMapping(value = { INIT_MAPPING }, method = RequestMethod.POST)
+    @RequestMapping(value = {INIT_MAPPING}, method = RequestMethod.POST)
     public ResponseEntity<String> initialize(InputStream request) {
         log.debug("initializing the application programmatically...");
 

@@ -13,7 +13,6 @@ import java.io.FileOutputStream;
 import org.duracloud.integration.sync.SyncIntegrationTestBase;
 import org.duracloud.sync.endpoint.DuraStoreChunkSyncEndpoint;
 import org.duracloud.sync.endpoint.MonitoredFile;
-import org.junit.Test;
 
 /**
  * @author: Bill Branan
@@ -38,8 +37,8 @@ public class TestDuraStoreChunkSyncEndpoint extends DuraStoreSyncTestBase {
         File tmpFile = File.createTempFile("large", "file", tempDir);
         FileOutputStream fos = new FileOutputStream(tmpFile);
 
-        int filesize = maxFileSize + maxFileSize/2;
-        for(int i=0;  i< filesize; i++) {
+        int filesize = maxFileSize + maxFileSize / 2;
+        for (int i = 0; i < filesize; i++) {
             fos.write(i);
         }
         fos.flush();

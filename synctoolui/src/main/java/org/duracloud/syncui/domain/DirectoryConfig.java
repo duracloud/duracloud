@@ -12,9 +12,8 @@ import java.io.Serializable;
 
 /**
  * A configured directory.
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 public class DirectoryConfig implements Serializable {
 
@@ -23,7 +22,7 @@ public class DirectoryConfig implements Serializable {
     private String directoryPath;
 
     public DirectoryConfig(String directoryPath) {
-        if (directoryPath == null){
+        if (directoryPath == null) {
             throw new NullPointerException("directoryPath must be non-null");
         }
         this.directoryPath = directoryPath;
@@ -32,9 +31,9 @@ public class DirectoryConfig implements Serializable {
     public String getDirectoryPath() {
         return directoryPath;
     }
-    
-    public File getFile(){
-        return  new File(this.directoryPath);
+
+    public File getFile() {
+        return new File(this.directoryPath);
     }
 
     public void setDirectoryPath(String directoryPath) {
@@ -52,7 +51,7 @@ public class DirectoryConfig implements Serializable {
 
     @Override
     public int hashCode() {
-        return directoryPath.hashCode()*13;
+        return directoryPath.hashCode() * 13;
     }
 
 }

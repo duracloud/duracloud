@@ -12,29 +12,20 @@ import org.duracloud.common.error.DuraCloudCheckedException;
 
 /**
  * @author Andrew Woods
- *         Date: 9/2/11
+ * Date: 9/2/11
  */
 public class InvalidManifestException extends DuraCloudCheckedException {
 
-
     public InvalidManifestException(String spaceId, String contentId) {
         super("Invalid manifest name: " + spaceId + "/" + contentId +
-                  ". Should end with suffix: " + ChunksManifest.manifestSuffix);
+              ". Should end with suffix: " + ChunksManifest.manifestSuffix);
     }
 
-    public InvalidManifestException(String spaceId,
-                                    String contentId,
-                                    String msg) {
-        super(
-            "Error with manifest: " + spaceId + "/" + contentId + ", due to: " +
-                msg);
+    public InvalidManifestException(String spaceId, String contentId, String msg) {
+        super("Error with manifest: " + spaceId + "/" + contentId + ", due to: " + msg);
     }
 
-    public InvalidManifestException(String spaceId,
-                                    String contentId,
-                                    String msg,
-                                    Exception e) {
-        super("Error getting manifest: " + spaceId + "/" + contentId +
-                  ", due to: " + msg, e);
+    public InvalidManifestException(String spaceId, String contentId, String msg, Exception e) {
+        super("Error getting manifest: " + spaceId + "/" + contentId + ", due to: " + msg, e);
     }
 }

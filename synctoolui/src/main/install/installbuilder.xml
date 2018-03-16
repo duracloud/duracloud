@@ -1,465 +1,469 @@
 <project>
-    <shortName>${alternateArtifactId}</shortName>
-    <fullName>${project.name}</fullName>
-    <version>${project.version}</version>
-    <readmeFile>${project.build.directory}/install/README</readmeFile>
-    <licenseFile>${basedir}/../LICENSE</licenseFile>
-    <logoImage>${basedir}/src/main/install/duracloud-logo.png</logoImage>
-    <leftImage>${basedir}/src/main/install/duracloud-logo.png</leftImage>
-    <splashImage>${basedir}/src/main/install/duracloud-logo.png</splashImage>
-    <productDisplayIcon>${installdir}/duracloud-sync.ico</productDisplayIcon>
-    <componentList>
-        <component>
-            <name>default</name>
-            <description>Default Component</description>
-            <canBeEdited>1</canBeEdited>
-            <selected>1</selected>
-            <show>1</show>
-            <folderList>
-                <folder>
-                    <description>Program Files</description>
-                    <destination>${installdir}</destination>
-                    <name>programfiles</name>
-                    <platforms>all</platforms>
-                    <actionList>
-                        <renameFile>
-                            <destination>${installdir}/${product_shortname}.jar</destination>
-                            <origin>${installdir}/${product_shortname}-${project.version}.jar</origin>
-                        </renameFile>
-                    </actionList>
-                    <distributionFileList>
-                        <distributionFile>
-                            <includeFiles></includeFiles>
-                            <origin>${project.build.directory}/${product_shortname}-${project.version}.jar</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <includeFiles></includeFiles>
-                            <origin>${basedir}/src/main/install/duracloud-logo.png</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <includeFiles></includeFiles>
-                            <origin>${basedir}/src/main/install/duracloud-icon.png</origin>
-                        </distributionFile>
-                        <distributionFile>
-                            <includeFiles></includeFiles>
-                            <origin>${basedir}/src/main/install/duracloud-sync.ico</origin>
-                        </distributionFile>
-                    </distributionFileList>
-                    <shortcutList>
-                        <shortcut>
-                            <comment>Uninstall</comment>
-                            <exec>${installdir}/${uninstallerName}</exec>
-                            <icon></icon>
-                            <name>Uninstall ${product_fullname}</name>
-                            <path>${installdir}</path>
-                            <platforms>all</platforms>
-                            <runAsAdmin>0</runAsAdmin>
-                            <runInTerminal>0</runInTerminal>
-                            <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
-                            <windowsExecArgs></windowsExecArgs>
-                            <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
-                            <windowsPath>${installdir}</windowsPath>
-                        </shortcut>
-                        <shortcut>
-                            <comment>Launch</comment>
-                            <exec>${installdir}/${product_fullname}</exec>
-                            <icon></icon>
-                            <name>${product_fullname}</name>
-                            <path>${installdir}</path>
-                            <platforms>all</platforms>
-                            <runAsAdmin>0</runAsAdmin>
-                            <runInTerminal>0</runInTerminal>
-                            <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
-                            <windowsExecArgs></windowsExecArgs>
-                            <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
-                            <windowsPath>${installdir}</windowsPath>
-                        </shortcut>
-                    </shortcutList>
-                </folder>
-                <folder>
-                    <description>Program Files</description>
-                    <destination>${installdir}</destination>
-                    <name>programfileslinux</name>
-                    <platforms>linux</platforms>
-                    <actionList>
-                        <renameFile>
-                            <destination>${installdir}/${product_shortname}.desktop</destination>
-                            <origin>${installdir}/linux.desktop</origin>
-                        </renameFile>
-                        
-                    </actionList>
-                    <distributionFileList>
-                        <distributionFile>
-                            <includeFiles></includeFiles>
-                            <origin>${project.build.directory}/install/linux.desktop</origin>
-                        </distributionFile>
-                    </distributionFileList>
+  <shortName>${alternateArtifactId}</shortName>
+  <fullName>${project.name}</fullName>
+  <version>${project.version}</version>
+  <readmeFile>${project.build.directory}/install/README</readmeFile>
+  <licenseFile>${basedir}/../LICENSE</licenseFile>
+  <logoImage>${basedir}/src/main/install/duracloud-logo.png</logoImage>
+  <leftImage>${basedir}/src/main/install/duracloud-logo.png</leftImage>
+  <splashImage>${basedir}/src/main/install/duracloud-logo.png</splashImage>
+  <productDisplayIcon>${installdir}/duracloud-sync.ico</productDisplayIcon>
+  <componentList>
+    <component>
+      <name>default</name>
+      <description>Default Component</description>
+      <canBeEdited>1</canBeEdited>
+      <selected>1</selected>
+      <show>1</show>
+      <folderList>
+        <folder>
+          <description>Program Files</description>
+          <destination>${installdir}</destination>
+          <name>programfiles</name>
+          <platforms>all</platforms>
+          <actionList>
+            <renameFile>
+              <destination>${installdir}/${product_shortname}.jar</destination>
+              <origin>${installdir}/${product_shortname}-${project.version}.jar</origin>
+            </renameFile>
+          </actionList>
+          <distributionFileList>
+            <distributionFile>
+              <includeFiles></includeFiles>
+              <origin>${project.build.directory}/${product_shortname}-${project.version}.jar</origin>
+            </distributionFile>
+            <distributionFile>
+              <includeFiles></includeFiles>
+              <origin>${basedir}/src/main/install/duracloud-logo.png</origin>
+            </distributionFile>
+            <distributionFile>
+              <includeFiles></includeFiles>
+              <origin>${basedir}/src/main/install/duracloud-icon.png</origin>
+            </distributionFile>
+            <distributionFile>
+              <includeFiles></includeFiles>
+              <origin>${basedir}/src/main/install/duracloud-sync.ico</origin>
+            </distributionFile>
+          </distributionFileList>
+          <shortcutList>
+            <shortcut>
+              <comment>Uninstall</comment>
+              <exec>${installdir}/${uninstallerName}</exec>
+              <icon></icon>
+              <name>Uninstall ${product_fullname}</name>
+              <path>${installdir}</path>
+              <platforms>all</platforms>
+              <runAsAdmin>0</runAsAdmin>
+              <runInTerminal>0</runInTerminal>
+              <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
+              <windowsExecArgs></windowsExecArgs>
+              <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
+              <windowsPath>${installdir}</windowsPath>
+            </shortcut>
+            <shortcut>
+              <comment>Launch</comment>
+              <exec>${installdir}/${product_fullname}</exec>
+              <icon></icon>
+              <name>${product_fullname}</name>
+              <path>${installdir}</path>
+              <platforms>all</platforms>
+              <runAsAdmin>0</runAsAdmin>
+              <runInTerminal>0</runInTerminal>
+              <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
+              <windowsExecArgs></windowsExecArgs>
+              <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
+              <windowsPath>${installdir}</windowsPath>
+            </shortcut>
+          </shortcutList>
+        </folder>
+        <folder>
+          <description>Program Files</description>
+          <destination>${installdir}</destination>
+          <name>programfileslinux</name>
+          <platforms>linux</platforms>
+          <actionList>
+            <renameFile>
+              <destination>${installdir}/${product_shortname}.desktop</destination>
+              <origin>${installdir}/linux.desktop</origin>
+            </renameFile>
 
-                </folder>
-                <folder>
-                    <description>Program Files</description>
-                    <destination>${installdir}</destination>
-                    <name>programfileswindows</name>
-                    <platforms>windows</platforms>
-                </folder>
-                <folder>
-                    <description>Program Files</description>
-                    <destination>${installdir}</destination>
-                    <name>programfilesosx</name>
-                    <platforms>osx</platforms>
-                    <distributionFileList>
-                        <distributionFile>
-                            <origin>${basedir}/src/main/install/osx-launch-agent.plist</origin>
-                        </distributionFile>
-                    </distributionFileList>
-                </folder>
-            </folderList>
-            <startMenuShortcutList>
-                <startMenuShortcut>
-                    <comment>Uninstall ${product_fullname}</comment>
-                    <name>Uninstall ${product_fullname}</name>
-                    <runAsAdmin>0</runAsAdmin>
-                    <runInTerminal>0</runInTerminal>
-                    <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
-                    <windowsExecArgs></windowsExecArgs>
-                    <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
-                    <windowsPath>${installdir}/</windowsPath>
-                </startMenuShortcut>
-                <startMenuShortcut>
-                    <comment>${product_fullname}</comment>
-                    <name>${product_fullname}</name>
-                    <runAsAdmin>0</runAsAdmin>
-                    <runInTerminal>0</runInTerminal>
-                    <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
-                    <windowsExecArgs></windowsExecArgs>
-                    <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
-                    <windowsPath>${installdir}/</windowsPath>
-                </startMenuShortcut>
-            </startMenuShortcutList>
-            <desktopShortcutList>
-               <shortcut>
-                  <icon></icon>
-                  <comment>Launch ${product_fullName}</comment>
-                  <name>Launch ${product_fullName}</name>
-                  <runInTerminal>0</runInTerminal>
-                  <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
-                  <windowsPath>${installdir}/</windowsPath>
-                  <windowsExecArgs></windowsExecArgs>
-                  <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
-               </shortcut>
-            </desktopShortcutList>
-            
-        </component>
-        <include file="${project.build.directory}/install/java.xml"/>
-        
-    </componentList>
+          </actionList>
+          <distributionFileList>
+            <distributionFile>
+              <includeFiles></includeFiles>
+              <origin>${project.build.directory}/install/linux.desktop</origin>
+            </distributionFile>
+          </distributionFileList>
 
-    <preBuildActionList>
-      <actionGroup>
-        <actionList>
-          <setInstallerVariable>
-            <name>java_install_jre</name>
-            <value>${java_install_jre}</value>
-          </setInstallerVariable>   
+        </folder>
+        <folder>
+          <description>Program Files</description>
+          <destination>${installdir}</destination>
+          <name>programfileswindows</name>
+          <platforms>windows</platforms>
+        </folder>
+        <folder>
+          <description>Program Files</description>
+          <destination>${installdir}</destination>
+          <name>programfilesosx</name>
+          <platforms>osx</platforms>
+          <distributionFileList>
+            <distributionFile>
+              <origin>${basedir}/src/main/install/osx-launch-agent.plist</origin>
+            </distributionFile>
+          </distributionFileList>
+        </folder>
+      </folderList>
+      <startMenuShortcutList>
+        <startMenuShortcut>
+          <comment>Uninstall ${product_fullname}</comment>
+          <name>Uninstall ${product_fullname}</name>
+          <runAsAdmin>0</runAsAdmin>
+          <runInTerminal>0</runInTerminal>
+          <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
+          <windowsExecArgs></windowsExecArgs>
+          <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
+          <windowsPath>${installdir}/</windowsPath>
+        </startMenuShortcut>
+        <startMenuShortcut>
+          <comment>${product_fullname}</comment>
+          <name>${product_fullname}</name>
+          <runAsAdmin>0</runAsAdmin>
+          <runInTerminal>0</runInTerminal>
+          <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
+          <windowsExecArgs></windowsExecArgs>
+          <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
+          <windowsPath>${installdir}/</windowsPath>
+        </startMenuShortcut>
+      </startMenuShortcutList>
+      <desktopShortcutList>
+        <shortcut>
+          <icon></icon>
+          <comment>Launch ${product_fullName}</comment>
+          <name>Launch ${product_fullName}</name>
+          <runInTerminal>0</runInTerminal>
+          <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
+          <windowsPath>${installdir}/</windowsPath>
+          <windowsExecArgs></windowsExecArgs>
+          <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
+        </shortcut>
+      </desktopShortcutList>
 
-          <setInstallerVariable name="project.installerFilename"
-            value="${product_shortname}-${product_version}-${platform_name}-with-jre-installer.${platform_exec_suffix}" />
-        </actionList>
-        <ruleList>
-          <isTrue value="${java_install_jre}"/>
-          </ruleList>
-      </actionGroup>
-    </preBuildActionList>
-    
-    <preInstallationActionList>
-        <autodetectJava>
-            <abortOnError>0</abortOnError>
-            <customErrorMessage>This program requires Java 1.7.0 or above.  Click next and you will be taken to the java downloads page.</customErrorMessage>
-            <explanation>Checking for valid java version...</explanation>
-            <promptUser>0</promptUser>
-            <selectionOrder>newest</selectionOrder>
-            <validVersionList>
-                <validVersion>
-                    <bitness></bitness>
-                    <maxVersion></maxVersion>
-                    <minVersion>1.7.0</minVersion>
-                    <requireJDK>0</requireJDK>
-                    <vendor></vendor>
-                </validVersion>
-            </validVersionList>
-            <ruleList>
-              <isFalse value="${java_install_jre}"/>
-            </ruleList>
-        </autodetectJava>
-        <launchBrowser>
-          <url>http://java.com/en/download/index.jsp</url>
+    </component>
+    <include file="${project.build.directory}/install/java.xml"/>
+
+  </componentList>
+
+  <preBuildActionList>
+    <actionGroup>
+      <actionList>
+        <setInstallerVariable>
+          <name>java_install_jre</name>
+          <value>${java_install_jre}</value>
+        </setInstallerVariable>
+
+        <setInstallerVariable name="project.installerFilename"
+                              value="${product_shortname}-${product_version}-${platform_name}-with-jre-installer.${platform_exec_suffix}"/>
+      </actionList>
+      <ruleList>
+        <isTrue value="${java_install_jre}"/>
+      </ruleList>
+    </actionGroup>
+  </preBuildActionList>
+
+  <preInstallationActionList>
+    <autodetectJava>
+      <abortOnError>0</abortOnError>
+      <customErrorMessage>This program requires Java 1.7.0 or above. Click next and you will be taken to the java
+        downloads page.
+      </customErrorMessage>
+      <explanation>Checking for valid java version...</explanation>
+      <promptUser>0</promptUser>
+      <selectionOrder>newest</selectionOrder>
+      <validVersionList>
+        <validVersion>
+          <bitness></bitness>
+          <maxVersion></maxVersion>
+          <minVersion>1.7.0</minVersion>
+          <requireJDK>0</requireJDK>
+          <vendor></vendor>
+        </validVersion>
+      </validVersionList>
+      <ruleList>
+        <isFalse value="${java_install_jre}"/>
+      </ruleList>
+    </autodetectJava>
+    <launchBrowser>
+      <url>http://java.com/en/download/index.jsp</url>
+      <ruleList>
+        <ruleGroup ruleEvaluationLogic="and">
           <ruleList>
-            <ruleGroup ruleEvaluationLogic="and">
-              <ruleList>
-                <isFalse value="${java_install_jre}"/>
-                <compareValues>
-                  <logic>equals</logic>
-                  <value1>${java_autodetected}</value1>
-                  <value2>0</value2>
-                </compareValues>
-            </ruleList>
-          </ruleGroup>
-        </ruleList>
-        </launchBrowser>
-        <showInfo>
-            <text>Once you have finished downloading and installing java, click "OK" to continue with the Sync Tool installation.</text>
-          <ruleList>
-            <ruleGroup ruleEvaluationLogic="and">
-              <ruleList>
-                <isFalse value="${java_install_jre}"/>
-                <compareValues>
-                  <logic>equals</logic>
-                  <value1>${java_autodetected}</value1>
-                  <value2>0</value2>
-                </compareValues>
-              </ruleList>
-            </ruleGroup>
+            <isFalse value="${java_install_jre}"/>
+            <compareValues>
+              <logic>equals</logic>
+              <value1>${java_autodetected}</value1>
+              <value2>0</value2>
+            </compareValues>
           </ruleList>
-        </showInfo>
-        <autodetectJava>
-            <promptUser>0</promptUser>
-            <validVersionList>
-                <validVersion>
-                    <bitness></bitness>
-                    <maxVersion></maxVersion>
-                    <minVersion>1.7.0</minVersion>
-                    <requireJDK>0</requireJDK>
-                    <vendor></vendor>
-                </validVersion>
-            </validVersionList>
-            <ruleList>
-              <isFalse value="${java_install_jre}"/>
-            </ruleList>
-        </autodetectJava>
-    </preInstallationActionList>
-    <postInstallationActionList>
-        <showQuestion>
-            <default>yes</default>
-            <text>Would you like the application to start automatically when your computer starts up?</text>
-            <variable>automatic_restart</variable>
-        </showQuestion>    
+        </ruleGroup>
+      </ruleList>
+    </launchBrowser>
+    <showInfo>
+      <text>Once you have finished downloading and installing java, click "OK" to continue with the Sync Tool
+        installation.
+      </text>
+      <ruleList>
+        <ruleGroup ruleEvaluationLogic="and">
+          <ruleList>
+            <isFalse value="${java_install_jre}"/>
+            <compareValues>
+              <logic>equals</logic>
+              <value1>${java_autodetected}</value1>
+              <value2>0</value2>
+            </compareValues>
+          </ruleList>
+        </ruleGroup>
+      </ruleList>
+    </showInfo>
+    <autodetectJava>
+      <promptUser>0</promptUser>
+      <validVersionList>
+        <validVersion>
+          <bitness></bitness>
+          <maxVersion></maxVersion>
+          <minVersion>1.7.0</minVersion>
+          <requireJDK>0</requireJDK>
+          <vendor></vendor>
+        </validVersion>
+      </validVersionList>
+      <ruleList>
+        <isFalse value="${java_install_jre}"/>
+      </ruleList>
+    </autodetectJava>
+  </preInstallationActionList>
+  <postInstallationActionList>
+    <showQuestion>
+      <default>yes</default>
+      <text>Would you like the application to start automatically when your computer starts up?</text>
+      <variable>automatic_restart</variable>
+    </showQuestion>
 
-        <createJavaLaunchers>
-            <destination>${installdir}</destination>
-            <javaLauncherList>
-                <javaLauncher>
-                    <allowCommandLineArguments>0</allowCommandLineArguments>
-                    <arguments></arguments>
-                    <binaryName>${product_shortname}</binaryName>
-                    <classpath></classpath>
-                    <jarFile>${installdir}/${product_shortname}.jar</jarFile>
-                    <mainClass></mainClass>
-                    <preferredJavaBinary>${installdir}/java/bin/java</preferredJavaBinary>
-                    <runInConsole>0</runInConsole>
-                    <vmParameters></vmParameters>
-                    <windowsResourceFileVersion>1.0.0.0</windowsResourceFileVersion>
-                    <workingDirectory>${user_home_directory}</workingDirectory>
-                    <validVersionList>
-                        <validVersion>
-                            <bitness></bitness>
-                            <maxVersion></maxVersion>
-                            <minVersion>1.7.0</minVersion>
-                            <requireJDK>0</requireJDK>
-                            <vendor></vendor>
-                        </validVersion>
-                    </validVersionList>
-                </javaLauncher>
-            </javaLauncherList>
-        </createJavaLaunchers>
-        <renameFile>
-            <destination>${user_home_directory}/Library/LaunchAgents/org.duracloud.${product_shortname}.plist</destination>
-            <origin>${installdir}/osx-launch-agent.plist</origin>
-            <ruleList>
-                <platformTest>
-                    <type>osx</type>
-                </platformTest>
-                <compareValues>
-                    <logic>equals</logic>
-                    <value1>${automatic_restart}</value1>
-                    <value2>yes</value2>
-                </compareValues>
-            </ruleList>
-        </renameFile>
-        <createShortcuts>
-            <destination>${windows_folder_startup}/</destination>
-            <shortcutList>
-                <shortcut>
-                    <comment>${product_fullname}</comment>
-                    <name>${product_fullname}</name>
-                    <runAsAdmin>0</runAsAdmin>
-                    <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
-                    <windowsExecArgs></windowsExecArgs>
-                    <windowsPath>${installdir}</windowsPath>
-                </shortcut>
-            </shortcutList>
-            <ruleList>
-                <compareValues>
-                    <logic>equals</logic>
-                    <value1>${automatic_restart}</value1>
-                    <value2>yes</value2>
-                </compareValues>
-            </ruleList>
-            
-        </createShortcuts>     
-        <addUnixDesktopStartUpItem>
-            <name>${product_fullname}</name>
-            <program>${installdir}/${product_shortname}.sh</program>
-            <ruleList>
-                <compareValues>
-                    <logic>equals</logic>
-                    <value1>${automatic_restart}</value1>
-                    <value2>yes</value2>
-                </compareValues>
-            </ruleList>
-        </addUnixDesktopStartUpItem>  
-        <iniFileSet>
-          <file>${installdir}/${product_shortname}.desktop</file>
-          <section>Desktop Entry</section>
-          <key>Name</key>
+    <createJavaLaunchers>
+      <destination>${installdir}</destination>
+      <javaLauncherList>
+        <javaLauncher>
+          <allowCommandLineArguments>0</allowCommandLineArguments>
+          <arguments></arguments>
+          <binaryName>${product_shortname}</binaryName>
+          <classpath></classpath>
+          <jarFile>${installdir}/${product_shortname}.jar</jarFile>
+          <mainClass></mainClass>
+          <preferredJavaBinary>${installdir}/java/bin/java</preferredJavaBinary>
+          <runInConsole>0</runInConsole>
+          <vmParameters></vmParameters>
+          <windowsResourceFileVersion>1.0.0.0</windowsResourceFileVersion>
+          <workingDirectory>${user_home_directory}</workingDirectory>
+          <validVersionList>
+            <validVersion>
+              <bitness></bitness>
+              <maxVersion></maxVersion>
+              <minVersion>1.7.0</minVersion>
+              <requireJDK>0</requireJDK>
+              <vendor></vendor>
+            </validVersion>
+          </validVersionList>
+        </javaLauncher>
+      </javaLauncherList>
+    </createJavaLaunchers>
+    <renameFile>
+      <destination>${user_home_directory}/Library/LaunchAgents/org.duracloud.${product_shortname}.plist</destination>
+      <origin>${installdir}/osx-launch-agent.plist</origin>
+      <ruleList>
+        <platformTest>
+          <type>osx</type>
+        </platformTest>
+        <compareValues>
+          <logic>equals</logic>
+          <value1>${automatic_restart}</value1>
+          <value2>yes</value2>
+        </compareValues>
+      </ruleList>
+    </renameFile>
+    <createShortcuts>
+      <destination>${windows_folder_startup}/</destination>
+      <shortcutList>
+        <shortcut>
+          <comment>${product_fullname}</comment>
+          <name>${product_fullname}</name>
+          <runAsAdmin>0</runAsAdmin>
+          <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
+          <windowsExecArgs></windowsExecArgs>
+          <windowsPath>${installdir}</windowsPath>
+        </shortcut>
+      </shortcutList>
+      <ruleList>
+        <compareValues>
+          <logic>equals</logic>
+          <value1>${automatic_restart}</value1>
+          <value2>yes</value2>
+        </compareValues>
+      </ruleList>
+
+    </createShortcuts>
+    <addUnixDesktopStartUpItem>
+      <name>${product_fullname}</name>
+      <program>${installdir}/${product_shortname}.sh</program>
+      <ruleList>
+        <compareValues>
+          <logic>equals</logic>
+          <value1>${automatic_restart}</value1>
+          <value2>yes</value2>
+        </compareValues>
+      </ruleList>
+    </addUnixDesktopStartUpItem>
+    <iniFileSet>
+      <file>${installdir}/${product_shortname}.desktop</file>
+      <section>Desktop Entry</section>
+      <key>Name</key>
+      <value>${product_fullname}</value>
+      <ruleList>
+        <platformTest>
+          <type>linux</type>
+        </platformTest>
+      </ruleList>
+    </iniFileSet>
+
+    <substitute>
+      <files>${installdir}/${product_shortname}.desktop</files>
+      <type>exact</type>
+      <substitutionList>
+        <substitution>
+          <pattern>product_fullname</pattern>
           <value>${product_fullname}</value>
+        </substitution>
+        <substitution>
+          <pattern>product_shortname</pattern>
+          <value>${product_shortname}</value>
+        </substitution>
+        <substitution>
+          <pattern>installdir</pattern>
+          <value>${installdir}</value>
+        </substitution>
+      </substitutionList>
+    </substitute>
+  </postInstallationActionList>
+  <preUninstallationActionList>
+    <runProgram>
+      <program>taskkill</program>
+      <programArguments>/t /im ${product_shortname}.exe</programArguments>
+      <ruleList>
+        <platformTest>
+          <type>windows</type>
+        </platformTest>
+      </ruleList>
+    </runProgram>
+    <!--  run it a second time with force (/f) in order to prevent the error dialog from displaying -->
+    <runProgram>
+      <program>taskkill</program>
+      <programArguments>/f /t /im ${product_shortname}.exe</programArguments>
+      <ruleList>
+        <platformTest>
+          <type>windows</type>
+        </platformTest>
+      </ruleList>
+    </runProgram>
+
+    <runProgram>
+      <program>pkill</program>
+      <programArguments>-9 -f ${product_shortname}</programArguments>
+      <ruleList>
+        <ruleGroup ruleEvaluationLogic="or">
           <ruleList>
-              <platformTest>
-                  <type>linux</type>
-              </platformTest>
+            <platformTest type="osx"/>
+            <platformTest type="linux"/>
           </ruleList>
-        </iniFileSet>        
+        </ruleGroup>
+      </ruleList>
+    </runProgram>
+    <deleteFile path="${user_home_directory}/duracloud-sync-work/"/>
+    <deleteFile path="${installdir}/${product_shortname}*"/>
+    <deleteFile path="${user_home_directory}/Library/LaunchAgents/org.duracloud.${product_shortname}.plist">
+      <ruleList>
+        <platformTest>
+          <type>osx</type>
+        </platformTest>
+      </ruleList>
+    </deleteFile>
+    <addFilesToUninstaller>
+      <files>
+        ${windows_folder_startup}/${product_fullname}
+      </files>
+      <ruleList>
+        <platformTest>
+          <type>windows</type>
+        </platformTest>
+      </ruleList>
+    </addFilesToUninstaller>
 
-        <substitute>
-            <files>${installdir}/${product_shortname}.desktop</files>
-            <type>exact</type>
-            <substitutionList>
-                <substitution>
-                    <pattern>product_fullname</pattern>
-                    <value>${product_fullname}</value>
-                </substitution>
-                <substitution>
-                    <pattern>product_shortname</pattern>
-                    <value>${product_shortname}</value>
-                </substitution>
-                <substitution>
-                    <pattern>installdir</pattern>
-                    <value>${installdir}</value>
-                </substitution>
-            </substitutionList>
-        </substitute>
-    </postInstallationActionList>
-    <preUninstallationActionList>
-      <runProgram>
-        <program>taskkill</program>
-        <programArguments>/t /im ${product_shortname}.exe</programArguments>
-        <ruleList>
-          <platformTest>
-              <type>windows</type>
-          </platformTest>
-        </ruleList>
-      </runProgram>
-      <!--  run it a second time with force (/f) in order to prevent the error dialog from displaying -->
-      <runProgram>
-        <program>taskkill</program>
-        <programArguments>/f /t /im ${product_shortname}.exe</programArguments>
-        <ruleList>
-          <platformTest>
-              <type>windows</type>
-          </platformTest>
-        </ruleList>
-      </runProgram>
-      
-      <runProgram>
-        <program>pkill</program>
-        <programArguments>-9 -f ${product_shortname}</programArguments>
-        <ruleList>
-          <ruleGroup ruleEvaluationLogic="or">
-            <ruleList>
-              <platformTest type="osx"/>
-              <platformTest type="linux"/>
-            </ruleList>
-          </ruleGroup>
-        </ruleList>
-      </runProgram>
-      <deleteFile path="${user_home_directory}/duracloud-sync-work/"/>
-      <deleteFile path="${installdir}/${product_shortname}*"/>
-      <deleteFile path="${user_home_directory}/Library/LaunchAgents/org.duracloud.${product_shortname}.plist">
-        <ruleList>
-          <platformTest>
-            <type>osx</type>
-          </platformTest>
-        </ruleList>
-     </deleteFile>
-     <addFilesToUninstaller>
-        <files>
-          ${windows_folder_startup}/${product_fullname}
-        </files>
-        <ruleList>
-          <platformTest>
-            <type>windows</type>
-          </platformTest>
-        </ruleList>
-      </addFilesToUninstaller>
+  </preUninstallationActionList>
+  <enableDebugger>1</enableDebugger>
+  <enableRollback>1</enableRollback>
+  <enableTimestamp>1</enableTimestamp>
+  <outputDirectory>../</outputDirectory>
+  <saveRelativePaths>0</saveRelativePaths>
+  <vendor>DuraSpace</vendor>
+  <windowsExecutableIcon>${basedir}/src/main/install/duracloud-sync.ico</windowsExecutableIcon>
+  <osxApplicationBundleIcon>${basedir}/src/main/install/duracloud-sync.icns</osxApplicationBundleIcon>
+  <finalPageActionList>
+    <runProgram>
+      <progressText>Launch Application</progressText>
+      <programArguments>${installdir}/${product_shortname}.app</programArguments>
+      <program>open</program>
+      <ruleList>
+        <platformTest>
+          <type>osx</type>
+        </platformTest>
+      </ruleList>
+    </runProgram>
+    <runProgram>
+      <progressText>Launch Application</progressText>
+      <program>${installdir}/${product_shortname}.exe</program>
+      <programArguments></programArguments>
+      <ruleList>
+        <platformTest>
+          <type>windows</type>
+        </platformTest>
+      </ruleList>
+    </runProgram>
 
-    </preUninstallationActionList>
-    <enableDebugger>1</enableDebugger>
-    <enableRollback>1</enableRollback>
-    <enableTimestamp>1</enableTimestamp>
-    <outputDirectory>../</outputDirectory>
-    <saveRelativePaths>0</saveRelativePaths>
-    <vendor>DuraSpace</vendor>
-    <windowsExecutableIcon>${basedir}/src/main/install/duracloud-sync.ico</windowsExecutableIcon>
-    <osxApplicationBundleIcon>${basedir}/src/main/install/duracloud-sync.icns</osxApplicationBundleIcon>
-    <finalPageActionList>
-        <runProgram>
-            <progressText>Launch Application</progressText>
-            <programArguments>${installdir}/${product_shortname}.app</programArguments>
-            <program>open</program>
-                <ruleList>
-                  <platformTest>
-                      <type>osx</type>
-                  </platformTest>
-                </ruleList>
-        </runProgram>
-        <runProgram>
-            <progressText>Launch Application</progressText>
-            <program>${installdir}/${product_shortname}.exe</program>
-            <programArguments></programArguments>
-              <ruleList>
-                  <platformTest>
-                      <type>windows</type>
-                  </platformTest>
-              </ruleList>
-        </runProgram>
+    <runProgram>
+      <progressText>Launch Application</progressText>
+      <program>${installdir}/${product_shortname}</program>
+      <programArguments></programArguments>
+      <ruleList>
+        <platformTest>
+          <type>linux</type>
+        </platformTest>
+      </ruleList>
+    </runProgram>
+  </finalPageActionList>
+  <parameterList>
+    <directoryParameter>
+      <name>installdir</name>
+      <description>Installer.Parameter.installdir.description</description>
+      <explanation>Installer.Parameter.installdir.explanation</explanation>
+      <value></value>
+      <default>${platform_install_prefix}/${product_shortname}</default>
+      <allowEmptyValue>0</allowEmptyValue>
+      <ask>yes</ask>
+      <cliOptionName>prefix</cliOptionName>
+      <mustBeWritable>yes</mustBeWritable>
+      <mustExist>0</mustExist>
+      <width>30</width>
+    </directoryParameter>
+  </parameterList>
 
-        <runProgram>
-            <progressText>Launch Application</progressText>
-            <program>${installdir}/${product_shortname}</program>
-            <programArguments></programArguments>
-            <ruleList>
-              <platformTest>
-                  <type>linux</type>
-              </platformTest>
-          </ruleList>
-        </runProgram>
-    </finalPageActionList>    
-    <parameterList>
-        <directoryParameter>
-            <name>installdir</name>
-            <description>Installer.Parameter.installdir.description</description>
-            <explanation>Installer.Parameter.installdir.explanation</explanation>
-            <value></value>
-            <default>${platform_install_prefix}/${product_shortname}</default>
-            <allowEmptyValue>0</allowEmptyValue>
-            <ask>yes</ask>
-            <cliOptionName>prefix</cliOptionName>
-            <mustBeWritable>yes</mustBeWritable>
-            <mustExist>0</mustExist>
-            <width>30</width>
-        </directoryParameter>
-    </parameterList>
-    
-    <initializationActionList>
+  <initializationActionList>
     <setInstallerVariable>
       <name>java_launcher_jar</name>
       <value>${product_shortname}.jar</value>
@@ -471,7 +475,7 @@
     <setInstallerVariable>
       <name>java_install_jre</name>
       <value>${java_install_jre}</value>
-    </setInstallerVariable>   
+    </setInstallerVariable>
   </initializationActionList>
 </project>
 

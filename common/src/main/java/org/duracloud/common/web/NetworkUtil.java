@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * This class is a utility for monitoring the state of network resources.
  *
  * @author Andrew Woods
- *         Date: Jan 01, 2009
+ * Date: Jan 01, 2009
  */
 public class NetworkUtil {
 

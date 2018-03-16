@@ -20,7 +20,7 @@ import java.util.List;
 public class SyncToolConfig implements Serializable {
 
     public static final String DEFAULT_UPDATE_SUFFIX = ".orig";
-    private static final long DEFAULT_BACKUP_FREQUENCY = 5*60*1000;
+    private static final long DEFAULT_BACKUP_FREQUENCY = 5 * 60 * 1000;
     private String host;
     private int port;
     private String context;
@@ -53,7 +53,7 @@ public class SyncToolConfig implements Serializable {
         config.append("\n-------------------------------------------\n");
 
         config.append("Content Directories:\n");
-        for(File dir : getContentDirs()) {
+        for (File dir : getContentDirs()) {
             config.append("  ").append(dir.getAbsolutePath()).append("\n");
         }
         config.append("Content Name Prefix: ");
@@ -66,7 +66,7 @@ public class SyncToolConfig implements Serializable {
         config.append("DuraStore Username: ");
         config.append(getUsername()).append("\n");
 
-        if(getStoreId() != null) {
+        if (getStoreId() != null) {
             config.append("DuraCloud Store ID: ");
             config.append(getStoreId()).append("\n");
         }
@@ -85,7 +85,7 @@ public class SyncToolConfig implements Serializable {
         config.append("SyncTool Syncing Deletes: ");
         config.append(syncDeletes()).append("\n");
 
-        if(getExcludeList() != null) {
+        if (getExcludeList() != null) {
             config.append("SyncTool Exclude List: ");
             config.append(getExcludeList()).append("\n");
         }
@@ -101,9 +101,9 @@ public class SyncToolConfig implements Serializable {
         config.append("Rename Updates: ");
         config.append(isRenameUpdates()).append("\n");
 
-        if(isRenameUpdates()) {
-          config.append("Rename Updates suffix: ");
-          config.append(getUpdateSuffix()).append("\n");
+        if (isRenameUpdates()) {
+            config.append("Rename Updates suffix: ");
+            config.append(getUpdateSuffix()).append("\n");
         }
 
         config.append("-------------------------------------------\n");

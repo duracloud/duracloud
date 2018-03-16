@@ -7,6 +7,11 @@
  */
 package org.duracloud.storage.provider;
 
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.metrics.Metric;
 import org.duracloud.common.util.metrics.MetricException;
@@ -15,11 +20,6 @@ import org.duracloud.common.util.metrics.MetricsTable;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 /**
  * This class wraps a StorageProvider implementation, collecting timing metrics
  * while passing calls down.
@@ -27,7 +27,7 @@ import java.util.Map;
  * @author Andrew Woods
  */
 public abstract class ProbedStorageProvider
-        implements StorageProvider, MetricsProbed {
+    implements StorageProvider, MetricsProbed {
 
     protected StorageProvider storageProvider;
 
@@ -89,14 +89,13 @@ public abstract class ProbedStorageProvider
                              String contentChecksum,
                              InputStream content) throws StorageException {
         startMetric("addContent");
-        String result =
-                storageProvider.addContent(spaceId,
-                                           contentId,
-                                           contentMimeType,
-                                           userProperties,
-                                           contentSize,
-                                           contentChecksum,
-                                           content);
+        String result = storageProvider.addContent(spaceId,
+                                                   contentId,
+                                                   contentMimeType,
+                                                   userProperties,
+                                                   contentSize,
+                                                   contentChecksum,
+                                                   content);
         stopMetric("addContent");
         return result;
     }
@@ -122,7 +121,7 @@ public abstract class ProbedStorageProvider
     }
 
     public void deleteContent(String spaceId, String contentId)
-            throws StorageException {
+        throws StorageException {
         startMetric("deleteContent");
         storageProvider.deleteContent(spaceId, contentId);
         stopMetric("deleteContent");
@@ -135,7 +134,7 @@ public abstract class ProbedStorageProvider
     }
 
     public InputStream getContent(String spaceId, String contentId)
-            throws StorageException {
+        throws StorageException {
         startMetric("getContent");
         InputStream result = storageProvider.getContent(spaceId, contentId);
         stopMetric("getContent");
@@ -144,16 +143,16 @@ public abstract class ProbedStorageProvider
 
     public Map<String, String> getContentProperties(String spaceId,
                                                     String contentId)
-            throws StorageException {
+        throws StorageException {
         startMetric("getContentProperties");
         Map<String, String> result =
-                storageProvider.getContentProperties(spaceId, contentId);
+            storageProvider.getContentProperties(spaceId, contentId);
         stopMetric("getContentProperties");
         return result;
     }
 
     public Iterator<String> getSpaceContents(String spaceId, String prefix)
-            throws StorageException {
+        throws StorageException {
         startMetric("getSpaceContents");
         Iterator<String> result =
             storageProvider.getSpaceContents(spaceId, prefix);
@@ -176,7 +175,7 @@ public abstract class ProbedStorageProvider
     }
 
     public Map<String, String> getSpaceProperties(String spaceId)
-            throws StorageException {
+        throws StorageException {
         startMetric("getSpaceProperties");
         Map<String, String> result = storageProvider.getSpaceProperties(spaceId);
         stopMetric("getSpaceProperties");
@@ -193,7 +192,7 @@ public abstract class ProbedStorageProvider
     public void setContentProperties(String spaceId,
                                      String contentId,
                                      Map<String, String> contentProperties)
-            throws StorageException {
+        throws StorageException {
         startMetric("setContentProperties");
         storageProvider.setContentProperties(spaceId,
                                              contentId,

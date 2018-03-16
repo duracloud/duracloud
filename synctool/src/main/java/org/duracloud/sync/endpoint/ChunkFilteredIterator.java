@@ -7,9 +7,9 @@
  */
 package org.duracloud.sync.endpoint;
 
-import org.duracloud.chunk.util.ChunkUtil;
-
 import java.util.Iterator;
+
+import org.duracloud.chunk.util.ChunkUtil;
 
 /**
  * This class exposes an iterator to a String listing that excludes content
@@ -18,7 +18,7 @@ import java.util.Iterator;
  * content name.
  *
  * @author Andrew Woods
- *         Date: 9/9/11
+ * Date: 9/9/11
  */
 public class ChunkFilteredIterator implements Iterator<String> {
 

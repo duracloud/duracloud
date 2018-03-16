@@ -14,15 +14,17 @@ import java.util.List;
  * implementation, and thus cannot be generalized as part of StorageProvider.
  *
  * @author: Bill Branan
- *          Date: May 20, 2010
+ * Date: May 20, 2010
  */
 public interface TaskProvider {
 
-    public List<String> getSupportedTasks();    
+    public List<String> getSupportedTasks();
 
     public String performTask(String taskName, String taskParameters) throws Exception;
+
     /**
      * The storeId with which the TaskProvider is associated.
+     *
      * @return The storeId
      */
     public String getStoreId();

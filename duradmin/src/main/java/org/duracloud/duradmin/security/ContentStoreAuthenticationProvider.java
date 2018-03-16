@@ -19,9 +19,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-
 /**
- * A custom authentication provider that grants ROLE_USER authority to 
+ * A custom authentication provider that grants ROLE_USER authority to
  * a client who successfully logs into the content store manager.
  *
  * @author Daniel Bernstein
@@ -29,29 +28,27 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
  */
 public class ContentStoreAuthenticationProvider implements AuthenticationProvider {
     private ContentStoreManager contentStoreManager;
-    
-    private static Collection<GrantedAuthority> USER_AUTHORITY = 
-                    Arrays.asList(new GrantedAuthority[]{new SimpleGrantedAuthority("ROLE_USER")});
+
+    private static Collection<GrantedAuthority> USER_AUTHORITY =
+        Arrays.asList(new GrantedAuthority[] {new SimpleGrantedAuthority("ROLE_USER")});
 
     public Authentication authenticate(Authentication authentication)
-            throws AuthenticationException {
+        throws AuthenticationException {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
-        Authentication auth = 
+        Authentication auth =
             new UsernamePasswordAuthenticationToken(
-                           authentication.getPrincipal(), 
-                           authentication.getCredentials(), 
-                           USER_AUTHORITY);
+                authentication.getPrincipal(),
+                authentication.getCredentials(),
+                USER_AUTHORITY);
 
-        try{
-            contentStoreManager.login(new Credential(username,password));
-        }catch(Exception ex){
+        try {
+            contentStoreManager.login(new Credential(username, password));
+        } catch (Exception ex) {
             auth.setAuthenticated(false);
         }
-        
+
         return auth;
-        
-        
     }
 
     public boolean supports(Class authentication) {
@@ -59,12 +56,10 @@ public class ContentStoreAuthenticationProvider implements AuthenticationProvide
         return true;
     }
 
-    
     public ContentStoreManager getContentStoreManager() {
         return contentStoreManager;
     }
 
-    
     public void setContentStoreManager(ContentStoreManager contentStoreManager) {
         this.contentStoreManager = contentStoreManager;
     }

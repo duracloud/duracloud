@@ -10,7 +10,6 @@ package org.duracloud.common.util;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.security.Key;
-
 import javax.crypto.Cipher;
 import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -38,20 +37,19 @@ public class EncryptionUtil {
     public EncryptionUtil() throws DuraCloudRuntimeException {
         this(DEFAULT_KEY);
     }
-    
+
     public EncryptionUtil(String key) throws DuraCloudRuntimeException {
-        if(key == null){
+        if (key == null) {
             throw new IllegalArgumentException("'key' parameter must be non-null");
         }
-        
+
         int keySize = DEFAULT_KEY.length();
-        if(key.length() > keySize){
-            key = key.substring(0,keySize);
+        if (key.length() > keySize) {
+            key = key.substring(0, keySize);
         }
-            
+
         key = StringUtils.leftPad(key, keySize);
-        
-        
+
         this.keyBytes = key.getBytes();
         try {
             // Create cipher
@@ -60,7 +58,7 @@ public class EncryptionUtil {
             // Create Key
             DESKeySpec deskey = new DESKeySpec(this.keyBytes);
             this.key = new SecretKeySpec(deskey.getKey(), "DES");
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new DuraCloudRuntimeException(e);
         }
     }
@@ -74,7 +72,7 @@ public class EncryptionUtil {
             cipher.init(Cipher.ENCRYPT_MODE, key);
             byte[] cipherText = cipher.doFinal(input);
             return encodeBytes(cipherText);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new DuraCloudRuntimeException(e);
         }
     }
@@ -88,7 +86,7 @@ public class EncryptionUtil {
             cipher.init(Cipher.DECRYPT_MODE, key);
             byte[] plainText = cipher.doFinal(input);
             return new String(plainText, "UTF-8");
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new DuraCloudRuntimeException(e);
         }
     }

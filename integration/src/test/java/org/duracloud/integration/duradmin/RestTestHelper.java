@@ -17,9 +17,13 @@ import org.duracloud.common.web.RestHttpHelper;
 
 /**
  * @author Andrew Woods
- *         Date: Apr 19, 2010
+ * Date: Apr 19, 2010
  */
 public class RestTestHelper {
+
+    private RestTestHelper() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     public static RestHttpHelper getAuthorizedRestHelper() {
         try {
@@ -29,15 +33,15 @@ public class RestTestHelper {
             throw new RuntimeException(e);
         }
     }
-    
-    public static String getBaseUrl(){
+
+    public static String getBaseUrl() {
         try {
             TestEndPoint endpoint = new TestConfigUtil().getTestConfig().getTestEndPoint();
-            return "http" + (endpoint.getPort().equals("443") ? "s" : "") + "://" + endpoint.getHost() + ":" + endpoint.getPort() + "/durastore";
+            return "http" + (endpoint.getPort().equals("443") ? "s" : "") + "://" + endpoint.getHost() + ":" +
+                   endpoint.getPort() + "/durastore";
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
 
 }

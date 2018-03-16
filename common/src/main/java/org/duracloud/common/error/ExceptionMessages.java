@@ -7,23 +7,22 @@
  */
 package org.duracloud.common.error;
 
-import org.duracloud.common.util.ApplicationConfig;
-
 import java.util.Properties;
+
+import org.duracloud.common.util.ApplicationConfig;
 
 /**
  * This class abstracts the resource file that holds the mapping between
- *  exception keys and there MessageFormat patterns.
+ * exception keys and there MessageFormat patterns.
  *
  * @author Andrew Woods
- *         Date: Oct 24, 2009
+ * Date: Oct 24, 2009
  */
 public class ExceptionMessages extends ApplicationConfig {
 
     private static String EXCEPTION_RESOURCE_NAME = "exception.properties";
 
     private static String configFileName;
-
 
     private static Properties getProps() throws Exception {
         return getPropsFromResource(getConfigFileName());

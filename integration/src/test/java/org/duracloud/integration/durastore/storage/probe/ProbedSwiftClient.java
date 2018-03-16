@@ -7,6 +7,14 @@
  */
 package org.duracloud.integration.durastore.storage.probe;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -30,17 +38,9 @@ import org.jclouds.openstack.swift.domain.SwiftObject;
 import org.jclouds.openstack.swift.options.CreateContainerOptions;
 import org.jclouds.openstack.swift.options.ListContainerOptions;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 /**
  * @author Erik Paulsson
- *         Date: 8/12/13
+ * Date: 8/12/13
  */
 public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
 
@@ -53,7 +53,7 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         ListeningExecutorService useExecutor = createThreadPool();
         ListeningExecutorService ioExecutor = createThreadPool();
 
-        Iterable<Module> modules = ImmutableSet.<Module> of(
+        Iterable<Module> modules = ImmutableSet.<Module>of(
             new EnterpriseConfigurationModule(useExecutor, ioExecutor));
 
         Properties properties = new Properties();
@@ -61,11 +61,11 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
                                "true");
 
         swiftClient = ContextBuilder.newBuilder(new SwiftApiMetadata())
-                        .endpoint(endpoint)
-                        .credentials(username, apiAccessKey)
-                        .modules(modules)
-                        .overrides(properties)
-                        .buildApi(SwiftClient.class);
+                                    .endpoint(endpoint)
+                                    .credentials(username, apiAccessKey)
+                                    .modules(modules)
+                                    .overrides(properties)
+                                    .buildApi(SwiftClient.class);
     }
 
     protected ListeningExecutorService createThreadPool() {
@@ -121,7 +121,7 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
     public Set<ContainerMetadata> listContainers(ListContainerOptions... listContainerOptionses) {
         startMetric("listContainers");
         Set<ContainerMetadata> containerMetadatas =
-                swiftClient.listContainers(listContainerOptionses);
+            swiftClient.listContainers(listContainerOptionses);
         stopMetric("listContainers");
         return containerMetadatas;
     }
@@ -210,7 +210,7 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
     public MutableObjectInfoWithMetadata getObjectInfo(String s, String s2) {
         startMetric("getObjectInfo");
         MutableObjectInfoWithMetadata mutableObjectInfoWithMetadata =
-                swiftClient.getObjectInfo(s, s2);
+            swiftClient.getObjectInfo(s, s2);
         stopMetric("getObjectInfo");
         return mutableObjectInfoWithMetadata;
     }

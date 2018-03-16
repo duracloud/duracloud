@@ -23,7 +23,7 @@ import org.junit.Test;
 
 /**
  * @author Andrew Woods
- *         Date: Aug 30, 2010
+ * Date: Aug 30, 2010
  */
 public class TestContentIterator extends ClientTestBase {
 
@@ -111,7 +111,7 @@ public class TestContentIterator extends ClientTestBase {
 
         List<String> contentIds = space.getContentIds();
         Assert.assertNotNull(contentIds);
-        
+
         int size = contentIds.size();
         Assert.assertTrue("size: " + size, size <= maxItems);
         return contentIds;

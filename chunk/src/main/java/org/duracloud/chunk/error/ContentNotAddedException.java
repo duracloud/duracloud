@@ -11,7 +11,7 @@ import org.duracloud.common.error.DuraCloudCheckedException;
 
 /**
  * @author Andrew Woods
- *         Date: Feb 8, 2010
+ * Date: Feb 8, 2010
  */
 public class ContentNotAddedException extends DuraCloudCheckedException {
 

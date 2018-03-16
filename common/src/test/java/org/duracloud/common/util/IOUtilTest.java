@@ -7,7 +7,9 @@
  */
 package org.duracloud.common.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -33,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class IOUtilTest {
 
     protected static final Logger log =
-            LoggerFactory.getLogger(SerializationUtilTest.class);
+        LoggerFactory.getLogger(SerializationUtilTest.class);
 
     @Before
     public void setUp() throws Exception {
@@ -89,7 +91,7 @@ public class IOUtilTest {
         String finalContent = IOUtil.readStringFromStream(fileStream);
         Assert.assertEquals(content, finalContent);
     }
-    
+
     @Test
     public void testAddFileToZipOutputStream() throws Exception {
         String content = "content";
@@ -100,18 +102,17 @@ public class IOUtilTest {
         assertTrue(file.exists());
         File zipFile = File.createTempFile("test", "zip");
         zipFile.deleteOnExit();
-        
+
         ZipOutputStream zip = new ZipOutputStream(IOUtil.getOutputStream(zipFile));
         IOUtil.addFileToZipOutputStream(file, zip);
         zip.close();
-        
-        ZipInputStream is = new ZipInputStream( new FileInputStream(zipFile));
-        
+
+        ZipInputStream is = new ZipInputStream(new FileInputStream(zipFile));
+
         ZipEntry entry = is.getNextEntry();
-        Assert.assertEquals(file.getName(),entry.getName());
+        Assert.assertEquals(file.getName(), entry.getName());
         String finalContent = IOUtil.readStringFromStream(is);
         Assert.assertEquals(content, finalContent);
     }
-
 
 }

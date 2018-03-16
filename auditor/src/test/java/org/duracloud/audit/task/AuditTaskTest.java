@@ -7,21 +7,21 @@
  */
 package org.duracloud.audit.task;
 
-import org.duracloud.common.queue.task.Task;
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.duracloud.common.queue.task.Task;
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 3/14/14
+ * Date: 3/14/14
  */
 public class AuditTaskTest {
 
@@ -37,7 +37,7 @@ public class AuditTaskTest {
         String contentChecksum = "content-checksum";
         String contentMimetype = "content-mimetype";
         String contentSize = "content-size";
-        Map<String,String> contentProperties = new HashMap<>();
+        Map<String, String> contentProperties = new HashMap<>();
         String spaceAcls = "space-acls";
         String storeType = "store-type";
         String sourceSpaceId = "source-space-id";
@@ -73,21 +73,15 @@ public class AuditTaskTest {
         assertEquals(storeId, properties.get(AuditTask.STORE_ID_PROP));
         assertEquals(spaceId, properties.get(AuditTask.SPACE_ID_PROP));
         assertEquals(contentId, properties.get(AuditTask.CONTENT_ID_PROP));
-        assertEquals(contentChecksum,
-                     properties.get(AuditTask.CONTENT_CHECKSUM_PROP));
-        assertEquals(contentMimetype,
-                     properties.get(AuditTask.CONTENT_MIMETYPE_PROP));
-        assertEquals(contentSize,
-                     properties.get(AuditTask.CONTENT_SIZE_PROP));
+        assertEquals(contentChecksum, properties.get(AuditTask.CONTENT_CHECKSUM_PROP));
+        assertEquals(contentMimetype, properties.get(AuditTask.CONTENT_MIMETYPE_PROP));
+        assertEquals(contentSize, properties.get(AuditTask.CONTENT_SIZE_PROP));
         assertEquals(contentProperties,
-                     AuditTask.deserializeContentProperties(
-                                           properties.get(AuditTask.CONTENT_PROPERTIES_PROP)));
+                     AuditTask.deserializeContentProperties(properties.get(AuditTask.CONTENT_PROPERTIES_PROP)));
         assertEquals(spaceAcls, properties.get(AuditTask.SPACE_ACLS_PROP));
         assertEquals(storeType, properties.get(AuditTask.STORE_TYPE_PROP));
-        assertEquals(sourceSpaceId,
-                     properties.get(AuditTask.SOURCE_SPACE_ID_PROP));
-        assertEquals(sourceContentId,
-                     properties.get(AuditTask.SOURCE_CONTENT_ID_PROP));
+        assertEquals(sourceSpaceId, properties.get(AuditTask.SOURCE_SPACE_ID_PROP));
+        assertEquals(sourceContentId, properties.get(AuditTask.SOURCE_CONTENT_ID_PROP));
 
         // Test readTask
         AuditTask readAuditTask = new AuditTask();
@@ -99,20 +93,14 @@ public class AuditTaskTest {
         assertEquals(auditTask.getStoreId(), readAuditTask.getStoreId());
         assertEquals(auditTask.getSpaceId(), readAuditTask.getSpaceId());
         assertEquals(auditTask.getContentId(), readAuditTask.getContentId());
-        assertEquals(auditTask.getContentChecksum(),
-                     readAuditTask.getContentChecksum());
-        assertEquals(auditTask.getContentMimetype(),
-                     readAuditTask.getContentMimetype());
-        assertEquals(auditTask.getContentSize(),
-                     readAuditTask.getContentSize());
-        assertEquals(auditTask.getContentProperties(),
-                     readAuditTask.getContentProperties());
+        assertEquals(auditTask.getContentChecksum(), readAuditTask.getContentChecksum());
+        assertEquals(auditTask.getContentMimetype(), readAuditTask.getContentMimetype());
+        assertEquals(auditTask.getContentSize(), readAuditTask.getContentSize());
+        assertEquals(auditTask.getContentProperties(),  readAuditTask.getContentProperties());
         assertEquals(auditTask.getSpaceACLs(), readAuditTask.getSpaceACLs());
         assertEquals(auditTask.getStoreType(), readAuditTask.getStoreType());
-        assertEquals(auditTask.getSourceSpaceId(),
-                     readAuditTask.getSourceSpaceId());
-        assertEquals(auditTask.getSourceContentId(),
-                     readAuditTask.getSourceContentId());
+        assertEquals(auditTask.getSourceSpaceId(), readAuditTask.getSourceSpaceId());
+        assertEquals(auditTask.getSourceContentId(), readAuditTask.getSourceContentId());
     }
 
     @Test
@@ -186,14 +174,14 @@ public class AuditTaskTest {
         try {
             auditTask.setAction("unknown-action");
             fail("Exception expected when attempting to set an invalid action");
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             assertNotNull(e);
         }
     }
 
     @Test
     public void testPropertySerialization() {
-        Map<String,String> contentProps = new HashMap<>();
+        Map<String, String> contentProps = new HashMap<>();
         contentProps.put("key1", "value1");
         contentProps.put("key2", "value2");
 

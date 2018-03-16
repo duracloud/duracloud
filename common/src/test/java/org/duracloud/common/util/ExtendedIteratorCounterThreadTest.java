@@ -7,16 +7,16 @@
  */
 package org.duracloud.common.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Bill Branan
- *         Date: Jan 18, 2011
+ * Date: Jan 18, 2011
  */
 public class ExtendedIteratorCounterThreadTest implements ExtendedCountListener {
 

@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <flow xmlns="http://www.springframework.org/schema/webflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/webflow
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
         http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
 
-  <input name="duracloudCredentialsForm" required="true" />
-  <input name="spaceForm" required="true" />
-  
+  <input name="duracloudCredentialsForm" required="true"/>
+  <input name="spaceForm" required="true"/>
+
   <on-start>
-      <set name="flowScope.duracloudCredentialsForm" value="duracloudCredentialsForm" />
-      <set name="flowScope.spaceForm" value="spaceForm" />
-      <!-- the credentials form is associated with the space form because the space
-      form needs the credentials to perform a check the writability of the space.
-       -->
-      <evaluate expression="spaceForm.setCredentialsForm(duracloudCredentialsForm)"/>
+    <set name="flowScope.duracloudCredentialsForm" value="duracloudCredentialsForm"/>
+    <set name="flowScope.spaceForm" value="spaceForm"/>
+    <!-- the credentials form is associated with the space form because the space
+    form needs the credentials to perform a check the writability of the space.
+     -->
+    <evaluate expression="spaceForm.setCredentialsForm(duracloudCredentialsForm)"/>
   </on-start>
 
   <view-state id="enterDuracloudCredentials" view="/duracloud-config/credentials"
-    model="duracloudCredentialsForm">
-    <transition on="next" to="isSpaceAvailable" />
-    <transition on="cancel" to="end" validate="false" />
+              model="duracloudCredentialsForm">
+    <transition on="next" to="isSpaceAvailable"/>
+    <transition on="cancel" to="end" validate="false"/>
   </view-state>
 
 
   <decision-state id="isSpaceAvailable">
     <on-entry>
-  <evaluate expression="contentStoreFactory.create(flowScope.duracloudCredentialsForm)"
-    result="requestScope.contentStore" />
-      <evaluate expression="spacesFilter.filter(contentStore.getSpaces())" result="flowScope.spaces" />
+      <evaluate expression="contentStoreFactory.create(flowScope.duracloudCredentialsForm)"
+                result="requestScope.contentStore"/>
+      <evaluate expression="spacesFilter.filter(contentStore.getSpaces())" result="flowScope.spaces"/>
     </on-entry>
-    <if test="flowScope.spaces.size() > 0" then="selectSpace" else="noSpaceAvailableError" />
+    <if test="flowScope.spaces.size() > 0" then="selectSpace" else="noSpaceAvailableError"/>
   </decision-state>
 
   <view-state id="noSpaceAvailableError" view="/duracloud-config/no-space-error">
-    <transition on="cancel" to="end"  validate="false"/>
+    <transition on="cancel" to="end" validate="false"/>
   </view-state>
 
   <view-state id="selectSpace" view="/duracloud-config/space" model="spaceForm">
-    <transition on="next" to="finish" />
+    <transition on="next" to="finish"/>
     <transition on="cancel" to="end" validate="false"/>
   </view-state>
 
@@ -44,7 +44,7 @@
   <view-state id="finish" view="/duracloud-config/finish">
     <on-entry>
       <evaluate
-        expression="saveDuracloudConfiguration.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm)" />
+              expression="saveDuracloudConfiguration.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm)"/>
       <evaluate expression="syncProcessManager.getProcessState()" result="flowScope.syncState"/>
     </on-entry>
     <transition on="end" to="end"/>
@@ -53,13 +53,13 @@
 
   <end-state id="restart">
     <on-entry>
-      <evaluate expression="syncProcessManager.restart()" />
+      <evaluate expression="syncProcessManager.restart()"/>
     </on-entry>
-    <output name="action" value="'action'" />
-  </end-state>    
+    <output name="action" value="'action'"/>
+  </end-state>
 
   <end-state id="end">
-    <output name="message" value="flowScope.message" />
+    <output name="message" value="flowScope.message"/>
   </end-state>
 
 

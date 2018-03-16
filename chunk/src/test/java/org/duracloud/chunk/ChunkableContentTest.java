@@ -7,19 +7,7 @@
  */
 package org.duracloud.chunk;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.duracloud.chunk.manifest.ChunksManifest;
-import org.duracloud.chunk.manifest.ChunksManifestBean;
-import org.duracloud.chunk.stream.ChunkInputStream;
-import org.duracloud.chunk.stream.KnownLengthInputStream;
-import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.common.util.ChecksumUtil;
 import static org.duracloud.common.util.ChecksumUtil.Algorithm;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,9 +19,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.duracloud.chunk.manifest.ChunksManifest;
+import org.duracloud.chunk.manifest.ChunksManifestBean;
+import org.duracloud.chunk.stream.ChunkInputStream;
+import org.duracloud.chunk.stream.KnownLengthInputStream;
+import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.util.ChecksumUtil;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * @author Andrew Woods
- *         Date: Feb 2, 2010
+ * Date: Feb 2, 2010
  */
 public class ChunkableContentTest {
 
@@ -216,7 +217,7 @@ public class ChunkableContentTest {
     public void testCalculateBufferSize() {
         // Testing values of maxChunkSize, which must be multiples of 1000
         // Tests values to the 5GB byte limit
-        for(long i=1000; i<5000000000l; i+=(1000+i)) {
+        for (long i = 1000; i < 5000000000l; i += (1000 + i)) {
             int bufferSize = chunkable.calculateBufferSize(i);
             // Resulting buffer size should be less than or equal to 8000
             Assert.assertTrue(bufferSize <= 8000);
@@ -228,12 +229,14 @@ public class ChunkableContentTest {
         try {
             chunkable.calculateBufferSize(500);
             Assert.fail("Exception expected");
-        } catch(DuraCloudRuntimeException e) {
+        } catch (DuraCloudRuntimeException e) {
+            // Expected exception
         }
         try {
             chunkable.calculateBufferSize(12345);
             Assert.fail("Exception expected");
-        } catch(DuraCloudRuntimeException e) {
+        } catch (DuraCloudRuntimeException e) {
+            // Expected exception
         }
     }
 

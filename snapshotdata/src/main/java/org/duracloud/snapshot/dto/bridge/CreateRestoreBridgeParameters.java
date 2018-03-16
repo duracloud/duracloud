@@ -7,16 +7,16 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
+import java.io.IOException;
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
-import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
-
 /**
  * @author Bill Branan
- *         Date: 7/24/14
+ * Date: 7/24/14
  */
 public class CreateRestoreBridgeParameters extends BaseDTO {
 
@@ -56,14 +56,15 @@ public class CreateRestoreBridgeParameters extends BaseDTO {
     @XmlValue
     private String userEmail;
 
-    public CreateRestoreBridgeParameters(){}
+    public CreateRestoreBridgeParameters() {
+    }
 
     public CreateRestoreBridgeParameters(String host,
-                                          String port,
-                                          String storeId,
-                                          String spaceId,
-                                          String snapshotId,
-                                          String userEmail) {
+                                         String port,
+                                         String storeId,
+                                         String spaceId,
+                                         String snapshotId,
+                                         String userEmail) {
         this.host = host;
         this.port = port;
         this.storeId = storeId;
@@ -130,7 +131,7 @@ public class CreateRestoreBridgeParameters extends BaseDTO {
             new JaxbJsonSerializer<>(CreateRestoreBridgeParameters.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create  result due to: " + e.getMessage());
         }

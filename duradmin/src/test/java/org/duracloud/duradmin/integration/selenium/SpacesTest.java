@@ -8,20 +8,15 @@
 package org.duracloud.duradmin.integration.selenium;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
-public class SpacesTest
-        extends SpaceTestBase{
+public class SpacesTest extends SpaceTestBase {
 
-    
-    
     public void setUp() throws Exception {
         super.setUp();
-        
+
     }
-   
+
     public void testBasic() throws Exception {
         navigateToSpacesPage();
     }

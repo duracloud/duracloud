@@ -7,9 +7,9 @@
  */
 package org.duracloud.reportdata.storage.metrics;
 
+import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import java.util.List;
 
 /**
  * Top level metrics storage data structure for DuraStore. Contains all

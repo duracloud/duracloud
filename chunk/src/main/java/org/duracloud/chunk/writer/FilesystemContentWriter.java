@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * content to a local filesystem.
  *
  * @author Andrew Woods
- *         Date: Feb 5, 2010
+ * Date: Feb 5, 2010
  */
 public class FilesystemContentWriter implements ContentWriter {
 
@@ -41,7 +41,6 @@ public class FilesystemContentWriter implements ContentWriter {
     private static final long TWO_GB = 2000000000;
 
     private List<AddContentResult> results = new ArrayList<AddContentResult>();
-
 
     /**
      * This method returns the results of the content write requests.
@@ -60,19 +59,17 @@ public class FilesystemContentWriter implements ContentWriter {
         results.add(result);
     }
 
-
     /**
      * This method implements the ContentWriter interface for writing content
      * to a DataStore. In this case, the DataStore is a local filesystem.
      * The arg spaceId is the path to the destination directory.
      *
      * @param spaceId   destination where arg chunkable content will be written
-     * @param contentProperties user defined properties to be associated with content.
      * @param chunkable content to be written
      */
     public ChunksManifest write(String spaceId,
-                                ChunkableContent chunkable) 
-                                    throws NotFoundException {
+                                ChunkableContent chunkable)
+        throws NotFoundException {
         return write(spaceId, chunkable, null);
     }
 
@@ -81,9 +78,9 @@ public class FilesystemContentWriter implements ContentWriter {
      * to a DataStore. In this case, the DataStore is a local filesystem.
      * The arg spaceId is the path to the destination directory.
      *
-     * @param spaceId   destination where arg chunkable content will be written
+     * @param spaceId           destination where arg chunkable content will be written
      * @param contentProperties user defined properties to be associated with content.
-     * @param chunkable content to be written
+     * @param chunkable         content to be written
      */
     public ChunksManifest write(String spaceId,
                                 ChunkableContent chunkable,
@@ -112,8 +109,8 @@ public class FilesystemContentWriter implements ContentWriter {
      * to a DataStore. In this case, the DataStore is a local filesystem.
      * The arg spaceId is the path to the destination directory.
      *
-     * @param spaceId destination where arg chunk content will be written
-     * @param chunk   content to be written
+     * @param spaceId    destination where arg chunk content will be written
+     * @param chunk      content to be written
      * @param properties user-defined properties associated with content
      * @return MD5 of content
      * @throws NotFoundException
@@ -130,8 +127,8 @@ public class FilesystemContentWriter implements ContentWriter {
                                                chunk.getChunkSize(),
                                                properties);
         String finalChecksum = chunk.getMD5();
-        if(chunkChecksum != null && chunk.md5Preserved()) {
-            if(!chunkChecksum.equals(finalChecksum)) {
+        if (chunkChecksum != null && chunk.md5Preserved()) {
+            if (!chunkChecksum.equals(finalChecksum)) {
                 result.setState(AddContentResult.State.ERROR);
             }
         }
@@ -143,17 +140,16 @@ public class FilesystemContentWriter implements ContentWriter {
     @Override
     public String writeSingle(String spaceId,
                               String chunkChecksum,
-                              ChunkInputStream chunk) 
-                                  throws NotFoundException {
+                              ChunkInputStream chunk)
+        throws NotFoundException {
         return writeSingle(spaceId, chunkChecksum, chunk, null);
     }
 
-    private AddContentResult
-        writeContent(String spaceId,
-                     String contentId,
-                     InputStream inputStream,
-                     long contentSize,
-                     Map<String, String> contentProperties) {
+    private AddContentResult writeContent(String spaceId,
+                                          String contentId,
+                                          InputStream inputStream,
+                                          long contentSize,
+                                          Map<String, String> contentProperties) {
 
         File spaceDir = getSpaceDir(spaceId);
         OutputStream outStream = getOutputStream(spaceDir, contentId);
@@ -239,6 +235,5 @@ public class FilesystemContentWriter implements ContentWriter {
         }
         return spaceDir;
     }
-
 
 }

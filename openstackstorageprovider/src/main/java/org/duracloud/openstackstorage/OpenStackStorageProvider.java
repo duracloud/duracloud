@@ -7,6 +7,23 @@
  */
 package org.duracloud.openstackstorage;
 
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
+import static org.duracloud.storage.error.StorageException.RETRY;
+import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -40,23 +57,6 @@ import org.jclouds.openstack.swift.options.ListContainerOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
-import static org.duracloud.storage.error.StorageException.RETRY;
-import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
-
 /**
  * Provides content storage access to OpenStack storage providers.
  *
@@ -78,36 +78,36 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
         try {
             String trimmedAuthUrl = // JClouds expects authURL with no version
-                    authUrl.substring(0, authUrl.lastIndexOf("/"));
+                authUrl.substring(0, authUrl.lastIndexOf("/"));
 
             ListeningExecutorService useExecutor = createThreadPool();
             ListeningExecutorService ioExecutor = createThreadPool();
 
-            Iterable<Module> modules = ImmutableSet.<Module> of(
+            Iterable<Module> modules = ImmutableSet.<Module>of(
                 new EnterpriseConfigurationModule(useExecutor, ioExecutor));
             Properties properties = new Properties();
             properties.setProperty(Constants.PROPERTY_STRIP_EXPECT_HEADER,
                                    "true");
             swiftClient = ContextBuilder.newBuilder(new SwiftApiMetadata())
-                            .endpoint(trimmedAuthUrl)
-                            .credentials(username, apiAccessKey)
-                            .modules(modules)
-                            .overrides(properties)
-                            .buildApi(SwiftClient.class);
+                                        .endpoint(trimmedAuthUrl)
+                                        .credentials(username, apiAccessKey)
+                                        .modules(modules)
+                                        .overrides(properties)
+                                        .buildApi(SwiftClient.class);
         } catch (Exception e) {
             String err = "Could not connect to " + getProviderName() +
-                    " due to error: " + e.getMessage();
+                         " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
     }
 
     protected ListeningExecutorService createThreadPool() {
         return MoreExecutors.listeningDecorator(
-                    new ThreadPoolExecutor(0,
-                                           Integer.MAX_VALUE,
-                                           5L,
-                                           TimeUnit.SECONDS,
-                                           new SynchronousQueue<Runnable>()));
+            new ThreadPoolExecutor(0,
+                                   Integer.MAX_VALUE,
+                                   5L,
+                                   TimeUnit.SECONDS,
+                                   new SynchronousQueue<Runnable>()));
     }
 
     public OpenStackStorageProvider(String username, String apiAccessKey) {
@@ -119,6 +119,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
     }
 
     public abstract String getAuthUrl();
+
     public abstract String getProviderName();
 
     /**
@@ -128,7 +129,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         log.debug("getSpace()");
 
         Set<ContainerMetadata> containers =
-                swiftClient.listContainers(ListContainerOptions.NONE);
+            swiftClient.listContainers(ListContainerOptions.NONE);
         List<String> spaces = new ArrayList<String>();
         for (ContainerMetadata container : containers) {
             String containerName = container.getName();
@@ -156,16 +157,16 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                                                 long maxResults,
                                                 String marker) {
         log.debug("getSpaceContentsChunked(" + spaceId + ", " + prefix + ", " +
-                maxResults + ", " + marker + ")");
+                  maxResults + ", " + marker + ")");
 
         throwIfSpaceNotExist(spaceId);
 
-        if(maxResults <= 0) {
+        if (maxResults <= 0) {
             maxResults = StorageProvider.DEFAULT_MAX_RESULTS;
         }
 
         List<String> spaceContents =
-                getCompleteSpaceContents(spaceId, prefix, maxResults, marker);
+            getCompleteSpaceContents(spaceId, prefix, maxResults, marker);
 
         return spaceContents;
     }
@@ -177,9 +178,9 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         String containerName = getContainerName(spaceId);
 
         PageSet<ObjectInfo> objects = listObjects(containerName,
-                prefix,
-                maxResults,
-                marker);
+                                                  prefix,
+                                                  maxResults,
+                                                  marker);
         List<String> contentItems = new ArrayList<String>();
         for (ObjectInfo object : objects) {
             contentItems.add(object.getName());
@@ -193,8 +194,12 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                                             String marker) {
         int limit = new Long(maxResults).intValue();
         ListContainerOptions containerOptions = ListContainerOptions.Builder.maxResults(limit);
-        if(marker != null) containerOptions.afterMarker(sanitizeForURI(marker));
-        if(prefix != null) containerOptions.withPrefix(sanitizeForURI(prefix));
+        if (marker != null) {
+            containerOptions.afterMarker(sanitizeForURI(marker));
+        }
+        if (prefix != null) {
+            containerOptions.withPrefix(sanitizeForURI(prefix));
+        }
         return swiftClient.listObjects(containerName, containerOptions);
     }
 
@@ -211,7 +216,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
             throw new NotFoundException(errMsg, e);
         }
 
-        if(! exists) {
+        if (!exists) {
             log.debug("object does not exist: {}, {}", containerName, contentId);
             String errMsg = createNotFoundMsg(containerName, contentId);
             throw new NotFoundException(errMsg);
@@ -236,10 +241,10 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         // dates recorded for containers, so store our own created date
         Map<String, String> spaceProperties = new HashMap<String, String>();
         spaceProperties.put(PROPERTIES_SPACE_CREATED,
-                DateUtil.convertToString(System.currentTimeMillis()));
+                            DateUtil.convertToString(System.currentTimeMillis()));
 
         CreateContainerOptions createContainerOptions =
-                CreateContainerOptions.Builder.withMetadata(spaceProperties);
+            CreateContainerOptions.Builder.withMetadata(spaceProperties);
 
         String containerName = getContainerName(spaceId);
         swiftClient.createContainer(containerName, createContainerOptions);
@@ -267,10 +272,10 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
     public void removeSpace(String spaceId) {
         String containerName = getContainerName(spaceId);
         boolean successful = swiftClient.deleteContainerIfEmpty(containerName);
-        if(!successful) {
+        if (!successful) {
             StringBuilder err = new StringBuilder(
-                    "Could not delete " + getProviderName() + " container with name " +
-                            containerName + " due to error: container not empty");
+                "Could not delete " + getProviderName() + " container with name " +
+                containerName + " due to error: container not empty");
             throw new StorageException(err.toString(), NO_RETRY);
         }
     }
@@ -288,7 +293,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         String containerName = getContainerName(spaceId);
         ContainerMetadata containerMetadata = swiftClient.getContainerMetadata(containerName);
 
-        if(null != containerMetadata) {
+        if (null != containerMetadata) {
             Map<String, String> metadata = containerMetadata.getMetadata();
 
             spaceProperties.putAll(metadata);
@@ -336,19 +341,19 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                              long contentSize,
                              String contentChecksum,
                              InputStream content) {
-        log.debug("addContent("+ spaceId +", "+ contentId +", "+
-                contentMimeType +", "+ contentSize +", "+ contentChecksum +")");
+        log.debug("addContent(" + spaceId + ", " + contentId + ", " +
+                  contentMimeType + ", " + contentSize + ", " + contentChecksum + ")");
 
         throwIfSpaceNotExist(spaceId);
 
-        if(contentMimeType == null || contentMimeType.equals("")) {
+        if (contentMimeType == null || contentMimeType.equals("")) {
             contentMimeType = DEFAULT_MIMETYPE;
         }
 
         Map<String, String> properties = new HashMap<String, String>();
         properties.put(PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
 
-        if(userProperties != null) {
+        if (userProperties != null) {
             userProperties = removeCalculatedProperties(userProperties);
 
             for (String key : userProperties.keySet()) {
@@ -356,13 +361,13 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                     log.debug("[" + key + "|" + userProperties.get(key) + "]");
                 }
                 properties.put(getSpaceFree(key),
-                        userProperties.get(key));
+                               userProperties.get(key));
             }
         }
 
         // Wrap the content in order to be able to retrieve a checksum
         ChecksumInputStream wrappedContent =
-                new ChecksumInputStream(content, contentChecksum);
+            new ChecksumInputStream(content, contentChecksum);
 
         String containerName = getContainerName(spaceId);
 
@@ -386,9 +391,9 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         try {
             String checksum = wrappedContent.getMD5();
             compareChecksum(providerChecksum, spaceId, contentId, checksum);
-        } catch(ChecksumMismatchException e) {
+        } catch (ChecksumMismatchException e) {
             // Clean up object
-            if(swiftClient.objectExists(containerName, encContentId)) {
+            if (swiftClient.objectExists(containerName, encContentId)) {
                 swiftClient.removeObject(containerName, encContentId);
             }
             throw e;
@@ -403,35 +408,35 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                               String destSpaceId,
                               String destContentId) {
         log.debug("copyContent({}, {}, {}, {})",
-                new Object[]{sourceSpaceId,
-                        sourceContentId,
-                        destSpaceId,
-                        destContentId});
+                  new Object[] {sourceSpaceId,
+                                sourceContentId,
+                                destSpaceId,
+                                destContentId});
 
         throwIfContentNotExist(sourceSpaceId, sourceContentId);
         throwIfSpaceNotExist(destSpaceId);
 
-        if(doCopyContent(sourceSpaceId,
-                sourceContentId,
-                destSpaceId,
-                destContentId)) {
+        if (doCopyContent(sourceSpaceId,
+                          sourceContentId,
+                          destSpaceId,
+                          destContentId)) {
             MutableObjectInfoWithMetadata objectInfoWithMetadata =
-                    getObjectProperties(destSpaceId, destContentId);
+                getObjectProperties(destSpaceId, destContentId);
             byte[] hash = objectInfoWithMetadata.getHash();
             String md5 = null;
-            if(hash != null) {
+            if (hash != null) {
                 md5 = ChecksumUtil.checksumBytesToString(hash);
             }
             return StorageProviderUtil.compareChecksum(this,
-                    sourceSpaceId,
-                    sourceContentId,
-                    md5);
+                                                       sourceSpaceId,
+                                                       sourceContentId,
+                                                       md5);
         } else {
             throw new StorageException("failed to copy object - " +
-                    "srcSpaceId: " +sourceSpaceId+ ", " +
-                    "sourceContentId: " +sourceContentId+ ", " +
-                    "destSpaceId: " +destSpaceId+ ", " +
-                    "destContentId: " +destContentId);
+                                       "srcSpaceId: " + sourceSpaceId + ", " +
+                                       "sourceContentId: " + sourceContentId + ", " +
+                                       "destSpaceId: " + destSpaceId + ", " +
+                                       "destContentId: " + destContentId);
         }
     }
 
@@ -444,9 +449,9 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
             String encDestContentId = sanitizeForURI(destContentId);
 
             return swiftClient.copyObject(sourceSpaceId,
-                    encSourceContentId,
-                    destSpaceId,
-                    encDestContentId);
+                                          encSourceContentId,
+                                          destSpaceId,
+                                          encDestContentId);
 
         } catch (CopyObjectException e) {
             StringBuilder err = new StringBuilder("Could not copy content from: ");
@@ -473,7 +478,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         String containerName = getContainerName(spaceId);
         String encContentId = sanitizeForURI(contentId);
         SwiftObject swiftObject = swiftClient.getObject(containerName, encContentId);
-        if(swiftObject == null) {
+        if (swiftObject == null) {
             String errMsg = createNotFoundMsg(spaceId, contentId);
             throw new NotFoundException(errMsg);
         }
@@ -524,10 +529,10 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
         // Set mimetype
         String contentMimeType =
-                contentProperties.remove(PROPERTIES_CONTENT_MIMETYPE);
-        if(contentMimeType == null || contentMimeType.equals("")) {
+            contentProperties.remove(PROPERTIES_CONTENT_MIMETYPE);
+        if (contentMimeType == null || contentMimeType.equals("")) {
             contentMimeType = getContentProperties(spaceId, contentId)
-                    .get(PROPERTIES_CONTENT_MIMETYPE);
+                .get(PROPERTIES_CONTENT_MIMETYPE);
         }
 
         Map<String, String> newContentProperties = new HashMap<String, String>();
@@ -536,7 +541,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                 log.debug("[" + key + "|" + contentProperties.get(key) + "]");
             }
             newContentProperties.put(getSpaceFree(key),
-                    contentProperties.get(key));
+                                     contentProperties.get(key));
         }
 
         // Set Content-Type
@@ -546,11 +551,11 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
         String containerName = getContainerName(spaceId);
         log.debug("Calling swiftClient.setObjectInfo for spaceId: {} and contentId: {}",
-                spaceId, contentId);
+                  spaceId, contentId);
         String encContentId = sanitizeForURI(contentId);
-        if(! swiftClient.setObjectInfo(containerName,
-                encContentId,
-                newContentProperties)) {
+        if (!swiftClient.setObjectInfo(containerName,
+                                       encContentId,
+                                       newContentProperties)) {
             String errMsg = createNotFoundMsg(spaceId, contentId);
             throw new StorageException("Error setting content properties");
         }
@@ -566,10 +571,10 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         throwIfSpaceNotExist(spaceId);
 
         MutableObjectInfoWithMetadata objectInfoWithMetadata =
-                getObjectProperties(spaceId, contentId);
+            getObjectProperties(spaceId, contentId);
         if (objectInfoWithMetadata == null) {
             String err = "No properties are available for item " + contentId +
-                    " in " + getProviderName() + " space " + spaceId;
+                         " in " + getProviderName() + " space " + spaceId;
             throw new StorageException(err, RETRY);
         }
 
@@ -614,9 +619,9 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         String containerName = getContainerName(spaceId);
         String encContentId = sanitizeForURI(contentId);
         MutableObjectInfoWithMetadata objectInfoWithMetadata =
-                swiftClient.getObjectInfo(containerName, encContentId);
+            swiftClient.getObjectInfo(containerName, encContentId);
 
-        if(objectInfoWithMetadata == null) {
+        if (objectInfoWithMetadata == null) {
             String errMsg = createNotFoundMsg(spaceId, contentId);
             throw new NotFoundException(errMsg);
         }

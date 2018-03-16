@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * A simple interface for lists supporting scrollable behavior result sets.
- * 
+ *
  * @author Danny Bernstein
  * @version $Id$
  */
@@ -19,7 +19,7 @@ public interface Scrollable<E> {
 
     /**
      * The max number of results per page; ie the page size.
-     * 
+     *
      * @return
      */
     public long getMaxResultsPerPage();
@@ -34,7 +34,7 @@ public interface Scrollable<E> {
 
     /**
      * Returns the results for the current "page"
-     * 
+     *
      * @return
      */
     public List<E> getResultList();

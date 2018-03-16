@@ -8,16 +8,14 @@
 package org.duracloud.syncui.service;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public enum RunMode {
     /*
      * signifies continuous execution (ie listen for files system changes
      * after queuing all matching files.
      */
-    CONTINUOUS,  
+    CONTINUOUS,
     /*
      * just load matching files - do not listen for subsequent updates/additions/deletions.
      */

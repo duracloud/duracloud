@@ -7,11 +7,9 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.duracloud.common.constant.Constants;
-import org.duracloud.common.model.AclType;
-import org.duracloud.common.rest.DuraCloudRequestContextFilter;
-import org.duracloud.storage.provider.StorageProvider;
-
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -20,9 +18,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import org.duracloud.common.constant.Constants;
+import org.duracloud.common.model.AclType;
+import org.duracloud.storage.provider.StorageProvider;
 
 /**
  * Base REST resource
@@ -55,11 +53,10 @@ public abstract class BaseRest {
         HEADER_PREFIX + StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
     public static final String COPY_SOURCE_HEADER =
         HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE;
-    public static final String COPY_SOURCE_STORE_HEADER = 
+    public static final String COPY_SOURCE_STORE_HEADER =
         HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE_STORE;
 
     public static final String APP_NAME = "DuraStore";
-
 
     /**
      * Looks through the request headers and pulls out user properties.
@@ -106,7 +103,7 @@ public abstract class BaseRest {
         }
         return userProperties;
     }
-    
+
     protected Response responseOk() {
         return Response.ok().build();
     }
@@ -158,13 +155,11 @@ public abstract class BaseRest {
     }
 
     protected String getSubdomain() {
-        return (String)request.getAttribute(Constants.ACCOUNT_ID_ATTRIBUTE);
+        return (String) request.getAttribute(Constants.ACCOUNT_ID_ATTRIBUTE);
     }
 
     protected String getAccountId() {
         return getSubdomain();
     }
-
-
 
 }

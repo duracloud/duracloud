@@ -7,12 +7,12 @@
  */
 package org.duracloud.syncui;
 
-import org.duracloud.sync.SyncToolInitializer;
-import org.duracloud.syncui.config.SyncUIConfig;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+
+import org.duracloud.sync.SyncToolInitializer;
+import org.duracloud.syncui.config.SyncUIConfig;
 
 /**
  * Runs the sync application in either the command line mode or GUI mode. If
@@ -24,12 +24,16 @@ import java.io.PrintStream;
  */
 public class SyncSelector {
 
+    private SyncSelector() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     public static void main(String[] args) throws Exception {
         // Ensure that work dir is initialized
         SyncUIConfig.getWorkDir();
 
         // Determine which tool to execute
-        if(args.length > 0) {
+        if (args.length > 0) {
             SyncToolInitializer.main(args);
         } else {
             disableStdErr();

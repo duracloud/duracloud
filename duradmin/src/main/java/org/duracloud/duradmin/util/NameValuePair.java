@@ -9,8 +9,7 @@ package org.duracloud.duradmin.util;
 
 import java.io.Serializable;
 
-public class NameValuePair
-        implements Serializable {
+public class NameValuePair implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

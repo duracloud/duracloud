@@ -7,6 +7,10 @@
  */
 package org.duracloud.storage.xml.impl;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.storage.domain.StorageAccount;
@@ -17,15 +21,11 @@ import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 /**
  * This class provides a simple xml binding for storage accounts.
  *
  * @author Andrew Woods
- *         Date: 5/9/11
+ * Date: 5/9/11
  */
 public class StorageAccountProviderSimpleBindingImpl implements StorageAccountProviderBinding {
 
@@ -54,7 +54,7 @@ public class StorageAccountProviderSimpleBindingImpl implements StorageAccountPr
                                                     credential.getUsername(),
                                                     credential.getPassword(),
                                                     acctType);
-            
+
             for (String key : options.keySet()) {
                 storageAccount.setOption(key, options.get(key));
             }
@@ -164,7 +164,7 @@ public class StorageAccountProviderSimpleBindingImpl implements StorageAccountPr
             storageAcct.addContent(storageProviderCredential);
         }
 
-        if(includeOptions) {
+        if (includeOptions) {
             Map<String, String> options = acct.getOptions();
             if (null != options && !options.isEmpty()) {
                 Element storageProviderOptions = new Element(

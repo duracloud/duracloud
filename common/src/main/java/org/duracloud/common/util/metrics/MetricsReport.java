@@ -11,7 +11,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import java.util.Date;
 import java.util.Formatter;
 import java.util.Iterator;
@@ -41,7 +40,7 @@ public class MetricsReport {
     final int LEVEL_0 = 0;
 
     public MetricsReport(String title, String metricsFileName)
-            throws IOException {
+        throws IOException {
         this.title = title;
         writer = new BufferedWriter(new FileWriter(new File(metricsFileName)));
         formatter = new Formatter(writer);

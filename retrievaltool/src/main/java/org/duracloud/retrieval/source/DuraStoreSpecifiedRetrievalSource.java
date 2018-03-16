@@ -7,6 +7,9 @@
  */
 package org.duracloud.retrieval.source;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.error.DuraCloudRuntimeException;
@@ -17,9 +20,6 @@ import org.duracloud.retrieval.mgmt.RetrievalListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
-import java.util.List;
-
 /**
  * This class implements the RetrievalSource interface with support for retrieving
  * content by content IDs that are specified in a file.  The format of the file
@@ -29,7 +29,7 @@ import java.util.List;
  * chunked content.
  *
  * @author Erik Paulsson
- *         Date: 7/2/13
+ * Date: 7/2/13
  */
 public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetrievalSource {
 
@@ -38,20 +38,19 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
 
     private Iterator<String> specifiedContentIds;
 
-
     public DuraStoreSpecifiedRetrievalSource(ContentStore store,
                                              List<String> singleSpaceList,
                                              Iterator<String> specifiedContentIds) {
         super(store, singleSpaceList, false);
-        if(singleSpaceList == null) {
+        if (singleSpaceList == null) {
             throw new DuraCloudRuntimeException("The space list specified for " +
-                    "DuraStoreSpecifiedRetrievelSource must not be NULL.");
-        } else if(singleSpaceList.isEmpty()) {
+                                                "DuraStoreSpecifiedRetrievelSource must not be NULL.");
+        } else if (singleSpaceList.isEmpty()) {
             throw new DuraCloudRuntimeException("The space list specified for " +
-                    "DuraStoreSpecifiedRetrievelSource must contain 1 space ID.");
-        } else if(singleSpaceList.size() > 1) {
+                                                "DuraStoreSpecifiedRetrievelSource must contain 1 space ID.");
+        } else if (singleSpaceList.size() > 1) {
             throw new DuraCloudRuntimeException("The space list specified for " +
-                    "DuraStoreSpecifiedRetrievelSource must contain only 1 space ID.");
+                                                "DuraStoreSpecifiedRetrievelSource must contain only 1 space ID.");
         }
 
         this.specifiedContentIds = specifiedContentIds;
@@ -59,7 +58,7 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
 
     @Override
     protected void getNextSpace() {
-        if(spaceIds.hasNext()) {
+        if (spaceIds.hasNext()) {
             currentSpaceId = spaceIds.next();
             currentContentList = specifiedContentIds;
         }
@@ -69,15 +68,15 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
     protected Content doGetContent(ContentItem item, RetrievalListener listener) {
         try {
             return contentStore.getContent(item.getSpaceId(),
-                    item.getContentId());
+                                           item.getContentId());
         } catch (ContentStoreException e) {
             log.info("Error retrieving content ID: " + item.getContentId() +
-                    ".  Trying to get this content again by checking for " +
-                    "a chunk manifest for this content ID.");
+                     ".  Trying to get this content again by checking for " +
+                     "a chunk manifest for this content ID.");
             // Create a new ContentItem representing the manifest file content ID
             // for the passed in ContentItem to this method.
             ContentItem manifestItem = new ContentItem(item.getSpaceId(),
-                    item.getContentId() + ChunksManifest.manifestSuffix);
+                                                       item.getContentId() + ChunksManifest.manifestSuffix);
             return doGetContentFromManifest(manifestItem, listener);
         }
     }

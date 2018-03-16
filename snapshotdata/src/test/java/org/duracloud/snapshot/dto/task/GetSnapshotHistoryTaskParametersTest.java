@@ -17,7 +17,7 @@ import org.junit.Test;
 
 /**
  * @author Gad Krumholz
- *         Date: 7/02/15
+ * Date: 7/02/15
  */
 public class GetSnapshotHistoryTaskParametersTest {
 
@@ -35,21 +35,21 @@ public class GetSnapshotHistoryTaskParametersTest {
 
         String result = taskParams.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"snapshotId\":\""+ snapshotId +"\""));
-        assertThat(cleanResult, containsString("\"pageNumber\":"+ pageNumber +""));
-        assertThat(cleanResult, containsString("\"pageSize\":"+ pageSize +""));
+        assertThat(cleanResult, containsString("\"snapshotId\":\"" + snapshotId + "\""));
+        assertThat(cleanResult, containsString("\"pageNumber\":" + pageNumber + ""));
+        assertThat(cleanResult, containsString("\"pageSize\":" + pageSize + ""));
     }
 
     @Test
     public void testDeserialize() {
         // Verify valid params
         String taskParamsSerialized =
-            "{\"snapshotId\" : \""+snapshotId+"\"," +
-            "\"pageNumber\" : "+pageNumber+"," +
-            " \"pageSize\" : "+pageSize+"}";
+            "{\"snapshotId\" : \"" + snapshotId + "\"," +
+            "\"pageNumber\" : " + pageNumber + "," +
+            " \"pageSize\" : " + pageSize + "}";
 
         GetSnapshotHistoryTaskParameters taskParams =
-                GetSnapshotHistoryTaskParameters.deserialize(taskParamsSerialized);
+            GetSnapshotHistoryTaskParameters.deserialize(taskParamsSerialized);
         assertEquals(snapshotId, taskParams.getSnapshotId());
         assertEquals(pageNumber, taskParams.getPageNumber());
         assertEquals(pageSize, taskParams.getPageSize());
@@ -60,14 +60,16 @@ public class GetSnapshotHistoryTaskParametersTest {
         try {
             GetSnapshotHistoryTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
 
         // Verify that empty params throw
         try {
             GetSnapshotHistoryTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
     }
 

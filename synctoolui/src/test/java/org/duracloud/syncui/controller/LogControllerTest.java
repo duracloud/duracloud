@@ -8,9 +8,7 @@
 package org.duracloud.syncui.controller;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
-
 import javax.servlet.http.HttpServletResponse;
 
 import org.duracloud.syncui.AbstractTest;
@@ -22,15 +20,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class LogControllerTest extends AbstractTest {
     private SyncConfigurationManager syncConfigurationManager;
+
     @Before
     @Override
-    public void setup()  {
+    public void setup() {
         super.setup();
 
         syncConfigurationManager = createMock(SyncConfigurationManager.class);
@@ -39,7 +36,7 @@ public class LogControllerTest extends AbstractTest {
 
     @After
     @Override
-    public void tearDown()  {
+    public void tearDown() {
         super.tearDown();
     }
 
@@ -50,8 +47,8 @@ public class LogControllerTest extends AbstractTest {
         String s = c.get();
         Assert.assertNotNull(s);
     }
-    
-    public void testDownload() throws IOException{
+
+    public void testDownload() throws IOException {
         HttpServletResponse response = createMock(HttpServletResponse.class);
         response.setHeader(EasyMock.isA(String.class), EasyMock.isA(String.class));
         EasyMock.expectLastCall().once();
@@ -63,7 +60,7 @@ public class LogControllerTest extends AbstractTest {
         LogController c = new LogController(syncConfigurationManager);
         String s = c.download(response);
         Assert.assertNotNull(s);
-        
+
     }
 
 }

@@ -9,6 +9,8 @@ package org.duracloud.durastore.util;
 
 import java.util.Map;
 
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.glacierstorage.GlacierStorageProvider;
 import org.duracloud.glaciertask.GlacierTaskProvider;
 import org.duracloud.mill.manifest.ManifestStore;
@@ -28,9 +30,6 @@ import org.duracloud.storage.provider.TaskProvider;
 import org.duracloud.storage.provider.TaskProviderFactory;
 import org.duracloud.storage.util.StorageProviderFactory;
 
-import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.s3.AmazonS3Client;
-
 /**
  * Provides access to TaskProvider implementations
  *
@@ -42,10 +41,10 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
 
     private StorageProviderFactory storageProviderFactory;
     private ManifestStore manifestStore;
-    
+
     public TaskProviderFactoryImpl(StorageAccountManager storageAccountManager,
-                               StorageProviderFactory storageProviderFactory,
-                               ManifestStore manifestStore) {
+                                   StorageProviderFactory storageProviderFactory,
+                                   ManifestStore manifestStore) {
         super(storageAccountManager);
         this.storageProviderFactory = storageProviderFactory;
         this.manifestStore = manifestStore;
@@ -55,10 +54,10 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
     public TaskProvider getTaskProvider() {
         return getTaskProvider(null);
     }
-    
+
     @Override
     public TaskProvider getTaskProvider(String storageAccountId)
-            throws TaskException {
+        throws TaskException {
         StorageAccountManager storageAccountManager = getAccountManager();
         StorageAccount account =
             storageAccountManager.getStorageAccount(storageAccountId);
@@ -102,12 +101,12 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                 S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
             taskProvider = new GlacierTaskProvider(storageProvider,
                                                    unwrappedGlacierProvider,
-                                                   s3Client, 
+                                                   s3Client,
                                                    storageAccountId);
         } else if (type.equals(StorageProviderType.DPN) ||
                    type.equals(StorageProviderType.CHRONOPOLIS)) {
             SnapshotStorageProvider unwrappedSnapshotProvider;
-            if(type.equals(StorageProviderType.DPN)) {
+            if (type.equals(StorageProviderType.DPN)) {
                 unwrappedSnapshotProvider =
                     new DpnStorageProvider(username, password);
             } else {
@@ -133,7 +132,7 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                 opts.get(StorageAccount.OPTS.BRIDGE_PASS.name());
             String bridgeMemberId =
                 opts.get(StorageAccount.OPTS.BRIDGE_MEMBER_ID.name());
-            
+
             taskProvider = new SnapshotTaskProvider(storageProvider,
                                                     unwrappedSnapshotProvider,
                                                     s3Client,
@@ -145,14 +144,14 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                                                     bridgeHost,
                                                     bridgePort,
                                                     bridgeUser,
-                                                    bridgePass, 
+                                                    bridgePass,
                                                     bridgeMemberId,
                                                     this.storageProviderFactory.getAuditQueue(),
                                                     this.manifestStore);
         } else {
             throw new TaskException("No TaskProvider is available for " + type);
         }
-        
+
         return taskProvider;
     }
 

@@ -32,7 +32,7 @@ public class StatusManager {
     private static StatusManager instance;
 
     public static StatusManager getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new StatusManager();
         }
         return instance;

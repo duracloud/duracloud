@@ -30,7 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * Get a listing of snapshots which are accessible to this account.
  *
  * @author Bill Branan
- *         Date: 7/23/14
+ * Date: 7/23/14
  */
 public class GetSnapshotsTaskRunner extends AbstractSnapshotTaskRunner {
 
@@ -61,12 +61,12 @@ public class GetSnapshotsTaskRunner extends AbstractSnapshotTaskRunner {
     @Override
     public String performTask(String taskParameters) {
         //get bridge results
-        String result =  callBridge(createRestHelper(), buildBridgeURL());
-        
+        String result = callBridge(createRestHelper(), buildBridgeURL());
+
         //if the caller has only user privs
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        
-        if(!auth.getAuthorities().contains(Role.ROLE_ADMIN.authority())){
+
+        if (!auth.getAuthorities().contains(Role.ROLE_ADMIN.authority())) {
             //deserialize results
             GetSnapshotListBridgeResult list = GetSnapshotListBridgeResult.deserialize(result);
             List<SnapshotSummary> filteredSnapshots = new LinkedList<>();
@@ -74,13 +74,13 @@ public class GetSnapshotsTaskRunner extends AbstractSnapshotTaskRunner {
             //create space set
             Iterator<String> it = this.storageProvider.getSpaces();
             Set<String> spaceSet = new HashSet<>();
-            while(it.hasNext()){
+            while (it.hasNext()) {
                 spaceSet.add(it.next());
             }
 
             //filter out all snapshots of spaces not in the set.
-            for(SnapshotSummary snapshot : list.getSnapshots()){
-                if(spaceSet.contains(snapshot.getSourceSpaceId())){
+            for (SnapshotSummary snapshot : list.getSnapshots()) {
+                if (spaceSet.contains(snapshot.getSourceSpaceId())) {
                     filteredSnapshots.add(snapshot);
                 }
             }
@@ -88,7 +88,7 @@ public class GetSnapshotsTaskRunner extends AbstractSnapshotTaskRunner {
             list.setSnapshots(filteredSnapshots);
             result = list.serialize();
         }
-        
+
         return result;
     }
 
@@ -111,12 +111,12 @@ public class GetSnapshotsTaskRunner extends AbstractSnapshotTaskRunner {
         try {
             RestHttpHelper.HttpResponse response = restHelper.get(bridgeURL);
             int statusCode = response.getStatusCode();
-            if(statusCode != 200) {
+            if (statusCode != 200) {
                 throw new RuntimeException("Unexpected response code: " +
                                            statusCode);
             }
             return response.getResponseBody();
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new TaskException("Exception encountered attempting to " +
                                     "get list of snapshots. " +
                                     "Error reported: " + e.getMessage(), e);

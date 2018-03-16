@@ -7,10 +7,7 @@
  */
 package org.duracloud.common.error;
 
-import org.duracloud.common.error.DuraCloudRuntimeException;
-
 /**
- *
  * @author Bill Branan
  */
 public class RetryFlaggableException extends DuraCloudRuntimeException {
@@ -21,7 +18,6 @@ public class RetryFlaggableException extends DuraCloudRuntimeException {
     public static final boolean NO_RETRY = false;
 
     protected boolean retry;
-
 
     public RetryFlaggableException(String message, Throwable throwable, boolean retry) {
         super(message, throwable);

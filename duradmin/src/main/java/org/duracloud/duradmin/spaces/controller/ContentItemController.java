@@ -12,13 +12,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import org.apache.http.HttpStatus;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.task.S3TaskClient;
@@ -41,18 +40,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 @Controller
 @RequestMapping("/spaces/content")
 public class ContentItemController {
 
-    protected final Logger log = 
+    protected final Logger log =
         LoggerFactory.getLogger(ContentItemController.class);
 
-	private ContentStoreManager contentStoreManager;
+    private ContentStoreManager contentStoreManager;
     private S3TaskClientManager taskClientManager;
 
     @Autowired
@@ -60,52 +57,50 @@ public class ContentItemController {
         @Qualifier("contentStoreManager") ContentStoreManager contentStoreManager) {
         this.contentStoreManager = contentStoreManager;
         this.taskClientManager = new S3TaskClientManager(contentStoreManager);
-    }    
-    
-	@RequestMapping(value="/delete", method = RequestMethod.POST)
-	public ModelAndView delete(@Valid ContentItem contentItem,
-			BindingResult result) throws Exception {
-		String spaceId = contentItem.getSpaceId();
+    }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public ModelAndView delete(@Valid ContentItem contentItem,
+                               BindingResult result) throws Exception {
+        String spaceId = contentItem.getSpaceId();
         ContentStore contentStore = getContentStore(contentItem);
         contentStore.deleteContent(spaceId, contentItem.getContentId());
         return createModel(contentItem);
-	}
+    }
 
-	
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public ModelAndView get(HttpServletRequest request, HttpServletResponse response,
+                            ContentItem ci,
+                            BindingResult result) throws Exception {
+        ContentItem contentItem = new ContentItem();
+        try {
+            populateContentItem(request, getContentStore(ci), ci, contentItem);
 
-	@RequestMapping(value="", method = RequestMethod.GET)
-	public ModelAndView get(HttpServletRequest request, HttpServletResponse response,
-			ContentItem ci,
-			BindingResult result) throws Exception {
-		ContentItem contentItem = new ContentItem();
-		try{
-		    populateContentItem(request, getContentStore(ci), ci, contentItem);
-            
-            if(!StringUtils.isBlank(contentItem.getContentId())){
+            if (!StringUtils.isBlank(contentItem.getContentId())) {
                 return createModel(contentItem);
-            }else{
-            	return new ModelAndView("jsonView", "contentItem", null);
+            } else {
+                return new ModelAndView("jsonView", "contentItem", null);
             }
-		}catch(ContentStoreException ex){
-			ex.printStackTrace();
-		    response.setStatus(HttpStatus.SC_NOT_FOUND);
-		    return new ModelAndView("jsonView", "contentItem", null);
-		}
-	}
+        } catch (ContentStoreException ex) {
+            ex.printStackTrace();
+            response.setStatus(HttpStatus.SC_NOT_FOUND);
+            return new ModelAndView("jsonView", "contentItem", null);
+        }
+    }
 
-    @RequestMapping(value="streaming-url", method = RequestMethod.GET)
+    @RequestMapping(value = "streaming-url", method = RequestMethod.GET)
     public ModelAndView getStreamingUrl(HttpServletRequest request,
                                         HttpServletResponse response,
                                         ContentItem contentItem,
                                         BindingResult result) throws Exception {
-        try{
+        try {
             String streamingType = request.getParameter("streamingType");
             S3TaskClient taskClient = getTaskClient(contentItem);
             String urlToStream;
-            if("SECURE".equals(streamingType)) {
+            if ("SECURE".equals(streamingType)) {
                 urlToStream =
                     taskClient.getSignedUrl(contentItem.getSpaceId(),
-                                           contentItem.getContentId(), null, 20, null)
+                                            contentItem.getContentId(), null, 20, null)
                               .getSignedUrl();
             } else {
                 urlToStream =
@@ -118,105 +113,105 @@ public class ContentItemController {
             int breakPoint = urlToStream.indexOf("/cfx/st") + 7;
             responseMap.put("prefix", urlToStream.substring(0, breakPoint));
             responseMap.put("suffix",
-                            urlToStream.substring(breakPoint+1, urlToStream.length()));
+                            urlToStream.substring(breakPoint + 1, urlToStream.length()));
             return new ModelAndView("jsonView", "streamingUrl", responseMap);
-        }catch(ContentStoreException ex){
+        } catch (ContentStoreException ex) {
             ex.printStackTrace();
             response.setStatus(HttpStatus.SC_NOT_FOUND);
             return new ModelAndView("jsonView", "streamingUrl", null);
         }
     }
-	
-	@RequestMapping(value ="/update-properties", method = RequestMethod.POST)
-	public ModelAndView updateContentProperties(HttpServletRequest request,
-	        @RequestParam String method,
-			HttpServletResponse response, @Valid ContentItem contentItem,
-			BindingResult results) throws Exception {
-	    try{
-	        String spaceId = contentItem.getSpaceId();
-	        String contentId = contentItem.getContentId();
-	        ContentStore contentStore = getContentStore(contentItem);
-	        ContentItem result = new ContentItem();
-	        Map<String,String> properties =
-            contentStore.getContentProperties(spaceId, contentId);
+
+    @RequestMapping(value = "/update-properties", method = RequestMethod.POST)
+    public ModelAndView updateContentProperties(HttpServletRequest request,
+                                                @RequestParam String method,
+                                                HttpServletResponse response, @Valid ContentItem contentItem,
+                                                BindingResult results) throws Exception {
+        try {
+            String spaceId = contentItem.getSpaceId();
+            String contentId = contentItem.getContentId();
+            ContentStore contentStore = getContentStore(contentItem);
+            ContentItem result = new ContentItem();
+            Map<String, String> properties =
+                contentStore.getContentProperties(spaceId, contentId);
             PropertiesUtils.handle(method,
                                    "space [" + spaceId + "]",
                                    properties,
                                    request);
             contentStore.setContentProperties(spaceId, contentId, properties);
-	        populateContentItem(request, contentStore, contentItem, result);
-	        return createModel(result);
-	        
-	    }catch(Exception ex){
-	        ex.printStackTrace();
-	        throw ex;
-	    }
-	}
+            populateContentItem(request, contentStore, contentItem, result);
+            return createModel(result);
 
-	   @RequestMapping(value ="/change-mimetype", method = RequestMethod.POST)
-	    public ModelAndView changeMimeType(HttpServletRequest request,
-	            HttpServletResponse response, @Valid ContentItem contentItem,
-	            BindingResult results) throws Exception {
-	        try{
-	            String spaceId = contentItem.getSpaceId();
-	            String contentId = contentItem.getContentId();
-	            ContentStore contentStore = getContentStore(contentItem);
-	            ContentItem result = new ContentItem();
-	            Map<String,String> properties =
-	                contentStore.getContentProperties(spaceId, contentId);
-                String mimetype = contentItem.getContentMimetype();
-                String oldMimetype = properties.get(ContentStore.CONTENT_MIMETYPE);
-                if(!StringUtils.isBlank(mimetype) && !mimetype.equals(oldMimetype)){
-                    properties.put(ContentStore.CONTENT_MIMETYPE, mimetype);
-                    contentStore.setContentProperties(spaceId, contentId, properties);
-                }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw ex;
+        }
+    }
 
-	            populateContentItem(request, contentStore, contentItem, result);
-	            return createModel(result);
-	            
-	        }catch(Exception ex){
-	            ex.printStackTrace();
-	            throw ex;
-	        }
-	    }
+    @RequestMapping(value = "/change-mimetype", method = RequestMethod.POST)
+    public ModelAndView changeMimeType(HttpServletRequest request,
+                                       HttpServletResponse response, @Valid ContentItem contentItem,
+                                       BindingResult results) throws Exception {
+        try {
+            String spaceId = contentItem.getSpaceId();
+            String contentId = contentItem.getContentId();
+            ContentStore contentStore = getContentStore(contentItem);
+            ContentItem result = new ContentItem();
+            Map<String, String> properties =
+                contentStore.getContentProperties(spaceId, contentId);
+            String mimetype = contentItem.getContentMimetype();
+            String oldMimetype = properties.get(ContentStore.CONTENT_MIMETYPE);
+            if (!StringUtils.isBlank(mimetype) && !mimetype.equals(oldMimetype)) {
+                properties.put(ContentStore.CONTENT_MIMETYPE, mimetype);
+                contentStore.setContentProperties(spaceId, contentId, properties);
+            }
 
-	    @RequestMapping(value ="/copy", method = RequestMethod.POST)
-	    public ModelAndView copy(HttpServletRequest request,
-	            HttpServletResponse response, @Valid ContentItem contentItem,
-	            BindingResult result) throws Exception {
-	        try{
-	            String spaceId = contentItem.getSpaceId();
-	            String contentId = contentItem.getContentId();
-	            ContentStore contentStore = getContentStore(contentItem);
-                return  handleCopyContentItem(request,
-                        contentItem,
-                        spaceId,
-                        contentId,
-                        contentStore);
-	            	            
-	        }catch(Exception ex){
-	            ex.printStackTrace();
-	            throw ex;
-	        }
-	    }
+            populateContentItem(request, contentStore, contentItem, result);
+            return createModel(result);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw ex;
+        }
+    }
+
+    @RequestMapping(value = "/copy", method = RequestMethod.POST)
+    public ModelAndView copy(HttpServletRequest request,
+                             HttpServletResponse response, @Valid ContentItem contentItem,
+                             BindingResult result) throws Exception {
+        try {
+            String spaceId = contentItem.getSpaceId();
+            String contentId = contentItem.getContentId();
+            ContentStore contentStore = getContentStore(contentItem);
+            return handleCopyContentItem(request,
+                                         contentItem,
+                                         spaceId,
+                                         contentId,
+                                         contentStore);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw ex;
+        }
+    }
 
     private ModelAndView handleCopyContentItem(
         HttpServletRequest request, ContentItem contentItem, String spaceId,
         String contentId, ContentStore contentStore)
         throws ContentStoreException, MalformedURLException {
-        
+
         String destStoreId = request.getParameter("destStoreId");
         String destSpaceId = request.getParameter("destSpaceId");
         String destContentId = request.getParameter("destContentId");
-       
-        if(Boolean.valueOf(request.getParameter("deleteOriginal"))){
+
+        if (Boolean.valueOf(request.getParameter("deleteOriginal"))) {
             contentStore.moveContent(
                 spaceId,
-                contentId, 
+                contentId,
                 destStoreId,
-                destSpaceId, 
+                destSpaceId,
                 destContentId);
-        }else{
+        } else {
             contentStore.copyContent(
                 spaceId,
                 contentId,
@@ -224,19 +219,19 @@ public class ContentItemController {
                 destSpaceId,
                 destContentId);
         }
-        
+
         ContentItem result = new ContentItem();
         result.setStoreId(destStoreId);
         result.setSpaceId(destSpaceId);
         result.setContentId(destContentId);
-        
-        if(!contentStore.getStoreId().equals(result.getStoreId())){
+
+        if (!contentStore.getStoreId().equals(result.getStoreId())) {
             contentStore = getContentStore(result);
         }
-    
+
         populateContentItem(request, contentStore, result, result);
         return createModel(result);
-        
+
     }
 
     private void populateContentItem(HttpServletRequest request,
@@ -244,8 +239,8 @@ public class ContentItemController {
                                      ContentItem contentItem,
                                      ContentItem result)
         throws ContentStoreException,
-            MalformedURLException {
-        
+        MalformedURLException {
+
         Authentication auth =
             (Authentication) SecurityContextHolder.getContext()
                                                   .getAuthentication();
@@ -262,26 +257,24 @@ public class ContentItemController {
         result.setPrimaryStorageProvider(primary);
     }
 
+    public static String getBaseURL(HttpServletRequest request) throws MalformedURLException {
+        URL url = new URL(request.getRequestURL().toString());
+        int port = url.getPort();
+        String baseURL = url.getProtocol() + "://" + url.getHost() + ":" +
+                         (port > 0 && port != 80 ? url.getPort() : "") +
+                         request.getContextPath();
+        return baseURL;
+    }
 
+    private ModelAndView createModel(ContentItem ci) {
+        return new ModelAndView("jsonView", "contentItem", ci);
+    }
 
-    public static String getBaseURL(HttpServletRequest request) throws MalformedURLException{
-		URL url = new URL(request.getRequestURL().toString());
-		int port =  url.getPort();
-		String baseURL = url.getProtocol() + "://" + url.getHost() + ":" +
-                        (port > 0 && port != 80 ? url.getPort() : "") +
-                        request.getContextPath();
-		return baseURL;
-	}
+    protected ContentStore getContentStore(ContentItem contentItem) throws ContentStoreException {
+        return contentStoreManager.getContentStore(contentItem.getStoreId());
+    }
 
-	private ModelAndView createModel(ContentItem ci){
-        return new ModelAndView("jsonView", "contentItem",ci);
-	}
-	
-	protected ContentStore getContentStore(ContentItem contentItem) throws ContentStoreException{
-		return contentStoreManager.getContentStore(contentItem.getStoreId());
-	}
-
-    protected S3TaskClient getTaskClient(ContentItem contentItem) throws ContentStoreException{
+    protected S3TaskClient getTaskClient(ContentItem contentItem) throws ContentStoreException {
         return taskClientManager.get(contentItem.getStoreId());
     }
 }

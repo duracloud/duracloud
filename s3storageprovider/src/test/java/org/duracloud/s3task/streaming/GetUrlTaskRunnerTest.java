@@ -7,10 +7,15 @@
  */
 package org.duracloud.s3task.streaming;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskParameters;
@@ -19,9 +24,6 @@ import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.junit.Test;
-
-import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.s3.AmazonS3Client;
 
 /**
  * @author: Bill Branan
@@ -32,9 +34,9 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
     private final String contentId = "content-id";
 
     protected BaseStreamingTaskRunner createRunner(StorageProvider s3Provider,
-                                            S3StorageProvider unwrappedS3Provider,
-                                            AmazonS3Client s3Client,
-                                            AmazonCloudFrontClient cfClient) {
+                                                   S3StorageProvider unwrappedS3Provider,
+                                                   AmazonS3Client s3Client,
+                                                   AmazonCloudFrontClient cfClient) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
         this.s3Client = s3Client;
@@ -68,7 +70,7 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
         try {
             runner.performTask(null);
             fail("Exception expected");
-        } catch(Exception expected) {
+        } catch (Exception expected) {
             assertNotNull(expected);
         }
 
@@ -100,13 +102,11 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
         try {
             runner.performTask(taskParams.serialize());
             fail("Exception expected");
-        } catch(UnsupportedTaskException e) {
+        } catch (UnsupportedTaskException e) {
             assertTrue(e.getMessage()
                         .contains(StorageTaskConstants.ENABLE_STREAMING_TASK_NAME));
         }
     }
-
-    
 
     /*
      * Testing the case where a distribution is secure rather than open,
@@ -127,19 +127,19 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
         try {
             runner.performTask(taskParams.serialize());
             fail("Exception expected");
-        } catch(UnsupportedTaskException e) {
+        } catch (UnsupportedTaskException e) {
             assertTrue(e.getMessage()
                         .contains(StorageTaskConstants.GET_SIGNED_URL_TASK_NAME));
         }
     }
-    
+
     /*
      * Testing the case where streaming is not enabled, an exception is expected
      */
     @Test
     public void testPerformTask4() throws Exception {
         BaseStreamingTaskRunner runner =
-            createRunner(createMockStorageProvider(new HashMap<String,String>(), true),
+            createRunner(createMockStorageProvider(new HashMap<String, String>(), true),
                          createMockUnwrappedS3StorageProvider(),
                          createMockS3ClientV1(),
                          createMockCFClientV1());
@@ -151,7 +151,7 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
         try {
             runner.performTask(taskParams.serialize());
             fail("Exception expected");
-        } catch(UnsupportedTaskException e) {
+        } catch (UnsupportedTaskException e) {
             assertTrue(e.getMessage()
                         .contains(StorageTaskConstants.ENABLE_STREAMING_TASK_NAME));
         }

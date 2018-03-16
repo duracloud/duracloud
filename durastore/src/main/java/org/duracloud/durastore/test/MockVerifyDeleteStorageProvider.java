@@ -7,15 +7,15 @@
  */
 package org.duracloud.durastore.test;
 
-import org.duracloud.common.model.AclType;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider;
-
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
 
 /**
  * Storage Provider implementation used for testing verify deletion AOP
@@ -69,11 +69,11 @@ public class MockVerifyDeleteStorageProvider implements StorageProvider {
         int attemptsBeforeFailure = Integer.valueOf(spaceId);
 
         // allow the most recent failed id to complete successfully
-        if(spaceId.equals(lastFailedSpacePropertiesId)) {
+        if (spaceId.equals(lastFailedSpacePropertiesId)) {
             return null;
         }
 
-        if(getSpacePropertiesAttempts < attemptsBeforeFailure) {
+        if (getSpacePropertiesAttempts < attemptsBeforeFailure) {
             getSpacePropertiesAttempts++;
             return null;
         } else {

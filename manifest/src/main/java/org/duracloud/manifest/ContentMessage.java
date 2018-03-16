@@ -7,19 +7,19 @@
  */
 package org.duracloud.manifest;
 
+import java.text.ParseException;
+import java.util.Date;
+
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.bulk.ManifestVerifier;
 import org.duracloud.storage.error.InvalidEventTSVException;
 
-import java.text.ParseException;
-import java.util.Date;
-
 /**
  * This bean holds to common elements for all ContentStore AOP messages.
  *
  * @author Andrew Woods
- *         Date: 3/15/12
+ * Date: 3/15/12
  */
 public class ContentMessage {
 
@@ -218,7 +218,7 @@ public class ContentMessage {
             that.account != null) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -246,7 +246,7 @@ public class ContentMessage {
     public String getAccount() {
         return this.account;
     }
-    
+
     public void setAccount(String account) {
         this.account = account;
     }

@@ -18,9 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class ContentStoreFactoryTest {
 
@@ -38,8 +36,7 @@ public class ContentStoreFactoryTest {
         EasyMock.expect(csm.getPrimaryContentStore()).andReturn(cs);
         ContentStoreFactory csf = new ContentStoreFactory() {
             @Override
-            protected ContentStoreManager
-                createContentStoreManager(String host, String port) {
+            protected ContentStoreManager createContentStoreManager(String host, String port) {
                 return csm;
             }
         };
@@ -64,8 +61,7 @@ public class ContentStoreFactoryTest {
                 .andThrow(new ContentStoreException("test exception"));
         ContentStoreFactory csf = new ContentStoreFactory() {
             @Override
-            protected ContentStoreManager
-                createContentStoreManager(String host, String port) {
+            protected ContentStoreManager createContentStoreManager(String host, String port) {
                 return csm;
             }
         };
@@ -75,10 +71,10 @@ public class ContentStoreFactoryTest {
         dcf.setHost("test");
         dcf.setUsername("username");
         dcf.setPassword("password");
-        try{
+        try {
             csf.create(dcf);
             Assert.assertTrue(false);
-        }catch(ContentStoreException ex){
+        } catch (ContentStoreException ex) {
             Assert.assertTrue(true);
         }
 

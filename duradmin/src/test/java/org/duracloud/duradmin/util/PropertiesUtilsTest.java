@@ -18,25 +18,22 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-
 public class PropertiesUtilsTest {
-    private Map<String,String> properties;
-    
+    private Map<String, String> properties;
+
     @Before
     public void setUp() throws Exception {
-        properties = new HashMap<String,String>();
+        properties = new HashMap<String, String>();
         properties.put("test-key", "test-value");
 
     }
-
-
 
     @Test
     public void testConvertExtendedProperties() {
         List<NameValuePair> list = PropertiesUtils
             .convertExtendedProperties(properties);
         assertEquals("test-key", list.get(0).getName());
-        
+
     }
 
     @Test

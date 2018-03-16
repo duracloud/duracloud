@@ -11,12 +11,16 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * A grab bag of useful common functions.
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 public class AuditLogUtil {
-    public static final String[] AUDIT_LOG_COLUMNS = { "account",
+
+    private AuditLogUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
+    public static final String[] AUDIT_LOG_COLUMNS = {"account",
                                                       "store-id",
                                                       "space-id",
                                                       "content-id",
@@ -29,11 +33,11 @@ public class AuditLogUtil {
                                                       "source-content-id",
                                                       "timestamp",
                                                       "action",
-                                                      "username" };
+                                                      "username"};
 
     public static String getHeader() {
-        String header =  StringUtils.join(AUDIT_LOG_COLUMNS, "\t");
-        
+        String header = StringUtils.join(AUDIT_LOG_COLUMNS, "\t");
+
         return header;
     }
 }

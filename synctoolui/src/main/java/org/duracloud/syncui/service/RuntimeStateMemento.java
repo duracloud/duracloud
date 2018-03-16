@@ -7,6 +7,13 @@
  */
 package org.duracloud.syncui.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import com.thoughtworks.xstream.XStream;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.duracloud.syncui.config.SyncUIConfig;
@@ -14,12 +21,10 @@ import org.duracloud.syncui.domain.SyncProcessState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-
 /**
  * Represents the persistent runtime state of the process.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 public class RuntimeStateMemento {
     private static Logger log =
@@ -33,28 +38,27 @@ public class RuntimeStateMemento {
     public void setSyncProcessState(SyncProcessState syncProcessState) {
         this.syncProcessState = syncProcessState;
     }
-    
-    
+
     private static File getStateFile() {
         File workDir = SyncUIConfig.getWorkDir();
         File stateFile = new File(workDir, ".runtime-state.xml");
         return stateFile;
     }
-    
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
-    
+
     public static RuntimeStateMemento get() {
         File stateFile = getStateFile();
-        if(stateFile.exists()){
+        if (stateFile.exists()) {
             try (InputStream is = new FileInputStream(stateFile)) {
                 log.debug("retrieving state from {}",
                           stateFile.getAbsolutePath());
                 XStream xstream = new XStream();
                 //FileInputStream fis = new FileInputStream(stateFile);
-                return (RuntimeStateMemento)xstream.fromXML(is);
+                return (RuntimeStateMemento) xstream.fromXML(is);
             } catch (IOException e) {
                 //should never happen
                 log.error("Failed to persist internal state: " +
@@ -62,13 +66,13 @@ public class RuntimeStateMemento {
                 System.exit(1);
                 return null;
             }
-        }else{
+        } else {
             log.debug("not state file found at {}: creating new memento",
                       stateFile.getAbsolutePath());
             return new RuntimeStateMemento();
         }
     }
-    
+
     public static void persist(RuntimeStateMemento state) {
         File stateFile = RuntimeStateMemento.getStateFile();
         try (OutputStream os = new FileOutputStream(stateFile)) {

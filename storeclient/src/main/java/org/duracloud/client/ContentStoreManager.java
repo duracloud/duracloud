@@ -7,10 +7,10 @@
  */
 package org.duracloud.client;
 
+import java.util.Map;
+
 import org.duracloud.common.model.Securable;
 import org.duracloud.error.ContentStoreException;
-
-import java.util.Map;
 
 /**
  * Provides facilities for connecting to a set of content stores
@@ -53,7 +53,7 @@ public interface ContentStoreManager extends Securable {
     /**
      * Gets a specific content store based on ID.
      *
-     * @param storeID the ID of a particular content store
+     * @param storeID    the ID of a particular content store
      * @param maxRetries number of retries to perform if a content store call fails
      * @return the ContentStore mapped to storeID
      * @throws ContentStoreException if the content store cannot be retrieved
@@ -108,8 +108,9 @@ public interface ContentStoreManager extends Securable {
 
     /**
      * <p>reconfigure</p>
-     * @param host of durastore
-     * @param port of durastore
+     *
+     * @param host    of durastore
+     * @param port    of durastore
      * @param context of durastore
      * @throws ContentStoreException
      */

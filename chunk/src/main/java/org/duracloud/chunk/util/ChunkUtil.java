@@ -13,7 +13,7 @@ import org.duracloud.chunk.manifest.ChunksManifest;
  * This class provides chunk and manifest contentId helpers.
  *
  * @author Andrew Woods
- *         Date: 9/8/11
+ * Date: 9/8/11
  */
 public class ChunkUtil {
 

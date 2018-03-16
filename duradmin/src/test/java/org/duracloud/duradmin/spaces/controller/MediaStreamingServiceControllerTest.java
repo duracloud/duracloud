@@ -18,16 +18,14 @@ import org.junit.Test;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class MediaStreamingServiceControllerTest extends AbstractTestBase {
     private MediaStreamingTaskController controller;
 
     @Override
     @Before
-    public void setup(){
+    public void setup() {
         super.setup();
         ContentStoreManager contentStoreManager = createMock(ContentStoreManager.class);
         ContentStore store = createMock(ContentStore.class);
@@ -39,23 +37,23 @@ public class MediaStreamingServiceControllerTest extends AbstractTestBase {
                                               EasyMock.isA(String.class)))
                     .andReturn("{\"result\":\"result\"}");
         } catch (Exception e) {
-            Assert.fail("Unexpected exception: "+e.getMessage());
+            Assert.fail("Unexpected exception: " + e.getMessage());
         }
         replay();
-        
+
         controller = new MediaStreamingTaskController(contentStoreManager);
     }
 
     @Override
     @After
-    public void tearDown(){
+    public void tearDown() {
         super.tearDown();
     }
-    
+
     @Test
-    public void testPost() throws Exception{
-       boolean enable = true;
-       ModelAndView mav = controller.post("testStore", "testSpace", enable);
-       Assert.assertEquals(enable, mav.getModelMap().get(MediaStreamingTaskController.STREAMING_ENABLED_KEY));
+    public void testPost() throws Exception {
+        boolean enable = true;
+        ModelAndView mav = controller.post("testStore", "testSpace", enable);
+        Assert.assertEquals(enable, mav.getModelMap().get(MediaStreamingTaskController.STREAMING_ENABLED_KEY));
     }
 }

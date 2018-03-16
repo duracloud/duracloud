@@ -1,39 +1,38 @@
 <beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/security"
-               xmlns:aop="http://www.springframework.org/schema/aop"
-  
-  xsi:schemaLocation="
-           http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
-           http://www.springframework.org/schema/aop
-           http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
-           http://www.springframework.org/schema/security
-           http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns="http://www.springframework.org/schema/security"
+             xmlns:aop="http://www.springframework.org/schema/aop"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+               http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+               http://www.springframework.org/schema/aop
+               http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+               http://www.springframework.org/schema/security
+               http://www.springframework.org/schema/security/spring-security-4.0.xsd">
 
   <beans:bean id="authenticationProcessingFilter"
               class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
-    <beans:property name="authenticationManager" ref="authenticationManager" />
-    <beans:property name="filterProcessesUrl" value="/j_spring_security_check" />
+    <beans:property name="authenticationManager" ref="authenticationManager"/>
+    <beans:property name="filterProcessesUrl" value="/j_spring_security_check"/>
   </beans:bean>
 
   <http entry-point-ref="authenticationProcessingFilterEntryPoint" use-expressions="false">
     <csrf disabled="true"/>
-    <intercept-url pattern="/admin" access="ROLE_ROOT"  />
-    <intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-    <intercept-url pattern="/style/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-    <intercept-url pattern="/images/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-    <intercept-url pattern="/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-    <intercept-url pattern="/jquery/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-    <intercept-url pattern="/favicon.ico" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-    <intercept-url pattern="/webstart/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-    <intercept-url pattern="/**" access="ROLE_USER"  />
-    <form-login login-page="/" always-use-default-target="false"  authentication-failure-url="" />
-    <anonymous />
-    <http-basic />
+    <intercept-url pattern="/admin" access="ROLE_ROOT"/>
+    <intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+    <intercept-url pattern="/style/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+    <intercept-url pattern="/images/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+    <intercept-url pattern="/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+    <intercept-url pattern="/jquery/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+    <intercept-url pattern="/favicon.ico" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+    <intercept-url pattern="/webstart/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+    <intercept-url pattern="/**" access="ROLE_USER"/>
+    <form-login login-page="/" always-use-default-target="false" authentication-failure-url=""/>
+    <anonymous/>
+    <http-basic/>
     <logout logout-url="/logout"/>
     <headers>
       <!--  Ensures that frames can be loaded from same origin.
-            This overrides the default x-frame-options (deny) 
+            This overrides the default x-frame-options (deny)
             which prevents same origin frame content from loading.
        -->
       <frame-options policy="SAMEORIGIN"/>
@@ -41,12 +40,12 @@
   </http>
 
   <!-- AuthN Manager -->
-  <authentication-manager alias="authenticationManager"  erase-credentials="false">
-    <authentication-provider ref="authProvider" />
+  <authentication-manager alias="authenticationManager" erase-credentials="false">
+    <authentication-provider ref="authProvider"/>
   </authentication-manager>
 
   <beans:bean id="authProvider" class="org.duracloud.security.impl.DuracloudAuthProvider">
-    <beans:constructor-arg ref="userDetailsSvc" />
+    <beans:constructor-arg ref="userDetailsSvc"/>
     <beans:constructor-arg ref="passwordEncoder"/>
   </beans:bean>
 
@@ -55,25 +54,27 @@
   </beans:bean>
 
   <beans:bean id="userDetailsServiceCache" class="org.duracloud.security.impl.UserDetailsServiceCache">
-    <beans:constructor-arg ref="accountRepo" />
+    <beans:constructor-arg ref="accountRepo"/>
     <beans:constructor-arg ref="userFinderUtil"/>
   </beans:bean>
-  
-  <beans:bean id="userDetailsSvc"  class="org.duracloud.security.impl.UserDetailsServiceFactoryBean" lazy-init="true" scope="request">
-    <beans:property name="userDetailsServiceCache" ref="userDetailsServiceCache" />
-    <aop:scoped-proxy />
+
+  <beans:bean id="userDetailsSvc" class="org.duracloud.security.impl.UserDetailsServiceFactoryBean" lazy-init="true"
+              scope="request">
+    <beans:property name="userDetailsServiceCache" ref="userDetailsServiceCache"/>
+    <aop:scoped-proxy/>
   </beans:bean>
 
 
   <beans:bean id="passwordEncoder"
-    class="org.springframework.security.authentication.encoding.ShaPasswordEncoder" >
-   <beans:constructor-arg value="256"/>
+              class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
+    <beans:constructor-arg value="256"/>
   </beans:bean>
 
-  <beans:bean id="authenticationProcessingFilterEntryPoint"	class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-		<beans:constructor-arg value="/login" />
-		<beans:property name="useForward" value="true" />
-	</beans:bean>
+  <beans:bean id="authenticationProcessingFilterEntryPoint"
+              class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+    <beans:constructor-arg value="/login"/>
+    <beans:property name="useForward" value="true"/>
+  </beans:bean>
 
   <!-- AOP to log(in/out) ContentStoreMgr and ServicesMgr -->
   <beans:bean id="securityContextUtil" class="org.duracloud.security.context.SecurityContextUtil"/>
@@ -97,8 +98,7 @@
   </beans:bean>
 
   <beans:bean id="webexpressionHandler"
-    class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" /> 
-  
+              class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler"/>
 
 
 </beans:beans>

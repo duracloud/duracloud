@@ -7,6 +7,8 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import static org.junit.Assert.assertEquals;
+
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
@@ -17,13 +19,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Bill Branan
- *         Date: 7/29/15
+ * Date: 7/29/15
  */
 public class CompleteRestoreTaskRunnerTest {
 
@@ -50,7 +48,7 @@ public class CompleteRestoreTaskRunnerTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         EasyMock.verify(snapshotProvider, unwrappedSnapshotProvider, s3Client);
     }
 
@@ -77,8 +75,8 @@ public class CompleteRestoreTaskRunnerTest {
 
         replayMocks();
 
-        taskRunner.performTask("{\"spaceId\":\""+spaceId+"\"," +
-                                "\"daysToExpire\":"+daysToExpire+"}");
+        taskRunner.performTask("{\"spaceId\":\"" + spaceId + "\"," +
+                               "\"daysToExpire\":" + daysToExpire + "}");
         BucketLifecycleConfiguration lifecycleConfig =
             lifecycleConfigCapture.getValue();
         BucketLifecycleConfiguration.Rule rule =

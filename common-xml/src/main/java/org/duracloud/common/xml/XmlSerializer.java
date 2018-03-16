@@ -7,9 +7,9 @@
  */
 package org.duracloud.common.xml;
 
-import org.duracloud.common.xml.error.XmlSerializationException;
-import org.xml.sax.SAXException;
-
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -20,9 +20,9 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
+
+import org.duracloud.common.xml.error.XmlSerializationException;
+import org.xml.sax.SAXException;
 
 /**
  * Handles the transfer of java beans to XML and back through JAXB
@@ -43,8 +43,8 @@ public class XmlSerializer<T> {
      * Creates a serializer which will be used to handle serializations
      * to and from the given top level class, using the given schema.
      *
-     * @param clazz class which should be annotated as an XmlRootElement
-     * @param schemaName name of the schema to use for validation
+     * @param clazz         class which should be annotated as an XmlRootElement
+     * @param schemaName    name of the schema to use for validation
      * @param schemaVersion version of the schema expected
      */
     protected XmlSerializer(Class clazz,
@@ -55,7 +55,7 @@ public class XmlSerializer<T> {
         this.schemaVersion = schemaVersion;
         try {
             context = JAXBContext.newInstance(clazz);
-        } catch(JAXBException e) {
+        } catch (JAXBException e) {
             throw new XmlSerializationException("Exception encountered " +
                                                 "creating serializer: " +
                                                 getErrorMsg(e), e);
@@ -66,9 +66,9 @@ public class XmlSerializer<T> {
                 SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Source schemaSource =
                 new StreamSource(getClass().getClassLoader()
-                    .getResourceAsStream(schemaName));
+                                           .getResourceAsStream(schemaName));
             schema = factory.newSchema(schemaSource);
-        } catch(SAXException e) {
+        } catch (SAXException e) {
             throw new XmlSerializationException("Unable to load schema for " +
                                                 "validation due to: " +
                                                 e.getMessage());
@@ -89,7 +89,7 @@ public class XmlSerializer<T> {
             StringWriter writer = new StringWriter();
             marshaller.marshal(obj, writer);
             return writer.toString();
-        } catch(JAXBException e) {
+        } catch (JAXBException e) {
             throw new XmlSerializationException("Exception encountered " +
                                                 "serializing report: " +
                                                 getErrorMsg(e), e);
@@ -103,7 +103,7 @@ public class XmlSerializer<T> {
      * @return de-serialized object
      */
     public T deserialize(String xml) {
-        if(xml == null || xml.equals("")) {
+        if (xml == null || xml.equals("")) {
             throw new RuntimeException("XML cannot be null or empty");
         } else {
             return deserialize(new StreamSource(new StringReader(xml)));
@@ -117,7 +117,7 @@ public class XmlSerializer<T> {
      * @return de-serialized object
      */
     public T deserialize(InputStream stream) {
-        if(stream == null) {
+        if (stream == null) {
             throw new RuntimeException("Stream cannot be null");
         } else {
             return deserialize(new StreamSource(stream));
@@ -130,16 +130,16 @@ public class XmlSerializer<T> {
             unmarshaller.setSchema(schema); // turn on schema validation
             JAXBElement<T> report = unmarshaller.unmarshal(stream, clazz);
             return report.getValue();
-        } catch(JAXBException e) {
+        } catch (JAXBException e) {
             String error = "Exception encountered de-serializing xml " +
-                           "using schema " + schemaName +" at version " +
+                           "using schema " + schemaName + " at version " +
                            schemaVersion + ": " + getErrorMsg(e);
             throw new XmlSerializationException(error, e);
         }
     }
 
     private String getErrorMsg(Throwable error) {
-        while(null != error && null == error.getMessage()) {
+        while (null != error && null == error.getMessage()) {
             error = error.getCause();
         }
         return error.getMessage();

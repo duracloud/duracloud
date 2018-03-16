@@ -7,33 +7,32 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import org.duracloud.snapshot.dto.SnapshotContentItem;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
-
+import org.duracloud.snapshot.dto.SnapshotContentItem;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author Daniel Bernstein
- *         Date: 7/29/14
+ * Date: 7/29/14
  */
 public class GetSnapshotContentBridgeResultTest {
 
-     private String contentId = "content-id";
-     private String propName = "content-prop-name";
-     private String propValue = "content-prop-value";
-     private Long totalCount = 1001l;
+    private String contentId = "content-id";
+    private String propName = "content-prop-name";
+    private String propValue = "content-prop-value";
+    private Long totalCount = 1001l;
 
     @Test
     public void testSerialize() {
-        
+
         GetSnapshotContentBridgeResult bridgeResult =
             new GetSnapshotContentBridgeResult();
         List<SnapshotContentItem> contentItemList = new ArrayList<>();
@@ -47,18 +46,18 @@ public class GetSnapshotContentBridgeResultTest {
         bridgeResult.setTotalCount(totalCount);
         String result = bridgeResult.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"contentId\":\""+contentId+"\""));
-        assertThat(cleanResult, containsString("\""+propName+"\":\""+propValue+"\""));
-        assertThat(cleanResult, containsString("\"totalCount\":" +totalCount));
+        assertThat(cleanResult, containsString("\"contentId\":\"" + contentId + "\""));
+        assertThat(cleanResult, containsString("\"" + propName + "\":\"" + propValue + "\""));
+        assertThat(cleanResult, containsString("\"totalCount\":" + totalCount));
 
     }
 
     @Test
-    public void testDeSerialize(){
-        String str = "{ \"totalCount\" : " +  totalCount+", \"contentItems\" : " +
+    public void testDeSerialize() {
+        String str = "{ \"totalCount\" : " + totalCount + ", \"contentItems\" : " +
                      "[ { \"contentId\" : \"" + contentId + "\","
-                        + " \"contentProperties\" : " +
-                        "{\"" + propName + "\" : \"" + propValue + "\"}}]}";
+                     + " \"contentProperties\" : " +
+                     "{\"" + propName + "\" : \"" + propValue + "\"}}]}";
 
         System.out.println(str);
 
@@ -67,7 +66,7 @@ public class GetSnapshotContentBridgeResultTest {
         List<SnapshotContentItem> contentItems = result.getContentItems();
 
         Assert.assertNotNull(contentItems);
-        Assert.assertEquals(1,contentItems.size());
+        Assert.assertEquals(1, contentItems.size());
         Assert.assertEquals(totalCount, result.getTotalCount());
 
         Assert.assertEquals(contentId, contentItems.get(0).getContentId());

@@ -14,7 +14,7 @@ import org.jdom.Element;
  * This interface defines the contract for Storage Account xml bindings.
  *
  * @author Andrew Woods
- *         Date: 5/9/11
+ * Date: 5/9/11
  */
 public interface StorageAccountProviderBinding {
 

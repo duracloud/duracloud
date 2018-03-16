@@ -20,22 +20,21 @@ import org.springframework.aop.framework.ProxyFactoryBean;
  * An AOP decorate to wrap the task provider factory.
  * This class is necessary to ensure that pointcuts will be triggered when
  * calling TaskProviders which are not spring managed.
- * @author Daniel Bernstein
- *         11/16/2015
- *         
  *
+ * @author Daniel Bernstein
+ * 11/16/2015
  */
 public class AOPTaskProviderFactoryDecorator implements TaskProviderFactory {
     private TaskProviderFactory factory;
     private PointcutAdvisor[] advisors;
     private Map<String, TaskProvider> providerMap;
-    
+
     public AOPTaskProviderFactoryDecorator(TaskProviderFactory factory, PointcutAdvisor... advisors) {
         this.factory = factory;
         this.advisors = advisors;
         this.providerMap = new HashMap<>();
     }
-    
+
     @Override
     public TaskProvider getTaskProvider() {
         return getTaskProvider(null);
@@ -44,18 +43,18 @@ public class AOPTaskProviderFactoryDecorator implements TaskProviderFactory {
     @Override
     public TaskProvider getTaskProvider(String storageAccountId)
         throws TaskException {
-        
+
         TaskProvider provider = providerMap.get(storageAccountId);
 
-        if(provider == null){
+        if (provider == null) {
             provider = this.factory.getTaskProvider(storageAccountId);
             ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
             proxyFactoryBean.setTargetClass(TaskProvider.class);
             proxyFactoryBean.setTarget(provider);
-            for(PointcutAdvisor advisor : advisors){
+            for (PointcutAdvisor advisor : advisors) {
                 proxyFactoryBean.addAdvisor(advisor);
             }
-            provider = (TaskProvider)proxyFactoryBean.getObject();
+            provider = (TaskProvider) proxyFactoryBean.getObject();
             providerMap.put(storageAccountId, provider);
         }
 

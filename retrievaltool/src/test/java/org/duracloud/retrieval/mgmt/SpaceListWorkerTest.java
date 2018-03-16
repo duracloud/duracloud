@@ -7,14 +7,13 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import org.apache.commons.io.FileUtils;
-import org.duracloud.client.ContentStore;
-import org.duracloud.retrieval.RetrievalTestBase;
-import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,8 +24,13 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import org.apache.commons.io.FileUtils;
+import org.duracloud.client.ContentStore;
+import org.duracloud.retrieval.RetrievalTestBase;
+import org.easymock.EasyMock;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author: Erik Paulsson
@@ -42,8 +46,7 @@ public class SpaceListWorkerTest extends RetrievalTestBase {
     @After
     public void tearDown() throws Exception {
         // Delete the tempDir
-        FileUtils.deleteDirectory(new File("target/" +
-                                  SpaceListWorkerTest.class.getName()));
+        FileUtils.deleteDirectory(new File("target/" + SpaceListWorkerTest.class.getName()));
     }
 
     @Override
@@ -57,7 +60,7 @@ public class SpaceListWorkerTest extends RetrievalTestBase {
         contents1.add("item3");
         contents1.add("item4");
         contents1.add("item5");
-        
+
         contents2 = new ArrayList<>();
         contents2.add("item6");
         contents2.add("item7");
@@ -99,9 +102,9 @@ public class SpaceListWorkerTest extends RetrievalTestBase {
     @Test
     public void testSpaceList2() throws Exception {
         SpaceListWorker worker = new SpaceListWorker(contentStore,
-                                     "space2",
-                                     tempDir,
-                                     true);
+                                                     "space2",
+                                                     tempDir,
+                                                     true);
         worker.run();
         File outputFile = worker.getOutputFile();
         assertEquals(outputFile.getName(),
@@ -130,9 +133,9 @@ public class SpaceListWorkerTest extends RetrievalTestBase {
 
         // Perform listing again, verify that a new output file is created
         SpaceListWorker worker = new SpaceListWorker(contentStore,
-                                     "space1",
-                                     tempDir,
-                                     false);
+                                                     "space1",
+                                                     tempDir,
+                                                     false);
         worker.run();
         File outputFile = worker.getOutputFile();
         String fileName = outputFile.getName();
@@ -145,7 +148,7 @@ public class SpaceListWorkerTest extends RetrievalTestBase {
         throws FileNotFoundException, IOException {
         BufferedReader br = new BufferedReader(new FileReader(file));
         String line = null;
-        for(String expectedLine: expectedContents) {
+        for (String expectedLine : expectedContents) {
             line = br.readLine();
             assertNotNull(expectedLine);
             assertNotNull(line);

@@ -13,19 +13,16 @@ import org.duracloud.storage.util.StorageProviderFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
-public class StorageProviderFactoryBean extends AbstractFactoryBean<StorageProviderFactory>{
+public class StorageProviderFactoryBean extends AbstractFactoryBean<StorageProviderFactory> {
     private StorageProviderFactoryCache storageProviderFactoryCache;
     private DuraCloudRequestContextUtil accountIdUtil = new DuraCloudRequestContextUtil();
-    
-    public StorageProviderFactoryBean(){
+
+    public StorageProviderFactoryBean() {
         super();
     }
 
-    
     @Override
     public StorageProviderFactory createInstance() throws Exception {
         return this.storageProviderFactoryCache.get(accountIdUtil.getAccountId());

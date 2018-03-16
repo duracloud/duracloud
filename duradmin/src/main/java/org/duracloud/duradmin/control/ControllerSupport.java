@@ -16,13 +16,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 public class ControllerSupport {
 
-    private ContentStoreManager contentStoreManager; 
-    
-    public ControllerSupport(ContentStoreManager contentStoreManager ) {
+    private ContentStoreManager contentStoreManager;
+
+    public ControllerSupport(ContentStoreManager contentStoreManager) {
         this.contentStoreManager = contentStoreManager;
     }
-
-
 
     public ModelAndView handle(ModelAndView modelAndView,
                                HttpServletRequest request,
@@ -30,7 +28,6 @@ public class ControllerSupport {
         MessageUtils.addRedirectMessageToModelAndView(modelAndView, request);
         return modelAndView;
     }
-
 
     public ContentStoreManager getContentStoreManager() {
         return this.contentStoreManager;

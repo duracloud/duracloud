@@ -7,6 +7,13 @@
  */
 package org.duracloud.storage.provider;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.mock.MockStorageProvider;
@@ -14,13 +21,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 public class BrokeredStorageProviderTest {
 
@@ -141,7 +141,7 @@ public class BrokeredStorageProviderTest {
         broker.setContentProperties(spaceId, contentId, contentProperties);
 
         Map<String, String> meta0 =
-                directProvider.getContentProperties(spaceId, contentId);
+            directProvider.getContentProperties(spaceId, contentId);
         Map<String, String> meta1 =
             broker.getContentProperties(spaceId, contentId);
 
@@ -218,46 +218,40 @@ public class BrokeredStorageProviderTest {
 
     private void verifySpaceId() {
         Assert.assertNotNull(directProvider.getSpaceId());
-        Assert.assertEquals(directProvider.getSpaceId(), targetProvider
-                .getSpaceId());
+        Assert.assertEquals(directProvider.getSpaceId(), targetProvider.getSpaceId());
     }
 
     private void verifyContentId() {
         Assert.assertNotNull(directProvider.getContentId());
-        Assert.assertEquals(directProvider.getContentId(), targetProvider
-                .getContentId());
+        Assert.assertEquals(directProvider.getContentId(), targetProvider.getContentId());
     }
 
     private void verifyContentMimeType() {
 
         Assert.assertNotNull(directProvider.getContentMimeType());
-        Assert.assertEquals(directProvider.getContentMimeType(), targetProvider
-                .getContentMimeType());
+        Assert.assertEquals(directProvider.getContentMimeType(), targetProvider.getContentMimeType());
     }
 
     private void verifyContentSize() {
         Assert.assertNotNull(directProvider.getContentSize());
-        Assert.assertEquals(directProvider.getContentSize(), targetProvider
-                .getContentSize());
+        Assert.assertEquals(directProvider.getContentSize(), targetProvider.getContentSize());
     }
 
     private void verifyContent() {
         Assert.assertNotNull(directProvider.getContent());
-        Assert.assertEquals(directProvider.getContent(), targetProvider
-                .getContent());
+        Assert.assertEquals(directProvider.getContent(), targetProvider.getContent());
     }
 
     private void verifySpaceProperties() {
         Assert.assertNotNull(directProvider.getSpaceProperties());
-        Assert.assertEquals(directProvider.getSpaceProperties(), targetProvider
-                .getSpaceProperties());
+        Assert.assertEquals(directProvider.getSpaceProperties(), targetProvider.getSpaceProperties());
     }
 
     private void verifyIteratorContents(Iterator<String> iter0,
                                         Iterator<String> iter1) {
         Assert.assertNotNull(iter0);
         Assert.assertNotNull(iter1);
-        while(iter0.hasNext()) {
+        while (iter0.hasNext()) {
             Assert.assertEquals(iter0.next(), iter1.next());
         }
         Assert.assertFalse(iter1.hasNext());

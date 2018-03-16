@@ -37,9 +37,9 @@
     <intercept-url pattern="/task/get-snapshots" access="ROLE_USER"/>
     <intercept-url pattern="/task/get-snapshot-history" access="ROLE_USER"/>
     <intercept-url pattern="/task/get-snapshot-contents" access="ROLE_USER"/>
-    <intercept-url pattern="/task/get-restore"  access="ROLE_USER"/>
-    <intercept-url pattern="/task/get-url"  access="ROLE_USER"/>
-    <intercept-url pattern="/task/get-signed-url"  access="ROLE_USER"/>
+    <intercept-url pattern="/task/get-restore" access="ROLE_USER"/>
+    <intercept-url pattern="/task/get-url" access="ROLE_USER"/>
+    <intercept-url pattern="/task/get-signed-url" access="ROLE_USER"/>
     <intercept-url pattern="/task" access="ROLE_USER"/>
     <intercept-url pattern="/task/*" access="ROLE_ADMIN"/>
     <intercept-url pattern="/stores" method="GET" access="ROLE_USER"/>
@@ -62,9 +62,9 @@
     <intercept-url pattern="/**" method="POST" access="ROLE_USER"/>
     <intercept-url pattern="/**" method="DELETE" access="ROLE_USER"/>
 
-    <anonymous />
-    <http-basic />
-    <logout logout-url="/logout" />
+    <anonymous/>
+    <http-basic/>
+    <logout logout-url="/logout"/>
   </http>
 
   <!-- The decision-voters here contribute to the AuthZ decision -->
@@ -89,8 +89,8 @@
       <beans:list>
         <beans:ref bean="spaceReadAccessVoter"/>
         <beans:ref bean="spaceWriteAccessVoter"/>
-        <beans:bean class="org.duracloud.security.vote.RoleVoterImpl" />
-        <beans:bean class="org.duracloud.security.vote.UserIpLimitsAccessVoter" />
+        <beans:bean class="org.duracloud.security.vote.RoleVoterImpl"/>
+        <beans:bean class="org.duracloud.security.vote.UserIpLimitsAccessVoter"/>
       </beans:list>
     </beans:constructor-arg>
   </beans:bean>
@@ -98,25 +98,26 @@
   <!-- AuthN Manager -->
   <authentication-manager alias="authenticationManager" erase-credentials="false">
     <authentication-provider user-service-ref="userDetailsSvc">
-        <password-encoder ref="passwordEncoder"/>
+      <password-encoder ref="passwordEncoder"/>
     </authentication-provider>
-    <authentication-provider user-service-ref="userDetailsSvc" />
+    <authentication-provider user-service-ref="userDetailsSvc"/>
   </authentication-manager>
 
   <beans:bean id="userDetailsServiceCache" class="org.duracloud.security.impl.UserDetailsServiceCache">
-    <beans:constructor-arg ref="accountRepo" />
+    <beans:constructor-arg ref="accountRepo"/>
     <beans:constructor-arg ref="userFinderUtil"/>
   </beans:bean>
-  
-  <beans:bean id="userDetailsSvc"  class="org.duracloud.security.impl.UserDetailsServiceFactoryBean" lazy-init="true" scope="request">
-    <beans:property name="userDetailsServiceCache" ref="userDetailsServiceCache" />
-    <aop:scoped-proxy />
+
+  <beans:bean id="userDetailsSvc" class="org.duracloud.security.impl.UserDetailsServiceFactoryBean" lazy-init="true"
+              scope="request">
+    <beans:property name="userDetailsServiceCache" ref="userDetailsServiceCache"/>
+    <aop:scoped-proxy/>
   </beans:bean>
-  
+
 
   <beans:bean id="passwordEncoder"
-    class="org.springframework.security.authentication.encoding.ShaPasswordEncoder" >
-   <beans:constructor-arg value="256"/>
+              class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
+    <beans:constructor-arg value="256"/>
   </beans:bean>
 
 </beans:beans>

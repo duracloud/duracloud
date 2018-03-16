@@ -7,13 +7,13 @@
  */
 package org.duracloud.snapshot.id;
 
-import org.duracloud.common.util.DateUtil;
-
 import java.text.ParseException;
+
+import org.duracloud.common.util.DateUtil;
 
 /**
  * @author Bill Branan
- *         Date: 7/30/14
+ * Date: 7/30/14
  */
 public class SnapshotIdentifier {
 
@@ -56,11 +56,11 @@ public class SnapshotIdentifier {
     public String getRestoreSpaceId() {
         String spaceName =
             spaceId + "-" + DateUtil.convertToStringPlain(timestamp);
-        if(spaceName.length() > 42) { // Cut to 42 characters or less
+        if (spaceName.length() > 42) { // Cut to 42 characters or less
             spaceName = spaceName.substring(0, 42);
         }
-        if(spaceName.endsWith("-")) { // Remove trailing dash
-            spaceName = spaceName.substring(0, spaceName.length()-1);
+        if (spaceName.endsWith("-")) { // Remove trailing dash
+            spaceName = spaceName.substring(0, spaceName.length() - 1);
         }
         return spaceName;
     }
@@ -89,7 +89,7 @@ public class SnapshotIdentifier {
         SnapshotIdentifier that = (SnapshotIdentifier) o;
 
         // Timestamps which are consistent to the second are considered equal
-        if (timestamp/1000 != that.timestamp/1000) {
+        if (timestamp / 1000 != that.timestamp / 1000) {
             return false;
         }
         if (!accountName.equals(that.accountName)) {

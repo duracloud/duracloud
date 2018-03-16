@@ -77,18 +77,19 @@ public class SyncTool {
 
     /**
      * Sets the configuration of the sync tool.
+     *
      * @param syncConfig to use for running the Sync Tool
      */
     protected void setSyncConfig(SyncToolConfig syncConfig) {
         this.syncConfig = syncConfig;
         this.syncConfig.setVersion(version);
         File exclusionListFile = this.syncConfig.getExcludeList();
-        if(exclusionListFile != null){
+        if (exclusionListFile != null) {
             this.fileExclusionManager = new FileExclusionManager(exclusionListFile);
-        } else{
+        } else {
             this.fileExclusionManager = new FileExclusionManager();
         }
-        
+
         ChangedList.getInstance()
                    .setFileExclusionManager(this.fileExclusionManager);
 
@@ -96,18 +97,19 @@ public class SyncTool {
 
     /**
      * Determines if this run of the sync tool will perform a restart.
+     *
      * @return true if restart should occur, false otherwise
      */
     protected boolean restartPossible() {
         boolean restart = false;
-        if(!syncConfig.isCleanStart()) {
+        if (!syncConfig.isCleanStart()) {
             // Determines if the configuration has been changed since the
             // previous run. If it has, a restart cannot occur.
             SyncToolConfigParser syncConfigParser = new SyncToolConfigParser();
             SyncToolConfig prevConfig =
                 syncConfigParser.retrievePrevConfig(syncConfig.getWorkDir());
 
-            if(prevConfig != null) {
+            if (prevConfig != null) {
                 restart = configEquals(syncConfig, prevConfig);
             }
         }
@@ -144,17 +146,17 @@ public class SyncTool {
         boolean samePrefix = sameConfig(currConfig.getPrefix(),
                                         prevConfig.getPrefix());
 
-        if(sameHost && sameSpaceId && sameStoreId && sameSyncDeletes &&
-           sameContentDirs && sameSyncUpdates && sameRenameUpdates &&
-           sameExclude && samePrefix) {
+        if (sameHost && sameSpaceId && sameStoreId && sameSyncDeletes &&
+            sameContentDirs && sameSyncUpdates && sameRenameUpdates &&
+            sameExclude && samePrefix) {
             return true;
         }
         return false;
     }
 
     private boolean sameConfig(Object nowConfig, Object prevConfig) {
-        if((null == nowConfig && null == prevConfig) ||
-           (null != nowConfig && nowConfig.equals(prevConfig))) {
+        if ((null == nowConfig && null == prevConfig) ||
+            (null != nowConfig && nowConfig.equals(prevConfig))) {
             return true;
         }
         return false;
@@ -170,7 +172,7 @@ public class SyncTool {
                                           syncConfig.getPassword(),
                                           syncConfig.getStoreId());
 
-        syncEndpoint = 
+        syncEndpoint =
             new DuraStoreChunkSyncEndpoint(contentStore,
                                            syncConfig.getUsername(),
                                            syncConfig.getSpaceId(),
@@ -181,9 +183,9 @@ public class SyncTool {
                                            syncConfig.isJumpStart(),
                                            syncConfig.getUpdateSuffix(),
                                            syncConfig.getPrefix());
-        
+
         this.syncEndpoint.addEndPointListener(new EndPointLogger());
-        
+
         syncManager = new SyncManager(syncConfig.getContentDirs(),
                                       syncEndpoint,
                                       syncConfig.getNumThreads(),
@@ -197,7 +199,7 @@ public class SyncTool {
 
     private void startRestartDirWalker(long lastBackup) {
         dirWalker = RestartDirWalker.start(syncConfig.getContentDirs(),
-                                           lastBackup, 
+                                           lastBackup,
                                            fileExclusionManager);
     }
 
@@ -221,23 +223,23 @@ public class SyncTool {
         BufferedReader br =
             new BufferedReader(new InputStreamReader(System.in));
         boolean exit = false;
-        while(!exit) {
+        while (!exit) {
             String input;
             try {
                 input = br.readLine();
-                if(input.equalsIgnoreCase("exit") ||
-                   input.equalsIgnoreCase("x")) {
+                if (input.equalsIgnoreCase("exit") ||
+                    input.equalsIgnoreCase("x")) {
                     exit = true;
-                } else if(input.equalsIgnoreCase("config") ||
-                          input.equalsIgnoreCase("c")) {
+                } else if (input.equalsIgnoreCase("config") ||
+                           input.equalsIgnoreCase("c")) {
                     System.out.println(syncConfig.getPrintableConfig());
-                } else if(input.equalsIgnoreCase("status") ||
-                          input.equalsIgnoreCase("s")) {
+                } else if (input.equalsIgnoreCase("status") ||
+                           input.equalsIgnoreCase("s")) {
                     System.out.println(statusManager.getPrintableStatus());
                 } else {
                     System.out.println(getPrintableHelp());
                 }
-            } catch(IOException e) {
+            } catch (IOException e) {
                 logger.warn(e.getMessage(), e);
             }
         }
@@ -251,12 +253,12 @@ public class SyncTool {
 
         int loops = 0;
         boolean exit = false;
-        while(!exit) {
-            if(dirWalker.walkComplete()) {
-                if(!syncDeletes ||
-                   (syncDeletes && deleteChecker.checkComplete())) {
-                    if(ChangedList.getInstance().getListSize() <= 0) {
-                        if(statusManager.getInWork() <= 0) {
+        while (!exit) {
+            if (dirWalker.walkComplete()) {
+                if (!syncDeletes ||
+                    (syncDeletes && deleteChecker.checkComplete())) {
+                    if (ChangedList.getInstance().getListSize() <= 0) {
+                        if (statusManager.getInWork() <= 0) {
                             exit = true;
                             System.out.println(
                                 "Sync Tool processing complete, final status:");
@@ -267,7 +269,7 @@ public class SyncTool {
                     }
                 }
             }
-            if(loops >= 60) { // Print status every 10 minutes
+            if (loops >= 60) { // Print status every 10 minutes
                 System.out.println(statusManager.getPrintableStatus());
                 loops = 0;
             } else {
@@ -282,6 +284,7 @@ public class SyncTool {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
+            // Exit sleep on interruption
         }
     }
 
@@ -292,7 +295,7 @@ public class SyncTool {
         ChangedList.getInstance().shutdown();
 
         long inWork = StatusManager.getInstance().getInWork();
-        if(inWork > 0) {
+        if (inWork > 0) {
             System.out.println("\nThe Sync Tool will exit after the remaining "
                                + inWork + " work items have completed\n");
         }
@@ -318,25 +321,25 @@ public class SyncTool {
 
         boolean hasABackupFile = this.syncBackupManager.hasBackups();
 
-        if(restart && hasABackupFile){
+        if (restart && hasABackupFile) {
             //attempt restart
             long lastBackup = syncBackupManager.attemptRestart();
             System.out.print("...");
-            if(lastBackup > 0) {
+            if (lastBackup > 0) {
                 logger.info("Running Sync Tool re-start file check");
                 startRestartDirWalker(lastBackup);
                 System.out.print("...");
             }
         }
 
-        if(dirWalker == null){
+        if (dirWalker == null) {
             logger.info("Running Sync Tool complete file check");
             startDirWalker();
         }
 
         startBackupsOnDirWalkerCompletion();
-        
-        if(syncConfig.syncDeletes()) {
+
+        if (syncConfig.syncDeletes()) {
             startDeleteChecker();
         }
         System.out.print("...");
@@ -344,7 +347,7 @@ public class SyncTool {
         startDirMonitor();
         System.out.println("... Startup Complete");
 
-        if(syncConfig.exitOnCompletion()) {
+        if (syncConfig.exitOnCompletion()) {
             System.out.println(syncConfig.getPrintableConfig());
             System.out.println("The Sync Tool will exit when processing " +
                                "is complete. Status will be printed every " +
@@ -357,19 +360,18 @@ public class SyncTool {
     }
 
     private void startBackupsOnDirWalkerCompletion() {
-        new Thread(new Runnable(){
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                while(!dirWalker.walkComplete()){
+                while (!dirWalker.walkComplete()) {
                     sleep(100);
                 }
                 logger.info("Walk complete: starting back up manager...");
                 syncBackupManager.startupBackups();
-                
+
             }
         }, "walk-completion-checker thread").start();
     }
-
 
     private void printWelcome() {
         System.out.println(syncConfig.getPrintableConfig());
@@ -388,7 +390,7 @@ public class SyncTool {
         help.append("c - Prints the Sync Tool configuration\n");
         help.append("s - Prints the Sync Tool status\n");
         help.append("-------------------------------------------\n");
-        
+
         return help.toString();
     }
 }

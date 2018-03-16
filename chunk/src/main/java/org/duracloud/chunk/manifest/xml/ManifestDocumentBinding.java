@@ -7,6 +7,10 @@
  */
 package org.duracloud.chunk.manifest.xml;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.duracloud.ChunksManifestDocument;
@@ -15,19 +19,18 @@ import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.manifest.ChunksManifestBean;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ByteArrayOutputStream;
-
-
 /**
  * This class is a helper utility for binding ChunksManifest objects to a
  * ChunksManifest xml document.
  *
  * @author Andrew Woods
- *         Date: Feb 9, 2010
+ * Date: Feb 9, 2010
  */
 public class ManifestDocumentBinding {
+
+    private ManifestDocumentBinding() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     /**
      * This method binds a ChunksManifest object to the content of the arg xml.

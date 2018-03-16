@@ -7,6 +7,9 @@
  */
 package org.duracloud.common.web;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,19 +31,16 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 public class RestHttpHelperTest {
 
     private static Server server;
 
     private static String host = null;
-    
+
     static {
         try {
             host = InetAddress.getLocalHost().getHostAddress();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -61,7 +61,7 @@ public class RestHttpHelperTest {
             new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         server.setHandler(context);
-        context.addServlet(new ServletHolder(new MockServlet()),"/*");
+        context.addServlet(new ServletHolder(new MockServlet()), "/*");
 
         server.start();
     }
@@ -147,10 +147,7 @@ public class RestHttpHelperTest {
     public void testMultipartFileStreamPost() throws Exception {
         File file = createTmpFile();
         FileInputStream fileStream = new FileInputStream(file);
-        HttpResponse response =
-                helper.multipartFileStreamPost(getUrl(),
-                        file.getName(),
-                        fileStream);
+        HttpResponse response = helper.multipartFileStreamPost(getUrl(), file.getName(), fileStream);
         verifyResponse(response);
         file.delete();
     }

@@ -7,32 +7,32 @@
  */
 package org.duracloud.syncoptimize.data;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 /**
  * Handles the creation and deletion of local test content. This is the content
  * which is transferred to DuraCloud as each sync test is run.
  *
  * @author Bill Branan
- *         Date: 5/16/14
+ * Date: 5/16/14
  */
 public class TestDataHandler {
 
     private final Logger log = LoggerFactory.getLogger(TestDataHandler.class);
 
     public void createDirectories(File... dirs) throws IOException {
-        for(File dir : dirs) {
-            if(dir.exists()) {
+        for (File dir : dirs) {
+            if (dir.exists()) {
                 try {
                     FileUtils.cleanDirectory(dir);
-                } catch(IOException e) {
+                } catch (IOException e) {
                     log.warn("Unable to clean directory {} due to  {}",
                              dir.getAbsolutePath(), e.getMessage());
                 }
@@ -43,13 +43,13 @@ public class TestDataHandler {
     }
 
     public void removeDirectories(File... dirs) throws IOException {
-        for(File dir : dirs) {
+        for (File dir : dirs) {
             try {
                 FileUtils.deleteDirectory(dir);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 try {
                     FileUtils.cleanDirectory(dir);
-                } catch(IOException e2) {
+                } catch (IOException e2) {
                     log.warn("Unable to clean directory {} due to  {}",
                              dir.getAbsolutePath(), e2.getMessage());
                 }

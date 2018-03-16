@@ -12,7 +12,7 @@ package org.duracloud.common.error;
  * internal exceptions extend.
  *
  * @author Andrew Woods
- *         Date: Nov 20, 2009
+ * Date: Nov 20, 2009
  */
 public class DuraCloudRuntimeException extends RuntimeException implements MessageFormattable {
 

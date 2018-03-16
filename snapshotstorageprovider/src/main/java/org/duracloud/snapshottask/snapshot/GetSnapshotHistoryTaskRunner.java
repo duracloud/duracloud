@@ -20,16 +20,16 @@ import org.slf4j.LoggerFactory;
  * Gets the list of history items that are contained in the snapshot.
  *
  * @author Gad Krumholz
- *         Date: 7/23/14
+ * Date: 7/23/14
  */
 public class GetSnapshotHistoryTaskRunner extends AbstractSnapshotTaskRunner {
 
     private Logger log = LoggerFactory.getLogger(GetSnapshotHistoryTaskRunner.class);
 
     public GetSnapshotHistoryTaskRunner(String bridgeAppHost,
-                                         String bridgeAppPort,
-                                         String bridgeAppUser,
-                                         String bridgeAppPass) {
+                                        String bridgeAppPort,
+                                        String bridgeAppUser,
+                                        String bridgeAppPass) {
         super(bridgeAppHost, bridgeAppPort, bridgeAppUser, bridgeAppPass);
     }
 
@@ -41,7 +41,7 @@ public class GetSnapshotHistoryTaskRunner extends AbstractSnapshotTaskRunner {
     @Override
     public String performTask(String taskParameters) {
         GetSnapshotHistoryTaskParameters taskParams =
-                GetSnapshotHistoryTaskParameters.deserialize(taskParameters);
+            GetSnapshotHistoryTaskParameters.deserialize(taskParameters);
         return callBridge(createRestHelper(), buildBridgeURL(taskParams));
     }
 
@@ -50,16 +50,16 @@ public class GetSnapshotHistoryTaskRunner extends AbstractSnapshotTaskRunner {
      */
     protected String buildBridgeURL(GetSnapshotHistoryTaskParameters taskParams) {
         int pageNumber = taskParams.getPageNumber();
-        if(pageNumber < SnapshotConstants.DEFAULT_HISTORY_PAGE_NUMBER) {
+        if (pageNumber < SnapshotConstants.DEFAULT_HISTORY_PAGE_NUMBER) {
             pageNumber = SnapshotConstants.DEFAULT_HISTORY_PAGE_NUMBER;
         }
         int pageSize = taskParams.getPageSize();
-        if(pageSize < SnapshotConstants.MIN_HISTORY_PAGE_SIZE ||
-           pageSize > SnapshotConstants.MAX_HISTORY_PAGE_SIZE) {
+        if (pageSize < SnapshotConstants.MIN_HISTORY_PAGE_SIZE ||
+            pageSize > SnapshotConstants.MAX_HISTORY_PAGE_SIZE) {
             pageSize = SnapshotConstants.MAX_HISTORY_PAGE_SIZE;
         }
         String snapshotId = taskParams.getSnapshotId();
-        
+
         return MessageFormat.format(
             "{0}/snapshot/{1}/history?page={2}&pageSize={3}",
             buildBridgeBaseURL(),
@@ -77,12 +77,12 @@ public class GetSnapshotHistoryTaskRunner extends AbstractSnapshotTaskRunner {
         try {
             RestHttpHelper.HttpResponse response = restHelper.get(bridgeURL);
             int statusCode = response.getStatusCode();
-            if(statusCode != 200) {
+            if (statusCode != 200) {
                 throw new RuntimeException("Unexpected response code: " +
                                            statusCode);
             }
             return response.getResponseBody();
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new TaskException("Exception encountered attempting to " +
                                     "get snapshot history. " +
                                     "Error reported: " + e.getMessage(), e);

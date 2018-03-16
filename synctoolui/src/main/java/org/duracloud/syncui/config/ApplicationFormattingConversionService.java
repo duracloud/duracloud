@@ -8,15 +8,14 @@
 package org.duracloud.syncui.config;
 
 import org.springframework.format.support.DefaultFormattingConversionService;
+
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class ApplicationFormattingConversionService
     extends DefaultFormattingConversionService {
 
-    public ApplicationFormattingConversionService(){
+    public ApplicationFormattingConversionService() {
         super(true);
         addConverter(new StringTrimmerConverter());
     }

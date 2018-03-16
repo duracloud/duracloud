@@ -11,7 +11,7 @@ import org.duracloud.common.error.DuraCloudCheckedException;
 
 /**
  * @author Andrew Woods
- *         Date: 3/28/12
+ * Date: 3/28/12
  */
 public class ManifestArgumentException extends DuraCloudCheckedException {
 

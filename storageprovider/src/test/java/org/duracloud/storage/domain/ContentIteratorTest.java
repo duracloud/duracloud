@@ -9,13 +9,14 @@ package org.duracloud.storage.domain;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.mock.MockStorageProvider;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author: Bill Branan
@@ -25,14 +26,14 @@ public class ContentIteratorTest {
 
     @Test
     public void testIterator() throws Exception {
-        for(int i=0; i<31; i++) {
+        for (int i = 0; i < 31; i++) {
             StorageProvider testProvider = new MockProvider(i);
             ContentIterator iterator =
                 new ContentIterator(testProvider, "spaceId", "prefix", 10);
             int count = 0;
-            while(iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 assertNotNull(iterator.next());
-                count++;            
+                count++;
             }
             assertEquals(i, count);
         }
@@ -54,7 +55,7 @@ public class ContentIteratorTest {
             throws StorageException {
 
             long listSize;
-            if(contentItems > maxResults) {
+            if (contentItems > maxResults) {
                 listSize = maxResults;
                 contentItems -= maxResults;
             } else {
@@ -63,12 +64,11 @@ public class ContentIteratorTest {
             }
 
             List<String> contentList = new ArrayList<String>();
-            for(long i=0; i < listSize; i++) {
+            for (long i = 0; i < listSize; i++) {
                 contentList.add("test" + i);
             }
             return contentList;
         }
     }
-
 
 }

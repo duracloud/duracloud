@@ -15,19 +15,18 @@ import org.duracloud.snapshot.dto.SnapshotSummary;
 import org.junit.Assert;
 import org.junit.Test;
 
-
 /**
  * @author Gad Krumholz
- *         Date: 7/02/15
+ * Date: 7/02/15
  */
 public class UpdateSnapshotHistoryBridgeResultTest {
 
-     private String history = "history";
-     private String snapshotId = "id-1";
-     private String description = "desc-1";
-     private String sourceSpaceId = "sourceSpaceId";
-     private String sourceStoreId = "sourceStoreId";
-     
+    private String history = "history";
+    private String snapshotId = "id-1";
+    private String description = "desc-1";
+    private String sourceSpaceId = "sourceSpaceId";
+    private String sourceStoreId = "sourceStoreId";
+
     SnapshotSummary snapshot =
         new SnapshotSummary(snapshotId,
                             SnapshotStatus.SNAPSHOT_COMPLETE,
@@ -37,42 +36,42 @@ public class UpdateSnapshotHistoryBridgeResultTest {
 
     @Test
     public void testSerialize() {
-        
+
         UpdateSnapshotHistoryBridgeResult bridgeResult =
             new UpdateSnapshotHistoryBridgeResult(snapshot, history);
         String result = bridgeResult.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"history\":\""+history+"\""));
+        assertThat(cleanResult, containsString("\"history\":\"" + history + "\""));
         verifySummary(result, "id-1", SnapshotStatus.SNAPSHOT_COMPLETE.name(), "desc-1");
     }
-    
+
     private void verifySummary(String result, String id,
-                                String status, String description) {
+                               String status, String description) {
         String cleanResult = result.replaceAll("\\s+", "");
-        
-        assertThat(cleanResult, containsString("\"snapshotId\":\""+id+"\""));
+
+        assertThat(cleanResult, containsString("\"snapshotId\":\"" + id + "\""));
         assertThat(cleanResult,
-        containsString("\"status\":\""+status+"\""));
+                   containsString("\"status\":\"" + status + "\""));
         assertThat(cleanResult,
-        containsString("\"description\":\""+description+"\""));
+                   containsString("\"description\":\"" + description + "\""));
     }
 
     @Test
-    public void testDeSerialize(){
+    public void testDeSerialize() {
         SnapshotStatus status = SnapshotStatus.INITIALIZED;
         String str = "{ \"snapshot\" : " +
-                     "{ \"status\" : \"" + status + "\","  
-                        + " \"description\" : \"" + description + "\"," 
-                        + " \"snapshotId\" : \"" + snapshotId + "\"}, " +
+                     "{ \"status\" : \"" + status + "\","
+                     + " \"description\" : \"" + description + "\","
+                     + " \"snapshotId\" : \"" + snapshotId + "\"}, " +
                      "  \"history\" : \"" + history + "\"}";
 
         System.out.println(str);
 
         UpdateSnapshotHistoryBridgeResult result =
-                UpdateSnapshotHistoryBridgeResult.deserialize(str);
-        
+            UpdateSnapshotHistoryBridgeResult.deserialize(str);
+
         SnapshotSummary snapshotSummary = result.getSnapshot();
-        
+
         Assert.assertEquals(snapshotId, snapshotSummary.getSnapshotId());
         Assert.assertEquals(status, snapshotSummary.getStatus());
         Assert.assertEquals(description, snapshotSummary.getDescription());

@@ -10,8 +10,6 @@ package org.duracloud.snapshotstorage;
 import java.util.Map;
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import org.duracloud.s3storage.S3StorageProvider;
-import org.duracloud.s3storage.StoragePolicy;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * to the DPN system.
  *
  * @author Bill Branan
- *         Date: 06/07/2016
+ * Date: 06/07/2016
  */
 public class DpnStorageProvider extends SnapshotStorageProvider {
 
@@ -39,7 +37,7 @@ public class DpnStorageProvider extends SnapshotStorageProvider {
 
     public DpnStorageProvider(AmazonS3Client s3Client, String accessKey,
                               Map<String, String> options) {
-         super(s3Client, accessKey, options);
+        super(s3Client, accessKey, options);
     }
 
     @Override

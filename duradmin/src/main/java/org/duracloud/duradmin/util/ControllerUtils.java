@@ -11,17 +11,18 @@ import org.springframework.util.StringUtils;
 
 public class ControllerUtils {
 
-    public static void checkContentItemId(String spaceId, String contentId)
-            throws IllegalArgumentException {
+    private ControllerUtils() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
+    public static void checkContentItemId(String spaceId, String contentId) throws IllegalArgumentException {
         checkSpaceId(spaceId);
         if (!StringUtils.hasText(contentId)) {
             throw new IllegalArgumentException("Content ID must be provided.");
         }
     }
 
-    public static void checkSpaceId(String spaceId)
-            throws IllegalArgumentException {
+    public static void checkSpaceId(String spaceId) throws IllegalArgumentException {
         if (!StringUtils.hasText(spaceId)) {
             throw new IllegalArgumentException("Space ID must be provided.");
         }

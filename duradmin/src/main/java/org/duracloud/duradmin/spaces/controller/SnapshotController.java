@@ -14,7 +14,6 @@ import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Properties;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,24 +47,22 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * 
  * @author Daniel Bernstein Date: Jan 27,2014
  */
 @Controller
 public class SnapshotController {
-   
+
     protected final Logger log =
         LoggerFactory.getLogger(SnapshotController.class);
 
     private ContentStoreManager contentStoreManager;
     private DuracloudUserDetailsService userDetailsService;
     private SnapshotTaskClientManager snapshotTaskClientManager;
-    
+
     @Autowired(required = true)
-    public SnapshotController(
-        @Qualifier("contentStoreManager") ContentStoreManager contentStoreManager,
-        @Qualifier("userDetailsSvc") DuracloudUserDetailsService userDetailsService, 
-        SnapshotTaskClientManager snapshotTaskClientManager) {
+    public SnapshotController(@Qualifier("contentStoreManager") ContentStoreManager contentStoreManager,
+                              @Qualifier("userDetailsSvc") DuracloudUserDetailsService userDetailsService,
+                              SnapshotTaskClientManager snapshotTaskClientManager) {
         this.contentStoreManager = contentStoreManager;
         this.userDetailsService = userDetailsService;
         this.snapshotTaskClientManager = snapshotTaskClientManager;
@@ -87,7 +84,7 @@ public class SnapshotController {
             response.setStatus(HttpStatus.SC_METHOD_FAILURE);
             return "{\"result\":\"Snapshot already in progress.\"}";
         } else {
-            
+
             String username = getUsername(request);
             String userEmail = getUserEmail(username);
 
@@ -105,8 +102,7 @@ public class SnapshotController {
     }
 
     protected String getUserEmail(String username) {
-        String userEmail = userDetailsService.getUserByUsername(username)
-            .getEmail();
+        String userEmail = userDetailsService.getUserByUsername(username).getEmail();
         return userEmail;
     }
 
@@ -125,16 +121,13 @@ public class SnapshotController {
                 this.contentStoreManager.getContentStore(storeId);
             if (store.contentExists(spaceId, Constants.SNAPSHOT_PROPS_FILENAME)) {
                 try (InputStream is =
-                    store.getContent(spaceId, Constants.SNAPSHOT_PROPS_FILENAME)
-                         .getStream()) {
+                         store.getContent(spaceId, Constants.SNAPSHOT_PROPS_FILENAME).getStream()) {
                     props.load(is);
                 }
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            props.put("error",
-                      "Snapshot properties could not be loaded: "
-                          + e.getMessage());
+            props.put("error", "Snapshot properties could not be loaded: " + e.getMessage());
         }
 
         ModelAndView mav = new ModelAndView("jsonView");
@@ -146,12 +139,9 @@ public class SnapshotController {
 
     @RequestMapping(value = "/spaces/snapshots/{storeId}", method = RequestMethod.GET)
     @ResponseBody
-    public String
-        getSnapshotList(@PathVariable("storeId") String storeId) {
+    public String getSnapshotList(@PathVariable("storeId") String storeId) {
         try {
-            return getTaskClient(storeId)
-                    .getSnapshots()
-                    .serialize();
+            return getTaskClient(storeId).getSnapshots().serialize();
         } catch (ContentStoreException e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -160,43 +150,36 @@ public class SnapshotController {
 
     @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId:.+}", method = RequestMethod.GET)
     @ResponseBody
-    public String
-        getSnapshot(@PathVariable("storeId") String storeId,
-                    @PathVariable("snapshotId") String snapshotId) throws Exception {
+    public String getSnapshot(@PathVariable("storeId") String storeId,
+                              @PathVariable("snapshotId") String snapshotId) throws Exception {
 
-        return getTaskClient(storeId)
-                .getSnapshot(snapshotId)
-                .serialize();
+        return getTaskClient(storeId).getSnapshot(snapshotId).serialize();
     }
-    
+
     @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId}/history", method = RequestMethod.GET)
-    public ModelAndView
-        getHistory(@PathVariable("storeId") String storeId,
-                    @PathVariable("snapshotId") String snapshotId,
-                    @RequestParam(value="page", required=false) Integer page,
-                    @RequestParam(value="attachment", required=false, defaultValue="false") Boolean attachment,
-                    HttpServletResponse response) {
+    public ModelAndView getHistory(@PathVariable("storeId") String storeId,
+                                   @PathVariable("snapshotId") String snapshotId,
+                                   @RequestParam(value = "page", required = false) Integer page,
+                                   @RequestParam(value = "attachment", required = false, defaultValue = "false")
+                                       Boolean attachment,
+                                   HttpServletResponse response) {
         try {
             SnapshotTaskClient taskClient = getTaskClient(storeId);
 
-            if(attachment){
+            if (attachment) {
                 StringBuffer contentDisposition = new StringBuffer();
                 contentDisposition.append("attachment;");
                 contentDisposition.append("filename=\"");
-                contentDisposition.append(snapshotId+".history.json");
+                contentDisposition.append(snapshotId + ".history.json");
                 contentDisposition.append("\"");
                 response.setHeader("Content-Disposition", contentDisposition.toString());
             }
-            
-            if(page == null){
+
+            if (page == null) {
                 page = 0;
             }
 
-            streamSnapshotHistory(page, 
-                                        storeId,
-                                        snapshotId,
-                                        taskClient,
-                                        response);
+            streamSnapshotHistory(page, storeId, snapshotId, taskClient, response);
             return null;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -205,88 +188,85 @@ public class SnapshotController {
     }
 
     private void streamSnapshotHistory(int page,
-                                             String storeId,
-                                             String snapshotId,
-                                             SnapshotTaskClient taskClient, 
-                                             HttpServletResponse response) throws IOException, ContentStoreException{
+                                       String storeId,
+                                       String snapshotId,
+                                       SnapshotTaskClient taskClient,
+                                       HttpServletResponse response) throws IOException, ContentStoreException {
         PrintWriter writer = response.getWriter();
-        
+
         int pageSize = 200;
-        if(page < 0){
+        if (page < 0) {
             pageSize = 1000;
         }
-        
+
         int pageCounter = page;
-        
+
         JsonFactory factory = new JsonFactory();
         JsonGenerator jwriter = factory.createJsonGenerator(writer);
         jwriter.writeStartObject();
-        
+
         jwriter.writeFieldName("historyItems");
         jwriter.writeStartArray();
         GetSnapshotHistoryTaskResult result = null;
-        while(true){
+        while (true) {
             result = getSnapshotHistory(snapshotId, pageCounter, taskClient, pageSize);
             List<SnapshotHistoryItem> items = result.getHistoryItems();
-            for(SnapshotHistoryItem item : items){
+            for (SnapshotHistoryItem item : items) {
                 jwriter.writeStartObject();
                 jwriter.writeNumberField("historyDate", item.getHistoryDate().getTime());
-                jwriter.writeStringField("history",  item.getHistory());
+                jwriter.writeStringField("history", item.getHistory());
                 jwriter.writeEndObject();
             }
 
-            if(items.size() < pageSize || page >=0){
+            if (items.size() < pageSize || page >= 0) {
                 break;
-            }else{
+            } else {
                 pageCounter++;
             }
         }
 
         jwriter.writeEndArray();
-        if(page >= 0){
+        if (page >= 0) {
             jwriter.writeNumberField("page", page);
             jwriter.writeNumberField("totalCount", result.getTotalCount());
 
-            if(result.getHistoryItems().size() == pageSize && (page+1*pageSize < result.getTotalCount())){
-                jwriter.writeNumberField("nextPage", page+1);
-            }else{
+            if (result.getHistoryItems().size() == pageSize && (page + 1 * pageSize < result.getTotalCount())) {
+                jwriter.writeNumberField("nextPage", page + 1);
+            } else {
                 jwriter.writeNullField("nextPage");
             }
         }
-        
+
         jwriter.writeStringField("snapshotId", snapshotId);
         jwriter.writeStringField("storeId", storeId);
         jwriter.writeEndObject();
         jwriter.close();
     }
 
-    protected GetSnapshotHistoryTaskResult
-              getSnapshotHistory(String snapshotId,
-                                 Integer page,
-                                 SnapshotTaskClient taskClient,
-                                 int pageSize) throws ContentStoreException {
-        GetSnapshotHistoryTaskResult result =
-            taskClient.getSnapshotHistory(snapshotId, page, pageSize);
+    protected GetSnapshotHistoryTaskResult getSnapshotHistory(String snapshotId,
+                                                              Integer page,
+                                                              SnapshotTaskClient taskClient,
+                                                              int pageSize) throws ContentStoreException {
+        GetSnapshotHistoryTaskResult result = taskClient.getSnapshotHistory(snapshotId, page, pageSize);
         List<SnapshotHistoryItem> items = result.getHistoryItems();
         // Replace single quotes with double quotes in history values.
         // This allows history values that are valid JSON (without escaping) to be
         // provided as snapshot history updates, and be displayed properly.
-        for(SnapshotHistoryItem item : items) {
+        for (SnapshotHistoryItem item : items) {
             item.setHistory(item.getHistory().replaceAll("'", "\""));
         }
         return result;
     }
-    
+
     @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId}/content", method = RequestMethod.GET)
-    public ModelAndView
-        getContent(@PathVariable("storeId") String storeId,
-                    @PathVariable("snapshotId") String snapshotId,
-                    @RequestParam(value="page", required=false) Integer page,
-                    @RequestParam(value="prefix", required=false) String prefix) {
+    public ModelAndView getContent(@PathVariable("storeId") String storeId,
+                                   @PathVariable("snapshotId") String snapshotId,
+                                   @RequestParam(value = "page", required = false) Integer page,
+                                   @RequestParam(value = "prefix", required = false) String prefix) {
         try {
             SnapshotTaskClient taskClient = getTaskClient(storeId);
 
-            if(page == null){
+            if (page == null) {
                 page = 0;
             }
             int pageSize = 200;
@@ -298,7 +278,7 @@ public class SnapshotController {
             mav.addObject("page", page);
             mav.addObject("snapshotId", snapshotId);
             mav.addObject("storeId", storeId);
-            mav.addObject("nextPage", items.size() == pageSize? page+1 : null);
+            mav.addObject("nextPage", items.size() == pageSize ? page + 1 : null);
             mav.addObject("prefix", prefix);
             mav.addObject("totalCount", result.getTotalCount());
             return mav;
@@ -310,45 +290,40 @@ public class SnapshotController {
 
     /**
      * Returns the name of the restore space, if it exists, associated with a snapshot
+     *
      * @param request
      * @param snapshotId
      * @return
-     * @throws ParseException 
+     * @throws ParseException
      */
     @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId}/restore-space-id", method = RequestMethod.GET)
     @ResponseBody
     public String restoreSpaceId(HttpServletRequest request,
-                          @PathVariable("storeId") String storeId,
-                          @PathVariable("snapshotId") String snapshotId) throws Exception  {
-        ContentStore contentStore = getContentStore(storeId); 
- 
-        String spaceId =
-            SnapshotIdentifier.parseSnapshotId(snapshotId).getRestoreSpaceId();
+                                 @PathVariable("storeId") String storeId,
+                                 @PathVariable("snapshotId") String snapshotId) throws Exception {
+        ContentStore contentStore = getContentStore(storeId);
 
-        if(contentStore.spaceExists(spaceId)){
-            return "{ \"spaceId\": \""+ spaceId +"\"," + 
-                     "\"storeId\": \""+ storeId +"\"}";
-        }else{
+        String spaceId = SnapshotIdentifier.parseSnapshotId(snapshotId).getRestoreSpaceId();
+
+        if (contentStore.spaceExists(spaceId)) {
+            return "{ \"spaceId\": \"" + spaceId + "\"," + "\"storeId\": \"" + storeId + "\"}";
+        } else {
             return "{}";
         }
     }
 
     protected SnapshotTaskClient getTaskClient(String storeId)
         throws ContentStoreException {
-        SnapshotTaskClient taskClient =
-            this.snapshotTaskClientManager.get(storeId);
+        SnapshotTaskClient taskClient = this.snapshotTaskClientManager.get(storeId);
         return taskClient;
     }
 
     @RequestMapping(value = "/spaces/restores/{storeId}/by-snapshot/{snapshotId:.+}", method = RequestMethod.GET)
     @ResponseBody
-    public String
-        getRestore(@PathVariable("storeId") String storeId,
-                   @PathVariable("snapshotId") String snapshotId) {
-
+    public String getRestore(@PathVariable("storeId") String storeId,
+                             @PathVariable("snapshotId") String snapshotId) {
         try {
-            return getTaskClient(storeId).getRestoreBySnapshot(snapshotId)
-                                         .serialize();
+            return getTaskClient(storeId).getRestoreBySnapshot(snapshotId).serialize();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -357,20 +332,17 @@ public class SnapshotController {
 
     @RequestMapping(value = "/spaces/restores/{storeId}/{restoreId:.+}", method = RequestMethod.GET)
     @ResponseBody
-    public String
-        getRestoreByRestoreId(@PathVariable("storeId") String storeId,
-                   @PathVariable("restoreId") String restoreId) {
+    public String getRestoreByRestoreId(@PathVariable("storeId") String storeId,
+                                        @PathVariable("restoreId") String restoreId) {
         try {
             return getTaskClient(storeId)
-                        .getRestore(restoreId)
-                        .serialize();
+                .getRestore(restoreId)
+                .serialize();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
-
-
 
     @RequestMapping(value = "/spaces/restores", method = RequestMethod.POST)
     @ResponseBody
@@ -378,35 +350,33 @@ public class SnapshotController {
                           @RequestParam String storeId,
                           @RequestParam String snapshotId) throws Exception {
         try {
-            
             String userEmail = getUserEmail(getUsername(request));
             return getTaskClient(storeId).restoreSnapshot(snapshotId, userEmail).serialize();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
-        
+
     }
 
     @RequestMapping(value = "/spaces/restores/request", method = RequestMethod.POST)
     @ResponseBody
     public String requestRestore(HttpServletRequest request,
-                          @RequestParam String storeId,
-                          @RequestParam String snapshotId) throws Exception {
+                                 @RequestParam String storeId,
+                                 @RequestParam String snapshotId) throws Exception {
         try {
-            
             String userEmail = getUserEmail(getUsername(request));
             return getTaskClient(storeId).requestRestoreSnapshot(snapshotId, userEmail).serialize();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
-        
+
     }
+
     private boolean isSnapshotInProgress(ContentStore store, String spaceId) {
         try {
-            return store.getSpaceProperties(spaceId)
-                        .containsKey(Constants.SNAPSHOT_ID_PROP);
+            return store.getSpaceProperties(spaceId).containsKey(Constants.SNAPSHOT_ID_PROP);
         } catch (ContentStoreException ex) {
             throw new RuntimeException(ex);
         }

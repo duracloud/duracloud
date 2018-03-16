@@ -7,6 +7,14 @@
  */
 package org.duracloud.audit.provider;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.duracloud.audit.logger.ReadLogger;
 import org.duracloud.audit.logger.WriteLogger;
 import org.duracloud.audit.task.AuditTask;
@@ -27,17 +35,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 /**
  * @author Bill Branan
- *         Date: 3/18/14
+ * Date: 3/18/14
  */
 @RunWith(EasyMockRunner.class)
 public class AuditStorageProviderTest extends EasyMockSupport {
@@ -332,9 +332,9 @@ public class AuditStorageProviderTest extends EasyMockSupport {
                                                    contentId))
                 .andReturn("");
 
-        Map<String,String> props = new HashMap<>();
+        Map<String, String> props = new HashMap<>();
         props.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
-        props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, contentSize+"");
+        props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, contentSize + "");
 
         EasyMock.expect(targetProvider.getContentProperties(sourceSpaceId, sourceContentId))
                 .andReturn(props);
@@ -353,7 +353,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
 
         assertNotNull(taskProps.get(AuditTask.CONTENT_PROPERTIES_PROP));
-        assertEquals(contentSize+"", taskProps.get(AuditTask.CONTENT_SIZE_PROP));
+        assertEquals(contentSize + "", taskProps.get(AuditTask.CONTENT_SIZE_PROP));
         assertEquals(contentMimeType, taskProps.get(AuditTask.CONTENT_MIMETYPE_PROP));
 
     }
@@ -362,9 +362,9 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     public void testDeleteContent() throws Exception {
         Capture<Task> auditTaskCapture = mockAuditCall();
         Capture<Task> logCapture = mockWriteLogCall();
-        Map<String,String> props = new HashMap<>();
+        Map<String, String> props = new HashMap<>();
         props.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
-        props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, contentSize+"");
+        props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, contentSize + "");
         props.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, contentChecksum);
 
         EasyMock.expect(targetProvider.getContentProperties(spaceId, contentId))

@@ -7,6 +7,11 @@
  */
 package org.duracloud.audit.provider;
 
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.audit.logger.ReadLogger;
 import org.duracloud.audit.logger.WriteLogger;
 import org.duracloud.audit.task.AuditTask;
@@ -18,18 +23,13 @@ import org.duracloud.common.util.UserUtil;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 /**
  * A StorageProvider decorator class which passes through calls from a target
  * StorageProvider implementation, but captures audit information when
  * changes occur and passes that information to the audit system.
  *
  * @author Bill Branan
- *         Date: 3/14/14
+ * Date: 3/14/14
  */
 public class AuditStorageProvider implements StorageProvider {
 
@@ -76,7 +76,7 @@ public class AuditStorageProvider implements StorageProvider {
                                  String contentChecksum,
                                  String contentMimetype,
                                  String contentSize,
-                                 Map<String,String> contentProperties,
+                                 Map<String, String> contentProperties,
                                  String spaceACLs,
                                  String sourceSpaceId,
                                  String sourceContentId) {
@@ -124,7 +124,7 @@ public class AuditStorageProvider implements StorageProvider {
     private String getUserId() {
         try {
             return userUtil.getCurrentUsername();
-        } catch(NoUserLoggedInException e) {
+        } catch (NoUserLoggedInException e) {
             return AuditTask.NA;
         }
     }
@@ -164,7 +164,7 @@ public class AuditStorageProvider implements StorageProvider {
 
         String action = AuditTask.ActionType.GET_SPACE_CONTENTS_CHUNKED.name();
         submitReadTask(action, spaceId, AuditTask.NA);
-        return  spaceContents;
+        return spaceContents;
     }
 
     @Override
@@ -246,7 +246,7 @@ public class AuditStorageProvider implements StorageProvider {
                         AuditTask.NA,
                         AuditTask.NA);
     }
-    
+
     @Override
     public String addContent(String spaceId,
                              String contentId,
@@ -273,7 +273,7 @@ public class AuditStorageProvider implements StorageProvider {
             target.copyContent(sourceSpaceId, sourceContentId,
                                destSpaceId, destContentId);
 
-        Map<String,String> props = target.getContentProperties(sourceSpaceId, sourceContentId);
+        Map<String, String> props = target.getContentProperties(sourceSpaceId, sourceContentId);
         String contentMimetype = props.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE);
         String contentSize = props.get(StorageProvider.PROPERTIES_CONTENT_SIZE);
         String action = AuditTask.ActionType.COPY_CONTENT.name();
@@ -286,7 +286,7 @@ public class AuditStorageProvider implements StorageProvider {
     @Override
     public void deleteContent(String spaceId, String contentId) {
 
-        Map<String,String> props = target.getContentProperties(spaceId, contentId);
+        Map<String, String> props = target.getContentProperties(spaceId, contentId);
         String contentMimetype = props.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE);
         String contentSize = props.get(StorageProvider.PROPERTIES_CONTENT_SIZE);
         String contentChecksum = props.get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM);

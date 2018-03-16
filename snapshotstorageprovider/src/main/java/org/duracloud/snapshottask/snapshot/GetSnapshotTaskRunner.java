@@ -7,6 +7,8 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import java.text.MessageFormat;
+
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
@@ -14,19 +16,16 @@ import org.duracloud.storage.error.TaskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
-
 /**
  * Gets the status and details of a snapshot action
  *
  * @author Bill Branan
- *         Date: 7/23/14
+ * Date: 7/23/14
  */
 public class GetSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
 
     private Logger log =
         LoggerFactory.getLogger(GetSnapshotTaskRunner.class);
-
 
     public GetSnapshotTaskRunner(String bridgeAppHost,
                                  String bridgeAppPort,
@@ -67,12 +66,12 @@ public class GetSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
         try {
             RestHttpHelper.HttpResponse response = restHelper.get(bridgeURL);
             int statusCode = response.getStatusCode();
-            if(statusCode != 200) {
+            if (statusCode != 200) {
                 throw new RuntimeException("Unexpected response code: " +
                                            statusCode);
             }
             return response.getResponseBody();
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new TaskException("Exception encountered attempting to " +
                                     "get  snapshot. " +
                                     "Error reported: " + e.getMessage(), e);

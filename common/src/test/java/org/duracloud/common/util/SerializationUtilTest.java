@@ -7,6 +7,10 @@
  */
 package org.duracloud.common.util;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,10 +24,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-
 /**
  * Tests the Serialization Utilities.
  *
@@ -32,7 +32,7 @@ import static junit.framework.Assert.assertNotNull;
 public class SerializationUtilTest {
 
     protected static final Logger log =
-            LoggerFactory.getLogger(SerializationUtilTest.class);
+        LoggerFactory.getLogger(SerializationUtilTest.class);
 
     @Before
     public void setUp() throws Exception {
@@ -82,8 +82,7 @@ public class SerializationUtilTest {
     }
 
     @Test
-    public void testSerializeDeserializeList() throws Exception
-    {
+    public void testSerializeDeserializeList() throws Exception {
         List<String> testList = new ArrayList<String>();
         testList.add("testName");
         testList.add("foo");
@@ -136,7 +135,7 @@ public class SerializationUtilTest {
         // Test empty/null values
         String serNull = SerializationUtil.serializeSet(null);
         String serEmpty =
-            SerializationUtil.serializeSet(new HashSet<Object> ());
+            SerializationUtil.serializeSet(new HashSet<Object>());
         assertNotNull(serNull);
         assertNotNull(serEmpty);
         assertEquals(serNull, serEmpty);

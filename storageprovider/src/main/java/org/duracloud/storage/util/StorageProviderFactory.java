@@ -17,7 +17,7 @@ import org.duracloud.storage.provider.StorageProvider;
 
 /**
  * @author Andrew Woods
- *         Date: Aug 19, 2010
+ * Date: Aug 19, 2010
  */
 public interface StorageProviderFactory {
 
@@ -25,7 +25,6 @@ public interface StorageProviderFactory {
                            String instanceHost,
                            String instancePort,
                            String accountId);
-
 
     public List<StorageAccount> getStorageAccounts();
 
@@ -35,7 +34,7 @@ public interface StorageProviderFactory {
         throws StorageException;
 
     public void expireStorageProvider(String storageAccountId);
-    
+
     public TaskQueue getAuditQueue();
 
 }

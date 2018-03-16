@@ -11,17 +11,14 @@ import java.io.File;
 import java.io.IOException;
 
 import junit.framework.Assert;
-
 import org.duracloud.sync.config.SyncToolConfig;
-import org.duracloud.syncui.service.SyncToolConfigSerializer;
 import org.duracloud.syncui.AbstractTest;
+import org.duracloud.syncui.service.SyncToolConfigSerializer;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class SyncToolConfigSerializerTest extends AbstractTest {
 

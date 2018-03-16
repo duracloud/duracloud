@@ -7,6 +7,8 @@
  */
 package org.duracloud.notification;
 
+import java.util.List;
+
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.model.Message;
 import com.amazonaws.services.simpleemail.model.SendEmailRequest;
@@ -17,11 +19,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-
 /**
  * @author Andrew Woods
- *         Date: 3/11/11
+ * Date: 3/11/11
  */
 public class AmazonEmailerTest {
 
@@ -69,7 +69,6 @@ public class AmazonEmailerTest {
         // The call under test.
         emailer.sendAsHtml(subject, body, recipients);
 
-
         boolean asHtml = true;
         verifyRequest(capturedRequest, subject, body, recipients, asHtml);
     }
@@ -103,7 +102,7 @@ public class AmazonEmailerTest {
     private Capture createSendMockExpectation() {
         Capture<SendEmailRequest> capturedRequest = new Capture<SendEmailRequest>();
         EasyMock.expect(emailService.sendEmail(EasyMock.capture(capturedRequest)))
-            .andReturn(null);
+                .andReturn(null);
 
         EasyMock.replay(emailService);
         return capturedRequest;

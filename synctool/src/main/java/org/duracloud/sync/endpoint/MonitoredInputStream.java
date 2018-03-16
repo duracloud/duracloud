@@ -25,8 +25,8 @@ public class MonitoredInputStream extends FilterInputStream {
     public MonitoredInputStream(File file) throws FileNotFoundException {
         this(new FileInputStream(file));
     }
-    
-    public MonitoredInputStream(InputStream is)  {
+
+    public MonitoredInputStream(InputStream is) {
         super(is);
         this.bytesRead = 0;
     }
@@ -34,7 +34,7 @@ public class MonitoredInputStream extends FilterInputStream {
     @Override
     public int read() throws IOException {
         int value = super.read();
-        if(value > -1) {
+        if (value > -1) {
             bytesRead++;
         }
         return value;
@@ -51,7 +51,7 @@ public class MonitoredInputStream extends FilterInputStream {
     }
 
     public int updateBytesRead(int byteCount) {
-        if(byteCount > 0) {
+        if (byteCount > 0) {
             bytesRead += byteCount;
         }
         return byteCount;

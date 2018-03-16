@@ -15,18 +15,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A view preparer to be invoked by every page in the application.
- * 
+ *
  * @author Daniel Bernstein
  * @version $Id$
  */
-public class BaseViewPreparer
-        implements ViewPreparer {
+public class BaseViewPreparer implements ViewPreparer {
 
     private Logger log = LoggerFactory.getLogger(BaseViewPreparer.class);
 
     public void execute(TilesRequestContext tilesRequestContext,
                         AttributeContext attributeContext) {
-
 
     }
 }

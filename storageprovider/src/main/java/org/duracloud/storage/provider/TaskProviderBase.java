@@ -7,12 +7,12 @@
  */
 package org.duracloud.storage.provider;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.duracloud.storage.error.UnsupportedTaskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author: Bill Branan
@@ -27,23 +27,23 @@ public abstract class TaskProviderBase implements TaskProvider {
     private String storeId;
 
     public TaskProviderBase(String storeId) {
-        if(storeId == null){
+        if (storeId == null) {
             throw new IllegalArgumentException("storeId must be non-null");
         }
         this.storeId = storeId;
     }
-    
+
     @Override
     public String getStoreId() {
         return this.storeId;
     }
-    
+
     @Override
     public List<String> getSupportedTasks() {
         log.debug("getSupportedTasks()");
 
         List<String> supportedTasks = new ArrayList<>();
-        for(TaskRunner runner : taskList) {
+        for (TaskRunner runner : taskList) {
             supportedTasks.add(runner.getName());
         }
         return supportedTasks;
@@ -53,8 +53,8 @@ public abstract class TaskProviderBase implements TaskProvider {
     public String performTask(String taskName, String taskParameters) throws Exception {
         log.debug("performTask(" + taskName + ", " + taskParameters + ")");
 
-        for(TaskRunner runner : taskList) {
-            if(runner.getName().equals(taskName)) {
+        for (TaskRunner runner : taskList) {
+            if (runner.getName().equals(taskName)) {
                 return runner.performTask(taskParameters);
             }
         }

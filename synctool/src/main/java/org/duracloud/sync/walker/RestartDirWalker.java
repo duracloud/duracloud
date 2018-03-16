@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.duracloud.sync.mgmt.FileExclusionManager;
 
-
 /**
  * Walks a set of directory trees just like a DirWalker, but only adds files
  * to the changed list if their modified date is more recent than the time of
@@ -46,7 +45,7 @@ public class RestartDirWalker extends DirWalker {
         super.walkDirs();
 
         // Walk and add all files in directories which have changed
-        if(changedDirs.size() > 0) {
+        if (changedDirs.size() > 0) {
             DirWalker dirWalker = new DirWalker(changedDirs, fileExclusionManager);
             dirWalker.walkDirs();
         }
@@ -54,7 +53,7 @@ public class RestartDirWalker extends DirWalker {
 
     @Override
     protected void handleFile(File file, int depth, Collection results) {
-        if(file.lastModified() > lastBackup) {
+        if (file.lastModified() > lastBackup) {
             super.handleFile(file, depth, results);
         }
     }
@@ -63,14 +62,14 @@ public class RestartDirWalker extends DirWalker {
     protected boolean handleDirectory(File directory,
                                       int depth,
                                       Collection results) {
-        if(directory.lastModified() > lastBackup) {
+        if (directory.lastModified() > lastBackup) {
             changedDirs.add(directory);
         }
         return true;
     }
 
     public static DirWalker start(List<File> topDirs,
-                                  long lastBackup, 
+                                  long lastBackup,
                                   FileExclusionManager fileExclusionManager) {
         RestartDirWalker dirWalker =
             new RestartDirWalker(topDirs, lastBackup, fileExclusionManager);

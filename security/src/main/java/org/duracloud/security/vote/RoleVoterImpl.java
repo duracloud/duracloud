@@ -19,7 +19,7 @@ import org.springframework.security.core.Authentication;
  * This class wraps the Spring-RoleVoter for debug visibility.
  *
  * @author Andrew Woods
- *         Date: Mar 12, 2010
+ * Date: Mar 12, 2010
  */
 public class RoleVoterImpl extends RoleVoter {
     private final Logger log = LoggerFactory.getLogger(RoleVoterImpl.class);

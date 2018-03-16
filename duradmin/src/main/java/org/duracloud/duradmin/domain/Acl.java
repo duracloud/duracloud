@@ -10,7 +10,7 @@ package org.duracloud.duradmin.domain;
 public class Acl {
     public static final String PUBLIC_GROUP = "group-public";
     public boolean read;
-    public boolean write; 
+    public boolean write;
     public String name;
     public String displayName;
 
@@ -25,10 +25,10 @@ public class Acl {
         this.write = write;
     }
 
-    public boolean isPublicGroup(){
+    public boolean isPublicGroup() {
         return this.name.equals(PUBLIC_GROUP);
     }
-    
+
     public boolean isRead() {
         return read;
     }

@@ -7,53 +7,51 @@
  */
 package org.duracloud.duradmin.domain;
 
-import org.duracloud.duradmin.util.NameValuePair;
-import org.duracloud.duradmin.util.PropertiesUtils;
-import org.duracloud.mill.db.model.BitIntegrityReport;
-import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
-import org.hibernate.validator.constraints.NotBlank;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public class Space
-        implements Serializable {
+import org.duracloud.duradmin.util.NameValuePair;
+import org.duracloud.duradmin.util.PropertiesUtils;
+import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
+import org.hibernate.validator.constraints.NotBlank;
+
+public class Space implements Serializable {
 
     private static final long serialVersionUID = 3008516494814826947L;
 
     @NotBlank
-	private String storeId;
-	
-	/*
-	 * The caller's acl based on the granted authorities and group membership of the 
-	 * caller as well as the space acls. 
-	 */
-	private String callerAcl;
+    private String storeId;
 
-	private List<Acl> acls; 
-	
-	private boolean streamingEnabled = false;
-	
+    /*
+     * The caller's acl based on the granted authorities and group membership of the
+     * caller as well as the space acls.
+     */
+    private String callerAcl;
+
+    private List<Acl> acls;
+
+    private boolean streamingEnabled = false;
+
     private String action;
 
     @NotBlank
     private String spaceId;
 
     private String access;
-    
+
     private boolean primaryStorageProvider;
 
     private SpaceProperties properties;
-    
+
     private List<NameValuePair> extendedProperties;
 
     private List<String> contents;
-    
+
     private BitIntegrityReportProperties bitIntegrityReportProperties;
-    
+
     private boolean millDbEnabled = true;
-    
+
     public String getStoreId() {
         return storeId;
     }
@@ -62,22 +60,21 @@ public class Space
         this.storeId = storeId;
     }
 
-
     /**
-	 * the count of all the items in the space
-	 */
+     * the count of all the items in the space
+     */
     public Long getItemCount() {
-		return itemCount;
-	}
+        return itemCount;
+    }
 
-	public void setItemCount(Long itemCount) {
-		this.itemCount = itemCount;
-	}
+    public void setItemCount(Long itemCount) {
+        this.itemCount = itemCount;
+    }
 
-	private Long itemCount = null;
+    private Long itemCount = null;
 
     private boolean snapshotInProgress = false;
-    
+
     public String getAction() {
         return action;
     }
@@ -124,7 +121,7 @@ public class Space
 
     public void setExtendedProperties(Map<String, String> extendedProperties) {
         this.extendedProperties =
-                PropertiesUtils.convertExtendedProperties(extendedProperties);
+            PropertiesUtils.convertExtendedProperties(extendedProperties);
     }
 
     public String getCallerAcl() {
@@ -135,7 +132,7 @@ public class Space
         this.callerAcl = callerAcl;
     }
 
-    public List<Acl>  getAcls() {
+    public List<Acl> getAcls() {
         return acls;
     }
 
@@ -160,15 +157,14 @@ public class Space
     }
 
     public void setSnapshotInProgress(boolean snapshotInProgress) {
-        this.snapshotInProgress  = snapshotInProgress;
+        this.snapshotInProgress = snapshotInProgress;
     }
 
     public boolean isSnapshotInProgress() {
         return snapshotInProgress;
     }
 
-    public void
-        setBitIntegrityReportProperties(BitIntegrityReportProperties bitIntegrityReportProperties) {
+    public void setBitIntegrityReportProperties(BitIntegrityReportProperties bitIntegrityReportProperties) {
         this.bitIntegrityReportProperties = bitIntegrityReportProperties;
     }
 
@@ -179,7 +175,7 @@ public class Space
     public void setMillDbEnabled(boolean millDbEnabled) {
         this.millDbEnabled = millDbEnabled;
     }
-    
+
     public boolean isMillDbEnabled() {
         return this.millDbEnabled;
     }

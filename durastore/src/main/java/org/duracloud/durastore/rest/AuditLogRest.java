@@ -9,7 +9,6 @@ package org.duracloud.durastore.rest;
 
 import java.io.InputStream;
 import java.text.MessageFormat;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -33,7 +32,7 @@ import org.springframework.stereotype.Component;
  * REST interface for the AuditLogReader.
  *
  * @author Daniel Bernstein
- *         Date: Sept 17, 2014
+ * Date: Sept 17, 2014
  */
 @Path("/audit")
 @Component
@@ -43,6 +42,7 @@ public class AuditLogRest extends BaseRest {
 
     private AuditLogReader auditLogReader;
     private StorageProviderFactory storageProviderFactory;
+
     @Autowired
     public AuditLogRest(AuditLogReader auditLogReader, StorageProviderFactory storageProviderFactory) {
         this.auditLogReader = auditLogReader;
@@ -51,56 +51,54 @@ public class AuditLogRest extends BaseRest {
 
     @Path("/{spaceId}")
     @GET
-    public Response getAuditLog (@PathParam("spaceId") String spaceId,
-                                 @QueryParam("storeID") String storeId) {
-        
+    public Response getAuditLog(@PathParam("spaceId") String spaceId,
+                                @QueryParam("storeID") String storeId) {
+
         String account = getSubdomain();
-        
+
         log.info("getting audit log for account:{}, storeId:{}, spaceId:{}",
                  account,
                  storeId,
                  spaceId);
 
-        if(StringUtils.isBlank(storeId)){
-            for(StorageAccount storageAccount: this.storageProviderFactory.getStorageAccounts()){
-                if(storageAccount.isPrimary()){
+        if (StringUtils.isBlank(storeId)) {
+            for (StorageAccount storageAccount : this.storageProviderFactory.getStorageAccounts()) {
+                if (storageAccount.isPrimary()) {
                     storeId = storageAccount.getId();
                     break;
                 }
             }
-            
-            if(StringUtils.isBlank(storeId)){
+
+            if (StringUtils.isBlank(storeId)) {
                 throw new DuraCloudRuntimeException("storeId is blank and no primary storage account is indicated.");
             }
-            
+
         }
 
-        
         try {
             //check that spaces exists
             StorageProvider store = storageProviderFactory.getStorageProvider(storeId);
             store.getSpaceProperties(spaceId);
 
-            InputStream auditLog = auditLogReader.getAuditLog(account, storeId,
-                                                                spaceId);
+            InputStream auditLog = auditLogReader.getAuditLog(account, storeId, spaceId);
             return responseOkStream(auditLog);
         } catch (NotFoundException e) {
-            
+
             log.error(MessageFormat.format("Error for  account:{0}, storeId:{1}, spaceId:{2}: space not found.",
-                      account, storeId, spaceId), e);
+                                           account, storeId, spaceId), e);
 
             return responseNotFound(e.getMessage());
         } catch (AuditLogReaderNotEnabledException e) {
-            
+
             log.error(MessageFormat.format("Error for  account:{0}, storeId:{1}, spaceId:{2}: space not found.",
-                      account, storeId, spaceId), e);
+                                           account, storeId, spaceId), e);
 
             return Response.status(501).entity("This endpoint is currently disabled").build();
 
         } catch (Exception e) {
-            
+
             log.error(MessageFormat.format("Error for  account:{0}, storeId:{1}, spaceId:{2}",
-                      account, storeId, spaceId), e);
+                                           account, storeId, spaceId), e);
             return responseBad(e);
         }
     }

@@ -7,14 +7,16 @@
  */
 package org.duracloud.durastore.rest;
 
-import static javax.ws.rs.core.Response.Status.*;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
@@ -61,6 +63,7 @@ public class ContentRest extends BaseRest {
     private ContentResource contentResource;
     private RestUtil restUtil;
     private final ClientInfoLogger clientInfoLog = new ClientInfoLogger();
+
     @Autowired
     public ContentRest(ContentResource contentResource, RestUtil restUtil) {
         this.contentResource = contentResource;
@@ -70,17 +73,14 @@ public class ContentRest extends BaseRest {
     /**
      * see ContentResource.getContent()
      * see ContentResource.getContentProperties()
+     *
      * @return 200 response with content stream as body and content properties as headers
      */
     @GET
-    public Response getContent(@PathParam("spaceID")
-                               String spaceID,
-                               @PathParam("contentID")
-                               String contentID,
-                               @QueryParam("storeID")
-                               String storeID, 
-                               @QueryParam("attachment")
-                               boolean attachment) {
+    public Response getContent(@PathParam("spaceID") String spaceID,
+                               @PathParam("contentID") String contentID,
+                               @QueryParam("storeID") String storeID,
+                               @QueryParam("attachment") boolean attachment) {
         StringBuilder msg = new StringBuilder("getting content(");
         msg.append(spaceID);
         msg.append(", ");
@@ -117,10 +117,10 @@ public class ContentRest extends BaseRest {
             contentResource.getContentProperties(spaceID, contentID, storeID);
         InputStream content =
             new AutoCloseInputStream(contentResource.getContent(spaceID, contentID, storeID));
-        
+
         ResponseBuilder responseBuilder = Response.ok(content);
 
-        if(attachment){
+        if (attachment) {
             addContentDispositionHeader(responseBuilder, contentID);
         }
         return addContentPropertiesToResponse(responseBuilder,
@@ -140,15 +140,13 @@ public class ContentRest extends BaseRest {
 
     /**
      * see ContentResource.getContentProperties()
+     *
      * @return 200 response with content properties as headers
      */
     @HEAD
-    public Response getContentProperties(@PathParam("spaceID")
-                                         String spaceID,
-                                         @PathParam("contentID")
-                                         String contentID,
-                                         @QueryParam("storeID")
-                                         String storeID) {
+    public Response getContentProperties(@PathParam("spaceID") String spaceID,
+                                         @PathParam("contentID") String contentID,
+                                         @QueryParam("storeID") String storeID) {
         StringBuilder msg = new StringBuilder("getting content properties(");
         msg.append(spaceID);
         msg.append(", ");
@@ -182,15 +180,15 @@ public class ContentRest extends BaseRest {
      */
     protected Response addContentPropertiesToResponse(ResponseBuilder response,
                                                       Map<String, String> properties) {
-        if(properties != null) {
+        if (properties != null) {
             // Set Content-Type header
             String contentMimetype = // content-mimetype header
                 properties.remove(StorageProvider.PROPERTIES_CONTENT_MIMETYPE);
             String contentType = // Content-Type header
                 properties.remove(HttpHeaders.CONTENT_TYPE);
-            if(null != contentMimetype && validMimetype(contentMimetype)) {
+            if (null != contentMimetype && validMimetype(contentMimetype)) {
                 response.header(HttpHeaders.CONTENT_TYPE, contentMimetype);
-            } else if(null != contentType && validMimetype(contentType)) {
+            } else if (null != contentType && validMimetype(contentType)) {
                 response.header(HttpHeaders.CONTENT_TYPE, contentType);
             } else {
                 response.header(HttpHeaders.CONTENT_TYPE, DEFAULT_MIME);
@@ -201,9 +199,9 @@ public class ContentRest extends BaseRest {
                 properties.remove(StorageProvider.PROPERTIES_CONTENT_SIZE);
             String contentLength = // Content-Length header
                 properties.remove(HttpHeaders.CONTENT_LENGTH);
-            if(null != contentSize) {
+            if (null != contentSize) {
                 response.header(HttpHeaders.CONTENT_LENGTH, contentSize);
-            } else if(null != contentLength) {
+            } else if (null != contentLength) {
                 response.header(HttpHeaders.CONTENT_LENGTH, contentLength);
             }
 
@@ -212,9 +210,9 @@ public class ContentRest extends BaseRest {
                 properties.remove(StorageProvider.PROPERTIES_CONTENT_MODIFIED);
             String lastModified = // Last-Modified header
                 properties.remove(HttpHeaders.LAST_MODIFIED);
-            if(null != contentModified) {
+            if (null != contentModified) {
                 response.header(HttpHeaders.LAST_MODIFIED, contentModified);
-            } else if(null != lastModified) {
+            } else if (null != lastModified) {
                 response.header(HttpHeaders.LAST_MODIFIED, lastModified);
             }
 
@@ -227,43 +225,43 @@ public class ContentRest extends BaseRest {
                 properties.remove(HttpHeaders.CONTENT_MD5);
             String etag = // ETag header
                 properties.remove(HttpHeaders.ETAG);
-            if(null != contentChecksum) {
+            if (null != contentChecksum) {
                 response.header(HttpHeaders.CONTENT_MD5, contentChecksum);
                 response.header(HttpHeaders.ETAG, contentChecksum);
-            } else if(null != contentMdFive) {
+            } else if (null != contentMdFive) {
                 response.header(HttpHeaders.CONTENT_MD5, contentMdFive);
                 response.header(HttpHeaders.ETAG, contentMdFive);
-            } else if(null != contentMd5) {
+            } else if (null != contentMd5) {
                 response.header(HttpHeaders.CONTENT_MD5, contentMd5);
                 response.header(HttpHeaders.ETAG, contentMd5);
-            } else if(null != etag) {
+            } else if (null != etag) {
                 response.header(HttpHeaders.CONTENT_MD5, etag);
                 response.header(HttpHeaders.ETAG, etag);
             }
 
             // Set the remaining property values as headers
             Iterator<String> propertiesNames = properties.keySet().iterator();
-            while(propertiesNames.hasNext()) {
+            while (propertiesNames.hasNext()) {
                 String propertiesName = propertiesNames.next();
                 String propertiesValue = properties.get(propertiesName);
 
-                if(propertiesName.equals(HttpHeaders.DATE) ||
-                   propertiesName.equals(HttpHeaders.CONNECTION)) {
+                if (propertiesName.equals(HttpHeaders.DATE) ||
+                    propertiesName.equals(HttpHeaders.CONNECTION)) {
                     // Ignore this value
-                } else if(propertiesName.equals(HttpHeaders.AGE) ||
-                          propertiesName.equals(HttpHeaders.CACHE_CONTROL) ||
-                          propertiesName.equals(HttpHeaders.CONTENT_ENCODING) ||
-                          propertiesName.equals(HttpHeaders.CONTENT_LANGUAGE) ||
-                          propertiesName.equals(HttpHeaders.CONTENT_LOCATION) ||
-                          propertiesName.equals(HttpHeaders.CONTENT_RANGE) ||
-                          propertiesName.equals(HttpHeaders.EXPIRES) ||
-                          propertiesName.equals(HttpHeaders.LOCATION) ||
-                          propertiesName.equals(HttpHeaders.PRAGMA) ||
-                          propertiesName.equals(HttpHeaders.RETRY_AFTER) ||
-                          propertiesName.equals(HttpHeaders.SERVER) ||
-                          propertiesName.equals(HttpHeaders.TRANSFER_ENCODING) ||
-                          propertiesName.equals(HttpHeaders.UPGRADE) ||
-                          propertiesName.equals(HttpHeaders.WARNING)) {
+                } else if (propertiesName.equals(HttpHeaders.AGE) ||
+                           propertiesName.equals(HttpHeaders.CACHE_CONTROL) ||
+                           propertiesName.equals(HttpHeaders.CONTENT_ENCODING) ||
+                           propertiesName.equals(HttpHeaders.CONTENT_LANGUAGE) ||
+                           propertiesName.equals(HttpHeaders.CONTENT_LOCATION) ||
+                           propertiesName.equals(HttpHeaders.CONTENT_RANGE) ||
+                           propertiesName.equals(HttpHeaders.EXPIRES) ||
+                           propertiesName.equals(HttpHeaders.LOCATION) ||
+                           propertiesName.equals(HttpHeaders.PRAGMA) ||
+                           propertiesName.equals(HttpHeaders.RETRY_AFTER) ||
+                           propertiesName.equals(HttpHeaders.SERVER) ||
+                           propertiesName.equals(HttpHeaders.TRANSFER_ENCODING) ||
+                           propertiesName.equals(HttpHeaders.UPGRADE) ||
+                           propertiesName.equals(HttpHeaders.WARNING)) {
                     // Pass through as a standard http header
                     response.header(propertiesName, propertiesValue);
                 } else {
@@ -277,12 +275,12 @@ public class ContentRest extends BaseRest {
 
     protected boolean validMimetype(String mimetype) {
         boolean valid = true;
-        if(mimetype == null || mimetype.equals("")) {
+        if (mimetype == null || mimetype.equals("")) {
             valid = false;
         } else {
             try {
                 MediaType.valueOf(mimetype);
-            } catch(IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 valid = false;
             }
         }
@@ -291,15 +289,13 @@ public class ContentRest extends BaseRest {
 
     /**
      * see ContentResource.updateContentProperties()
+     *
      * @return 200 response indicating content properties updated successfully
      */
     @POST
-    public Response updateContentProperties(@PathParam("spaceID")
-                                            String spaceID,
-                                            @PathParam("contentID")
-                                            String contentID,
-                                            @QueryParam("storeID")
-                                            String storeID) {
+    public Response updateContentProperties(@PathParam("spaceID") String spaceID,
+                                            @PathParam("contentID") String contentID,
+                                            @QueryParam("storeID") String storeID) {
         StringBuilder msg = new StringBuilder("updating content properties(");
         msg.append(spaceID);
         msg.append(", ");
@@ -335,10 +331,10 @@ public class ContentRest extends BaseRest {
 
         // Set mimetype in properties if it was provided
         String contentMimeType = null;
-        if(rHeaders.containsKey(CONTENT_MIMETYPE_HEADER)) {
+        if (rHeaders.containsKey(CONTENT_MIMETYPE_HEADER)) {
             contentMimeType = rHeaders.getFirst(CONTENT_MIMETYPE_HEADER);
         }
-        if(contentMimeType == null && rHeaders.containsKey(HttpHeaders.CONTENT_TYPE)) {
+        if (contentMimeType == null && rHeaders.containsKey(HttpHeaders.CONTENT_TYPE)) {
             contentMimeType = rHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
         }
 
@@ -356,10 +352,10 @@ public class ContentRest extends BaseRest {
         Map<String, String> userProperties =
             getUserProperties(CONTENT_MIMETYPE_HEADER);
 
-        if(contentMimeType != null && !contentMimeType.equals("")) {
-            if(validMimetype(contentMimeType)) {
+        if (contentMimeType != null && !contentMimeType.equals("")) {
+            if (validMimetype(contentMimeType)) {
                 userProperties.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE,
-                                 contentMimeType);
+                                   contentMimeType);
             } else {
                 throw new ResourceException("Invalid Mimetype");
             }
@@ -370,7 +366,7 @@ public class ContentRest extends BaseRest {
 
     /**
      * see ContentResource.addContent() and ContentResource.copyContent().
-     * 
+     *
      * @return 201 response indicating content added/copied successfully
      */
     @PUT
@@ -389,11 +385,11 @@ public class ContentRest extends BaseRest {
 
     /**
      * see ContentResource.addContent()
+     *
      * @return 201 response indicating content added successfully
      */
-    private Response addContent(String spaceID,
-                               String contentID,
-                               String storeID) {
+    private Response addContent(String spaceID, String contentID, String storeID) {
+
         StringBuilder msg = new StringBuilder("adding content(");
         msg.append(spaceID);
         msg.append(", ");
@@ -403,7 +399,7 @@ public class ContentRest extends BaseRest {
         msg.append(")");
         try {
             log.info(msg.toString());
-            
+
             return doAddContent(spaceID, contentID, storeID);
 
         } catch (InvalidIdException e) {
@@ -423,18 +419,15 @@ public class ContentRest extends BaseRest {
         }
     }
 
-    private Response doAddContent(String spaceID,
-                                  String contentID,
-                                  String storeID) throws Exception {
-        RestUtil.RequestContent content = restUtil.getRequestContent(request,
-                                                                     headers);
+    private Response doAddContent(String spaceID, String contentID, String storeID) throws Exception {
 
+        RestUtil.RequestContent content = restUtil.getRequestContent(request, headers);
         String checksum = null;
         MultivaluedMap<String, String> rHeaders = headers.getRequestHeaders();
-        
+
         logClientInfo(rHeaders);
 
-        if(rHeaders.containsKey(HttpHeaders.CONTENT_MD5)) {
+        if (rHeaders.containsKey(HttpHeaders.CONTENT_MD5)) {
             checksum = rHeaders.getFirst(HttpHeaders.CONTENT_MD5);
         }
 
@@ -451,24 +444,22 @@ public class ContentRest extends BaseRest {
             Map<String, String> properties = new HashMap<String, String>();
             properties.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, checksum);
             return addContentPropertiesToResponse(Response.created(location),
-                                                properties);
+                                                  properties);
 
         } else {
             String error = "Content could not be retrieved from the request.";
             log.error(error);
-            return Response.status(HttpStatus.SC_BAD_REQUEST)
-                .entity(error)
-                .build();
+            return Response.status(HttpStatus.SC_BAD_REQUEST).entity(error).build();
         }
     }
 
     private void logClientInfo(MultivaluedMap<String, String> rHeaders) {
-        Map<String,String> clientInfo = new HashMap<>();
+        Map<String, String> clientInfo = new HashMap<>();
         clientInfo.put("accountId", getAccountId());
         clientInfo.put("clientVersion",
                        rHeaders.containsKey(Constants.CLIENT_VERSION_HEADER)
-                           ? rHeaders.getFirst(Constants.CLIENT_VERSION_HEADER)
-                           : "none-specified");
+                       ? rHeaders.getFirst(Constants.CLIENT_VERSION_HEADER)
+                       : "none-specified");
         clientInfoLog.log(clientInfo);
     }
 
@@ -542,7 +533,7 @@ public class ContentRest extends BaseRest {
             log.error(msg.toString());
             throw new InvalidRequestException(msg.toString());
         }
-        
+
         String srcSpaceID = getSpaceId(copySource);
         String srcContentID = EncodeUtil.urlDecode(getContentId(copySource));
         if (null == srcSpaceID || null == srcContentID) {
@@ -611,15 +602,13 @@ public class ContentRest extends BaseRest {
 
     /**
      * see ContentResource.removeContent()
+     *
      * @return 200 response indicating content removed successfully
      */
     @DELETE
-    public Response deleteContent(@PathParam("spaceID")
-                                  String spaceID,
-                                  @PathParam("contentID")
-                                  String contentID,
-                                  @QueryParam("storeID")
-                                  String storeID) {
+    public Response deleteContent(@PathParam("spaceID") String spaceID,
+                                  @PathParam("contentID") String contentID,
+                                  @QueryParam("storeID") String storeID) {
         StringBuilder msg = new StringBuilder("deleting content(");
         msg.append(spaceID);
         msg.append(", ");
@@ -633,7 +622,7 @@ public class ContentRest extends BaseRest {
             String responseText = "Content " + contentID + " deleted successfully";
             return responseOk(msg.toString(), responseText);
 
-        } catch(ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceException e) {

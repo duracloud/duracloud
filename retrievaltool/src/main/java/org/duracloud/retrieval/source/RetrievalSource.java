@@ -33,7 +33,7 @@ public interface RetrievalSource {
      * @param contentItem the file whose properties to retrieve
      * @return the Map of Duracloud properties
      */
-    public Map<String,String> getSourceProperties(ContentItem contentItem);
+    public Map<String, String> getSourceProperties(ContentItem contentItem);
 
     /**
      * Provides the checksum of the specified source file based on the file's
@@ -50,18 +50,18 @@ public interface RetrievalSource {
      * @param contentItem the file to retrieve
      * @return content stream of the specified file
      */
-    default public ContentStream getSourceContent(ContentItem contentItem){
-       return getSourceContent(contentItem, null);  
-    };
-    
+    default public ContentStream getSourceContent(ContentItem contentItem) {
+        return getSourceContent(contentItem, null);
+    }
+
     /**
      * Get the actual content using a retrieval listener callback. The listener
-     * should be called synchronously.  
+     * should be called synchronously.
+     *
      * @param contentItem the file to retrieve
-     * @param listener of the specified operation
+     * @param listener    of the specified operation
      * @return
      */
     public ContentStream getSourceContent(ContentItem contentItem, RetrievalListener listener);
-    
-    
+
 }

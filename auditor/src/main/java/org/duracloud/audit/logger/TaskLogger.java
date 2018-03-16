@@ -14,9 +14,7 @@ import org.duracloud.audit.task.AuditTask;
 import org.duracloud.common.queue.task.Task;
 
 /**
- * 
  * @author dbernstein
- *
  */
 public abstract class TaskLogger extends BaseLogger {
 
@@ -24,9 +22,9 @@ public abstract class TaskLogger extends BaseLogger {
         Map<String, String> props = task.getProperties();
         // Ensure action appears first in iteration of kv pairs
         String action = props.remove(AuditTask.ACTION_PROP);
-        Map<String,String> orderedMap = new LinkedHashMap<>();
+        Map<String, String> orderedMap = new LinkedHashMap<>();
         orderedMap.put(AuditTask.ACTION_PROP, action);
-        for(String key : props.keySet()){
+        for (String key : props.keySet()) {
             orderedMap.put(key, props.get(key));
         }
         return buildLogMessage(orderedMap);

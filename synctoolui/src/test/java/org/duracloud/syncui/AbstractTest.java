@@ -7,17 +7,17 @@
  */
 package org.duracloud.syncui;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * A abstract base test class to facilitate writing clean test classes.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 public abstract class AbstractTest {
 
@@ -42,7 +42,7 @@ public abstract class AbstractTest {
     /**
      * Creates the mock with a simple name, adds it to the internal list of
      * mocks to be replayed and verified.
-     * 
+     *
      * @param clazz
      * @return
      */
@@ -65,5 +65,5 @@ public abstract class AbstractTest {
             throw new RuntimeException(e);
         }
     }
-    
+
 }

@@ -7,25 +7,25 @@
  */
 package org.duracloud.stitch.stream;
 
-import org.apache.commons.io.IOUtils;
-import org.duracloud.common.model.ContentItem;
-import org.duracloud.domain.Content;
-import org.duracloud.stitch.datasource.DataSource;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.commons.io.IOUtils;
+import org.duracloud.common.model.ContentItem;
+import org.duracloud.domain.Content;
+import org.duracloud.stitch.datasource.DataSource;
 
 /**
  * This class exposes a single InputStream composed of the sequence of content
  * streams read on-demand from the provided list of ContentItems.
  *
  * @author Andrew Woods
- *         Date: 9/8/11
+ * Date: 9/8/11
  */
 public class MultiContentInputStream extends InputStream {
-    
+
     private DataSource dataSource;
     private Iterator<ContentItem> contents;
     private InputStream currentStream;
@@ -60,10 +60,10 @@ public class MultiContentInputStream extends InputStream {
 
         int bite = currentStream.read();
         if (-1 == bite) {
-            if(contents.hasNext()){
+            if (contents.hasNext()) {
                 currentStream = nextStream();
                 bite = currentStream.read();
-            }else {
+            } else {
                 notifyContentIdRead();
             }
         }
@@ -72,7 +72,7 @@ public class MultiContentInputStream extends InputStream {
     }
 
     private InputStream nextStream() {
-        if(this.currentStream != null){
+        if (this.currentStream != null) {
             IOUtils.closeQuietly(this.currentStream);
             notifyContentIdRead();
         }
@@ -81,7 +81,7 @@ public class MultiContentInputStream extends InputStream {
     }
 
     protected void notifyContentIdRead() {
-        if(this.listener != null && this.currentItem != null){
+        if (this.listener != null && this.currentItem != null) {
             this.listener.contentIdRead(this.currentItem.getContentId());
             this.currentItem = null;
         }

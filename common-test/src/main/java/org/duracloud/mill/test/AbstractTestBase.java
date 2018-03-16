@@ -14,13 +14,13 @@ import org.junit.runner.RunWith;
 
 /**
  * @author Daniel Bernstein
- *         Date: Sep 3, 2014
+ * Date: Sep 3, 2014
  */
 @RunWith(EasyMockRunner.class)
 public class AbstractTestBase extends EasyMockSupport {
-    
+
     @After
-    public void tearDown(){
+    public void tearDown() {
         verifyAll();
     }
 }

@@ -9,7 +9,7 @@ package org.duracloud.notification;
 
 /**
  * @author Andrew Woods
- *         Date: 3/11/11
+ * Date: 3/11/11
  */
 public interface Emailer {
 

@@ -7,6 +7,9 @@
  */
 package org.duracloud.syncui.setup;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -14,13 +17,8 @@ import org.springframework.webflow.core.FlowException;
 import org.springframework.webflow.execution.FlowExecutionOutcome;
 import org.springframework.webflow.mvc.servlet.AbstractFlowHandler;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 /**
- * 
- * @author Daniel Bernstein 
- * 
+ * @author Daniel Bernstein
  */
 @Component(SetupFlowHandler.FLOW_ID)
 public class SetupFlowHandler extends AbstractFlowHandler {
@@ -33,14 +31,14 @@ public class SetupFlowHandler extends AbstractFlowHandler {
     public String getFlowId() {
         return FLOW_ID;
     }
-    
+
     @Override
     public String handleExecutionOutcome(FlowExecutionOutcome outcome,
                                          HttpServletRequest request,
                                          HttpServletResponse response) {
         return "contextRelative:/";
     }
-    
+
     @Override
     public String handleException(FlowException e,
                                   HttpServletRequest request,

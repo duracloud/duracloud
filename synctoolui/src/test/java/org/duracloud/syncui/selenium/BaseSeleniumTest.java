@@ -10,6 +10,8 @@ package org.duracloud.syncui.selenium;
 import java.util.List;
 import java.util.Properties;
 
+import com.thoughtworks.selenium.DefaultSelenium;
+import com.thoughtworks.selenium.Selenium;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
@@ -20,18 +22,14 @@ import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thoughtworks.selenium.DefaultSelenium;
-import com.thoughtworks.selenium.Selenium;
-
 /**
  * @author "Daniel Bernstein (dbernstein@duraspace.org)"
- *
  */
 public abstract class BaseSeleniumTest {
 
     // initialize sync with test config
     protected Properties props = null;
-    
+
     protected static Logger log =
         LoggerFactory.getLogger(BaseSeleniumTest.class);
 
@@ -50,11 +48,10 @@ public abstract class BaseSeleniumTest {
         return port != null ? port : DEFAULT_PORT;
     }
 
-
-
     protected String getBaseUrl() throws Exception {
         return "http://localhost:" + getPort() + getAppRoot();
     }
+
     @Before
     public void before() throws Exception {
         String url = getBaseUrl() + "/";
@@ -63,15 +60,14 @@ public abstract class BaseSeleniumTest {
         log.info("started selenium client on " + url);
         props = getProperties();
     }
-    
-    protected static Properties getProperties() throws Exception{
+
+    protected static Properties getProperties() throws Exception {
         Properties p = new Properties();
         p.load(BaseSeleniumTest.class.getClassLoader()
-                   .getResourceAsStream("test-init.properties"));
+                                     .getResourceAsStream("test-init.properties"));
 
         return p;
     }
-
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -81,25 +77,24 @@ public abstract class BaseSeleniumTest {
         // https://jira.duraspace.org/browse/DURACLOUD-717   DWD
         System.setProperty("jsse.enableSNIExtension", "false");
 
-       Properties properties = getProperties();
-       String username = properties.getProperty("username");
-       String password = properties.getProperty("password");
-       String host = properties.getProperty("host");
-       String port = properties.getProperty("port");
-       String spaceId = properties.getProperty("spaceId");
-       
-       ContentStoreManager csm = new ContentStoreManagerImpl(host, port);
-       
-       csm.login(new Credential(username, password));
-       
-       ContentStore cs = csm.getPrimaryContentStore();
-       List<String> spaces = cs.getSpaces();
-       
-       if(!spaces.contains(spaceId)){
-           cs.createSpace(spaceId);
-       }
-    }
+        Properties properties = getProperties();
+        String username = properties.getProperty("username");
+        String password = properties.getProperty("password");
+        String host = properties.getProperty("host");
+        String port = properties.getProperty("port");
+        String spaceId = properties.getProperty("spaceId");
 
+        ContentStoreManager csm = new ContentStoreManagerImpl(host, port);
+
+        csm.login(new Credential(username, password));
+
+        ContentStore cs = csm.getPrimaryContentStore();
+        List<String> spaces = cs.getSpaces();
+
+        if (!spaces.contains(spaceId)) {
+            cs.createSpace(spaceId);
+        }
+    }
 
     @After
     public void after() {
@@ -121,7 +116,6 @@ public abstract class BaseSeleniumTest {
         return new DefaultSelenium("localhost", 4444, "*firefox", url);
     }
 
-
     /**
      * @param sc
      */
@@ -136,8 +130,6 @@ public abstract class BaseSeleniumTest {
         log.debug("clicked " + locator);
         waitForPage(sc);
     }
-
-    
 
     /**
      * @param sc

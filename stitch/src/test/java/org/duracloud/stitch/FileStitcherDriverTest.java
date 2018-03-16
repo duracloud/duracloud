@@ -7,6 +7,12 @@
  */
 package org.duracloud.stitch;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.manifest.xml.ManifestDocumentBinding;
@@ -18,15 +24,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Andrew Woods
- *         Date: 9/5/11
+ * Date: 9/5/11
  */
 public class FileStitcherDriverTest {
 
