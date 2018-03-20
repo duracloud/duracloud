@@ -29,9 +29,9 @@ public class NotificationManager {
      * Initializes notifiers using the provided configuration. It is expected
      * that there will be exactly one config for each notifier type.
      * - If there is more than one config for a given type, the last
-     *   configuration of that type in the list will win.
+     * configuration of that type in the list will win.
      * - If there is a type not represented in the config list, then all
-     *   notifiers of that type will remain uninitialized.
+     * notifiers of that type will remain uninitialized.
      *
      * @param notificationConfigs set of configuration for notifiers
      */

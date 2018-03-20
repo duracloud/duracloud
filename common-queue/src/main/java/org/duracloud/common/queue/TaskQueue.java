@@ -87,15 +87,15 @@ public interface TaskQueue {
 
     /**
      * @return The approximate number of elements in this queue (does not
-     *         include invisible and delayed tasks).
+     * include invisible and delayed tasks).
      */
     public Integer size();
 
     /**
      * @return The approximate number of elements in this queue including
-     *         all items that are visible (available for takes),
-     *         invisible (in process - not yet completed), and delayed (pending
-     *         addition to the queue).
+     * all items that are visible (available for takes),
+     * invisible (in process - not yet completed), and delayed (pending
+     * addition to the queue).
      */
     public Integer sizeIncludingInvisibleAndDelayed();
 

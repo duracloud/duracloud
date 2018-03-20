@@ -96,7 +96,7 @@ public class AuditTaskTest {
         assertEquals(auditTask.getContentChecksum(), readAuditTask.getContentChecksum());
         assertEquals(auditTask.getContentMimetype(), readAuditTask.getContentMimetype());
         assertEquals(auditTask.getContentSize(), readAuditTask.getContentSize());
-        assertEquals(auditTask.getContentProperties(),  readAuditTask.getContentProperties());
+        assertEquals(auditTask.getContentProperties(), readAuditTask.getContentProperties());
         assertEquals(auditTask.getSpaceACLs(), readAuditTask.getSpaceACLs());
         assertEquals(auditTask.getStoreType(), readAuditTask.getStoreType());
         assertEquals(auditTask.getSourceSpaceId(), readAuditTask.getSourceSpaceId());

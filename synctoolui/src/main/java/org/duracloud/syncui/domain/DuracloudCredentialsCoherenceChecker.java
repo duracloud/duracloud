@@ -17,7 +17,7 @@ import javax.validation.Payload;
 /**
  * @author Daniel Bernstein
  */
-@Target( {ElementType.TYPE})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = DuracloudCredentialsCoherenceCheckerValidator.class)
 public @interface DuracloudCredentialsCoherenceChecker {

@@ -17,7 +17,7 @@ import javax.validation.Payload;
 /**
  * @author "Daniel Bernstein (dbernstein@duraspace.org)"
  */
-@Target( {ElementType.TYPE})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = SpaceWritableValidator.class)
 public @interface SpaceWritable {

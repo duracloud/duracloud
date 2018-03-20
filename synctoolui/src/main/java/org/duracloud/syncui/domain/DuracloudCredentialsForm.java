@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  * @author Daniel Bernstein
  */
 @Component("duracloudCredentialsForm")
-@GroupSequence( {DuracloudCredentialsForm.class, DuracloudCredentialsForm.HighLevelCoherence.class})
+@GroupSequence({DuracloudCredentialsForm.class, DuracloudCredentialsForm.HighLevelCoherence.class})
 @DuracloudCredentialsCoherenceChecker(groups = DuracloudCredentialsForm.HighLevelCoherence.class)
 public class DuracloudCredentialsForm implements Serializable {
 
@@ -89,7 +89,7 @@ public class DuracloudCredentialsForm implements Serializable {
      * check both basic constraints and high level ones. high level constraints
      * are not checked if basic constraints fail
      */
-    @GroupSequence( {Default.class, HighLevelCoherence.class})
+    @GroupSequence({Default.class, HighLevelCoherence.class})
     public interface Complete {
     }
 }

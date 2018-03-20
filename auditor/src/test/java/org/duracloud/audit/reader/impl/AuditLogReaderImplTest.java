@@ -179,7 +179,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         String contentId2 = "log2";
 
         Iterator<String> it =
-            Arrays.asList(new String[] {prefix + "/" + contentId1, prefix + "/" + contentId2, }).iterator();
+            Arrays.asList(new String[] {prefix + "/" + contentId1, prefix + "/" + contentId2,}).iterator();
         expect(storageProvider.getSpaceContents(eq(globalAuditSpaceId), eq(prefix))).andReturn(it);
         expect(config.getAuditLogSpaceId()).andReturn(globalAuditSpaceId);
 

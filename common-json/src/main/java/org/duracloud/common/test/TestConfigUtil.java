@@ -19,7 +19,7 @@ import org.duracloud.common.model.SimpleCredential;
  * Assumes that:
  * 1. There is a system property named: DURACLOUD_TEST_CONFIG
  * 2. The value of that system property is the full path to a valid test
- *    configuration file in JSON format
+ * configuration file in JSON format
  *
  * @author Bill Branan
  * Date: 7/31/13
