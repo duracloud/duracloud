@@ -93,7 +93,7 @@
 
   <action-state id="saveSetup">
     <evaluate
-            expression="saveSetupAction.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm, flowScope.directoryConfigs,  flowScope.advancedForm, flowScope.modeForm)"/>
+      expression="saveSetupAction.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm, flowScope.directoryConfigs,  flowScope.advancedForm, flowScope.modeForm)"/>
     <transition to="finish"/>
   </action-state>
 

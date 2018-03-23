@@ -44,7 +44,7 @@
   <view-state id="finish" view="/duracloud-config/finish">
     <on-entry>
       <evaluate
-              expression="saveDuracloudConfiguration.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm)"/>
+        expression="saveDuracloudConfiguration.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm)"/>
       <evaluate expression="syncProcessManager.getProcessState()" result="flowScope.syncState"/>
     </on-entry>
     <transition on="end" to="end"/>
