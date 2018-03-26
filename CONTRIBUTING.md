@@ -2,6 +2,9 @@
 
 There are many ways to contribute, first look for a section which describes you, then dive in.
 
+* [I'm a Java developer](#im-a-java-developer)
+* [I'm a DuraCloud user](#im-a-duracloud-user)
+
 Do you have an idea which doesn't fit into one of the categories below? Are you still not sure how to get started? Then join the [mailing list](https://groups.google.com/group/duracloud-users) and ask a question or make a suggestion, we'd be happy to talk through your ideas and find ways for you to contribute.
 
 ## I'm a Java developer
