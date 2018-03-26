@@ -7,14 +7,8 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.common.model.ContentItem;
-import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.retrieval.RetrievalTestBase;
-import org.duracloud.retrieval.source.ContentStream;
-import org.duracloud.retrieval.source.RetrievalSource;
-import org.easymock.EasyMock;
-import org.junit.Test;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -23,8 +17,14 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.ContentItem;
+import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.retrieval.RetrievalTestBase;
+import org.duracloud.retrieval.source.ContentStream;
+import org.duracloud.retrieval.source.RetrievalSource;
+import org.easymock.EasyMock;
+import org.junit.Test;
 
 /**
  * @author: Bill Branan
@@ -63,7 +63,7 @@ public class RetrievalManagerTest extends RetrievalTestBase {
 
         @Override
         public ContentItem getNextContentItem() {
-            if(items > 0) {
+            if (items > 0) {
                 ContentItem item =
                     new ContentItem(spaceId, "content-" + items);
                 items--;
@@ -74,9 +74,9 @@ public class RetrievalManagerTest extends RetrievalTestBase {
         }
 
         @Override
-        public Map<String,String> getSourceProperties(ContentItem contentItem) {
+        public Map<String, String> getSourceProperties(ContentItem contentItem) {
             InputStream stream = getStream(contentItem.getContentId());
-            Map<String,String> props = new HashMap<>();
+            Map<String, String> props = new HashMap<>();
             props.put(ContentStore.CONTENT_CHECKSUM, getChecksum(stream));
             return props;
         }
@@ -103,11 +103,11 @@ public class RetrievalManagerTest extends RetrievalTestBase {
             String checksum = checksumUtil.generateChecksum(stream);
             try {
                 stream.reset();
-            } catch(IOException e) {
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             return checksum;
         }
     }
-    
+
 }

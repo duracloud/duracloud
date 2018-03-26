@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ChangeWatcher implements Runnable {
 
-    private final Logger logger = LoggerFactory.getLogger(ChangeWatcher.class);    
+    private final Logger logger = LoggerFactory.getLogger(ChangeWatcher.class);
 
     private boolean continueWatch;
     private ChangedList changedList;
@@ -30,8 +30,8 @@ public class ChangeWatcher implements Runnable {
      * Creates a ChangeWatcher which watches for changes to the ChangedList
      * and notifies the ChangeHandler.
      *
-     * @param changedList the ChangedList to watch
-     * @param handler the ChangeHandler to notify
+     * @param changedList    the ChangedList to watch
+     * @param handler        the ChangeHandler to notify
      * @param watchFrequency how often to check for changes
      */
     public ChangeWatcher(ChangedList changedList,
@@ -49,7 +49,7 @@ public class ChangeWatcher implements Runnable {
             ChangedFile changedFile = changedList.reserve();
             if (changedFile != null) {
                 boolean success = handler.handleChangedFile(changedFile);
-                if(success) {
+                if (success) {
                     status.startingWork();
                 } else {
                     changedFile.unreserve();

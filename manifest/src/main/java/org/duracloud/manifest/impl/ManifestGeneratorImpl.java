@@ -7,6 +7,12 @@
  */
 package org.duracloud.manifest.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.Iterator;
+
 import org.apache.commons.lang3.StringUtils;
 import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.manifest.ManifestFormatter;
@@ -23,14 +29,7 @@ import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.util.Iterator;
-
 /**
- * 
  * @author Daniel Bernstein Date: Sept. 16, 2014
  */
 public class ManifestGeneratorImpl implements ManifestGenerator {
@@ -51,8 +50,7 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
                                    String storeId,
                                    String spaceId,
                                    ManifestFormat format)
-        throws ManifestArgumentException,
-            ManifestNotFoundException {
+        throws ManifestArgumentException, ManifestNotFoundException {
 
         log.info("retrieving manifest for account:{}, storeId:{}, spaceId:{}, format:{}",
                  account,
@@ -79,19 +77,16 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
                     public void run() {
                         try {
                             while (it.hasNext()) {
-                                formatter.writeManifestItemToOutput(it.next(),
-                                                                    os);
+                                formatter.writeManifestItemToOutput(it.next(), os);
                             }
                             try {
                                 os.close();
                             } catch (IOException e) {
-                                log.error("failed to close piped output stream : " + e.getMessage(),
-                                          e);
+                                log.error("failed to close piped output stream : " + e.getMessage(), e);
                             }
 
                         } catch (Exception e) {
-                            log.error("error writing to piped output stream : " + e.getMessage(),
-                                      e);
+                            log.error("error writing to piped output stream : " + e.getMessage(), e);
                         }
                     }
                 }).start();
@@ -114,8 +109,7 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
             store.getSpaceProperties(spaceId);
         } catch (NotFoundException ex) {
             throw new ManifestNotFoundException("there is no manifest for space: " + spaceId
-                                                + " where storeId = "
-                                                + storeId
+                                                + " where storeId = " + storeId
                                                 + " : no such space exists.");
         }
     }
@@ -156,8 +150,8 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
 
     protected ManifestFormatter getFormatter(final ManifestFormat format)
         throws ManifestArgumentException {
-       ManifestFormatterFactory factory = new ManifestFormatterFactory();
-       return factory.create(format);
+        ManifestFormatterFactory factory = new ManifestFormatterFactory();
+        return factory.create(format);
     }
 
 }

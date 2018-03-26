@@ -8,24 +8,23 @@
 package org.duracloud.sync.endpoint;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public enum SyncResultType {
-    ADDED ("A"),
-    UPDATED ("U"),
-    DELETED ("D"),
-    UPDATE_IGNORED ("I"), 
-    BACKED_UP ("B"),
-    ALREADY_IN_SYNC ("S"),
-    FAILED ("X");
-    
+    ADDED("A"),
+    UPDATED("U"),
+    DELETED("D"),
+    UPDATE_IGNORED("I"),
+    BACKED_UP("B"),
+    ALREADY_IN_SYNC("S"),
+    FAILED("X");
+
     private String abbreviation;
-    private SyncResultType(String abbreviation){
+
+    private SyncResultType(String abbreviation) {
         this.abbreviation = abbreviation;
     }
-    
+
     public String getAbbreviation() {
         return abbreviation;
     }

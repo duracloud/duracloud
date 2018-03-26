@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * - a DuraCloud space
  *
  * @author Andrew Woods
- *         Date: Feb 4, 2010
+ * Date: Feb 4, 2010
  */
 public class FileChunker {
 
@@ -56,9 +56,8 @@ public class FileChunker {
     private ContentWriter contentWriter;
     private FileChunkerOptions options;
 
-    public FileChunker(
-        ContentWriter contentWriter) {
-        this(contentWriter,new FileChunkerOptions());
+    public FileChunker(ContentWriter contentWriter) {
+        this(contentWriter, new FileChunkerOptions());
     }
 
     public FileChunker(ContentWriter contentWriter,
@@ -113,7 +112,7 @@ public class FileChunker {
      *
      * @param destSpaceId   of content destination
      * @param destContentId of content
-     * @param fileChecksum MD5 checksum of file or null if not known
+     * @param fileChecksum  MD5 checksum of file or null if not known
      * @param file          to add
      */
     public void addContent(String destSpaceId,
@@ -121,9 +120,7 @@ public class FileChunker {
                            String fileChecksum,
                            File file) {
         Map<String, String> properties =
-            StorageProviderUtil.createContentProperties(
-                                                        file.getAbsolutePath(), 
-                                                        null);
+            StorageProviderUtil.createContentProperties(file.getAbsolutePath(), null);
         addContent(destSpaceId,
                    destContentId,
                    fileChecksum,
@@ -138,24 +135,24 @@ public class FileChunker {
      *
      * @param destSpaceId   of content destination
      * @param destContentId of content
-     * @param fileChecksum MD5 checksum of file or null if not known
+     * @param fileChecksum  MD5 checksum of file or null if not known
      * @param stream        to add
-     * @param properties user-defined properties associated with content
+     * @param properties    user-defined properties associated with content
      */
     public void addContent(String destSpaceId,
                            String destContentId,
                            String fileChecksum,
                            long fileSize,
                            InputStream stream,
-                           Map<String,String> properties) {
+                           Map<String, String> properties) {
         try {
             doAddContent(destSpaceId,
                          destContentId,
                          fileChecksum,
                          fileSize,
-                         getInputStream(stream), 
+                         getInputStream(stream),
                          properties);
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             throw new DuraCloudRuntimeException(e);
         }
     }
@@ -205,8 +202,8 @@ public class FileChunker {
                               String destContentId,
                               String fileChecksum,
                               long fileSize,
-                              InputStream stream, 
-                              Map<String,String> properties)
+                              InputStream stream,
+                              Map<String, String> properties)
         throws NotFoundException {
         long maxChunkSize = options.getMaxChunkSize();
         boolean ignoreLargeFiles = options.isIgnoreLargeFiles();
@@ -232,10 +229,10 @@ public class FileChunker {
             contentWriter.write(destSpaceId, chunkable, properties);
 
             // Verify final checksum
-            if(fileChecksum != null) {
+            if (fileChecksum != null) {
                 String finalChecksum =
-                    chunkable.getManifest().getHeader().getSourceMD5();                
-                if(!fileChecksum.equals(finalChecksum)) {
+                    chunkable.getManifest().getHeader().getSourceMD5();
+                if (!fileChecksum.equals(finalChecksum)) {
                     String err = "Final checksum of chunked content " +
                                  finalChecksum +
                                  " does not match provided checksum " +
@@ -317,7 +314,7 @@ public class FileChunker {
      * @throws IOException on error
      */
     public static DigestInputStream createTestContent(File outFile,
-                                                         long size)
+                                                      long size)
         throws IOException {
         final int BUF_SZ = 8192;
         FileOutputStream fos = new FileOutputStream(outFile);

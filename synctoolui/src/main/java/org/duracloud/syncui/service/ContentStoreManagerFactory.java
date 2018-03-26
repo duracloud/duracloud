@@ -11,9 +11,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.error.ContentStoreException;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 public interface ContentStoreManagerFactory {
 

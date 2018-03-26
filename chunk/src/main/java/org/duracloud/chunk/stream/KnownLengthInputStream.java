@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
  * This wraps ByteArrayInputStream and adds a length field.
  *
  * @author Andrew Woods
- *         Date: Feb 10, 2010
+ * Date: Feb 10, 2010
  */
 public class KnownLengthInputStream extends ByteArrayInputStream {
 

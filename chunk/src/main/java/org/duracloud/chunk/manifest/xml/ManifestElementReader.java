@@ -7,6 +7,9 @@
  */
 package org.duracloud.chunk.manifest.xml;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.duracloud.ChunkType;
 import org.duracloud.ChunksManifestDocument;
 import org.duracloud.ChunksManifestType;
@@ -17,17 +20,18 @@ import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.manifest.ChunksManifestBean;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * This class is responsible for binding ChunksManifest xml documents to
  * ChunksManifest objects.
  *
  * @author Andrew Woods
- *         Date: Feb 9, 2010
+ * Date: Feb 9, 2010
  */
 public class ManifestElementReader {
+
+    private ManifestElementReader() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     /**
      * This method binds a ChunksManifest xml document to a ChunksManifest

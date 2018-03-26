@@ -7,6 +7,15 @@
  */
 package org.duracloud.storage.provider;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.common.model.AclType;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
@@ -16,15 +25,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 public class StorageProviderBaseTest {
 
@@ -62,7 +62,7 @@ public class StorageProviderBaseTest {
         String delim = StorageProviderBase.ACL_DELIM;
         spaceACLs = new HashMap<>();
         spaceACLs.put(StorageProviderBase.ACL_USER_READ,
-                      userRead0 + delim  + userRead1 + delim);
+                      userRead0 + delim + userRead1 + delim);
         spaceACLs.put(StorageProviderBase.ACL_USER_WRITE, userWrite0 + delim);
         spaceACLs.put(StorageProviderBase.ACL_GROUP_READ, groupRead0 + delim);
         spaceACLs.put(StorageProviderBase.ACL_GROUP_WRITE,
@@ -267,14 +267,14 @@ public class StorageProviderBaseTest {
         Map<String, String> repackedACLs = providerBase.packACLs(unpackedACLs);
 
         // Verify equality (considering that ordering may differ)
-        for(String aclGrouping : spaceACLs.keySet()) {
+        for (String aclGrouping : spaceACLs.keySet()) {
             String[] original = spaceACLs.get(aclGrouping)
                                          .split(StorageProviderBase.ACL_DELIM);
             Arrays.sort(original);
             String[] repacked = repackedACLs.get(aclGrouping)
                                             .split(StorageProviderBase.ACL_DELIM);
             Arrays.sort(repacked);
-            Assert.assertArrayEquals(original, repacked); 
+            Assert.assertArrayEquals(original, repacked);
         }
 
         replayMocks();
@@ -319,8 +319,7 @@ public class StorageProviderBaseTest {
 
         providerBase.deleteSpace(spaceId);
     }
-    
- 
+
     @Test
     public void testEmptyDeleteWorker() {
         EasyMock.expect(providerMock.getSpaceContents(EasyMock.eq(spaceId),
@@ -366,7 +365,7 @@ public class StorageProviderBaseTest {
             providerBase.getSpaceDeleteWorker(spaceId);
         worker.run();
     }
-    
+
     @Test
     public void testOnceDeleteWorkerWithWrappedStorageProvider() {
         String contentId = "content-id";
@@ -391,11 +390,11 @@ public class StorageProviderBaseTest {
         EasyMock.expectLastCall().once();
         EasyMock.replay(wrappedProvider);
         replayMocks();
-        
+
         StorageProviderBase.SpaceDeleteWorker worker =
             providerBase.getSpaceDeleteWorker(spaceId);
         worker.run();
-        
+
         EasyMock.verify(wrappedProvider);
     }
 

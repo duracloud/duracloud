@@ -13,6 +13,10 @@ package org.duracloud.common.util;
  */
 public class InitUtil {
 
+    private InitUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     private static final String INITITALIZED =
         " is initialized and ready for use. See the REST API documentation " +
         "for further information on the available resources.";

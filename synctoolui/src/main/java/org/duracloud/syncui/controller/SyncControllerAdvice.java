@@ -16,13 +16,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Adds a global exception handler for all controllers.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 @ControllerAdvice
 public class SyncControllerAdvice {
     @ExceptionHandler(Throwable.class)
-    public ModelAndView handleException(Throwable t){
+    public ModelAndView handleException(Throwable t) {
         ModelAndView mav = new ModelAndView("exception");
         t.fillInStackTrace();
         mav.addObject("message", t.getMessage());
@@ -30,7 +30,7 @@ public class SyncControllerAdvice {
         PrintWriter write = new PrintWriter(os);
         t.printStackTrace(write);
         write.close();
-        
+
         mav.addObject("stackTrace", new String(os.toByteArray()));
         return mav;
     }

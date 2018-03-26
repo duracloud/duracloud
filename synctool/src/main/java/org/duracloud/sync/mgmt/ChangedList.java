@@ -41,7 +41,7 @@ public class ChangedList implements Serializable {
     private ExecutorService executorService;
     private long listVersion;
     private boolean shutdown = false;
-    
+
     private static ChangedList instance;
 
     private FileExclusionManager fileExclusionManager;
@@ -53,10 +53,10 @@ public class ChangedList implements Serializable {
         }
         return instance;
     }
-    
+
     private ChangedList() {
-        fileList = new LinkedHashMap<String,ChangedFile>();
-        reservedFiles = new LinkedHashMap<String,ChangedFile>();
+        fileList = new LinkedHashMap<String, ChangedFile>();
+        reservedFiles = new LinkedHashMap<String, ChangedFile>();
         this.fileExclusionManager = new FileExclusionManager();
         listVersion = 0;
         listeners =
@@ -64,9 +64,10 @@ public class ChangedList implements Serializable {
         this.executorService = Executors.newSingleThreadExecutor();
     }
 
-    public void setFileExclusionManager(FileExclusionManager fileExclusionManager){
-        if (fileExclusionManager == null)
+    public void setFileExclusionManager(FileExclusionManager fileExclusionManager) {
+        if (fileExclusionManager == null) {
             throw new IllegalArgumentException("fileExclusionManager must not be null");
+        }
 
         this.fileExclusionManager = fileExclusionManager;
     }
@@ -77,15 +78,14 @@ public class ChangedList implements Serializable {
      * the method will return false). Note that only the most current update to
      * any given file is provided to the change processor.
      *
-     * @param changedFile
-     *            a file which has changed on the file system
+     * @param changedFile a file which has changed on the file system
      * @return false if the changedFile is null or matches at least one
-     *         exclusion rule.
+     * exclusion rule.
      */
     public boolean addChangedFile(final File changedFile) {
-        if(null != changedFile){
+        if (null != changedFile) {
             return addChangedFile(new ChangedFile(changedFile));
-        }else{
+        } else {
             log.warn("The changedFile parameter was unexpectedly null. Ignored.");
             return false;
         }
@@ -93,14 +93,16 @@ public class ChangedList implements Serializable {
 
     /**
      * Gets the current size of the changed list
+     *
      * @return the size of the list
      */
     public int getListSize() {
         return fileList.size();
     }
-    
+
     /**
      * Gets the current size of the changed list included the files that have been reserved
+     *
      * @return the size of the list
      */
     public int getListSizeIncludingReservedFiles() {
@@ -109,7 +111,7 @@ public class ChangedList implements Serializable {
 
     synchronized boolean addChangedFile(ChangedFile changedFile) {
         File file = changedFile.getFile();
-        if(fileExclusionManager.isExcluded(file)){
+        if (fileExclusionManager.isExcluded(file)) {
             return false;
         }
         fileList.put(file.getAbsolutePath(), changedFile);
@@ -123,7 +125,7 @@ public class ChangedList implements Serializable {
     }
 
     protected void fireChangedEventAsync() {
-        this.executorService.execute(new Runnable(){
+        this.executorService.execute(new Runnable() {
             @Override
             public void run() {
                 fireChangedEvent();
@@ -131,32 +133,31 @@ public class ChangedList implements Serializable {
         });
     }
 
-    public void addListener(ChangedListListener listener){
+    public void addListener(ChangedListListener listener) {
         this.listeners.addListener(listener);
     }
 
-    public void removeListener(ChangedListListener listener){
+    public void removeListener(ChangedListListener listener) {
         this.listeners.removeListener(listener);
     }
 
     /**
      * Removes all files from the changed list.
      */
-    public synchronized void clear(){
+    public synchronized void clear() {
         fileList.clear();
         reservedFiles.clear();
         fireChangedEvent();
     }
 
     /**
-     * Retrieves a changed file for processing and removes it from the list of unreserved
-     * files.  
+     * Retrieves a changed file for processing and removes it from the list of unreserved files.
      * Returns null if there are no changed files in the list.
      *
      * @return a file which has changed on the file system
      */
     public synchronized ChangedFile reserve() {
-        if(fileList.isEmpty() || shutdown) {
+        if (fileList.isEmpty() || shutdown) {
             return null;
         }
 
@@ -169,7 +170,7 @@ public class ChangedList implements Serializable {
     }
 
     private void incrementVersion() {
-        if(listVersion < Long.MAX_VALUE) {
+        if (listVersion < Long.MAX_VALUE) {
             listVersion++;
         } else {
             listVersion = 0;
@@ -186,15 +187,15 @@ public class ChangedList implements Serializable {
      * @param persistFile file to write state to
      * @return the version ID of the ChangedList which was persisted
      */
-    public  long persist(File persistFile) {
+    public long persist(File persistFile) {
         try {
             FileOutputStream fileStream = new FileOutputStream(persistFile);
             ObjectOutputStream oStream = new ObjectOutputStream((fileStream));
 
             long persistVersion;
             Map<String, ChangedFile> fileListCopy;
-            synchronized(this) {
-                fileListCopy = (Map<String, ChangedFile>)fileList.clone();
+            synchronized (this) {
+                fileListCopy = (Map<String, ChangedFile>) fileList.clone();
                 fileListCopy.putAll(reservedFiles);
                 persistVersion = listVersion;
             }
@@ -202,9 +203,9 @@ public class ChangedList implements Serializable {
             oStream.writeObject(fileListCopy);
             oStream.close();
             return persistVersion;
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Unable to persist File Changed List:" +
-                e.getMessage(), e);
+                                       e.getMessage(), e);
         }
     }
 
@@ -219,9 +220,10 @@ public class ChangedList implements Serializable {
             FileInputStream fileStream = new FileInputStream(persistFile);
             ObjectInputStream oStream = new ObjectInputStream(fileStream);
             log.info("Restoring changed list from backup: {}", persistFile.getAbsolutePath());
-            synchronized(this) {
-                LinkedHashMap<String, ChangedFile> fileListFromDisk = (LinkedHashMap<String, ChangedFile>) oStream.readObject();
-                
+            synchronized (this) {
+                LinkedHashMap<String, ChangedFile> fileListFromDisk =
+                    (LinkedHashMap<String, ChangedFile>) oStream.readObject();
+
                 //remove files in change list that are not in the content dir list.
                 if (contentDirs != null && !contentDirs.isEmpty()) {
 
@@ -235,7 +237,7 @@ public class ChangedList implements Serializable {
                             if (file.getFile()
                                     .getAbsolutePath()
                                     .startsWith(contentDir.getAbsolutePath()) &&
-                                    !this.fileExclusionManager.isExcluded(file.getFile())) {
+                                !this.fileExclusionManager.isExcluded(file.getFile())) {
                                 watched = true;
                                 break;
                             }
@@ -246,22 +248,21 @@ public class ChangedList implements Serializable {
                         }
                     }
                 }
-                
+
                 this.fileList = fileListFromDisk;
             }
             oStream.close();
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("Unable to restore File Changed List:" +
-                e.getMessage(), e);
+                                       e.getMessage(), e);
         }
     }
-    
 
-    public synchronized List<File> peek(int maxFiles){
+    public synchronized List<File> peek(int maxFiles) {
         List<File> files = new LinkedList<File>();
         Iterator<Entry<String, ChangedFile>> it = this.fileList.entrySet().iterator();
         int count = 0;
-        while(it.hasNext() && count < maxFiles) {
+        while (it.hasNext() && count < maxFiles) {
             files.add(it.next().getValue().getFile());
             count++;
         }
@@ -270,25 +271,27 @@ public class ChangedList implements Serializable {
 
     /**
      * Removes a previously reserved ChangedFile from the list of
-     * reserved files, effectively removing it from the ChangedList. 
-     * However if this instance of the ChangedFile or a new 
-     * ChangedFile with an identical file path is re-added to the ChangedList 
-     * before the reserved file is removed,  calling remove will only remove 
+     * reserved files, effectively removing it from the ChangedList.
+     * However if this instance of the ChangedFile or a new
+     * ChangedFile with an identical file path is re-added to the ChangedList
+     * before the reserved file is removed,  calling remove will only remove
      * the changed file from the reserved list.
+     *
      * @param changedFile
      */
-    synchronized void  remove(ChangedFile changedFile) {
-       this.reservedFiles.remove(getKey(changedFile));
+    synchronized void remove(ChangedFile changedFile) {
+        this.reservedFiles.remove(getKey(changedFile));
     }
-    
+
     /**
-     * Releases the reservation on the file (if still reserved) and returns 
+     * Releases the reservation on the file (if still reserved) and returns
      * it to the list.
+     *
      * @param changedFile
      */
-    synchronized void  unreserve(ChangedFile changedFile){
+    synchronized void unreserve(ChangedFile changedFile) {
         ChangedFile removedFile = this.reservedFiles.remove(getKey(changedFile));
-        if(removedFile != null && !this.fileList.containsKey(getKey(removedFile))){
+        if (removedFile != null && !this.fileList.containsKey(getKey(removedFile))) {
             addChangedFile(removedFile);
         }
     }

@@ -8,9 +8,7 @@
 package org.duracloud.sync.mgmt;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public interface ChangedListListener {
     public void listChanged(ChangedList list);

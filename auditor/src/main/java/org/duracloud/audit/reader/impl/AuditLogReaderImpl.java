@@ -16,6 +16,9 @@ import java.io.PipedOutputStream;
 import java.text.MessageFormat;
 import java.util.Iterator;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.s3.AmazonS3Client;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.audit.AuditLogUtil;
 import org.duracloud.audit.reader.AuditLogReader;
@@ -29,43 +32,36 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.internal.AWSS3V4Signer;
-
 /**
- * 
- * @author Daniel Bernstein 
- *         Date: Sept. 17, 2014
- * 
+ * @author Daniel Bernstein
+ * Date: Sept. 17, 2014
  */
 public class AuditLogReaderImpl implements AuditLogReader {
     private static Logger log =
         LoggerFactory.getLogger(AuditLogReaderImpl.class);
 
     private AuditConfig auditConfig;
-    
+
     private StorageProvider storageProvider;
 
     public AuditLogReaderImpl() {
     }
 
     @Override
-    public void initialize(AuditConfig auditConfig){
+    public void initialize(AuditConfig auditConfig) {
         this.auditConfig = auditConfig;
     }
-    
+
     @Override
     public InputStream getAuditLog(final String account, final String storeId, final String spaceId)
         throws AuditLogReaderException {
-        
+
         checkEnabled();
-        
+
         this.storageProvider = getStorageProvider();
         final String auditBucket = auditConfig.getAuditLogSpaceId();
 
-        String prefix = MessageFormat.format("{0}/{1}/{2}/",account, storeId, spaceId);
+        String prefix = MessageFormat.format("{0}/{1}/{2}/", account, storeId, spaceId);
         final PipedInputStream is = new PipedInputStream(10 * 1024);
         final PipedOutputStream os;
         try {
@@ -73,9 +69,9 @@ public class AuditLogReaderImpl implements AuditLogReader {
         } catch (IOException e) {
             throw new AuditLogReaderException(e);
         }
-        
+
         try {
-             final Iterator<String> it =
+            final Iterator<String> it =
                 this.storageProvider.getSpaceContents(auditBucket, prefix);
             if (!it.hasNext()) {
                 os.write((AuditLogUtil.getHeader() + "\n").getBytes());
@@ -88,7 +84,6 @@ public class AuditLogReaderImpl implements AuditLogReader {
                     try {
                         int count = 0;
 
-                        
                         while (it.hasNext()) {
                             String contentId = it.next();
                             writeToOutputStream(auditBucket,
@@ -103,7 +98,8 @@ public class AuditLogReaderImpl implements AuditLogReader {
                         os.close();
 
                     } catch (ContentStoreException | IOException ex) {
-                        log.error(MessageFormat.format("failed to complete audit log read routine for space: storeId={0}, spaceId={1}",
+                        log.error(MessageFormat.format("failed to complete audit log read routine " +
+                                                       "for space: storeId={0}, spaceId={1}",
                                                        storeId,
                                                        spaceId),
                                   ex);
@@ -112,14 +108,14 @@ public class AuditLogReaderImpl implements AuditLogReader {
             }).start();
         } catch (StorageException | IOException e) {
             throw new AuditLogReaderException(e);
-        } 
+        }
 
         return is;
     }
 
-    private void checkEnabled() throws AuditLogReaderNotEnabledException{
-        if(auditConfig.getAuditLogSpaceId() == null ||
-           auditConfig.getAuditQueueName() == null){
+    private void checkEnabled() throws AuditLogReaderNotEnabledException {
+        if (auditConfig.getAuditLogSpaceId() == null ||
+            auditConfig.getAuditQueueName() == null) {
             throw new AuditLogReaderNotEnabledException();
         }
     }
@@ -136,11 +132,10 @@ public class AuditLogReaderImpl implements AuditLogReader {
                                        int count,
                                        String contentId)
         throws ContentStoreException,
-            IOException {
-        
+        IOException {
+
         try (BufferedReader reader =
-            new BufferedReader(new InputStreamReader(storageProvider.getContent(auditSpaceId,
-                                                                                contentId)))) {
+                 new BufferedReader(new InputStreamReader(storageProvider.getContent(auditSpaceId, contentId)))) {
             if (count > 0) {
                 // skip header if not hte first file
                 reader.readLine();

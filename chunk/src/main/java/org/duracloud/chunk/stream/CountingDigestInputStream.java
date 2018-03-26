@@ -7,12 +7,13 @@
  */
 package org.duracloud.chunk.stream;
 
-import org.apache.commons.io.input.CountingInputStream;
-import org.duracloud.common.util.ChecksumUtil;
 import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
 
 import java.io.InputStream;
 import java.security.DigestInputStream;
+
+import org.apache.commons.io.input.CountingInputStream;
+import org.duracloud.common.util.ChecksumUtil;
 
 /**
  * This class combines the two InputStream implementations:
@@ -20,7 +21,7 @@ import java.security.DigestInputStream;
  * - DigestInputStream
  *
  * @author Andrew Woods
- *         Date: Feb 10, 2010
+ * Date: Feb 10, 2010
  */
 public class CountingDigestInputStream extends CountingInputStream {
 

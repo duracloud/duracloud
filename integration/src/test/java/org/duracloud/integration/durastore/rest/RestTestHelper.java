@@ -33,33 +33,37 @@ public class RestTestHelper {
 
     public static final String PROPERTIES_VALUE = "Test Properties";
 
+    private RestTestHelper() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     public static HttpResponse addSpace(String spaceID)
-            throws Exception {
+        throws Exception {
         String url = getBaseUrl() + "/" + spaceID;
         return addSpaceWithHeaders(url);
     }
 
     public static HttpResponse addSpace(String spaceID, String storeID)
-            throws Exception {
+        throws Exception {
         String url = getBaseUrl() + "/" + spaceID + "?storeID=" + storeID;
         return addSpaceWithHeaders(url);
     }
 
     private static HttpResponse addSpaceWithHeaders(String url)
-            throws Exception {
+        throws Exception {
         Map<String, String> headers = new HashMap<String, String>();
         headers.put(PROPERTIES_NAME, PROPERTIES_VALUE);
         return restHelper.put(url, null, headers);
     }
 
     public static HttpResponse deleteSpace(String spaceID)
-            throws Exception {
+        throws Exception {
         String url = getBaseUrl() + "/" + spaceID;
         return restHelper.delete(url);
     }
 
     public static HttpResponse deleteSpace(String spaceID, String storeID)
-            throws Exception {
+        throws Exception {
         String url = getBaseUrl() + "/" + spaceID + "?storeID=" + storeID;
         return restHelper.delete(url);
     }
@@ -67,14 +71,9 @@ public class RestTestHelper {
     public static String getBaseUrl() throws Exception {
         if (baseUrl == null) {
             TestConfig config = new TestConfigUtil().getTestConfig();
-            baseUrl =
-                "http" + ((config.getTestEndPoint().getPort()+"").equals("443") ? "s" : "")
-                      + "://"
-                      + config.getTestEndPoint().getHost()
-                      + ":"
-                      + config.getTestEndPoint().getPort()
-                      + "/"
-                      + "durastore";
+            baseUrl = "http" + ((config.getTestEndPoint().getPort() + "").equals("443") ? "s" : "")
+                      + "://" + config.getTestEndPoint().getHost() + ":" + config.getTestEndPoint().getPort()
+                      + "/" + "durastore";
         }
         return baseUrl;
     }

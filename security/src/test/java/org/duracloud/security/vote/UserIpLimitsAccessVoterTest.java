@@ -7,6 +7,15 @@
  */
 package org.duracloud.security.vote;
 
+import static org.junit.Assert.assertEquals;
+import static org.springframework.security.access.AccessDecisionVoter.ACCESS_ABSTAIN;
+import static org.springframework.security.access.AccessDecisionVoter.ACCESS_DENIED;
+import static org.springframework.security.access.AccessDecisionVoter.ACCESS_GRANTED;
+
+import java.util.Collection;
+import java.util.Collections;
+import javax.servlet.http.HttpServletRequest;
+
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.easymock.EasyMock;
 import org.junit.Test;
@@ -14,18 +23,9 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
-import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
-import static org.springframework.security.access.AccessDecisionVoter.ACCESS_ABSTAIN;
-import static org.springframework.security.access.AccessDecisionVoter.ACCESS_DENIED;
-import static org.springframework.security.access.AccessDecisionVoter.ACCESS_GRANTED;
-
 /**
  * @author Bill Branan
- *         Date: 4/24/2015
+ * Date: 4/24/2015
  */
 public class UserIpLimitsAccessVoterTest {
 

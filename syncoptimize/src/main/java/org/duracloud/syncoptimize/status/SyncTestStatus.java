@@ -15,7 +15,7 @@ import java.util.List;
  * as a SyncTestEvent.
  *
  * @author Bill Branan
- *         Date: 5/16/14
+ * Date: 5/16/14
  */
 public class SyncTestStatus {
 
@@ -30,7 +30,7 @@ public class SyncTestStatus {
     public void addEvent(SyncTestEvent event) {
         syncEvents.add(event);
 
-        if(printEvents) {
+        if (printEvents) {
             System.out.println("### " + event.toString());
         }
     }

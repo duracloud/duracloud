@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Bill Branan
- *         Date: 3/20/14
+ * Date: 3/20/14
  */
 public class ReadLogger extends TaskLogger {
 
@@ -22,7 +22,7 @@ public class ReadLogger extends TaskLogger {
     private Logger log = LoggerFactory.getLogger("storage-read");
 
     public void log(Task task) {
-        if(log.isInfoEnabled()) {
+        if (log.isInfoEnabled()) {
             log.info(buildLogMessage(task));
         }
     }

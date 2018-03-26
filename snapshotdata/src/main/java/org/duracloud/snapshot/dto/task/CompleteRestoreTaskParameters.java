@@ -7,16 +7,16 @@
  */
 package org.duracloud.snapshot.dto.task;
 
+import java.io.IOException;
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
-import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
-
 /**
  * @author Bill Branan
- *         Date: 7/29/15
+ * Date: 7/29/15
  */
 public class CompleteRestoreTaskParameters extends BaseDTO {
 
@@ -63,7 +63,7 @@ public class CompleteRestoreTaskParameters extends BaseDTO {
             new JaxbJsonSerializer<>(CompleteRestoreTaskParameters.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task parameters due to: " + e.getMessage());
         }
@@ -81,16 +81,16 @@ public class CompleteRestoreTaskParameters extends BaseDTO {
             CompleteRestoreTaskParameters params =
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
-            if(null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
+            if (null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
                 throw new SnapshotDataException(
                     "Task parameter values may not be empty");
             }
-            if(params.getDaysToExpire() < 0) {
+            if (params.getDaysToExpire() < 0) {
                 throw new SnapshotDataException(
                     "Task parameter value must be a positive integer");
             }
             return params;
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to parse task parameters due to: " + e.getMessage());
         }

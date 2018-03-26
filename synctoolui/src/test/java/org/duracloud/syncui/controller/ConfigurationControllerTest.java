@@ -24,16 +24,15 @@ import org.springframework.ui.ExtendedModelMap;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 public class ConfigurationControllerTest extends AbstractTest {
 
-    private ConfigurationController configurationController; 
+    private ConfigurationController configurationController;
     private SyncConfigurationManager syncConfigurationManager;
     private SyncProcessManager syncProcessManager;
     private SyncOptimizeManager syncOptimizeManager;
+
     @Before
     @Override
     public void setup() {
@@ -42,20 +41,20 @@ public class ConfigurationControllerTest extends AbstractTest {
         this.syncConfigurationManager = createMock(SyncConfigurationManager.class);
         this.syncProcessManager = createMock(SyncProcessManager.class);
         this.syncOptimizeManager = createMock(SyncOptimizeManager.class);
-        
+
         this.configurationController =
             new ConfigurationController(syncConfigurationManager,
                                         syncProcessManager,
                                         syncOptimizeManager);
     }
-    
+
     @Test
     public void testGet() {
-        
+
         replay();
         Assert.assertNotNull(configurationController.get(new ExtendedModelMap()));
     }
-    
+
     @Test
     public void testRemove() {
         String testPath = "testPath";
@@ -68,13 +67,13 @@ public class ConfigurationControllerTest extends AbstractTest {
         replay();
         Assert.assertNotNull(configurationController.removeDirectory(f, new RedirectAttributesModelMap()));
     }
-    
+
     @Test
     public void testGetAdd() {
         replay();
         Assert.assertNotNull(configurationController.getAdd());
     }
-    
+
     @Test
     public void testAdd() {
         String testPath = "testPath";
@@ -87,9 +86,9 @@ public class ConfigurationControllerTest extends AbstractTest {
         replay();
         Assert.assertNotNull(configurationController.add(f, new RedirectAttributesModelMap()));
     }
-    
+
     @Test
-    public void testUpdateOptions (){
+    public void testUpdateOptions() {
         AdvancedForm f = createMock(AdvancedForm.class);
         EasyMock.expect(f.isSyncDeletes()).andReturn(true);
         EasyMock.expect(f.isJumpStart()).andReturn(false);

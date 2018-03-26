@@ -7,6 +7,9 @@
  */
 package org.duracloud.durastore.rest;
 
+import java.io.InputStream;
+import java.util.Map;
+
 import org.duracloud.durastore.error.ResourceChecksumException;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
@@ -22,9 +25,6 @@ import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.storage.util.StorageProviderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.Map;
 
 /**
  * Provides interaction with content
@@ -52,7 +52,7 @@ public class ContentResourceImpl implements ContentResource {
     public InputStream getContent(String spaceID,
                                   String contentID,
                                   String storeID)
-    throws ResourceException {
+        throws ResourceException {
         try {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
@@ -84,7 +84,7 @@ public class ContentResourceImpl implements ContentResource {
     public Map<String, String> getContentProperties(String spaceID,
                                                     String contentID,
                                                     String storeID)
-    throws ResourceException {
+        throws ResourceException {
         try {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
@@ -114,13 +114,13 @@ public class ContentResourceImpl implements ContentResource {
                                         String contentMimeType,
                                         Map<String, String> userProperties,
                                         String storeID)
-    throws ResourceException {
+        throws ResourceException {
         try {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
 
             // Update content properties
-            if(userProperties != null) {
+            if (userProperties != null) {
                 storage.setContentProperties(spaceID, contentID, userProperties);
             }
         } catch (NotFoundException e) {
@@ -156,13 +156,13 @@ public class ContentResourceImpl implements ContentResource {
                              long contentSize,
                              String checksum,
                              String storeID)
-    throws ResourceException, InvalidIdException {
+        throws ResourceException, InvalidIdException {
         IdUtil.validateContentId(contentID);
 
         try {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
-                
+
             try {
                 // overlay new properties on top of older extended properties
                 // so that old tags and custom properties are preserved.
@@ -175,19 +175,19 @@ public class ContentResourceImpl implements ContentResource {
                     //use old mimetype if none specified.
                     String oldMimetype =
                         oldUserProperties.remove(StorageProvider.PROPERTIES_CONTENT_MIMETYPE);
-                    if(contentMimeType == null || contentMimeType.trim() == ""){
+                    if (contentMimeType == null || contentMimeType.trim() == "") {
                         contentMimeType = oldMimetype;
-                    } 
-                    
+                    }
+
                     oldUserProperties = StorageProviderUtil.removeCalculatedProperties(oldUserProperties);
                 }
-                
+
                 userProperties = oldUserProperties;
             } catch (NotFoundException ex) {
                 // do nothing - no properties to update
                 // since file did not previous exist.
             }
-               
+
             return storage.addContent(spaceID,
                                       contentID,
                                       contentMimeType,
@@ -215,13 +215,13 @@ public class ContentResourceImpl implements ContentResource {
      * This method copies the content found in space srcSpaceID with id
      * srcContentID to the space destSpaceID within the same content store
      * (storeID) to the id of destContentID.
-     * 
-     * @param srcStoreID of content to copy
-     * @param srcSpaceID of content to copy
-     * @param srcContentID of content to copy
-     * @param destSpaceID of copied content
+     *
+     * @param srcStoreID    of content to copy
+     * @param srcSpaceID    of content to copy
+     * @param srcContentID  of content to copy
+     * @param destSpaceID   of copied content
      * @param destContentID of copied content
-     * @param destStoreID of copied content
+     * @param destStoreID   of copied content
      * @return MD5 checksum of the content as computed by the storage provider
      * @throws ResourceException
      */
@@ -235,14 +235,14 @@ public class ContentResourceImpl implements ContentResource {
         BrokeredStorageProvider srcProvider = getStorageProvider(srcStoreID);
         BrokeredStorageProvider destProvider = getStorageProvider(destStoreID);
 
-        if(srcProvider.equals(destProvider)){
+        if (srcProvider.equals(destProvider)) {
             return copyContent(srcProvider,
                                srcSpaceID,
                                srcContentID,
                                destSpaceID,
                                destContentID,
                                srcStoreID);
-        }else{
+        } else {
             return copyContentBetweenStorageProviders(srcProvider,
                                                       srcSpaceID,
                                                       srcContentID,
@@ -267,25 +267,24 @@ public class ContentResourceImpl implements ContentResource {
                                                       String destSpaceID,
                                                       String destContentID,
                                                       String destStoreID) throws ResourceException {
-        try(InputStream inputStream =
-            srcStorage.getContent(srcSpaceID, srcContentID)) {
-            
+        try (InputStream inputStream =
+                 srcStorage.getContent(srcSpaceID, srcContentID)) {
 
             Map<String, String> properties =
                 srcStorage.getContentProperties(srcSpaceID, srcContentID);
-            
+
             Long contentSize = null;
-            
-            try{
+
+            try {
                 String contentSizeString = properties.get(StorageProvider.PROPERTIES_CONTENT_SIZE);
-                if(contentSizeString != null){
+                if (contentSizeString != null) {
                     contentSize = Long.parseLong(contentSizeString);
                 }
-            } catch(NumberFormatException ex){
+            } catch (NumberFormatException ex) {
                 String msg = "content size could not be parsed: " + ex.getMessage();
                 log.warn(msg, ex);
             }
-            
+
             String md5 =
                 destStorage.addContent(destSpaceID,
                                        destContentID,
@@ -294,7 +293,7 @@ public class ContentResourceImpl implements ContentResource {
                                        contentSize,
                                        properties.get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM),
                                        inputStream);
-            
+
             return md5;
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("copy content",
@@ -365,8 +364,7 @@ public class ContentResourceImpl implements ContentResource {
                                         e);
         }
     }
-    
-    
+
     /**
      * Removes a piece of content.
      *
@@ -376,7 +374,7 @@ public class ContentResourceImpl implements ContentResource {
      */
     @Override
     public void deleteContent(String spaceID, String contentID, String storeID)
-    throws ResourceException {
+        throws ResourceException {
         try {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);

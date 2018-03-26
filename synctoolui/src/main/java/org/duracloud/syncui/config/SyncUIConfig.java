@@ -7,9 +7,9 @@
  */
 package org.duracloud.syncui.config;
 
-import org.duracloud.sync.config.SyncConfig;
-
 import java.io.File;
+
+import org.duracloud.sync.config.SyncConfig;
 
 /**
  * @author: Bill Branan
@@ -22,8 +22,7 @@ public class SyncUIConfig extends SyncConfig {
     public static final String SYNC_PORT_PROP = "sync.port";
 
     private static final String DEFAULT_CONFIG_XML_PATH =
-        getWorkDir().getAbsolutePath() + File.separator +
-            "duracloud-sync-ui-config.xml";
+        getWorkDir().getAbsolutePath() + File.separator + "duracloud-sync-ui-config.xml";
 
     public static String getConfigPath() {
         return System.getProperty(SYNC_CONFIG_PROP, DEFAULT_CONFIG_XML_PATH);

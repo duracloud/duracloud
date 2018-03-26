@@ -7,7 +7,7 @@
  */
 package org.duracloud.integration.sync.endpoint;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,8 +36,8 @@ public class DuraStoreSyncTestBase extends SyncIntegrationTestBase {
         super.tearDown();
         // Clean up space
         Iterator<String> contents = store.getSpaceContents(spaceId);
-        while(contents.hasNext()) {
-            store.deleteContent(spaceId, contents.next());            
+        while (contents.hasNext()) {
+            store.deleteContent(spaceId, contents.next());
         }
     }
 
@@ -82,7 +82,7 @@ public class DuraStoreSyncTestBase extends SyncIntegrationTestBase {
                                         int expectedSize)
         throws Exception {
         waitForSpaceToBeCreated(spaceId);
-        
+
         List<String> spaceContents =
             iteratorToList(store.getSpaceContents(spaceId));
         assertEquals(expectedSize, spaceContents.size());
@@ -97,7 +97,7 @@ public class DuraStoreSyncTestBase extends SyncIntegrationTestBase {
 
     protected List<String> iteratorToList(Iterator<String> it) {
         List<String> list = new ArrayList<String>();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             list.add(it.next());
         }
         return list;
@@ -122,7 +122,7 @@ public class DuraStoreSyncTestBase extends SyncIntegrationTestBase {
         Assert.fail("Space was never created: " + spaceId);
     }
 
-    private Map<String, String> getProperties(String spaceId){
+    private Map<String, String> getProperties(String spaceId) {
         Map<String, String> properties = null;
         try {
             properties = store.getSpaceProperties(spaceId);
@@ -135,17 +135,12 @@ public class DuraStoreSyncTestBase extends SyncIntegrationTestBase {
     protected ContentStore getContentStore() throws Exception {
         StoreClientUtil storeUtil = new StoreClientUtil();
         return storeUtil.createContentStore(SyncIntegrationTestBase.getHost(),
-                                            Integer.parseInt(
-                                                SyncIntegrationTestBase.getPort()),
+                                            Integer.parseInt(SyncIntegrationTestBase.getPort()),
                                             SyncIntegrationTestBase.getContext(),
-                                            SyncIntegrationTestBase.
-                                                getRootCredential().
-                                                getUsername(),
-                                            SyncIntegrationTestBase.
-                                                getRootCredential().
-                                                getPassword(),
+                                            SyncIntegrationTestBase.getRootCredential().getUsername(),
+                                            SyncIntegrationTestBase.getRootCredential().getPassword(),
                                             null);
-    }    
+    }
 
     private void sleep(long millis) {
         try {

@@ -8,8 +8,14 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
-import org.apache.http.HttpStatus;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.constant.ManifestFormat;
@@ -26,16 +32,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 @Controller
 @RequestMapping("/manifest")
@@ -51,16 +49,17 @@ public class ManifestController {
     }
 
     @RequestMapping(value = "/{storeId}/{spaceId:.*}", method = RequestMethod.GET)
-    public String
-        get(@PathVariable("storeId") String storeId,
-            @PathVariable("spaceId") String spaceId, @RequestParam("format") String manifestFormat, HttpServletResponse response) throws Exception {
+    public String get(@PathVariable("storeId") String storeId,
+                      @PathVariable("spaceId") String spaceId,
+                      @RequestParam("format") String manifestFormat,
+                      HttpServletResponse response) throws Exception {
         try {
             ContentStore contentStore =
                 contentStoreManager.getContentStore(storeId);
             ManifestFormat format = ManifestFormat.valueOf(manifestFormat.toUpperCase());
             InputStream is = contentStore.getManifest(spaceId, format);
             String extension = "txt";
-            if(format.equals(ManifestFormat.TSV)){
+            if (format.equals(ManifestFormat.TSV)) {
                 extension = "tsv";
             }
             StringBuffer contentDisposition = new StringBuffer();
@@ -71,7 +70,7 @@ public class ManifestController {
             contentDisposition.append("manifest-" + storeId
                                       + "-"
                                       + spaceId
-                                      +"-"
+                                      + "-"
                                       + dateFormat.format(new Date())
                                       + "."
                                       + extension);
@@ -80,7 +79,7 @@ public class ManifestController {
             IOUtils.copy(is, response.getOutputStream());
         } catch (NotFoundException ex) {
             response.setStatus(HttpStatus.SC_NOT_FOUND);
-            
+
         } catch (ContentStoreException | IOException ex) {
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }

@@ -14,7 +14,7 @@ import java.util.Map;
  * snapshot.
  *
  * @author Bill Branan
- *         Date: 8/11/14
+ * Date: 8/11/14
  */
 public class SnapshotContentItem extends BaseDTO {
 

@@ -20,6 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.audit.task.AuditTask;
 import org.duracloud.audit.task.AuditTask.ActionType;
 import org.duracloud.common.error.DuraCloudRuntimeException;
@@ -33,22 +35,17 @@ import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskResult;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
-import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.TaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
-
 /**
  * Cleans up the snapshot by removing content that is no longer
  * needed now that the snapshot has been transferred successfully.
  *
- *
  * @author Bill Branan
- *         Date: 8/14/14
+ * Date: 8/14/14
  */
 public class CleanupSnapshotTaskRunner implements TaskRunner {
 
@@ -63,11 +60,11 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
     private ManifestStore manifestStore;
     private String account;
     private String storeId;
-    
+
     public CleanupSnapshotTaskRunner(SnapshotStorageProvider unwrappedSnapshotProvider,
-                                     AmazonS3Client s3Client, 
+                                     AmazonS3Client s3Client,
                                      TaskQueue auditTaskQueue,
-                                     ManifestStore manifestStore, 
+                                     ManifestStore manifestStore,
                                      String account,
                                      String storeId) {
         this.unwrappedSnapshotProvider = unwrappedSnapshotProvider;
@@ -111,9 +108,9 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
         // Set policy on bucket
         s3Client.setBucketLifecycleConfiguration(bucketName, configuration);
 
-        queueContentDeleteAuditTasks(spaceId,userId);
+        queueContentDeleteAuditTasks(spaceId, userId);
 
-       log.info("Cleanup Snapshot Task for space " + spaceId +
+        log.info("Cleanup Snapshot Task for space " + spaceId +
                  " completed successfully");
 
         return new CleanupSnapshotTaskResult(EXPIRATION_DAYS).serialize();
@@ -127,33 +124,35 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
             public void run() {
 
                 try {
-                    final File tmpFile = File.createTempFile(account+"-"+storeId + "-" + spaceId, ".tsv");
-                    
+                    final File tmpFile = File.createTempFile(account + "-" + storeId + "-" + spaceId, ".tsv");
+
                     tmpFile.deleteOnExit();
                     final long time = System.currentTimeMillis();
-                    new Retrier(4, 60*1000, 2).execute(new Retriable() {
+                    new Retrier(4, 60 * 1000, 2).execute(new Retriable() {
                         public Object retry() throws Exception {
                             //create delete audit messages for each item in the space.
                             Iterator<ManifestItem> items = manifestStore.getItems(account, storeId, spaceId);
-                            try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpFile)))){
-                                while(items.hasNext()){
+                            try (BufferedWriter writer = new BufferedWriter(
+                                new OutputStreamWriter(new FileOutputStream(tmpFile)))) {
+                                while (items.hasNext()) {
                                     ManifestItem item = items.next();
                                     String line = marshalItem(item);
-                                    writer.write(line+"\n");
+                                    writer.write(line + "\n");
                                 }
-                                
+
                                 writer.close();
-                                    
-                            }catch(Exception ex){
+
+                            } catch (Exception ex) {
                                 throw new DuraCloudRuntimeException(ex);
                             }
                             long count = 0;
                             Set<Task> tasks = new HashSet<Task>();
 
-                            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(tmpFile)))){
+                            try (BufferedReader reader = new BufferedReader(
+                                new InputStreamReader(new FileInputStream(tmpFile)))) {
                                 String line = null;
-                                while((line = reader.readLine()) != null){
-                                    String[] values  = unmarshalItem(line);
+                                while ((line = reader.readLine()) != null) {
+                                    String[] values = unmarshalItem(line);
                                     AuditTask task = new AuditTask();
                                     task.setAccount(account);
                                     task.setSpaceId(spaceId);
@@ -166,45 +165,44 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
                                     task.setAction(ActionType.DELETE_CONTENT.name());
                                     task.setUserId(userId);
                                     tasks.add(task.writeTask());
-    
-                                    if(tasks.size() >= 10){
+
+                                    if (tasks.size() >= 10) {
                                         auditTaskQueue.put(tasks);
                                         tasks = new HashSet<>();
                                     }
-                                    
+
                                     count++;
                                 }
-                                
-                                if(tasks.size() > 0){
+
+                                if (tasks.size() > 0) {
                                     auditTaskQueue.put(tasks);
                                 }
                                 log.info("Added {} delete audit tasks.", count);
-                            }catch(Exception ex){
+                            } catch (Exception ex) {
                                 throw new DuraCloudRuntimeException(ex);
                             }
 
                             return null;
                         }
-                        
-                        
+
                     });
-                    
+
                     tmpFile.delete();
 
                 } catch (Exception e) {
-                    String message = "Failed to complete queue of deletion audit tasks for " + 
+                    String message = "Failed to complete queue of deletion audit tasks for " +
                                      spaceId + " : message =" + e.getMessage();
                     log.error(message, e);
                 }
             }
         }, "snapshot-cleanup-" + spaceId).start();
     }
-    
-    private String marshalItem(ManifestItem item){
-        return item.getContentId() + "\t" + item.getContentSize() + "\t"  + item.getContentChecksum();
+
+    private String marshalItem(ManifestItem item) {
+        return item.getContentId() + "\t" + item.getContentSize() + "\t" + item.getContentChecksum();
     }
-    
-    private String[] unmarshalItem(String line){
+
+    private String[] unmarshalItem(String line) {
         return line.split("\t");
     }
 }

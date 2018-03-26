@@ -7,12 +7,11 @@
  */
 package org.duracloud.security.vote;
 
-import static org.duracloud.security.vote.VoterUtil.*;
+import static org.duracloud.security.vote.VoterUtil.debugText;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.duracloud.common.constant.Constants;
@@ -36,13 +35,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  * casting a vote.
  *
  * @author Andrew Woods
- *         Date: 11/18/11
+ * Date: 11/18/11
  */
 public class SpaceWriteAccessVoter extends SpaceAccessVoter {
 
     private final Logger log =
         LoggerFactory.getLogger(SpaceReadAccessVoter.class);
-
 
     public SpaceWriteAccessVoter(StorageProviderFactory storageProviderFactory,
                                  UserDetailsService userDetailsService) {
@@ -97,8 +95,8 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }
-        
-        if(isTask(httpRequest)){
+
+        if (isTask(httpRequest)) {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             //task configuration rules are defined in durastore's security-config.xml
             //so if the call has made it this far, then we allow it.
@@ -122,7 +120,7 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }
-        
+
         // Since not an Admin, DENY permission to create spaces.
         if (isSpaceCreation(httpRequest)) {
             log.debug(debugText(label, auth, config, resource, ACCESS_DENIED));
@@ -152,7 +150,6 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }
-        
 
         int grant = ACCESS_DENIED;
         log.debug(debugText(label, auth, config, resource, grant));
@@ -168,38 +165,40 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
     }
 
     private boolean isSnapshotInProgress(HttpServletRequest httpRequest) {
-       String storeId = getStoreId(httpRequest);
-       StorageProviderFactory factory = getStorageProviderFactory();
-       List<StorageAccount> accounts = factory.getStorageAccounts();
-       if(storeId == null){
-           for(StorageAccount account : accounts ){
-               if(account.isPrimary()){
-                   storeId = account.getId();
-                   break;
-               }
-           }
-       }
+        String storeId = getStoreId(httpRequest);
+        StorageProviderFactory factory = getStorageProviderFactory();
+        List<StorageAccount> accounts = factory.getStorageAccounts();
+        if (storeId == null) {
+            for (StorageAccount account : accounts) {
+                if (account.isPrimary()) {
+                    storeId = account.getId();
+                    break;
+                }
+            }
+        }
 
-       for(StorageAccount account : accounts){
-           if(account.getId().equals(storeId)){
-               StorageProviderType type = account.getType();
-               if(type.equals(StorageProviderType.DPN) ||
-                  type.equals(StorageProviderType.CHRONOPOLIS)){
-                   StorageProvider store = factory.getStorageProvider(storeId);
-                   try {
-                       String spaceId = getSpaceId(httpRequest);
-                       Map<String, String> spaceProps  =
-                           store.getSpaceProperties(spaceId);
-                       if(spaceProps.containsKey(Constants.SNAPSHOT_ID_PROP)) {
-                           return true;
-                       }
-                   } catch(NotFoundException e) {}
-               }
-               break;
-           }
-       }
-       
-       return false;
+        for (StorageAccount account : accounts) {
+            if (account.getId().equals(storeId)) {
+                StorageProviderType type = account.getType();
+                if (type.equals(StorageProviderType.DPN) ||
+                    type.equals(StorageProviderType.CHRONOPOLIS)) {
+                    StorageProvider store = factory.getStorageProvider(storeId);
+                    try {
+                        String spaceId = getSpaceId(httpRequest);
+                        Map<String, String> spaceProps =
+                            store.getSpaceProperties(spaceId);
+                        if (spaceProps.containsKey(Constants.SNAPSHOT_ID_PROP)) {
+                            return true;
+                        }
+                    } catch (NotFoundException e) {
+                        // Space does not exist
+                    }
+                }
+                break;
+            }
+        }
+
+        return false;
     }
 
     private boolean isSpaceCreation(HttpServletRequest httpRequest) {

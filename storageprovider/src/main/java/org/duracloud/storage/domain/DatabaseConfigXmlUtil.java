@@ -11,12 +11,14 @@ import org.duracloud.common.util.EncryptionUtil;
 import org.jdom.Element;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 public class DatabaseConfigXmlUtil {
-    
+
+    private DatabaseConfigXmlUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     public static Element marshall(DatabaseConfig millDbConfig, String elementName) {
         EncryptionUtil encryptionUtil = new EncryptionUtil();
         Element db = new Element(elementName);
@@ -45,34 +47,34 @@ public class DatabaseConfigXmlUtil {
         }
         return db;
     }
-    
+
     public static DatabaseConfig unmarshalDatabaseConfig(Element dbConfigElement) {
         EncryptionUtil encryptionUtil = new EncryptionUtil();
 
         DatabaseConfig millDbConfig = new DatabaseConfig();
 
         String host = dbConfigElement.getChildText("host");
-        if(null != host) {
+        if (null != host) {
             millDbConfig.setHost(host);
         }
 
         String port = dbConfigElement.getChildText("port");
-        if(null != port) {
+        if (null != port) {
             millDbConfig.setPort(Integer.parseInt(port));
         }
 
         String name = dbConfigElement.getChildText("name");
-        if(null != name) {
+        if (null != name) {
             millDbConfig.setName(name);
         }
 
         String username = dbConfigElement.getChildText("username");
-        if(null != username) {
+        if (null != username) {
             millDbConfig.setUsername(username);
         }
 
         String password = dbConfigElement.getChildText("password");
-        if(null != password) {
+        if (null != password) {
             millDbConfig.setPassword(encryptionUtil.decrypt(password));
         }
         return millDbConfig;

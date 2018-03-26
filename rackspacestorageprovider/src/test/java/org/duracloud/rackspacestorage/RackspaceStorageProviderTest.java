@@ -7,6 +7,11 @@
  */
 package org.duracloud.rackspacestorage;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Date;
+import java.util.HashMap;
+
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.easymock.EasyMock;
@@ -17,14 +22,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Date;
-import java.util.HashMap;
-
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Andrew Woods
- *         Date: 8/12/11
+ * Date: 8/12/11
  */
 public class RackspaceStorageProviderTest {
 
@@ -37,7 +37,7 @@ public class RackspaceStorageProviderTest {
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify( swiftClient);
+        EasyMock.verify(swiftClient);
     }
 
     @Test
@@ -83,27 +83,27 @@ public class RackspaceStorageProviderTest {
 
         byte[] expectedMD5Hash = ChecksumUtil.hexStringToByteArray(expectedMD5);
         MutableObjectInfoWithMetadata objectInfoWithMetadata =
-                EasyMock.createMock(MutableObjectInfoWithMetadata.class);
+            EasyMock.createMock(MutableObjectInfoWithMetadata.class);
         EasyMock.expect(objectInfoWithMetadata.getHash()).andReturn(expectedMD5Hash).times(2);
         EasyMock.expect(objectInfoWithMetadata.getLastModified()).andReturn(new Date());
         EasyMock.expect(objectInfoWithMetadata.getBytes()).andReturn(12L);
         EasyMock.expect(objectInfoWithMetadata.getMetadata()).andReturn(new HashMap<String, String>());
         EasyMock.expect(swiftClient.getObjectInfo(EasyMock.isA(String.class),
-                EasyMock.isA(String.class)))
-            .andReturn(objectInfoWithMetadata)
-            .times(2);
+                                                  EasyMock.isA(String.class)))
+                .andReturn(objectInfoWithMetadata)
+                .times(2);
 
         EasyMock.expect(swiftClient.objectExists(
-                EasyMock.isA(String.class), EasyMock.isA(String.class)))
+            EasyMock.isA(String.class), EasyMock.isA(String.class)))
                 .andReturn(true);
         EasyMock.expect(swiftClient.containerExists(EasyMock.isA(String.class)))
-            .andReturn(true)
-            .times(2);
+                .andReturn(true)
+                .times(2);
 
         EasyMock.expect(swiftClient.copyObject(EasyMock.eq(srcSpaceId),
-                EasyMock.eq(srcContentId),
-                EasyMock.eq(destSpaceId),
-                EasyMock.eq(destContentId)))
+                                               EasyMock.eq(srcContentId),
+                                               EasyMock.eq(destSpaceId),
+                                               EasyMock.eq(destContentId)))
                 .andReturn(true);
 
         EasyMock.replay(swiftClient, objectInfoWithMetadata);

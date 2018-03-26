@@ -7,17 +7,17 @@
  */
 package org.duracloud.storage.provider;
 
-import org.duracloud.common.model.AclType;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.storage.error.StorageException;
-
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.error.StorageException;
+
 public class StatelessStorageProviderImpl
-        implements StatelessStorageProvider {
+    implements StatelessStorageProvider {
 
     @Override
     public StorageProviderType getStorageProviderType(StorageProvider targetProvider) {
@@ -64,7 +64,7 @@ public class StatelessStorageProviderImpl
     public void createSpace(StorageProvider targetProvider,
                             String storeId,
                             String spaceId)
-            throws StorageException {
+        throws StorageException {
         targetProvider.createSpace(spaceId);
     }
 
@@ -84,7 +84,7 @@ public class StatelessStorageProviderImpl
     public void deleteSpace(StorageProvider targetProvider,
                             String storeId,
                             String spaceId)
-            throws StorageException {
+        throws StorageException {
         targetProvider.deleteSpace(spaceId);
     }
 
@@ -105,7 +105,7 @@ public class StatelessStorageProviderImpl
                                                     String storeId,
                                                     String spaceId,
                                                     String contentId)
-            throws StorageException {
+        throws StorageException {
         return targetProvider.getContentProperties(spaceId, contentId);
     }
 
@@ -116,7 +116,7 @@ public class StatelessStorageProviderImpl
                                              String storeId,
                                              String spaceId,
                                              String prefix)
-            throws StorageException {
+        throws StorageException {
         return targetProvider.getSpaceContents(spaceId, prefix);
     }
 
@@ -129,7 +129,7 @@ public class StatelessStorageProviderImpl
                                                 String prefix,
                                                 long maxResults,
                                                 String marker)
-            throws StorageException {
+        throws StorageException {
         return targetProvider.getSpaceContentsChunked(spaceId,
                                                       prefix,
                                                       maxResults,
@@ -147,8 +147,8 @@ public class StatelessStorageProviderImpl
 
     @Override
     public Map<String, AclType> getSpaceACLs(StorageProvider targetProvider,
-                                            String storeId,
-                                            String spaceId)
+                                             String storeId,
+                                             String spaceId)
         throws StorageException {
         return targetProvider.getSpaceACLs(spaceId);
     }
@@ -158,7 +158,7 @@ public class StatelessStorageProviderImpl
      */
     public Iterator<String> getSpaces(StorageProvider targetProvider,
                                       String storeId)
-            throws StorageException {
+        throws StorageException {
         return targetProvider.getSpaces();
     }
 
@@ -170,7 +170,7 @@ public class StatelessStorageProviderImpl
                                      String spaceId,
                                      String contentId,
                                      Map<String, String> contentProperties)
-            throws StorageException {
+        throws StorageException {
         targetProvider.setContentProperties(spaceId, contentId, contentProperties);
     }
 

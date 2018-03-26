@@ -9,8 +9,7 @@ package org.duracloud.duradmin.domain;
 
 import java.io.Serializable;
 
-public class StorageProvider
-        implements Serializable {
+public class StorageProvider implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

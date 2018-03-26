@@ -14,7 +14,7 @@ package org.duracloud.error;
  */
 public class NotImplementedException extends ContentStoreException {
 
-    public NotImplementedException (String message) {
+    public NotImplementedException(String message) {
         super(message);
     }
 }

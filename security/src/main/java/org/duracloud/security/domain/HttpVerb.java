@@ -9,9 +9,9 @@ package org.duracloud.security.domain;
 
 /**
  * This enum provides helper methods to the HTTP verbs.
- * 
+ *
  * @author Andrew Woods
- *         Date: 11/18/11
+ * Date: 11/18/11
  */
 public enum HttpVerb {
 

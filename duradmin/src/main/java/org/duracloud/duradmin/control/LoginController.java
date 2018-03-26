@@ -17,11 +17,10 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 public class LoginController {
-    
-    
+
     @RequestMapping("/login")
     public ModelAndView presentLogin()
-            throws Exception {
+        throws Exception {
         return new ModelAndView("login");
     }
 

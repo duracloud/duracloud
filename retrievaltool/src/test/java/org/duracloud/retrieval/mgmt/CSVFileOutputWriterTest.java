@@ -7,14 +7,14 @@
  */
 package org.duracloud.retrieval.mgmt;
 
+import static junit.framework.Assert.assertTrue;
+
+import java.io.File;
+
 import org.apache.commons.io.FileUtils;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.retrieval.RetrievalTestBase;
 import org.junit.Test;
-
-import java.io.File;
-
-import static junit.framework.Assert.assertTrue;
 
 /**
  * @author: Bill Branan

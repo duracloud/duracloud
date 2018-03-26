@@ -7,6 +7,17 @@
  */
 package org.duracloud.chunk;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -30,25 +41,18 @@ import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.Credential;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * This class is a commandline interface for initiating the read of local
  * content, chunking it, then writing it via a provided ContentWriter.
  *
  * @author Andrew Woods
- *         Date: Feb 5, 2010
+ * Date: Feb 5, 2010
  */
 public class FileChunkerDriver {
+
+    private FileChunkerDriver() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     private static void chunk(File fromDir,
                               File toSpace,
@@ -77,8 +81,8 @@ public class FileChunkerDriver {
         int multiplier = Integer.parseInt(arg.substring(0, arg.length() - 1));
 
         final long KB = 1000;
-        final long MB = 1000*KB;
-        final long GB = 1000*MB;
+        final long MB = 1000 * KB;
+        final long GB = 1000 * MB;
 
         long chunkSize = 1 * MB;
         switch (unit) {
@@ -90,6 +94,8 @@ public class FileChunkerDriver {
                 break;
             case 'g':
                 chunkSize = multiplier * GB;
+                break;
+            default:
                 break;
         }
         return chunkSize;
@@ -115,7 +121,7 @@ public class FileChunkerDriver {
                                    "generate",
                                    true,
                                    "generate test data to <outFile> of " +
-                                       "<size> bytes");
+                                   "<size> bytes");
         create.setArgs(2);
         create.setArgName("outFile numBytes");
         create.setValueSeparator(' ');
@@ -124,7 +130,7 @@ public class FileChunkerDriver {
                                 "add",
                                 true,
                                 "add content from dir:<f> to space:<t> of max" +
-                                    " chunk size:<s> in units of K,M,G");
+                                " chunk size:<s> in units of K,M,G");
         add.setArgs(3);
         add.setArgName("f t s{K|M|G}");
         add.setValueSeparator(' ');
@@ -133,7 +139,7 @@ public class FileChunkerDriver {
                                          "file-filter",
                                          true,
                                          "limit processed files to those " +
-                                             "listed in file-list:<l>");
+                                         "listed in file-list:<l>");
         fileFiltered.setArgs(1);
         fileFiltered.setArgName("l");
 
@@ -141,7 +147,7 @@ public class FileChunkerDriver {
                                         "dir-filter",
                                         true,
                                         "limit processed directories to " +
-                                            "those listed in file-list:<l>");
+                                        "those listed in file-list:<l>");
         dirFiltered.setArgs(1);
         dirFiltered.setArgName("l");
 
@@ -149,7 +155,7 @@ public class FileChunkerDriver {
                                   "cloud-store",
                                   true,
                                   "use cloud store found at <host>:<port> " +
-                                      "as content dest");
+                                  "as content dest");
         cloud.setArgs(2);
         cloud.setArgName("host:port");
         cloud.setValueSeparator(':');
@@ -158,16 +164,16 @@ public class FileChunkerDriver {
                                              "exclude-chunk-md5s",
                                              false,
                                              "if this option is set, chunk " +
-                                                 "MD5s will NOT be preserved " +
-                                                 "in the manifest");
+                                             "MD5s will NOT be preserved " +
+                                             "in the manifest");
 
         Option ignoreLargeFiles = new Option("i",
                                              "ignore-large-files",
                                              false,
                                              "if this option is set, files " +
-                                                 "over the chunk size " +
-                                                 "specified in the 'add' " +
-                                                 "option will be ignored.");
+                                             "over the chunk size " +
+                                             "specified in the 'add' " +
+                                             "option will be ignored.");
 
         Options options = new Options();
         options.addOption(username);
@@ -324,7 +330,7 @@ public class FileChunkerDriver {
             String border = "\n---------------------------------------------\n";
             StringBuilder sb = new StringBuilder(border);
             sb.append("User must have permissions to write to the current " +
-                "working directory.");
+                      "working directory.");
             sb.append(border);
             throw new Exception(sb.toString(), e);
         }

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * content that resides in DuraStore as chunks.
  *
  * @author Andrew Woods
- *         Date: 9/5/11
+ * Date: 9/5/11
  */
 public class DuraStoreStitchingRetrievalSource extends DuraStoreRetrievalSource {
 
@@ -73,7 +73,7 @@ public class DuraStoreStitchingRetrievalSource extends DuraStoreRetrievalSource 
             } catch (Exception e) {
                 throw new RuntimeException(
                     "Unable to get checksum for " + contentItem.toString() +
-                        " due to: " + e.getMessage());
+                    " due to: " + e.getMessage());
             }
 
         } else {
@@ -107,15 +107,17 @@ public class DuraStoreStitchingRetrievalSource extends DuraStoreRetrievalSource 
 
     protected Content doGetContentFromManifest(ContentItem item, RetrievalListener listener) {
         try {
+            FileStitcherListener fileStitcherListener = new FileStitcherListener() {
+                public void chunkStitched(String chunkId) {
+                    if (listener != null) {
+                        listener.chunkRetrieved(chunkId);
+                    }
+                }
+            };
+
             return stitcher.getContentFromManifest(item.getSpaceId(),
                                                    item.getContentId(),
-                                                   new FileStitcherListener() {
-                                                       public void chunkStitched(String chunkId) {
-                                                           if(listener != null){
-                                                               listener.chunkRetrieved(chunkId);
-                                                           }
-                                                       }
-                                                   });
+                                                   fileStitcherListener);
         } catch (InvalidManifestException e) {
             StringBuilder msg = new StringBuilder();
             msg.append("Unable to get content for ");

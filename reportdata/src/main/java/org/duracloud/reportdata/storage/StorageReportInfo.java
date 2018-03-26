@@ -147,9 +147,9 @@ public class StorageReportInfo extends StorageReportBase {
         result = 31 * result + (int) (finalCount ^ (finalCount >>> 32));
         result = 31 * result + (int) (completionTime ^ (completionTime >>> 32));
         result = 31 * result +
-            (int) (estimatedCompletionTime ^ (estimatedCompletionTime >>> 32));
+                 (int) (estimatedCompletionTime ^ (estimatedCompletionTime >>> 32));
         result = 31 * result +
-            (int) (nextScheduledStartTime ^ (nextScheduledStartTime >>> 32));
+                 (int) (nextScheduledStartTime ^ (nextScheduledStartTime >>> 32));
         result = 31 * result + (error != null ? error.hashCode() : 0);
         return result;
     }

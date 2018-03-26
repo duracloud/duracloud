@@ -12,7 +12,7 @@ import org.duracloud.retrieval.config.RetrievalToolConfigParser;
 
 /**
  * @author Bill Branan
- *         Date: 10/16/14
+ * Date: 10/16/14
  */
 public class RetrievalToolInitializer {
 

@@ -7,13 +7,13 @@
  */
 package org.duracloud.common.json;
 
+import java.io.IOException;
+import java.io.StringWriter;
+
 import org.codehaus.jackson.map.AnnotationIntrospector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
-
-import java.io.IOException;
-import java.io.StringWriter;
 
 /**
  * Handles serialization and deserialization of objects JSON objects into
@@ -21,7 +21,7 @@ import java.io.StringWriter;
  * annotations.
  *
  * @author Bill Branan
- *         Date: 7/29/13
+ * Date: 7/29/13
  */
 public class JaxbJsonSerializer<T> {
 
@@ -30,6 +30,7 @@ public class JaxbJsonSerializer<T> {
 
     /**
      * Creates a serializer which will work with the defined class type.
+     *
      * @param type
      */
     public JaxbJsonSerializer(Class<T> type) {
@@ -54,7 +55,7 @@ public class JaxbJsonSerializer<T> {
     }
 
     public T deserialize(String json) throws IOException {
-        return (T)mapper.readValue(json, type);
+        return (T) mapper.readValue(json, type);
     }
 
 }

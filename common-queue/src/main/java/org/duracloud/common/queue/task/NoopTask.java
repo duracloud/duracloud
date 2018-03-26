@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * @author Daniel Bernstein
- *	       Date: Oct 24, 2013
+ * Date: Oct 24, 2013
  */
 public class NoopTask extends TypedTask {
     @Override

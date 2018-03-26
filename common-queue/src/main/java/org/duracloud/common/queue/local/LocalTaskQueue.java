@@ -27,24 +27,25 @@ import org.slf4j.LoggerFactory;
 /**
  * This class implements a local, in-memory task queue. (It is intended to use
  * for testing purposes.)
- * 
+ *
  * @author Daniel Bernstein Date: Oct 24, 2013
  */
 public class LocalTaskQueue implements TaskQueue {
     private Queue<Task> queue;
     private Logger log = LoggerFactory.getLogger(LocalTaskQueue.class);
-    private List<Task> inprocess; 
+    private List<Task> inprocess;
     private long completedCount = 0;
     private String name = "local-task-queue-" + System.currentTimeMillis();
+
     /**
-     * 
+     *
      */
-    
+
     @Override
     public String getName() {
-      return this.name;
+        return this.name;
     }
-    
+
     public LocalTaskQueue() {
         queue = new LinkedBlockingQueue<>();
         inprocess = new LinkedList<>();
@@ -75,11 +76,11 @@ public class LocalTaskQueue implements TaskQueue {
      */
     @Override
     public synchronized Task take() throws TimeoutException {
-        try{
-            Task task =  queue.remove();
+        try {
+            Task task = queue.remove();
             inprocess.add(task);
             return task;
-        }catch(NoSuchElementException ex){
+        } catch (NoSuchElementException ex) {
             throw new TimeoutException(ex);
         }
     }
@@ -97,12 +98,12 @@ public class LocalTaskQueue implements TaskQueue {
      */
     @Override
     public synchronized void deleteTask(Task task) throws TaskNotFoundException {
-        if(!this.inprocess.contains(task)){
+        if (!this.inprocess.contains(task)) {
             log.error("{} not found.", task);
 
             throw new TaskNotFoundException("task not found:" + task.toString());
         }
-        
+
         this.inprocess.remove(task);
         this.completedCount++;
         log.info("{} complete", task);
@@ -112,12 +113,12 @@ public class LocalTaskQueue implements TaskQueue {
     public Integer size() {
         return queue.size();
     }
-    
-    public int getInprocessCount(){
+
+    public int getInprocessCount() {
         return this.inprocess.size();
     }
-    
-    public long getCompletedCount(){
+
+    public long getCompletedCount() {
         return completedCount;
     }
 
@@ -125,6 +126,7 @@ public class LocalTaskQueue implements TaskQueue {
     public Integer sizeIncludingInvisibleAndDelayed() {
         return size();
     }
+
     /* (non-Javadoc)
      * @see org.duracloud.queue.TaskQueue#requeue(org.duracloud.queue.task.Task)
      */
@@ -134,17 +136,17 @@ public class LocalTaskQueue implements TaskQueue {
         task.incrementAttempts();
         this.queue.add(task);
     }
-    
+
     @Override
     public void deleteTasks(Set<Task> tasks) throws TaskException {
-        for(Task task : tasks){
+        for (Task task : tasks) {
             deleteTask(task);
         }
     }
-    
+
     @Override
     public Set<Task> take(int maxTasks) throws TimeoutException {
-        Set<Task> set =  new HashSet<Task>(1);
+        Set<Task> set = new HashSet<Task>(1);
         set.add(this.take());
         return set;
     }

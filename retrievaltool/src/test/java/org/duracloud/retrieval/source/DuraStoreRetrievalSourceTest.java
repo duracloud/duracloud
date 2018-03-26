@@ -45,7 +45,7 @@ public class DuraStoreRetrievalSourceTest {
     public void setUp() throws Exception {
         checksum = "a1b2";
         value = "value";
-        store = createMockContentStore();        
+        store = createMockContentStore();
     }
 
     @After
@@ -63,15 +63,17 @@ public class DuraStoreRetrievalSourceTest {
         RetrievalSource source =
             new DuraStoreRetrievalSource(store, spaces, false);
         int count;
-        for(count = 0; source.getNextContentItem() != null; count++) {}
+        for (count = 0; source.getNextContentItem() != null; count++) {
+        }
         assertEquals(6, count);
 
         // All Spaces
         source = new DuraStoreRetrievalSource(store, null, true);
-        for(count = 0; source.getNextContentItem() != null; count++) {}
+        for (count = 0; source.getNextContentItem() != null; count++) {
+        }
         assertEquals(9, count);
     }
-    
+
     @Test
     public void testGetNextItemMultithreaded() throws Exception {
 
@@ -81,17 +83,17 @@ public class DuraStoreRetrievalSourceTest {
         // Spaces list
         RetrievalSource source =
             new DuraStoreRetrievalSource(store, null, true);
-        
+
         int threadCount = 20;
-        
-        final CountDownLatch latch = new CountDownLatch(spaceCount*contentCount);
-        
-        for(int i = 0; i < threadCount; i++){
+
+        final CountDownLatch latch = new CountDownLatch(spaceCount * contentCount);
+
+        for (int i = 0; i < threadCount; i++) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     ContentItem item = null;
-                    while((item = source.getNextContentItem()) != null){
+                    while ((item = source.getNextContentItem()) != null) {
                         assertNotNull(item.getSpaceId());
                         assertNotNull(item.getContentId());
                         latch.countDown();

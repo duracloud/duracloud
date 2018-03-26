@@ -7,6 +7,12 @@
  */
 package org.duracloud.glaciertask;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import org.duracloud.glacierstorage.GlacierStorageProvider;
@@ -16,12 +22,6 @@ import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 /**
  * @author: Bill Branan
@@ -93,7 +93,7 @@ public class RestoreContentTaskRunnerTest {
         try {
             taskRunner.performTask("one/two/three.txt");
             fail("Exception expected due to state of retrieval");
-        } catch(StorageStateException e) {
+        } catch (StorageStateException e) {
             assertNotNull(e.getMessage());
         }
     }
@@ -103,19 +103,22 @@ public class RestoreContentTaskRunnerTest {
         try {
             taskRunner.performTask(null);
             fail("Exception expected passing a null parameter");
-        } catch(RuntimeException e) {
+        } catch (RuntimeException e) {
+            // Expected exception
         }
 
         try {
             taskRunner.performTask("");
             fail("Exception expected passing a empty parameter");
-        } catch(RuntimeException e) {
+        } catch (RuntimeException e) {
+            // Expected exception
         }
 
         try {
             taskRunner.performTask("one");
             fail("Exception expected passing an invalid parameter");
-        } catch(RuntimeException e) {
+        } catch (RuntimeException e) {
+            // Expected exception
         }
 
         replayMocks();

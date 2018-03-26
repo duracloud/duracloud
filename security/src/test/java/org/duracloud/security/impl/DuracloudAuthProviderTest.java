@@ -7,6 +7,9 @@
  */
 package org.duracloud.security.impl;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.easymock.EasyMock;
 import org.junit.Test;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -14,12 +17,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 /**
  * @author Bill Branan
- *         Date: 4/23/2015
+ * Date: 4/23/2015
  */
 public class DuracloudAuthProviderTest {
 
@@ -75,7 +75,7 @@ public class DuracloudAuthProviderTest {
         boolean authAllowed = true;
         try {
             authProvider.additionalAuthenticationChecks(userDetails, authToken);
-        } catch(InsufficientAuthenticationException e) {
+        } catch (InsufficientAuthenticationException e) {
             authAllowed = false;
         }
 

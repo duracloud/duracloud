@@ -25,10 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *  Sends a snapshot restore request to the duracloud admin for manual initiation. 
+ * Sends a snapshot restore request to the duracloud admin for manual initiation.
  *
  * @author Daniel Bernstein
- *         Date: 11/04/15
+ * Date: 11/04/15
  */
 public class RequestRestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
 
@@ -41,13 +41,13 @@ public class RequestRestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner
     private String dcSnapshotUser;
 
     public RequestRestoreSnapshotTaskRunner(String dcHost,
-                                     String dcPort,
-                                     String dcStoreId,
-                                     String dcSnapshotUser,
-                                     String bridgeAppHost,
-                                     String bridgeAppPort,
-                                     String bridgeAppUser,
-                                     String bridgeAppPass) {
+                                            String dcPort,
+                                            String dcStoreId,
+                                            String dcSnapshotUser,
+                                            String bridgeAppHost,
+                                            String bridgeAppPort,
+                                            String bridgeAppUser,
+                                            String bridgeAppPass) {
         super(bridgeAppHost, bridgeAppPort, bridgeAppUser, bridgeAppPass);
         this.dcHost = dcHost;
         this.dcPort = dcPort;
@@ -66,8 +66,8 @@ public class RequestRestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner
                  "DuraCloud Host: {} DuraCloud Port: {} DuraCloud StoreID: {} " +
                  "DuraCloud Snapshot User: {} Bridge Host: {} Bridge Port: {} " +
                  "Bridge User: {}",
-                  dcHost, dcPort, dcStoreId, dcSnapshotUser,
-                  getBridgeAppHost(), getBridgeAppPort(), getBridgeAppUser());
+                 dcHost, dcPort, dcStoreId, dcSnapshotUser,
+                 getBridgeAppHost(), getBridgeAppPort(), getBridgeAppUser());
 
         // Get input params
         RequestRestoreSnapshotParameters taskParams =
@@ -76,7 +76,7 @@ public class RequestRestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner
         SnapshotIdentifier snapshotIdentifier;
         try {
             snapshotIdentifier = SnapshotIdentifier.parseSnapshotId(snapshotId);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             throw new TaskException("Invalid Snapshot ID: " + snapshotId);
         }
 
@@ -92,14 +92,12 @@ public class RequestRestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner
             callBridge(createRestHelper(), bridgeURL, bridgeBody);
         RequestRestoreBridgeResult bridgeResult =
             RequestRestoreBridgeResult.deserialize(callResult);
-        
+
         // Send response
         RequestRestoreSnapshotTaskResult taskResult = new RequestRestoreSnapshotTaskResult();
         taskResult.setDescription(bridgeResult.getDescription());
         return taskResult.serialize();
     }
-
-
 
     /*
      * Create URL to call bridge app
@@ -133,12 +131,12 @@ public class RequestRestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner
             RestHttpHelper.HttpResponse response =
                 restHelper.put(snapshotURL, snapshotBody, headers);
             int statusCode = response.getStatusCode();
-            if(statusCode != 201) {
+            if (statusCode != 201) {
                 throw new RuntimeException("Unexpected response code: " +
                                            statusCode);
             }
             return response.getResponseBody();
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new TaskException("Exception encountered attempting to " +
                                     "initiate snapshot request. " +
                                     "Error reported: " + e.getMessage(), e);

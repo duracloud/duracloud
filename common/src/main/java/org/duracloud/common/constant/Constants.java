@@ -16,6 +16,10 @@ import java.util.List;
  */
 public class Constants {
 
+    private Constants() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     public static final String HEADER_PREFIX = "x-dura-meta-";
 
     /**
@@ -58,7 +62,6 @@ public class Constants {
      */
     public static final String RESTORE_ID_PROP = "restore-id";
 
-    
     /**
      * The name of the http request attribute containing the account id (ie subdomain)
      * indicated in the caller's URL.

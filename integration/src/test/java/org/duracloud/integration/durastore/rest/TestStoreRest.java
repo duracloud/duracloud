@@ -7,6 +7,15 @@
  */
 package org.duracloud.integration.durastore.rest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.http.HttpStatus;
 import org.duracloud.common.util.WaitUtil;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
@@ -19,15 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Runtime test of store REST API. The durastore web application must be
@@ -72,14 +72,14 @@ public class TestStoreRest extends BaseRestTester {
     public void testStores() throws Exception {
         StorageAccountManager manager = createStorageAccountManager();
         Iterator<String> acctIds = manager.getStorageAccountIds();
-        while(acctIds.hasNext()) {
+        while (acctIds.hasNext()) {
             String acctId = acctIds.next();
             StorageProviderType type =
                 manager.getStorageAccount(acctId).getType();
-            if(// Test types
-               !type.equals(StorageProviderType.TEST_RETRY) &&
-               !type.equals(StorageProviderType.TEST_VERIFY_CREATE) &&
-               !type.equals(StorageProviderType.TEST_VERIFY_DELETE)) {
+            // Test types
+            if (!type.equals(StorageProviderType.TEST_RETRY) &&
+                !type.equals(StorageProviderType.TEST_VERIFY_CREATE) &&
+                !type.equals(StorageProviderType.TEST_VERIFY_DELETE)) {
                 log.info("Testing storage account with id " +
                          acctId + " and type " + type.name());
                 testStore(acctId);
@@ -88,7 +88,7 @@ public class TestStoreRest extends BaseRestTester {
     }
 
     private StorageAccountManager createStorageAccountManager()
-            throws Exception {
+        throws Exception {
         InputStream xmlStream =
             new ByteArrayInputStream(storesXML.getBytes("UTF-8"));
         StorageAccountsDocumentBinding binding =

@@ -7,11 +7,11 @@
  */
 package org.duracloud.common.util;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
+
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Tests encryption utilities.
@@ -40,12 +40,12 @@ public class EncryptionUtilTest {
     public void testEncryptionNonNullConstructorShortKey() throws Exception {
         testEncryptionNonNullConstructor("test");
     }
-    
+
     @Test
     public void testEncryptionNonNullConstructorLongKey() throws Exception {
         testEncryptionNonNullConstructor("testslkadfjaslfdjaslfdjasldkfjas098dsaf");
     }
-    
+
     private void testEncryptionNonNullConstructor(String key) throws Exception {
         String text = "Test Content";
         encryptionUtil = new EncryptionUtil(key);

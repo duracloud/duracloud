@@ -11,20 +11,18 @@ import org.duracloud.account.db.repo.DuracloudMillRepo;
 import org.duracloud.audit.reader.AuditLogReader;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class AuditLogReaderInitializer {
     private AuditLogReader auditLogReader;
     private DuracloudMillRepo millRepo;
-    
-    public AuditLogReaderInitializer(AuditLogReader auditLogReader, DuracloudMillRepo millRepo){
+
+    public AuditLogReaderInitializer(AuditLogReader auditLogReader, DuracloudMillRepo millRepo) {
         this.auditLogReader = auditLogReader;
         this.millRepo = millRepo;
     }
-    
-    public void init(){
+
+    public void init() {
         this.auditLogReader.initialize(new AuditConfigBuilder(millRepo).build());
     }
 }

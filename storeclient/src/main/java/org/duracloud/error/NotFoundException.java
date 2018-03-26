@@ -14,7 +14,7 @@ package org.duracloud.error;
  */
 public class NotFoundException extends ContentStoreException {
 
-    public NotFoundException (String message) {
+    public NotFoundException(String message) {
         super(message);
     }
 

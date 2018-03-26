@@ -10,10 +10,17 @@ package org.duracloud.syncui.util;
 import java.text.DecimalFormat;
 
 public class FormatUtil {
+
+    private FormatUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     public static String readableFileSize(long size) {
-        if(size <= 0) return "0";
-        final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
-        int digitGroups = (int) (Math.log10(size)/Math.log10(1000));
-        return new DecimalFormat("#,##0.#").format(size/Math.pow(1000, digitGroups)) + " " + units[digitGroups];
+        if (size <= 0) {
+            return "0";
+        }
+        final String[] units = new String[] {"B", "KB", "MB", "GB", "TB"};
+        int digitGroups = (int) (Math.log10(size) / Math.log10(1000));
+        return new DecimalFormat("#,##0.#").format(size / Math.pow(1000, digitGroups)) + " " + units[digitGroups];
     }
 }

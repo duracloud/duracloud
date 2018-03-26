@@ -13,7 +13,7 @@ import org.junit.Test;
 
 /**
  * @author Andrew Woods
- *         Date: 9/8/11
+ * Date: 9/8/11
  */
 public class ChunkUtilTest {
 

@@ -7,10 +7,8 @@
  */
 package org.duracloud.security.vote;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.duracloud.common.constant.Constants;
@@ -32,7 +30,7 @@ import org.springframework.security.web.FilterInvocation;
 
 /**
  * @author Andrew Woods
- *         Date: Mar 19, 2010
+ * Date: Mar 19, 2010
  */
 public abstract class SpaceAccessVoter implements AccessDecisionVoter {
 
@@ -42,7 +40,7 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
     private AuthorizationHelper authHelper;
     private StorageProviderFactory storageProviderFactory;
     private static String[] EXCEPTIONAL_PATH_PREFIXES =
-        { "/manifest/", "/bit-integrity/", "/report/space/" };
+        {"/manifest/", "/bit-integrity/", "/report/space/"};
 
     public SpaceAccessVoter(StorageProviderFactory storageProviderFactory,
                             UserDetailsService userDetailsService) {
@@ -51,7 +49,6 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         this.authHelper = new AuthorizationHelper(storageProviderFactory);
     }
 
-
     protected boolean isOpenResource(HttpServletRequest httpRequest) {
         String spaceId = getSpaceId(httpRequest);
         if (null == spaceId) {
@@ -59,9 +56,9 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         }
 
         return spaceId.equals("spaces")
-            || spaceId.equals("stores")
-            || spaceId.equals("acl")
-            || spaceId.equals("task");
+               || spaceId.equals("stores")
+               || spaceId.equals("acl")
+               || spaceId.equals("task");
 
     }
 
@@ -96,12 +93,10 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         return extractSpaceId(spaceId);
     }
 
-
     protected String extractSpaceId(String pathInfo) {
 
-        
-        for(String prefix : EXCEPTIONAL_PATH_PREFIXES){
-            if(pathInfo.startsWith(prefix)){
+        for (String prefix : EXCEPTIONAL_PATH_PREFIXES) {
+            if (pathInfo.startsWith(prefix)) {
                 return pathInfo.substring(prefix.length());
             }
         }
@@ -126,12 +121,13 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         String spaceId = getSpaceId(httpRequest);
         if (null != spaceId) {
             String path = httpRequest.getPathInfo();
-            if(!path.endsWith(spaceId)){
-                return path.substring(path.indexOf(spaceId)+spaceId.length()+1);
+            if (!path.endsWith(spaceId)) {
+                return path.substring(path.indexOf(spaceId) + spaceId.length() + 1);
             }
         }
         return null;
     }
+
     /**
      * This method returns the ACLs of the requested space, or an empty-map if
      * there is an error or for certain 'keyword' spaces, or null if the space
@@ -145,7 +141,6 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         String spaceId = getSpaceId(request);
         return getSpaceACLs(storeId, spaceId);
     }
-
 
     protected Map<String, AclType> getSpaceACLs(String storeId,
                                                 String spaceId) {
@@ -191,7 +186,7 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         UserDetails userDetails;
         try {
             userDetails = userDetailsService.loadUserByUsername(name);
-            
+
         } catch (UsernameNotFoundException e) {
             log.debug("Not admin: {}, error: {}", name, e);
             return false;
@@ -243,10 +238,9 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         return FilterInvocation.class.isAssignableFrom(aClass);
     }
 
-
     protected boolean isSnapshotMetadataSpace(HttpServletRequest httpRequest) {
         String spaceId = getSpaceId(httpRequest);
-        return(Constants.SNAPSHOT_METADATA_SPACE.equals(spaceId));
+        return (Constants.SNAPSHOT_METADATA_SPACE.equals(spaceId));
     }
 
 }

@@ -7,18 +7,22 @@
  */
 package org.duracloud.sync.util;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
+
+import org.apache.commons.io.FileUtils;
 
 /**
  * @author: Bill Branan
  * Date: Mar 19, 2010
  */
 public class DirectoryUtil {
-    
+
+    private DirectoryUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     /*
      * Provides a listing of files in a directory, sorted in order
      * of most to least recent.
@@ -31,7 +35,7 @@ public class DirectoryUtil {
 
     private static class FileComparator implements Comparator<File> {
         public int compare(File file1, File file2) {
-            if(file1.lastModified() == file2.lastModified()) {
+            if (file1.lastModified() == file2.lastModified()) {
                 return 0;
             } else {
                 return FileUtils.isFileNewer(file1, file2) ? -1 : 1;

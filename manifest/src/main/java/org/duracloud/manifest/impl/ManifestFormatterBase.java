@@ -23,10 +23,11 @@ import org.slf4j.Logger;
  * This class provides the common logic for all ManifestFormatters.
  *
  * @author Andrew Woods
- *         Date: 3/29/12
+ * Date: 3/29/12
  */
 public abstract class ManifestFormatterBase implements ManifestFormatter {
     private boolean headerWasWritten = false;
+
     @Override
     public void writeEventsToOutput(Collection<ContentMessage> events,
                                     OutputStream output) {
@@ -42,13 +43,13 @@ public abstract class ManifestFormatterBase implements ManifestFormatter {
             }
         }
     }
-    
+
     @Override
     public void writeManifestItemToOutput(ManifestItem item,
                                           OutputStream output) {
         writeHeader(output);
-        
-        if(item != null){
+
+        if (item != null) {
             write(formatLine(item), output);
             write("\n", output);
         }
@@ -61,7 +62,6 @@ public abstract class ManifestFormatterBase implements ManifestFormatter {
             headerWasWritten = true;
         }
     }
-    
 
     private void write(String line, OutputStream output) {
         try {
@@ -83,13 +83,10 @@ public abstract class ManifestFormatterBase implements ManifestFormatter {
         return formatLine(event.getContentMd5(), event.getSpaceId(), event.getContentId());
     }
 
-    public String formatLine(ManifestItem item){
+    public String formatLine(ManifestItem item) {
         return formatLine(item.getContentChecksum(), item.getSpaceId(), item.getContentId());
     }
 
-    
-    
     protected abstract String formatLine(String contentMd5, String spaceId, String contentId);
-
 
 }

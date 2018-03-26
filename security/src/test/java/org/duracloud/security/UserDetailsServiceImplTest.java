@@ -23,7 +23,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /**
  * @author Andrew Woods
- *         Date: Mar 28, 2010
+ * Date: Mar 28, 2010
  */
 public class UserDetailsServiceImplTest {
 
@@ -224,7 +224,6 @@ public class UserDetailsServiceImplTest {
         Assert.assertTrue(foundUsers.contains(usernameB));
         Assert.assertTrue(foundUsers.contains(usernameC));
     }
-
 
     private void verifyFailure(Credential cred) {
         SecurityUserBean user = new SecurityUserBean(cred.getUsername(),

@@ -9,8 +9,9 @@ package org.duracloud.common.retry;
 
 /**
  * A simple interface for handling exceptions.
+ *
  * @author Daniel Bernstein
- *	       Date: Dec 13, 2013
+ * Date: Dec 13, 2013
  */
 public interface ExceptionHandler {
     void handle(Exception ex);

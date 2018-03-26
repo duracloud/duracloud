@@ -12,9 +12,8 @@ import java.util.Date;
 /**
  * A Read-only data object deCribing the state of the sync tool from the user's
  * perspective.
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 
 public class SyncProcessStats {
@@ -24,6 +23,7 @@ public class SyncProcessStats {
     private long currentUpBytesPerSecond;
     private long averageUpBytesPerSecond;
     private int queueSize;
+
     public SyncProcessStats() {
         this.startDate = new Date();
         this.estimatedCompletionDate = new Date();
@@ -34,8 +34,8 @@ public class SyncProcessStats {
     }
 
     public SyncProcessStats(Date startDate, Date estimatedCompletionDate,
-        int errorCount, long currentUpBytesPerSecond,
-        long averageUpBytesPerSecond, int queueSize) {
+                            int errorCount, long currentUpBytesPerSecond,
+                            long averageUpBytesPerSecond, int queueSize) {
         this.startDate = startDate;
         this.estimatedCompletionDate = estimatedCompletionDate;
         this.errorCount = errorCount;
@@ -63,8 +63,8 @@ public class SyncProcessStats {
     public long getAverageUpBytesPerSecond() {
         return averageUpBytesPerSecond;
     }
-    
-    public int getQueueSize(){
+
+    public int getQueueSize() {
         return this.queueSize;
     }
 }

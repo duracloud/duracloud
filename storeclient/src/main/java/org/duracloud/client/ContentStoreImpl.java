@@ -7,6 +7,7 @@
  */
 package org.duracloud.client;
 
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -59,8 +60,6 @@ import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
-
 /**
  * Provides access to a content store
  *
@@ -85,15 +84,14 @@ public class ContentStoreImpl implements ContentStore {
 
     private ExceptionHandler retryExceptionHandler;
 
-    
     private String clientVersion;
-    
+
     /**
      * Creates a ContentStore. This ContentStore uses the default number of
      * retries when a failure occurs (3).
      *
      * @param baseURL a {@link java.lang.String} object.
-     * @param type a {@link org.duracloud.storage.domain.StorageProviderType} object.
+     * @param type    a {@link org.duracloud.storage.domain.StorageProviderType} object.
      * @param storeId a {@link java.lang.String} object.
      */
     public ContentStoreImpl(String baseURL,
@@ -108,17 +106,17 @@ public class ContentStoreImpl implements ContentStore {
         this.retryExceptionHandler = new ExceptionHandler() {
             @Override
             public void handle(Exception ex) {
-                if(!(ex instanceof NotFoundException)){
+                if (!(ex instanceof NotFoundException)) {
                     log.warn(ex.getMessage());
-                }else{
+                } else {
                     log.debug(ex.getMessage());
                 }
             }
         };
-        
+
         this.clientVersion =
             ResourceBundle.getBundle("storeclient").getString("version");
-        
+
     }
 
     /**
@@ -130,7 +128,7 @@ public class ContentStoreImpl implements ContentStore {
                             RestHttpHelper restHelper,
                             int maxRetries) {
         this(baseURL, type, storeId, restHelper);
-        if(maxRetries >= 0) {
+        if (maxRetries >= 0) {
             this.maxRetries = maxRetries;
         }
     }
@@ -163,11 +161,11 @@ public class ContentStoreImpl implements ContentStore {
         return type.name();
     }
 
-    private String addStoreIdQueryParameter(String url){
+    private String addStoreIdQueryParameter(String url) {
         return addStoreIdQueryParameter(url, storeId);
     }
 
-    private String addStoreIdQueryParameter(String url, String storeId){
+    private String addStoreIdQueryParameter(String url, String storeId) {
         return addQueryParameter(url, "storeID", storeId);
     }
 
@@ -175,7 +173,7 @@ public class ContentStoreImpl implements ContentStore {
         String url = baseURL + relativeURL;
         return url;
     }
-    
+
     private String buildSpaceURL(String spaceId) {
         String url = buildURL("/" + spaceId);
         return addStoreIdQueryParameter(url);
@@ -184,7 +182,7 @@ public class ContentStoreImpl implements ContentStore {
     private String buildContentURL(String spaceId, String contentId) {
         return buildContentURL(storeId, spaceId, contentId);
     }
-    
+
     private String buildContentURL(String storeId, String spaceId, String contentId) {
         contentId = EncodeUtil.urlEncode(contentId);
         String url = buildURL("/" + spaceId + "/" + contentId);
@@ -228,7 +226,7 @@ public class ContentStoreImpl implements ContentStore {
             } else {
                 url += "?";
             }
-            
+
             url += (name + "=" + EncodeUtil.urlEncode(value));
         }
         return url;
@@ -239,8 +237,8 @@ public class ContentStoreImpl implements ContentStore {
         try {
             Retrier retrier = new Retrier(maxRetries);
             return retrier.execute(retriable, retryExceptionHandler);
-        } catch(Exception e) {
-            throw (ContentStoreException)e;
+        } catch (Exception e) {
+            throw (ContentStoreException) e;
         }
     }
 
@@ -283,8 +281,8 @@ public class ContentStoreImpl implements ContentStore {
             } else {
                 throw new ContentStoreException("Response body is empty");
             }
-        } catch(UnauthorizedException e) {
-            throw new UnauthorizedException(task, "listing", e);            
+        } catch (UnauthorizedException e) {
+            throw new UnauthorizedException(task, "listing", e);
         } catch (Exception e) {
             throw new ContentStoreException("Error attempting to get spaces " +
                                             "due to: " + e.getMessage(), e);
@@ -365,11 +363,11 @@ public class ContentStoreImpl implements ContentStore {
             } else {
                 throw new ContentStoreException("Response body is empty");
             }
-            
+
             return space;
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             throw new NotFoundException(task, spaceId, e);
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException(task, spaceId, e);
         } catch (Exception e) {
             throw new ContentStoreException(task, spaceId, e);
@@ -402,7 +400,7 @@ public class ContentStoreImpl implements ContentStore {
             checkResponse(response, HttpStatus.SC_CREATED);
         } catch (InvalidIdException e) {
             throw new InvalidIdException(task, spaceId, e);
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException(task, spaceId, e);
         } catch (Exception e) {
             throw new ContentStoreException(task, spaceId, e);
@@ -430,9 +428,9 @@ public class ContentStoreImpl implements ContentStore {
         try {
             HttpResponse response = restHelper.delete(url);
             checkResponse(response, HttpStatus.SC_OK);
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             throw new NotFoundException(task, spaceId, e);
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException(task, spaceId, e);
         } catch (Exception e) {
             throw new ContentStoreException(task, spaceId, e);
@@ -453,7 +451,7 @@ public class ContentStoreImpl implements ContentStore {
             }
         });
     }
-    
+
     private Map<String, String> doGetSpaceProperties(String spaceId)
         throws ContentStoreException {
         String task = "get space properties";
@@ -462,9 +460,9 @@ public class ContentStoreImpl implements ContentStore {
             HttpResponse response = restHelper.head(url);
             checkResponse(response, HttpStatus.SC_OK);
             return extractPropertiesFromHeaders(response);
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             throw new NotFoundException(task, spaceId, e);
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException(task, spaceId, e);
         } catch (Exception e) {
             throw new ContentStoreException(task, spaceId, e);
@@ -540,7 +538,7 @@ public class ContentStoreImpl implements ContentStore {
         try {
             HttpResponse response = restHelper.post(url, null, headers);
             checkResponse(response, HttpStatus.SC_OK);
-            
+
         } catch (NotFoundException e) {
             throw new NotFoundException(task, spaceId, e);
         } catch (UnauthorizedException e) {
@@ -582,7 +580,7 @@ public class ContentStoreImpl implements ContentStore {
                              final String contentMimeType,
                              final String contentChecksum,
                              final Map<String, String> contentProperties)
-                                 throws ContentStoreException {
+        throws ContentStoreException {
         //unlike other ContentStore methods, addContent() should not be retried since the stream
         //must be reset by the caller in order to produce valid results.
         return doAddContent(spaceId,
@@ -607,8 +605,8 @@ public class ContentStoreImpl implements ContentStore {
         String url = buildContentURL(spaceId, contentId);
 
         // Include mimetype as properties
-        if(contentMimeType != null && !contentMimeType.equals("")) {
-            if(contentProperties == null) {
+        if (contentMimeType != null && !contentMimeType.equals("")) {
+            if (contentProperties == null) {
                 contentProperties = new HashMap<String, String>();
             }
             contentProperties.put(CONTENT_MIMETYPE, contentMimeType);
@@ -618,12 +616,12 @@ public class ContentStoreImpl implements ContentStore {
             convertPropertiesToHeaders(contentProperties);
 
         // Include checksum if provided
-        if(contentChecksum != null) {
+        if (contentChecksum != null) {
             headers.put(HttpHeaders.CONTENT_MD5, contentChecksum);
         }
-        
+
         try {
-            
+
             HttpResponse response = restHelper.put(url,
                                                    content,
                                                    contentMimeType,
@@ -632,32 +630,32 @@ public class ContentStoreImpl implements ContentStore {
             checkResponse(response, HttpStatus.SC_CREATED);
             Header checksum =
                 response.getResponseHeader(HttpHeaders.CONTENT_MD5);
-            if(checksum == null) {
+            if (checksum == null) {
                 checksum = response.getResponseHeader(HttpHeaders.ETAG);
             }
-            String returnedChecksum =  checksum.getValue();
-            
-            if(contentChecksum != null && !returnedChecksum.equals(contentChecksum)){
+            String returnedChecksum = checksum.getValue();
+
+            if (contentChecksum != null && !returnedChecksum.equals(contentChecksum)) {
                 String message = MessageFormat.format("checksum returned from durastore ({0}) " +
-                                                      "does not match the checksum that was sent ({1}): " + 
+                                                      "does not match the checksum that was sent ({1}): " +
                                                       "task={2}, spaceId={3}, contentId={4}",
-                                                       returnedChecksum,
-                                                       contentChecksum,
-                                                       task,
-                                                       spaceId, 
-                                                       contentId);
+                                                      returnedChecksum,
+                                                      contentChecksum,
+                                                      task,
+                                                      spaceId,
+                                                      contentId);
                 log.error(message);
                 throw new ChecksumMismatchException(message,
                                                     false);
             }
-            
+
             return returnedChecksum;
-            
+
         } catch (InvalidIdException e) {
-            throw new InvalidIdException(task, spaceId, contentId, e);            
-        } catch(NotFoundException e) {
+            throw new InvalidIdException(task, spaceId, contentId, e);
+        } catch (NotFoundException e) {
             throw new NotFoundException(task, spaceId, contentId, e);
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException(task, spaceId, contentId, e);
         } catch (Exception e) {
             throw new ContentStoreException(task, spaceId, contentId, e);
@@ -707,7 +705,7 @@ public class ContentStoreImpl implements ContentStore {
         Map<String, String> headers = new HashMap<String, String>();
 
         String sourceHeader = HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE;
-        String sourceValue =  srcSpaceId + "/" + srcContentId;
+        String sourceValue = srcSpaceId + "/" + srcContentId;
         headers.put(sourceHeader, sourceValue);
 
         String storeHeader = HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE_STORE;
@@ -722,7 +720,7 @@ public class ContentStoreImpl implements ContentStore {
                 checksum = response.getResponseHeader(HttpHeaders.ETAG);
             }
             return checksum.getValue();
-            
+
         } catch (InvalidIdException e) {
             throw new InvalidIdException(task,
                                          srcSpaceId,
@@ -763,8 +761,8 @@ public class ContentStoreImpl implements ContentStore {
                               String destSpaceId,
                               String destContentId)
         throws ContentStoreException {
-        return copyContent(srcSpaceId, 
-                           srcContentId, 
+        return copyContent(srcSpaceId,
+                           srcContentId,
                            getStoreId(),
                            destSpaceId,
                            destContentId);
@@ -779,10 +777,10 @@ public class ContentStoreImpl implements ContentStore {
                               String destSpaceId,
                               String destContentId)
         throws ContentStoreException {
-        return moveContent(srcSpaceId, 
-                           srcContentId, 
-                           getStoreId(), 
-                           destSpaceId, 
+        return moveContent(srcSpaceId,
+                           srcContentId,
+                           getStoreId(),
+                           destSpaceId,
                            destContentId);
     }
 
@@ -790,10 +788,10 @@ public class ContentStoreImpl implements ContentStore {
      * {@inheritDoc}
      */
     @Override
-    public String moveContent(String srcSpaceId, 
-                              String srcContentId, 
+    public String moveContent(String srcSpaceId,
+                              String srcContentId,
                               String destStoreId,
-                              String destSpaceId, 
+                              String destSpaceId,
                               String destContentId) throws ContentStoreException {
 
         String md5 = copyContent(srcSpaceId,
@@ -802,7 +800,7 @@ public class ContentStoreImpl implements ContentStore {
                                  destSpaceId,
                                  destContentId);
 
-        deleteContent(srcSpaceId,srcContentId);
+        deleteContent(srcSpaceId, srcContentId);
 
         return md5;
     }
@@ -836,9 +834,9 @@ public class ContentStoreImpl implements ContentStore {
                 mergeMaps(extractPropertiesFromHeaders(response),
                           extractNonPropertiesHeaders(response)));
             return content;
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             throw new NotFoundException(task, spaceId, contentId, e);
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException(task, spaceId, contentId, e);
         } catch (Exception e) {
             throw new ContentStoreException(task, spaceId, contentId, e);
@@ -868,9 +866,9 @@ public class ContentStoreImpl implements ContentStore {
         try {
             HttpResponse response = restHelper.delete(url);
             checkResponse(response, HttpStatus.SC_OK);
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             throw new NotFoundException(task, spaceId, contentId, e);
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException(task, spaceId, contentId, e);
         } catch (Exception e) {
             throw new ContentStoreException(task, spaceId, contentId, e);
@@ -908,9 +906,9 @@ public class ContentStoreImpl implements ContentStore {
                                                     null,
                                                     headers);
             checkResponse(response, HttpStatus.SC_OK);
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             throw new NotFoundException(task, spaceId, contentId, e);
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException(task, spaceId, contentId, e);
         } catch (Exception e) {
             throw new ContentStoreException(task, spaceId, contentId, e);
@@ -943,9 +941,9 @@ public class ContentStoreImpl implements ContentStore {
             checkResponse(response, HttpStatus.SC_OK);
             return mergeMaps(extractPropertiesFromHeaders(response),
                              extractNonPropertiesHeaders(response));
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             throw new NotFoundException(task, spaceId, contentId, e);
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException(task, spaceId, contentId, e);
         } catch (Exception e) {
             throw new ContentStoreException(task, spaceId, contentId, e);
@@ -961,7 +959,7 @@ public class ContentStoreImpl implements ContentStore {
         try {
             doGetContentProperties(spaceId, contentId);
             return true;
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             return false;
         }
     }
@@ -976,14 +974,14 @@ public class ContentStoreImpl implements ContentStore {
             String errMsg = "";
             try {
                 errMsg += response.getResponseBody();
-            } catch(IOException e) {
+            } catch (IOException e) {
                 // Do not included response body in error
             }
 
             log.warn("Return code: {}; expected code: {}; responseBody={}",
-                        responseCode, expectedCode, errMsg);
+                     responseCode, expectedCode, errMsg);
 
-            if(responseCode == HttpStatus.SC_NOT_FOUND) {
+            if (responseCode == HttpStatus.SC_NOT_FOUND) {
                 throw new NotFoundException(errMsg);
             } else if (responseCode == HttpStatus.SC_BAD_REQUEST) {
                 throw new InvalidIdException(errMsg);
@@ -1009,7 +1007,7 @@ public class ContentStoreImpl implements ContentStore {
                 headers.put(HEADER_PREFIX + key, properties.get(key));
             }
         }
-        
+
         headers.put(Constants.CLIENT_VERSION_HEADER, clientVersion);
         return headers;
     }
@@ -1025,7 +1023,7 @@ public class ContentStoreImpl implements ContentStore {
             String name = header.getName();
             if (name.startsWith(prefix)) {
                 properties.put(name.substring(prefix.length()),
-                             header.getValue());
+                               header.getValue());
             }
         }
         return properties;
@@ -1036,7 +1034,7 @@ public class ContentStoreImpl implements ContentStore {
         for (Header header : response.getResponseHeaders()) {
             String name = header.getName();
             if (!name.startsWith(HEADER_PREFIX)) {
-                if(name.equals(HttpHeaders.CONTENT_TYPE)) {
+                if (name.equals(HttpHeaders.CONTENT_TYPE)) {
                     headers.put(CONTENT_MIMETYPE, header.getValue());
                 } else if (name.equals(HttpHeaders.CONTENT_MD5) ||
                            name.equals(HttpHeaders.ETAG)) {
@@ -1057,7 +1055,7 @@ public class ContentStoreImpl implements ContentStore {
      */
     private Map<String, String> mergeMaps(Map<String, String> map1, Map<String, String> map2) {
         Iterator<String> map1Names = map1.keySet().iterator();
-        while(map1Names.hasNext()) {
+        while (map1Names.hasNext()) {
             String name = map1Names.next();
             map2.put(name, map1.get(name));
         }
@@ -1067,7 +1065,7 @@ public class ContentStoreImpl implements ContentStore {
     public void validateStoreId(String storeId) throws InvalidIdException {
         try {
             IdUtil.validateStoreId(storeId);
-        } catch(org.duracloud.storage.error.InvalidIdException e) {
+        } catch (org.duracloud.storage.error.InvalidIdException e) {
             throw new InvalidIdException(e.getMessage());
         }
     }
@@ -1079,7 +1077,7 @@ public class ContentStoreImpl implements ContentStore {
     public void validateSpaceId(String spaceId) throws InvalidIdException {
         try {
             IdUtil.validateSpaceId(spaceId);
-        } catch(org.duracloud.storage.error.InvalidIdException e) {
+        } catch (org.duracloud.storage.error.InvalidIdException e) {
             throw new InvalidIdException(e.getMessage());
         }
     }
@@ -1091,7 +1089,7 @@ public class ContentStoreImpl implements ContentStore {
     public void validateContentId(String contentId) throws InvalidIdException {
         try {
             IdUtil.validateContentId(contentId);
-        } catch(org.duracloud.storage.error.InvalidIdException e) {
+        } catch (org.duracloud.storage.error.InvalidIdException e) {
             throw new InvalidIdException(e.getMessage());
         }
     }
@@ -1117,7 +1115,7 @@ public class ContentStoreImpl implements ContentStore {
             checkResponse(response, HttpStatus.SC_OK);
             String reponseText = response.getResponseBody();
             return SerializationUtil.deserializeList(reponseText);
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException("Not authorized to get supported " +
                                             "tasks", e);
         } catch (Exception e) {
@@ -1141,14 +1139,13 @@ public class ContentStoreImpl implements ContentStore {
             }
         });
     }
-    
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public String performTaskWithNoRetries(final String taskName,
-                              final String taskParameters)
+                                           final String taskParameters)
         throws ContentStoreException {
 
         return doPerformTask(taskName, taskParameters);
@@ -1161,36 +1158,35 @@ public class ContentStoreImpl implements ContentStore {
             HttpResponse response = restHelper.post(url, taskParameters, null);
             checkResponse(response, HttpStatus.SC_OK);
             return response.getResponseBody();
-        } catch(InvalidIdException e) {
+        } catch (InvalidIdException e) {
             throw new UnsupportedTaskException(taskName, e);
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException("Not authorized to perform task: " +
                                             taskName, e);
-        } catch(ContentStateException e) {
+        } catch (ContentStateException e) {
             throw e;
         } catch (Exception e) {
             throw new ContentStoreException("Error performing task (" +
                                             taskName + "):  " + e.getMessage(), e);
         }
     }
-    
+
     @Override
-    public InputStream
-        getManifest(String spaceId, ManifestFormat format)
-            throws ContentStoreException {
-            String task = "get manifest";
-            String url = buildManifestURL(spaceId,format);
-            try {
-                HttpResponse response = restHelper.get(url);
-                checkResponse(response, HttpStatus.SC_OK);
-                return response.getResponseStream();
-            } catch(NotFoundException e) {
-                throw new NotFoundException(task, spaceId, e);
-            } catch(UnauthorizedException e) {
-                throw new UnauthorizedException(task, spaceId, e);
-            } catch (Exception e) {
-                throw new ContentStoreException(task, spaceId, e);
-            }
+    public InputStream getManifest(String spaceId, ManifestFormat format)
+        throws ContentStoreException {
+        String task = "get manifest";
+        String url = buildManifestURL(spaceId, format);
+        try {
+            HttpResponse response = restHelper.get(url);
+            checkResponse(response, HttpStatus.SC_OK);
+            return response.getResponseStream();
+        } catch (NotFoundException e) {
+            throw new NotFoundException(task, spaceId, e);
+        } catch (UnauthorizedException e) {
+            throw new UnauthorizedException(task, spaceId, e);
+        } catch (Exception e) {
+            throw new ContentStoreException(task, spaceId, e);
+        }
     }
 
     private String buildManifestURL(String spaceId, ManifestFormat format) {
@@ -1205,24 +1201,23 @@ public class ContentStoreImpl implements ContentStore {
     }
 
     @Override
-    public InputStream
-        getAuditLog(String spaceId)
-            throws ContentStoreException {
-            String task = "get manifest";
-            String url = buildAuditLogURL(spaceId);
-            try {
-                HttpResponse response = restHelper.get(url);
-                checkResponse(response, HttpStatus.SC_OK);
-                return response.getResponseStream();
-            } catch(NotFoundException e) {
-                throw new NotFoundException(task, spaceId, e);
-            } catch(UnauthorizedException e) {
-                throw new UnauthorizedException(task, spaceId, e);
-            } catch (Exception e) {
-                throw new ContentStoreException(task, spaceId, e);
-            }
+    public InputStream getAuditLog(String spaceId)
+        throws ContentStoreException {
+        String task = "get manifest";
+        String url = buildAuditLogURL(spaceId);
+        try {
+            HttpResponse response = restHelper.get(url);
+            checkResponse(response, HttpStatus.SC_OK);
+            return response.getResponseStream();
+        } catch (NotFoundException e) {
+            throw new NotFoundException(task, spaceId, e);
+        } catch (UnauthorizedException e) {
+            throw new UnauthorizedException(task, spaceId, e);
+        } catch (Exception e) {
+            throw new ContentStoreException(task, spaceId, e);
+        }
     }
-    
+
     private String buildAuditLogURL(String spaceId) {
         String url = buildURL("/audit/" + spaceId);
         url = addStoreIdQueryParameter(url);
@@ -1236,7 +1231,7 @@ public class ContentStoreImpl implements ContentStore {
         String url = buildBitIntegrityReportURL(spaceId);
         try {
             HttpResponse response = restHelper.get(url);
-            if(hasNoContent(response)){
+            if (hasNoContent(response)) {
                 return null;
             }
             checkResponse(response, HttpStatus.SC_OK);
@@ -1244,7 +1239,7 @@ public class ContentStoreImpl implements ContentStore {
             //for reasons that are not clear, in the beanstalk environment
             //the httpclient is swallowing the Content-Length header
             //leading the BitIntegrityReportProperties.getSize() method to
-            //return 0.  This appears to be the case only on the GET call. 
+            //return 0.  This appears to be the case only on the GET call.
             //To work around it,  we are loading the properties with a separate
             //call that uses the HEAD path.
             BitIntegrityReportProperties properties = getBitIntegrityReportProperties(spaceId);
@@ -1263,14 +1258,13 @@ public class ContentStoreImpl implements ContentStore {
     }
 
     @Override
-    public BitIntegrityReportProperties
-        getBitIntegrityReportProperties(String spaceId)
-            throws ContentStoreException {
+    public BitIntegrityReportProperties getBitIntegrityReportProperties(String spaceId)
+        throws ContentStoreException {
         String task = "get bit integrity report properties";
         String url = buildBitIntegrityReportURL(spaceId);
         try {
             HttpResponse response = restHelper.head(url);
-            if(hasNoContent(response)){
+            if (hasNoContent(response)) {
                 return null;
             }
             checkResponse(response, HttpStatus.SC_OK);
@@ -1288,9 +1282,8 @@ public class ContentStoreImpl implements ContentStore {
         return url;
     }
 
-    private BitIntegrityReportProperties
-        extractBitIntegrityProperties(HttpResponse response)
-            throws ParseException {
+    private BitIntegrityReportProperties extractBitIntegrityProperties(HttpResponse response)
+        throws ParseException {
         BitIntegrityReportProperties properties =
             new BitIntegrityReportProperties();
         for (Header header : response.getResponseHeaders()) {
@@ -1308,8 +1301,7 @@ public class ContentStoreImpl implements ContentStore {
 
         return properties;
     }
-    
-    
+
     @Override
     public SpaceStatsDTOList getSpaceStats(String spaceId, Date start, Date end)
         throws ContentStoreException {
@@ -1320,9 +1312,9 @@ public class ContentStoreImpl implements ContentStore {
             String body = response.getResponseBody();
             JaxbJsonSerializer<SpaceStatsDTOList> serializer = new JaxbJsonSerializer<>(SpaceStatsDTOList.class);
             return serializer.deserialize(body);
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             throw new NotFoundException("spaceId = " + spaceId);
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException(spaceId, e);
         } catch (Exception e) {
             throw new ContentStoreException("failed to retrieve space stats for " + spaceId, e);
@@ -1331,15 +1323,15 @@ public class ContentStoreImpl implements ContentStore {
 
     private String buildSpaceStatsURL(String spaceId, Date start, Date end) {
         String url = buildURL("/report/space/" + spaceId);
-        
-        if(start != null){
-            url = addQueryParameter(url, "start", start.getTime()+"");
+
+        if (start != null) {
+            url = addQueryParameter(url, "start", start.getTime() + "");
         }
-        
-        if(end != null){
-            url = addQueryParameter(url, "end", end.getTime()+"");
+
+        if (end != null) {
+            url = addQueryParameter(url, "end", end.getTime() + "");
         }
-        
+
         url = addStoreIdQueryParameter(url);
         return url;
     }
@@ -1354,31 +1346,30 @@ public class ContentStoreImpl implements ContentStore {
             String body = response.getResponseBody();
             JaxbJsonSerializer<SpaceStatsDTOList> serializer = new JaxbJsonSerializer<>(SpaceStatsDTOList.class);
             return serializer.deserialize(body);
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             throw new NotFoundException("storeId = " + getStoreId());
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException(getStoreId(), e);
         } catch (Exception e) {
             throw new ContentStoreException("failed to retrieve storage provider stats for " + getStoreId(), e);
         }
     }
 
-    
     private String buildStorageProviderStatsURL(Date start, Date end) {
         String url = buildURL("/report/store");
-        
-        if(start != null){
-            url = addQueryParameter(url, "start", start.getTime()+"");
+
+        if (start != null) {
+            url = addQueryParameter(url, "start", start.getTime() + "");
         }
-        
-        if(end != null){
-            url = addQueryParameter(url, "end", end.getTime()+"");
+
+        if (end != null) {
+            url = addQueryParameter(url, "end", end.getTime() + "");
         }
-        
+
         url = addStoreIdQueryParameter(url);
         return url;
     }
-    
+
     @Override
     public SpaceStatsDTOList getStorageProviderStatsByDay(Date date)
         throws ContentStoreException {
@@ -1389,15 +1380,15 @@ public class ContentStoreImpl implements ContentStore {
             String body = response.getResponseBody();
             JaxbJsonSerializer<SpaceStatsDTOList> serializer = new JaxbJsonSerializer<>(SpaceStatsDTOList.class);
             return serializer.deserialize(body);
-        } catch(UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException(storeId, e);
         } catch (Exception e) {
             throw new ContentStoreException("failed to retrieve storage provider stats for " + storeId, e);
         }
     }
-    
+
     private String buildStorageProviderStatsURL(Date date) {
-        String url = buildURL("/report/store/"+date.getTime());
+        String url = buildURL("/report/store/" + date.getTime());
         url = addStoreIdQueryParameter(url);
         return url;
     }
@@ -1406,5 +1397,5 @@ public class ContentStoreImpl implements ContentStore {
     public String toString() {
         return ReflectionToStringBuilder.toString(this);
     }
-    
+
 }

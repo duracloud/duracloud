@@ -7,15 +7,17 @@
  */
 package org.duracloud.s3storageprovider.dto;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.junit.matchers.JUnitMatchers.containsString;
+
 import org.duracloud.error.TaskDataException;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
-
 /**
  * @author Bill Branan
- *         Date: 3/5/15
+ * Date: 3/5/15
  */
 public class DeleteStreamingTaskParametersTest {
 
@@ -29,13 +31,13 @@ public class DeleteStreamingTaskParametersTest {
 
         String result = taskParams.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId +"\""));
+        assertThat(cleanResult, containsString("\"spaceId\":\"" + spaceId + "\""));
     }
 
     @Test
     public void testDeserialize() {
         // Verify valid params
-        String taskParamsSerialized = "{\"spaceId\" : \""+spaceId+"\"}";
+        String taskParamsSerialized = "{\"spaceId\" : \"" + spaceId + "\"}";
 
         DeleteStreamingTaskParameters taskParams =
             DeleteStreamingTaskParameters.deserialize(taskParamsSerialized);
@@ -47,14 +49,16 @@ public class DeleteStreamingTaskParametersTest {
         try {
             DeleteStreamingTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
-        } catch(TaskDataException e) {
+        } catch (TaskDataException e) {
+            // Expected exception
         }
 
         // Verify that empty params throw
         try {
             DeleteStreamingTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
-        } catch(TaskDataException e) {
+        } catch (TaskDataException e) {
+            // Expected exception
         }
     }
 

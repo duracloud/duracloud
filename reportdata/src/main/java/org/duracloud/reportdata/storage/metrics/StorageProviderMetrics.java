@@ -7,10 +7,10 @@
  */
 package org.duracloud.reportdata.storage.metrics;
 
+import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import java.util.List;
 
 /**
  * Metrics data structure for storage providers. Contains all of the metrics
@@ -98,7 +98,7 @@ public class StorageProviderMetrics extends Metrics {
         int result =
             storageProviderId != null ? storageProviderId.hashCode() : 0;
         result = 31 * result +
-            (storageProviderType != null ? storageProviderType.hashCode() : 0);
+                 (storageProviderType != null ? storageProviderType.hashCode() : 0);
         result =
             31 * result + (spaceMetrics != null ? spaceMetrics.hashCode() : 0);
         return result;

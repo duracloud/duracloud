@@ -7,6 +7,8 @@
  */
 package org.duracloud.s3task.streaming;
 
+import java.util.List;
+
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.cloudfront.model.DeleteStreamingDistributionRequest;
 import com.amazonaws.services.cloudfront.model.GetStreamingDistributionConfigRequest;
@@ -22,8 +24,6 @@ import org.duracloud.s3storageprovider.dto.DeleteStreamingTaskResult;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * @author: Bill Branan
@@ -56,7 +56,7 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
             DeleteStreamingTaskParameters.deserialize(taskParameters);
 
         String spaceId = taskParams.getSpaceId();
-        log.info("Performing " + TASK_NAME + " task on space " + spaceId);        
+        log.info("Performing " + TASK_NAME + " task on space " + spaceId);
 
         // Will throw if bucket does not exist
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
@@ -68,10 +68,10 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
         List<StreamingDistributionSummary> existingDists =
             getAllExistingDistributions(bucketName);
 
-        if(existingDists != null && existingDists.size() > 0) {
-            for(StreamingDistributionSummary existingDist : existingDists) {
+        if (existingDists != null && existingDists.size() > 0) {
+            for (StreamingDistributionSummary existingDist : existingDists) {
                 String distId = existingDist.getId();
-                if(existingDist.isEnabled()) {
+                if (existingDist.isEnabled()) {
                     // Disable the distribution
                     setDistributionState(distId, false);
                 }
@@ -114,13 +114,13 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
         long start = System.currentTimeMillis();
 
         boolean deployed = isDeployed(distId);
-        while(!deployed) {
-            if(System.currentTimeMillis() < start + maxTime) {
+        while (!deployed) {
+            if (System.currentTimeMillis() < start + maxTime) {
                 sleep(10000);
                 deployed = isDeployed(distId);
             } else {
                 String error = "Timeout Reached waiting for distribution to " +
-                    "be disabled. Please wait a few minutes and try again.";
+                               "be disabled. Please wait a few minutes and try again.";
                 throw new RuntimeException(error);
             }
         }

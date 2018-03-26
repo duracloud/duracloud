@@ -2,8 +2,8 @@
 
 <configuration debug="false" scan="false">
 
-  <property name="RETRIEVAL_LOG_FILENAME" value="${retrieval.work}/logs/retrieval.log" />
-  <property name="COMPLETE_LOG_FILENAME" value="${retrieval.work}/logs/complete.log" />
+  <property name="RETRIEVAL_LOG_FILENAME" value="${retrieval.work}/logs/retrieval.log"/>
+  <property name="COMPLETE_LOG_FILENAME" value="${retrieval.work}/logs/complete.log"/>
 
   <appender name="SYNC_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->

@@ -7,15 +7,15 @@
  */
 package org.duracloud.client;
 
-import org.duracloud.common.util.WaitUtil;
-import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.error.ContentStoreException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import org.duracloud.common.util.WaitUtil;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Iterates over the content list in a DuraCloud space. Handles the chunked
@@ -60,7 +60,7 @@ public class ContentIterator implements Iterator<String> {
     }
 
     public void setMaxRetries(int maxRetries) {
-        if(maxRetries >= 0) {
+        if (maxRetries >= 0) {
             this.maxRetries = maxRetries;
         }
     }
@@ -93,10 +93,10 @@ public class ContentIterator implements Iterator<String> {
     }
 
     private void updateList() {
-        String lastItem = contentList.get(contentList.size()-1);
+        String lastItem = contentList.get(contentList.size() - 1);
         try {
             contentList = retryBuildContentList(lastItem);
-        } catch(ContentStoreException e) {
+        } catch (ContentStoreException e) {
             throw new RuntimeException(e);
         }
         index = 0;
@@ -105,7 +105,7 @@ public class ContentIterator implements Iterator<String> {
     private List<String> retryBuildContentList(String lastItem)
         throws ContentStoreException {
         ContentStoreException lastException = null;
-        for(int i=0; i<=maxRetries; i++) {
+        for (int i = 0; i <= maxRetries; i++) {
             try {
                 return buildContentList(lastItem);
             } catch (ContentStoreException e) {

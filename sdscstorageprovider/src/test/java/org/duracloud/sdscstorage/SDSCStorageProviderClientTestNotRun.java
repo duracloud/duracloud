@@ -7,6 +7,10 @@
  */
 package org.duracloud.sdscstorage;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import junit.framework.Assert;
 import org.duracloud.common.model.SimpleCredential;
 import org.duracloud.common.test.StorageProviderCredential;
@@ -24,15 +28,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Tests the ability of the SDSC provider to make it through
  *
  * @author Bill Branan
- *         Date: 7/29/13
+ * Date: 7/29/13
  */
 public class SDSCStorageProviderClientTestNotRun {
 
@@ -57,7 +57,7 @@ public class SDSCStorageProviderClientTestNotRun {
         this.password = credential.getPassword();
         Assert.assertNotNull(username);
         Assert.assertNotNull(password);
-     }
+    }
 
     private SDSCStorageProvider getFreshStorageProvider() {
         return new SDSCStorageProvider(username, password);
@@ -77,14 +77,12 @@ public class SDSCStorageProviderClientTestNotRun {
         log.info("STARTING SDSC PROVIDER ITERATION TEST");
 
         int iterationCompletedCount = 0;
-        for(int i=0; i<plannedAttempts; i++) {
+        for (int i = 0; i < plannedAttempts; i++) {
             try {
                 iterateThroughContent(getFreshStorageProvider());
                 iterationCompletedCount++;
-            } catch(Exception e) {
-                log.error(
-                    "Iteration failure on attempt: " + i + ". Error message: " +
-                        e.getMessage());
+            } catch (Exception e) {
+                log.error("Iteration failure on attempt: " + i + ". Error message: " + e.getMessage());
             }
         }
         log.info("SDSC Provider iteration attempts: " + plannedAttempts +
@@ -100,22 +98,22 @@ public class SDSCStorageProviderClientTestNotRun {
 
         Iterator<String> spaces = sdscProvider.getSpaces();
 
-        while(spaces.hasNext()) {
+        while (spaces.hasNext()) {
             spaceCount++;
             String spaceId = spaces.next();
             Iterator<String> items =
                 sdscProvider.getSpaceContents(spaceId, null);
-            while(items.hasNext()) {
+            while (items.hasNext()) {
                 contentCount++;
                 String contentId = items.next();
                 try {
                     Map<String, String> contentMeta =
                         sdscProvider.getContentProperties(spaceId, contentId);
-                } catch(StorageException e) {
+                } catch (StorageException e) {
                     errorCount++;
                     log.error("Exception getting content: " + e.getMessage() +
                               ". Root Cause: " + getRootCause(e));
-                    if(e.getMessage().contains("401 Unauthorized")) {
+                    if (e.getMessage().contains("401 Unauthorized")) {
                         log.warn("Throwing due to 401");
                         printCount(spaceCount, contentCount, errorCount);
                         throw new RuntimeException("401 Unauthorized error");
@@ -131,11 +129,11 @@ public class SDSCStorageProviderClientTestNotRun {
         log.info("STARTING JCLOUDS SWIFT CLIENT ITERATION TEST");
 
         int iterationCompletedCount = 0;
-        for(int i=0; i<plannedAttempts; i++) {
+        for (int i = 0; i < plannedAttempts; i++) {
             try {
                 iterateThroughContentSwiftClient(getFreshSwiftClient());
                 iterationCompletedCount++;
-            } catch(Exception e) {
+            } catch (Exception e) {
                 log.error("Iteration failure on attempt: " + i +
                           ". Error message: " + e.getMessage());
             }
@@ -156,7 +154,7 @@ public class SDSCStorageProviderClientTestNotRun {
             swiftClient.listContainers(new ListContainerOptions());
 
         // Loop through each contaner
-        for(ContainerMetadata container : containers) {
+        for (ContainerMetadata container : containers) {
             spaceCount++;
             String containerId = container.getName();
 
@@ -165,18 +163,18 @@ public class SDSCStorageProviderClientTestNotRun {
                 swiftClient.listObjects(containerId, new ListContainerOptions());
 
             // Loop through each content item
-            while(null != contentItems && contentItems.size() > 0) {
-                for(ObjectInfo contentItem : contentItems) {
+            while (null != contentItems && contentItems.size() > 0) {
+                for (ObjectInfo contentItem : contentItems) {
                     String contentId = contentItem.getName();
                     contentCount++;
                     try {
                         // Get the metadata for the content item
                         swiftClient.getObjectInfo(containerId, contentId);
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         errorCount++;
-                                log.error("Exception getting content: " +
-                                          e.getMessage() +
-                                          ". Root Cause: " + getRootCause(e));
+                        log.error("Exception getting content: " +
+                                  e.getMessage() +
+                                  ". Root Cause: " + getRootCause(e));
                     }
                     marker = contentId;
                 }
@@ -196,7 +194,7 @@ public class SDSCStorageProviderClientTestNotRun {
     }
 
     private String getRootCause(Throwable t) {
-        while(t.getCause() != null) {
+        while (t.getCause() != null) {
             t = t.getCause();
         }
         return t.getMessage();

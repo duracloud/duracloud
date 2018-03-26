@@ -7,15 +7,15 @@
  */
 package org.duracloud.sync.endpoint;
 
-import org.apache.commons.io.FileUtils;
-import org.duracloud.sync.SyncTestBase;
-import org.junit.Test;
-
-import java.io.File;
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+
+import java.io.File;
+
+import org.apache.commons.io.FileUtils;
+import org.duracloud.sync.SyncTestBase;
+import org.junit.Test;
 
 /**
  * @author: Bill Branan
@@ -51,7 +51,7 @@ public class FileSystemSyncEndpointTest extends SyncTestBase {
         File syncToFile = new File(syncToDir, syncFile.getName());
         assertFalse(syncToFile.exists());
         syncEndpoint.syncFile(syncFile, watchDir);
-        assertTrue(syncToFile.exists());        
+        assertTrue(syncToFile.exists());
 
         FileUtils.deleteDirectory(syncToDir);
         FileUtils.deleteDirectory(watchDir);

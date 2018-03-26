@@ -44,7 +44,7 @@ public class IdUtilTest {
         invalidIds.add("test.space.1");    // Last period is followed by a number
         invalidIds.add("a0.1b.2c.3d.4e");  // Last period is followed by a number
 
-        for(String id : invalidIds) {
+        for (String id : invalidIds) {
             checkInvalidSpaceId(id);
         }
 
@@ -63,10 +63,10 @@ public class IdUtilTest {
     }
 
     private void checkInvalidSpaceId(String id) {
-         try {
+        try {
             IdUtil.validateSpaceId(id);
             fail("Exception expected attempting to validate space id: " + id);
-        } catch(InvalidIdException expected) {
+        } catch (InvalidIdException expected) {
             assertNotNull(expected);
         }
     }
@@ -85,7 +85,7 @@ public class IdUtilTest {
 
         // Too long
         id = "test-content";
-        while(id.getBytes().length <= 1024) {
+        while (id.getBytes().length <= 1024) {
             id += "test-content";
         }
         checkInvalidContentId(id);
@@ -100,20 +100,20 @@ public class IdUtilTest {
     @Test
     public void testStoreIds() throws Exception {
         IdUtil.validateStoreId("1000");
-        try{
+        try {
             String storeId = "abc";
             IdUtil.validateStoreId(storeId);
             fail("Exception expected attempting to validate store id: " + storeId);
-        }catch(Exception ex){
+        } catch (Exception ex) {
             Assert.assertTrue(true);
         }
     }
 
     private void checkInvalidContentId(String id) {
-         try {
+        try {
             IdUtil.validateContentId(id);
             fail("Exception expected attempting to validate content id: " + id);
-        } catch(InvalidIdException expected) {
+        } catch (InvalidIdException expected) {
             assertNotNull(expected);
         }
     }

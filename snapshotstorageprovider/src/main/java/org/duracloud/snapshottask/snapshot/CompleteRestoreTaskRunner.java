@@ -7,11 +7,13 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.CompleteRestoreTaskParameters;
-import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
@@ -19,16 +21,12 @@ import org.duracloud.storage.provider.TaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 /**
  * Completes the restore process by setting bucket-level policies to ensure
  * restored content is removed as it expires.
  *
  * @author Bill Branan
- *         Date: 7/29/15
+ * Date: 7/29/15
  */
 public class CompleteRestoreTaskRunner implements TaskRunner {
 

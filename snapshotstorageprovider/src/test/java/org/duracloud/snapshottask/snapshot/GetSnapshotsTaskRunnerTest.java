@@ -7,13 +7,13 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.duracloud.account.db.model.Role;
@@ -40,12 +40,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * @author Bill Branan
- *         Date: 7/29/14
+ * Date: 7/29/14
  */
 @RunWith(EasyMockRunner.class)
 public class GetSnapshotsTaskRunnerTest extends EasyMockSupport {
 
-    @Mock(name="RestHttpHelper")
+    @Mock(name = "RestHttpHelper")
     private RestHttpHelper restHelper;
     private GetSnapshotsTaskRunner taskRunner;
     private StorageProvider storageProvider;
@@ -58,21 +58,20 @@ public class GetSnapshotsTaskRunnerTest extends EasyMockSupport {
 
     @Before
     public void setup() {
-        
+
         this.storageProvider = createMock("StorageProvider", StorageProvider.class);
-        
+
         taskRunner = new GetSnapshotsTaskRunner(dcHost, dcStoreId, bridgeHost, bridgePort,
-                                                bridgeUser, bridgePass, storageProvider){
+                                                bridgeUser, bridgePass, storageProvider) {
             @Override
-            protected RestHttpHelper
-                      createRestHelper() {
+            protected RestHttpHelper createRestHelper() {
                 return restHelper;
             }
         };
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         verifyAll();
     }
 
@@ -80,8 +79,8 @@ public class GetSnapshotsTaskRunnerTest extends EasyMockSupport {
     public void testBuildSnapshotURL() {
         replayAll();
         String snapshotUrl = taskRunner.buildBridgeURL();
-        String expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
-                             "/bridge/snapshot?host="+ dcHost + "&storeId=" + dcStoreId;
+        String expectedUrl = "http://" + bridgeHost + ":" + bridgePort +
+                             "/bridge/snapshot?host=" + dcHost + "&storeId=" + dcStoreId;
         assertEquals(expectedUrl, snapshotUrl);
     }
 
@@ -103,7 +102,7 @@ public class GetSnapshotsTaskRunnerTest extends EasyMockSupport {
             new SnapshotSummary("id-1", SnapshotStatus.SNAPSHOT_COMPLETE, "desc-1", storeId, spaceId);
         SnapshotSummary summary2 =
             new SnapshotSummary("id-2", SnapshotStatus.SNAPSHOT_COMPLETE, "desc-1", storeId, nonExistentSpace);
-        
+
         List<SnapshotSummary> summaries = new ArrayList<>();
         summaries.add(summary1);
         summaries.add(summary2);
@@ -128,24 +127,24 @@ public class GetSnapshotsTaskRunnerTest extends EasyMockSupport {
         EasyMock.expect(restHelper.get(EasyMock.isA(String.class)))
                 .andReturn(response);
 
-        if(!role.equals(Role.ROLE_ADMIN)){
-           EasyMock.expect(this.storageProvider.getSpaces()).andReturn(Arrays.asList(spaceId).iterator());
+        if (!role.equals(Role.ROLE_ADMIN)) {
+            EasyMock.expect(this.storageProvider.getSpaces()).andReturn(Arrays.asList(spaceId).iterator());
         }
-        
+
         replayAll();
         String result = taskRunner.performTask(null);
 
         GetSnapshotListTaskResult taskResult =
             GetSnapshotListTaskResult.deserialize(result);
         List<SnapshotSummary> summaryResults = taskResult.getSnapshots();
-        if(role.equals(Role.ROLE_ADMIN)){
+        if (role.equals(Role.ROLE_ADMIN)) {
             assertEquals(2, summaryResults.size());
-        }else{
+        } else {
             assertEquals(1, summaryResults.size());
         }
 
     }
-    
+
     @Test
     public void testCallBridgeSuccess() throws Exception {
         String bridgeURL = "bridge-url";
@@ -165,9 +164,9 @@ public class GetSnapshotsTaskRunnerTest extends EasyMockSupport {
             RestHttpHelper.HttpResponse.buildMock(200, null, resultStream);
         EasyMock.expect(restHelper.get(bridgeURL))
                 .andReturn(response);
-        
+
         replayAll();
-        
+
         String callResult = taskRunner.callBridge(restHelper, bridgeURL);
 
         GetSnapshotListTaskResult taskResult =
@@ -194,7 +193,8 @@ public class GetSnapshotsTaskRunnerTest extends EasyMockSupport {
         try {
             taskRunner.callBridge(restHelper, bridgeURL);
             fail("Exception expected on 500 response");
-        } catch(TaskException e) {
+        } catch (TaskException e) {
+            // Expected exception
         }
     }
 

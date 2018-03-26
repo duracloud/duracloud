@@ -7,6 +7,7 @@
  */
 package org.duracloud.snapshottask;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.mill.manifest.ManifestStore;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
@@ -26,8 +27,6 @@ import org.duracloud.snapshottask.snapshot.RestoreSnapshotTaskRunner;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProviderBase;
 import org.slf4j.LoggerFactory;
-
-import com.amazonaws.services.s3.AmazonS3Client;
 
 /**
  * @author: Bill Branan
@@ -71,8 +70,8 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                bridgePass));
         taskList.add(new CleanupSnapshotTaskRunner(unwrappedSnapshotProvider,
                                                    s3Client,
-                                                   auditQueue, 
-                                                   manifestStore, 
+                                                   auditQueue,
+                                                   manifestStore,
                                                    dcAccountName,
                                                    dcStoreId));
         taskList.add(new CompleteSnapshotTaskRunner(snapshotProvider,
@@ -90,14 +89,14 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                        bridgeUser,
                                                        bridgePass));
         taskList.add(new GetSnapshotHistoryTaskRunner(bridgeHost,
-                                                       bridgePort,
-                                                       bridgeUser,
-                                                       bridgePass));
+                                                      bridgePort,
+                                                      bridgeUser,
+                                                      bridgePass));
         taskList.add(new RestartSnapshotTaskRunner(bridgeHost,
                                                    bridgePort,
                                                    bridgeUser,
                                                    bridgePass));
-        
+
         taskList.add(new RestoreSnapshotTaskRunner(snapshotProvider,
                                                    unwrappedSnapshotProvider,
                                                    dcHost,
@@ -109,13 +108,13 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                    bridgeUser,
                                                    bridgePass));
         taskList.add(new RequestRestoreSnapshotTaskRunner(dcHost,
-                                                   dcPort,
-                                                   dcStoreId,
-                                                   dcSnapshotUser,
-                                                   bridgeHost,
-                                                   bridgePort,
-                                                   bridgeUser,
-                                                   bridgePass));
+                                                          dcPort,
+                                                          dcStoreId,
+                                                          dcSnapshotUser,
+                                                          bridgeHost,
+                                                          bridgePort,
+                                                          bridgeUser,
+                                                          bridgePass));
 
         taskList.add(new CompleteRestoreTaskRunner(snapshotProvider,
                                                    unwrappedSnapshotProvider,
@@ -126,12 +125,12 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                               bridgePass));
 
         taskList.add(new CompleteCancelSnapshotTaskRunner(snapshotProvider,
-                                                   unwrappedSnapshotProvider,
-                                                   dcSnapshotUser,
-                                                   bridgeHost,
-                                                   bridgePort,
-                                                   bridgeUser,
-                                                   bridgePass));
+                                                          unwrappedSnapshotProvider,
+                                                          dcSnapshotUser,
+                                                          bridgeHost,
+                                                          bridgePort,
+                                                          bridgeUser,
+                                                          bridgePass));
 
     }
 

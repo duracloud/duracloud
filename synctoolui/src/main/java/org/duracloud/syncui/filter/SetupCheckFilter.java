@@ -7,12 +7,7 @@
  */
 package org.duracloud.syncui.filter;
 
-import org.duracloud.syncui.service.SyncConfigurationManager;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
-
+import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -21,20 +16,24 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.duracloud.syncui.service.SyncConfigurationManager;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 /**
  * The root application configuration class.
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 @Component("setupCheckFilter")
 public class SetupCheckFilter implements Filter, ApplicationContextAware {
 
     private static final String SETUP_PATH = "/setup";
     private static final String[] EXEMPT_PATHS =
-        { SETUP_PATH, "/init", "/ajax" };
+        {SETUP_PATH, "/init", "/ajax"};
 
     private SyncConfigurationManager syncConfigurationManager;
 
@@ -48,8 +47,7 @@ public class SetupCheckFilter implements Filter, ApplicationContextAware {
     public void doFilter(ServletRequest request,
                          ServletResponse response,
                          FilterChain chain)
-        throws IOException,
-            ServletException {
+        throws IOException, ServletException {
 
         if (this.syncConfigurationManager == null) {
             this.syncConfigurationManager =

@@ -7,8 +7,6 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import org.duracloud.common.model.ContentItem;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -17,6 +15,8 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.duracloud.common.model.ContentItem;
 
 /**
  * Handles writing the output CSV file for the retrieval tool
@@ -41,9 +41,9 @@ public class CSVFileOutputWriter implements OutputWriter {
         try {
             writer =
                 new PrintWriter(new BufferedWriter(new FileWriter(writerFile)));
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Unable to initialize output writer " +
-                                       "due to: " + e.getMessage());    
+                                       "due to: " + e.getMessage());
         }
 
         writeHeader();
@@ -88,7 +88,7 @@ public class CSVFileOutputWriter implements OutputWriter {
     }
 
     private String quote(String toCheck) {
-        if(toCheck.indexOf(",") > -1) {
+        if (toCheck.indexOf(",") > -1) {
             return "\"" + toCheck + "\"";
         } else {
             return toCheck;

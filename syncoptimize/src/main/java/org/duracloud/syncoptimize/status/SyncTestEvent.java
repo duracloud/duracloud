@@ -13,7 +13,7 @@ package org.duracloud.syncoptimize.status;
  * test is running. That information is contained here.
  *
  * @author Bill Branan
- *         Date: 5/16/14
+ * Date: 5/16/14
  */
 public class SyncTestEvent {
 

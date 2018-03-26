@@ -7,6 +7,10 @@
  */
 package org.duracloud.s3task.streaming;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentity;
 import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentityConfig;
@@ -30,16 +34,11 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author: Bill Branan
  * Date: May 21, 2010
  */
-public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
+public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner {
 
     private final Logger log =
         LoggerFactory.getLogger(EnableStreamingTaskRunner.class);
@@ -85,17 +84,19 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
         StreamingDistributionSummary existingDist =
             getExistingDistribution(bucketName);
 
-        if(existingDist != null) { // There is an existing distribution
+        if (existingDist != null) { // There is an existing distribution
             // Ensure that this is not an attempt to change the security type
             // of this existing distribution
             boolean existingSecure =
                 !existingDist.getTrustedSigners().getItems().isEmpty();
             if ((secure && !existingSecure) || (!secure && existingSecure)) {
                 throw new UnsupportedTaskException(TASK_NAME,
-                    "The space " + spaceId + " is already configured to stream as " +
-                    (secure?"OPEN":"SECURE") + " and cannot be updated to stream as " +
-                    (secure?"SECURE":"OPEN") + ". To do this, you must first execute the " +
-                    StorageTaskConstants.DELETE_STREAMING_TASK_NAME + " task.");
+                                                   "The space " + spaceId + " is already configured to stream as " +
+                                                   (secure ? "OPEN" : "SECURE") +
+                                                   " and cannot be updated to stream as " +
+                                                   (secure ? "SECURE" : "OPEN") +
+                                                   ". To do this, you must first execute the " +
+                                                   StorageTaskConstants.DELETE_STREAMING_TASK_NAME + " task.");
             }
 
             distId = existingDist.getId();
@@ -109,7 +110,7 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
 
             // Only include trusted signers on secure distributions
             TrustedSigners signers = new TrustedSigners();
-            if(secure) {
+            if (secure) {
                 signers.setItems(Collections.singletonList(cfAccountId));
                 signers.setEnabled(true);
                 signers.setQuantity(1);
@@ -122,7 +123,7 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
                 cfClient.createStreamingDistribution(
                     new CreateStreamingDistributionRequest(
                         new StreamingDistributionConfig()
-                            .withCallerReference(""+System.currentTimeMillis())
+                            .withCallerReference("" + System.currentTimeMillis())
                             .withS3Origin(origin)
                             .withEnabled(true)
                             .withComment("Streaming space: " + spaceId)
@@ -156,15 +157,15 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
      */
     private String getOriginAccessId() {
         String oaId = getExistingOriginAccessId();
-        if(oaId != null) { // Use existing ID
+        if (oaId != null) { // Use existing ID
             return oaId;
         } else { // Create a new ID
             return cfClient.createCloudFrontOriginAccessIdentity(
-                    new CreateCloudFrontOriginAccessIdentityRequest(
-                        new CloudFrontOriginAccessIdentityConfig()
-                            .withCallerReference(""+System.currentTimeMillis())
-                            .withComment("DuraCloud Origin Access ID")))
-                        .getCloudFrontOriginAccessIdentity().getId();
+                new CreateCloudFrontOriginAccessIdentityRequest(
+                    new CloudFrontOriginAccessIdentityConfig()
+                        .withCallerReference("" + System.currentTimeMillis())
+                        .withComment("DuraCloud Origin Access ID")))
+                           .getCloudFrontOriginAccessIdentity().getId();
         }
     }
 
@@ -176,7 +177,7 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
             cfClient.listCloudFrontOriginAccessIdentities(
                 new ListCloudFrontOriginAccessIdentitiesRequest())
                     .getCloudFrontOriginAccessIdentityList().getItems();
-        if(oaiList != null && oaiList.size() > 0) {
+        if (oaiList != null && oaiList.size() > 0) {
             return oaiList.iterator().next().getId();
         }
         return null;
@@ -197,11 +198,11 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
 
         StringBuilder policyText = new StringBuilder();
         policyText.append("{\"Version\":\"2012-10-17\",");
-	    policyText.append("\"Id\":\"PolicyForCloudFrontPrivateContent\",");
-	    policyText.append("\"Statement\":[{");
+        policyText.append("\"Id\":\"PolicyForCloudFrontPrivateContent\",");
+        policyText.append("\"Statement\":[{");
         policyText.append("\"Sid\":\"Grant CloudFront access to private content\",");
-		policyText.append("\"Effect\":\"Allow\",");
-		policyText.append("\"Principal\":{\"CanonicalUser\":\"" + s3UserId + "\"},");
+        policyText.append("\"Effect\":\"Allow\",");
+        policyText.append("\"Principal\":{\"CanonicalUser\":\"" + s3UserId + "\"},");
         policyText.append("\"Action\":\"s3:GetObject\",");
         policyText.append("\"Resource\":\"arn:aws:s3:::" + bucketName + "/*\"");
         policyText.append("}]}");

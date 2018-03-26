@@ -20,9 +20,9 @@ public class ContentStoreException extends DuraCloudCheckedException {
         "duracloud.error.durastore.resource.nocontent";
 
     private static final String messageKeyContent =
-        "duracloud.error.durastore.resource.content";    
+        "duracloud.error.durastore.resource.content";
 
-    public ContentStoreException (String message) {
+    public ContentStoreException(String message) {
         super(message);
     }
 

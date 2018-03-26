@@ -19,7 +19,7 @@ import org.junit.Test;
 
 /**
  * @author Andrew Woods
- *         Date: 9/2/11
+ * Date: 9/2/11
  */
 public class DuraStoreDataSourceTest {
 
@@ -74,10 +74,10 @@ public class DuraStoreDataSourceTest {
             Content content = new Content();
             EasyMock.expect(store.getContent(spaceId, contentId)).andReturn(
                 content);
-            
+
         } else {
             EasyMock.expect(store.getContent(spaceId, contentId))
-                .andThrow(new DataSourceException("canned-exception", null));
+                    .andThrow(new DataSourceException("canned-exception", null));
         }
     }
 }

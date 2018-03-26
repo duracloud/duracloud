@@ -7,6 +7,8 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import java.util.HashMap;
+
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskParameters;
@@ -17,13 +19,11 @@ import org.duracloud.storage.provider.TaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-
 /**
  * Completes the snapshot process by removing unnecessary bucket-level policies
  *
  * @author Bill Branan
- *         Date: 7/23/14
+ * Date: 7/23/14
  */
 public class CompleteSnapshotTaskRunner implements TaskRunner {
 

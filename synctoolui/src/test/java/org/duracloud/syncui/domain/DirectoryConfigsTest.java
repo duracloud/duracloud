@@ -8,27 +8,23 @@
 package org.duracloud.syncui.domain;
 
 import junit.framework.Assert;
-
 import org.duracloud.syncui.AbstractTest;
 import org.junit.Test;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 public class DirectoryConfigsTest extends AbstractTest {
 
-    
     @Test
-    public void testRemovePath(){
+    public void testRemovePath() {
         DirectoryConfigs dc = new DirectoryConfigs();
         String testPath = "path";
         dc.add(new DirectoryConfig(testPath));
         Assert.assertEquals(1, dc.size());
         dc.removePath(testPath);
         Assert.assertEquals(0, dc.size());
-        
+
     }
 
 }

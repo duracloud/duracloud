@@ -7,13 +7,13 @@
  */
 package org.duracloud.common.notification;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author: Bill Branan
@@ -83,7 +83,7 @@ public class NotificationManagerTest {
         EasyMock.replay(notifier1, notifier2);
     }
 
-   @Test
+    @Test
     public void testSendAdminNotifcation() {
         setupAdminMocks();
 

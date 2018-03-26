@@ -7,15 +7,11 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import org.apache.commons.io.FileUtils;
-import org.duracloud.client.ContentStore;
-import org.duracloud.common.model.ContentItem;
-import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.retrieval.RetrievalTestBase;
-import org.duracloud.retrieval.source.ContentStream;
-import org.duracloud.retrieval.source.RetrievalSource;
-import org.junit.Test;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -26,11 +22,15 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+import org.apache.commons.io.FileUtils;
+import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.ContentItem;
+import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.DateUtil;
+import org.duracloud.retrieval.RetrievalTestBase;
+import org.duracloud.retrieval.source.ContentStream;
+import org.duracloud.retrieval.source.RetrievalSource;
+import org.junit.Test;
 
 /**
  * @author: Bill Branan
@@ -127,7 +127,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         File localFile = worker.getLocalFile();
         assertNotNull(localFile);
         assertTrue(localFile.getAbsolutePath().contains(spaceId));
-        for(String pathElem : contentId.split("/")) {
+        for (String pathElem : contentId.split("/")) {
             assertTrue(localFile.getAbsolutePath().contains(pathElem));
         }
 
@@ -135,7 +135,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         localFile = worker.getLocalFile();
         assertNotNull(localFile);
         assertFalse(localFile.getAbsolutePath().contains(spaceId));
-        for(String pathElem : contentId.split("/")) {
+        for (String pathElem : contentId.split("/")) {
             assertTrue(localFile.getAbsolutePath().contains(pathElem));
         }
     }
@@ -173,7 +173,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         assertFalse(localFile.exists());
         assertTrue(newFile2.exists());
 
-        assertEquals(localFile.getAbsolutePath() + "-copy-2", 
+        assertEquals(localFile.getAbsolutePath() + "-copy-2",
                      newFile2.getAbsolutePath());
     }
 
@@ -213,9 +213,9 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         assertFalse(localFile.exists());
 
         try {
-            worker.retrieveToFile(localFile,null);
+            worker.retrieveToFile(localFile, null);
             fail("Exception expected with non-matching checksum");
-        } catch(IOException expected) {
+        } catch (IOException expected) {
             assertNotNull(expected);
         }
     }
@@ -225,7 +225,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         String time1 = DateUtil.convertToStringLong(testTime + 100000);
         String time2 = DateUtil.convertToStringLong(testTime + 200000);
         String time3 = DateUtil.convertToStringLong(testTime + 300000);
-        Map<String,String> props = new HashMap<>();
+        Map<String, String> props = new HashMap<>();
         props.put(ContentStore.CONTENT_FILE_CREATED, time1);
         props.put(ContentStore.CONTENT_FILE_ACCESSED, time2);
         props.put(ContentStore.CONTENT_FILE_MODIFIED, time3);
@@ -241,7 +241,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
             Files.readAttributes(localFile.toPath(), BasicFileAttributes.class);
         long now = System.currentTimeMillis();
         assertTrue(isTimeClose(fileAttributes.creationTime().toMillis(), now));
-        assertTrue(isTimeClose(fileAttributes.lastAccessTime().toMillis(),now));
+        assertTrue(isTimeClose(fileAttributes.lastAccessTime().toMillis(), now));
         assertTrue(isTimeClose(fileAttributes.lastModifiedTime().toMillis(), now));
 
         RetrievalWorker worker = createRetrievalWorker(true);
@@ -315,14 +315,14 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         }
 
         @Override
-        public Map<String,String> getSourceProperties(ContentItem contentItem) {
+        public Map<String, String> getSourceProperties(ContentItem contentItem) {
             ChecksumUtil checksumUtil =
                 new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
             InputStream valueStream =
                 new ByteArrayInputStream(contentValue.getBytes());
             String checksum = checksumUtil.generateChecksum(valueStream);
 
-            Map<String,String> props = new HashMap<>();
+            Map<String, String> props = new HashMap<>();
             props.put(ContentStore.CONTENT_CHECKSUM, checksum);
             String time = DateUtil.convertToStringLong(testTime);
             props.put(ContentStore.CONTENT_FILE_CREATED, time);
@@ -333,8 +333,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
 
         @Override
         public String getSourceChecksum(ContentItem contentItem) {
-            return getSourceProperties(contentItem).
-                get(ContentStore.CONTENT_CHECKSUM);
+            return getSourceProperties(contentItem).get(ContentStore.CONTENT_CHECKSUM);
         }
 
         @Override
@@ -343,8 +342,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
                 new ByteArrayInputStream(contentValue.getBytes());
             return new ContentStream(stream, getSourceProperties(contentItem));
         }
-        
-        
+
     }
 
     /*
@@ -356,7 +354,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         public ContentStream getSourceContent(ContentItem contentItem, RetrievalListener listener) {
             InputStream stream =
                 new ByteArrayInputStream(contentValue.getBytes());
-            Map<String,String> props = new HashMap<>();
+            Map<String, String> props = new HashMap<>();
             props.put(ContentStore.CONTENT_CHECKSUM,
                       "invalid-checksum");
             return new ContentStream(stream, props);
@@ -369,9 +367,10 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
      */
     private class InconsistentMockRetrievalSource extends MockRetrievalSource {
         private boolean firstAttempt = true;
+
         @Override
         public ContentStream getSourceContent(ContentItem contentItem, RetrievalListener listener) {
-            if(firstAttempt) {
+            if (firstAttempt) {
                 firstAttempt = false;
                 throw new RuntimeException("Some unexpected failure.");
             } else {

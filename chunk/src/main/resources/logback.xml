@@ -2,7 +2,7 @@
 
 <configuration debug="false" scan="false">
   <jmxConfigurator/>
-  <property name="LOG_FILENAME" value="logs/duracloud-chunker.log" />
+  <property name="LOG_FILENAME" value="logs/duracloud-chunker.log"/>
 
   <appender name="DURACLOUD" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->

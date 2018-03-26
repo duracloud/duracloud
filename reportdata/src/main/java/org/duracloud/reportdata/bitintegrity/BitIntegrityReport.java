@@ -10,15 +10,12 @@ package org.duracloud.reportdata.bitintegrity;
 import java.io.InputStream;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class BitIntegrityReport {
     private InputStream stream;
     private BitIntegrityReportProperties properties;
 
-    
     public BitIntegrityReport(InputStream stream,
                               BitIntegrityReportProperties properties) {
         super();
@@ -29,7 +26,7 @@ public class BitIntegrityReport {
     public BitIntegrityReportProperties getProperties() {
         return properties;
     }
-    
+
     public InputStream getStream() {
         return stream;
     }

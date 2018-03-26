@@ -7,6 +7,11 @@
  */
 package org.duracloud.security.vote;
 
+import static org.duracloud.security.vote.VoterUtil.debugText;
+
+import java.util.Collection;
+import javax.servlet.http.HttpServletRequest;
+
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,11 +20,6 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
-
-import static org.duracloud.security.vote.VoterUtil.debugText;
 
 /**
  * Votes on access depending on user IP limits. If IP limits are defined
@@ -30,7 +30,7 @@ import static org.duracloud.security.vote.VoterUtil.debugText;
  * DENY.
  *
  * @author Bill Branan
- *         Date: 04/15/15
+ * Date: 04/15/15
  */
 public class UserIpLimitsAccessVoter implements AccessDecisionVoter {
 
@@ -90,12 +90,12 @@ public class UserIpLimitsAccessVoter implements AccessDecisionVoter {
 
         String userIpLimits = getUserIpLimits(auth);
         // if user IP limits are set, check request IP
-        if(null != userIpLimits && !userIpLimits.equals("")) {
+        if (null != userIpLimits && !userIpLimits.equals("")) {
             String requestIp = httpRequest.getRemoteAddr();
 
             String[] ipLimits = userIpLimits.split(";");
-            for(String ipLimit : ipLimits) {
-                if(ipInRange(requestIp, ipLimit)) {
+            for (String ipLimit : ipLimits) {
+                if (ipInRange(requestIp, ipLimit)) {
                     // User's IP is within this range, grant access
                     log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
                     return ACCESS_GRANTED;
@@ -120,7 +120,7 @@ public class UserIpLimitsAccessVoter implements AccessDecisionVoter {
     protected String getUserIpLimits(Authentication auth) {
         Object principal = auth.getPrincipal();
 
-        if(principal instanceof DuracloudUserDetails) {
+        if (principal instanceof DuracloudUserDetails) {
             DuracloudUserDetails userDetails = (DuracloudUserDetails) principal;
             return userDetails.getIpLimits();
         } else {
@@ -132,7 +132,7 @@ public class UserIpLimitsAccessVoter implements AccessDecisionVoter {
      * Determines if a given IP address is in the given IP range.
      *
      * @param ipAddress single IP address
-     * @param range IP address range using CIDR notation
+     * @param range     IP address range using CIDR notation
      * @return true if the address is in the range, false otherwise
      */
     protected boolean ipInRange(String ipAddress, String range) {

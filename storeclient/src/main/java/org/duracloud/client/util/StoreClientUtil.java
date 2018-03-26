@@ -31,16 +31,17 @@ public class StoreClientUtil {
 
         ContentStore contentStore;
         try {
-            if(storeId != null) {
+            if (storeId != null) {
                 contentStore = storeManager.getContentStore(storeId);
             } else {
                 contentStore = storeManager.getPrimaryContentStore();
             }
-        } catch(ContentStoreException e) {
-            String prefix = "Could not create connection to DuraCloud (" + host + ":" + port + "/"+context + "). Cause: ";
-            if(e.getMessage().contains("Response code was 401")) {
+        } catch (ContentStoreException e) {
+            String prefix =
+                "Could not create connection to DuraCloud (" + host + ":" + port + "/" + context + "). Cause: ";
+            if (e.getMessage().contains("Response code was 401")) {
                 throw new RuntimeException(prefix + "invalid credentials. " +
-                    "Check your username and password and try again.");
+                                           "Check your username and password and try again.");
             } else {
                 throw new RuntimeException(prefix + e.getMessage(), e);
             }

@@ -16,25 +16,22 @@ import org.duracloud.duradmin.util.NameValuePair;
 import org.duracloud.duradmin.util.PropertiesUtils;
 import org.hibernate.validator.constraints.NotBlank;
 
-
-public class ContentItem
-        implements Serializable {
+public class ContentItem implements Serializable {
 
     private static final long serialVersionUID = -5835779644282347055L;
 
-    
-	private String action;
+    private String action;
 
-	@NotBlank
+    @NotBlank
     private String spaceId;
 
     @NotBlank
     private String contentId;
 
     @NotBlank
-	private String storeId;
-	
-	private boolean primaryStorageProvider;
+    private String storeId;
+
+    private boolean primaryStorageProvider;
 
     private String contentMimetype;
 
@@ -45,23 +42,23 @@ public class ContentItem
     private ContentProperties properties;
 
     private String imageViewerBaseURL;
+
     /*
-     * The caller's acl based on the granted authorities and group membership of the 
-     * caller as well as the space acls. 
+     * The caller's acl based on the granted authorities and group membership of the
+     * caller as well as the space acls.
      */
     private String callerAcl;
-    
-    private List<Acl> acls; 
-    
+
+    private List<Acl> acls;
+
     public String getStoreId() {
-		return storeId;
-	}
+        return storeId;
+    }
 
-	public void setStoreId(String storeId) {
-		this.storeId = storeId;
-	}
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
+    }
 
-	
     public String getAction() {
         return action;
     }
@@ -86,7 +83,6 @@ public class ContentItem
         this.contentId = contentId;
     }
 
-    
     public String getEncodedContentId() {
         String contentId = getContentId();
         return EncodeUtil.urlEncode(contentId);
@@ -114,17 +110,16 @@ public class ContentItem
 
     public void setExtendedProperties(Map<String, String> extendedProperties) {
         this.extendedProperties =
-                PropertiesUtils.convertExtendedProperties(extendedProperties);
+            PropertiesUtils.convertExtendedProperties(extendedProperties);
     }
 
-    
     public void setDurastoreURL(String durastoreURL) {
-		this.durastoreURL = durastoreURL;
-	}
+        this.durastoreURL = durastoreURL;
+    }
 
-	public String getDurastoreURL() {
-		return durastoreURL;
-	}
+    public String getDurastoreURL() {
+        return durastoreURL;
+    }
 
     public String getCallerAcl() {
         return callerAcl;
@@ -133,22 +128,22 @@ public class ContentItem
     public void setCallerAcl(String callerAcl) {
         this.callerAcl = callerAcl;
     }
-    
-    public List<Acl>  getAcls() {
+
+    public List<Acl> getAcls() {
         return acls;
     }
 
     public void setAcls(List<Acl> acls) {
         this.acls = acls;
     }
-    
-	public String toString(){
-    	return "{storeId: " + storeId + ", spaceId: " + spaceId + ", contentId: " + contentId + 
-    				", properties: " + properties + ", contentMimetype: " + contentMimetype +
-    				", callerAcl: " + callerAcl + "}";
+
+    public String toString() {
+        return "{storeId: " + storeId + ", spaceId: " + spaceId + ", contentId: " + contentId +
+               ", properties: " + properties + ", contentMimetype: " + contentMimetype +
+               ", callerAcl: " + callerAcl + "}";
     }
 
-	public String getImageViewerBaseURL() {
+    public String getImageViewerBaseURL() {
         return imageViewerBaseURL;
     }
 

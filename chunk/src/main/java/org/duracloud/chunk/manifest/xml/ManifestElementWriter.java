@@ -7,6 +7,8 @@
  */
 package org.duracloud.chunk.manifest.xml;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.ChunkType;
 import org.duracloud.ChunksManifestType;
@@ -16,16 +18,18 @@ import org.duracloud.SourceContentType;
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.manifest.ChunksManifestBean;
 
-import java.util.List;
-
 /**
  * This class is responsible for serializing ChunksManifest objects into
  * ChunksManifest xml documents.
  *
  * @author Andrew Woods
- *         Date: Feb 9, 2010
+ * Date: Feb 9, 2010
  */
 public class ManifestElementWriter {
+
+    private ManifestElementWriter() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     /**
      * This method serializes a ChunksManifest object into a ChunksManifest

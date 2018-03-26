@@ -7,13 +7,13 @@
  */
 package org.duracloud.reportdata.storage.serialize;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.duracloud.reportdata.storage.ReportTestHelper;
 import org.duracloud.reportdata.storage.StorageReportInfo;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author: Bill Branan

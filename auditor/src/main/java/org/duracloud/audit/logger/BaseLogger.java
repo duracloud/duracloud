@@ -11,13 +11,13 @@ import java.util.Map;
 
 /**
  * @author Bill Branan
- *         Date: 3/21/14
+ * Date: 3/21/14
  */
 public abstract class BaseLogger {
 
-    protected String buildLogMessage(Map<String,String> props) {
+    protected String buildLogMessage(Map<String, String> props) {
         StringBuilder builder = new StringBuilder();
-        for(String key : props.keySet()) {
+        for (String key : props.keySet()) {
             add(builder, key, props.get(key));
         }
         return builder.toString();

@@ -7,6 +7,11 @@
  */
 package org.duracloud.s3task.streaming;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.HashMap;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
@@ -21,8 +26,6 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * @author: Bill Branan
@@ -79,7 +82,7 @@ public class GetSignedUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
         try { // Make sure null params throw exception
             runner.performTask(null);
             fail("Exception expected");
-        } catch(Exception expected) {
+        } catch (Exception expected) {
             assertNotNull(expected);
         }
 
@@ -144,7 +147,7 @@ public class GetSignedUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
         try {
             runner.performTask(taskParams.serialize());
             fail("Exception expected");
-        } catch(UnsupportedTaskException e) {
+        } catch (UnsupportedTaskException e) {
             assertTrue(e.getMessage()
                         .contains(StorageTaskConstants.ENABLE_STREAMING_TASK_NAME));
         }
@@ -169,7 +172,7 @@ public class GetSignedUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
         try {
             runner.performTask(taskParams.serialize());
             fail("Exception expected");
-        } catch(UnsupportedTaskException e) {
+        } catch (UnsupportedTaskException e) {
             assertTrue(e.getMessage()
                         .contains(StorageTaskConstants.GET_URL_TASK_NAME));
         }
@@ -181,7 +184,7 @@ public class GetSignedUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask4() throws Exception {
         BaseStreamingTaskRunner runner =
-            createRunner(createMockStorageProvider(new HashMap<String,String>(), true),
+            createRunner(createMockStorageProvider(new HashMap<String, String>(), true),
                          createMockUnwrappedS3StorageProvider(),
                          createMockS3ClientV1(),
                          createMockCFClientV1());
@@ -193,12 +196,12 @@ public class GetSignedUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
         try {
             runner.performTask(taskParams.serialize());
             fail("Exception expected");
-        } catch(UnsupportedTaskException e) {
+        } catch (UnsupportedTaskException e) {
             assertTrue(e.getMessage()
                         .contains(StorageTaskConstants.ENABLE_STREAMING_TASK_NAME));
         }
     }
-    
+
     /*
      * For testing the case where a URL is generated from an existing
      * distribution

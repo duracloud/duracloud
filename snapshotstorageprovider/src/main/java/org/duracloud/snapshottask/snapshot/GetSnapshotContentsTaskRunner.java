@@ -7,6 +7,8 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import java.text.MessageFormat;
+
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskParameters;
@@ -14,15 +16,13 @@ import org.duracloud.storage.error.TaskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
-
 /**
  * Gets the list of content items that are contained in the snapshot. This is
  * the same as the list of content that existed in the original space at the
  * moment the snapshot was initiated.
  *
  * @author Bill Branan
- *         Date: 7/23/14
+ * Date: 7/23/14
  */
 public class GetSnapshotContentsTaskRunner extends AbstractSnapshotTaskRunner {
 
@@ -52,12 +52,12 @@ public class GetSnapshotContentsTaskRunner extends AbstractSnapshotTaskRunner {
      */
     protected String buildBridgeURL(GetSnapshotContentsTaskParameters taskParams) {
         int pageNumber = taskParams.getPageNumber();
-        if(pageNumber < SnapshotConstants.DEFAULT_CONTENT_PAGE_NUMBER) {
+        if (pageNumber < SnapshotConstants.DEFAULT_CONTENT_PAGE_NUMBER) {
             pageNumber = SnapshotConstants.DEFAULT_CONTENT_PAGE_NUMBER;
         }
         int pageSize = taskParams.getPageSize();
-        if(pageSize < SnapshotConstants.MIN_CONTENT_PAGE_SIZE ||
-           pageSize > SnapshotConstants.MAX_CONTENT_PAGE_SIZE) {
+        if (pageSize < SnapshotConstants.MIN_CONTENT_PAGE_SIZE ||
+            pageSize > SnapshotConstants.MAX_CONTENT_PAGE_SIZE) {
             pageSize = SnapshotConstants.MAX_CONTENT_PAGE_SIZE;
         }
         String snapshotId = taskParams.getSnapshotId();
@@ -82,12 +82,12 @@ public class GetSnapshotContentsTaskRunner extends AbstractSnapshotTaskRunner {
         try {
             RestHttpHelper.HttpResponse response = restHelper.get(bridgeURL);
             int statusCode = response.getStatusCode();
-            if(statusCode != 200) {
+            if (statusCode != 200) {
                 throw new RuntimeException("Unexpected response code: " +
                                            statusCode);
             }
             return response.getResponseBody();
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new TaskException("Exception encountered attempting to " +
                                     "get snapshot contents. " +
                                     "Error reported: " + e.getMessage(), e);

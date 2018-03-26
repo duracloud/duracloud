@@ -38,7 +38,7 @@ import org.junit.Test;
 
 /**
  * @author Andrew Woods
- *         Date: Feb 7, 2010
+ * Date: Feb 7, 2010
  */
 public class TestDuracloudContentWriter {
 
@@ -65,16 +65,14 @@ public class TestDuracloudContentWriter {
     public void setUp() throws Exception {
         TestConfig testConfig = new TestConfigUtil().getTestConfig();
         TestEndPoint endpoint = testConfig.getTestEndPoint();
-        storeManager = new ContentStoreManagerImpl(endpoint.getHost(), endpoint.getPort()+"", context);
-        SimpleCredential cred =  testConfig.getRootCredential();
+        storeManager = new ContentStoreManagerImpl(endpoint.getHost(), endpoint.getPort() + "", context);
+        SimpleCredential cred = testConfig.getRootCredential();
         storeManager.login(new Credential(cred.getUsername(), cred.getPassword()));
-        
 
         store = storeManager.getPrimaryContentStore();
         writer = new DuracloudContentWriter(store, username);
         writerThrow = new DuracloudContentWriter(store, username, true, false);
     }
-
 
     @After
     public void tearDown() throws Exception {
@@ -340,6 +338,5 @@ public class TestDuracloudContentWriter {
 
         return new ByteArrayInputStream(out.toByteArray());
     }
-
 
 }

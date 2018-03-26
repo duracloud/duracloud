@@ -7,9 +7,10 @@
  */
 package org.duracloud.s3task;
 
-import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+
+import org.junit.Test;
 
 /**
  * @author: Bill Branan

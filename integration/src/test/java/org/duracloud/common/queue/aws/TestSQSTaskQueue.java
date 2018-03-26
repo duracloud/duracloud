@@ -7,6 +7,17 @@
  */
 package org.duracloud.common.queue.aws;
 
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import junit.framework.Assert;
 import org.duracloud.common.model.SimpleCredential;
 import org.duracloud.common.queue.TaskQueue;
@@ -18,23 +29,13 @@ import org.duracloud.common.test.TestConfigUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-
 /**
  * This is an integration test for SQSTaskQueue interfacing with an AWS SQS queue.
  * IMPORTANT: This test will only pass if the SQS queue is empty upon start of
  * the test AND there are no other clients taking/receiving messages off/from the queue.
+ *
  * @author Erik Paulsson
- *         Date: 10/25/13
+ * Date: 10/25/13
  */
 public class TestSQSTaskQueue {
 
@@ -80,17 +81,17 @@ public class TestSQSTaskQueue {
         Integer[] taskNums = new Integer[numTasks];
         int emptyArrHashcode = Arrays.hashCode(taskNums);
 
-        if(batchLoad) {
+        if (batchLoad) {
             Set<Task> tasks = new HashSet<>();
-            for(int i=1; i<=numTasks; i++) {
+            for (int i = 1; i <= numTasks; i++) {
                 tasks.add(createTask(i));
-                taskNums[i-1] = i;
+                taskNums[i - 1] = i;
             }
             queue.put(tasks);
         } else {
-            for(int i=1; i<=numTasks; i++) {
+            for (int i = 1; i <= numTasks; i++) {
                 queue.put(createTask(i));
-                taskNums[i-1] = i;
+                taskNums[i - 1] = i;
             }
         }
 
@@ -103,7 +104,7 @@ public class TestSQSTaskQueue {
             }
         };
 
-        for(int i=1; i<=numTasks; i++) {
+        for (int i = 1; i <= numTasks; i++) {
             Task task = retrier.execute(retriable);
             assertNotNull(task);
             org.junit.Assert.assertEquals(Task.Type.NOOP, task.getType());

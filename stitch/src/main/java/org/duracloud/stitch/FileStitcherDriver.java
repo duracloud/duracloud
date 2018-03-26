@@ -7,6 +7,11 @@
  */
 package org.duracloud.stitch;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -30,17 +35,12 @@ import org.duracloud.stitch.impl.FileStitcherImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
 /**
  * This class is the command-line driver for reconstituting a single content
  * item which has previously been chunked into DuraStore.
  *
  * @author Andrew Woods
- *         Date: 9/5/11
+ * Date: 9/5/11
  */
 public class FileStitcherDriver {
 
@@ -98,7 +98,7 @@ public class FileStitcherDriver {
         try {
             // Create any needed subdirectories
             File parentDir = outFile.getParentFile();
-            if(!parentDir.exists()) {
+            if (!parentDir.exists()) {
                 parentDir.mkdirs();
                 parentDir.setWritable(true);
             }
@@ -150,7 +150,7 @@ public class FileStitcherDriver {
                                     "space-id",
                                     true,
                                     "space-id of duracloud space where " +
-                                        "manifest and chunks reside");
+                                    "manifest and chunks reside");
 
         Option manifestId = new Option("m",
                                        "manifest-id",

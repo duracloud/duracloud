@@ -10,9 +10,7 @@ package org.duracloud.syncui.service;
 import java.beans.PropertyChangeEvent;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public interface SyncConfigurationChangeListener {
     public void configurationChanged(PropertyChangeEvent event);

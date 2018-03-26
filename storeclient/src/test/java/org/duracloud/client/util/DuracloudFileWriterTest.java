@@ -18,10 +18,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 /**
- * 
  * @author Daniel Bernstein
- *         Date: Jan 4, 2012
+ * Date: Jan 4, 2012
  */
 public class DuracloudFileWriterTest {
 
@@ -41,48 +41,47 @@ public class DuracloudFileWriterTest {
         ContentStore contentStore = EasyMock.createMock(ContentStore.class);
         EasyMock.expect(contentStore.getStoreId()).andReturn("storeId").once();
         EasyMock.expect(contentStore.addContent(EasyMock.isA(String.class),
-                                EasyMock.isA(String.class),
-                                EasyMock.isA(InputStream.class),
-                                EasyMock.anyLong(),
-                                EasyMock.isA(String.class),
-                                (String)EasyMock.isNull(),
-                                (Map<String,String>)EasyMock.isNull()))
-                                .andReturn("test")
-                                .times(2);
-                    
+                                                EasyMock.isA(String.class),
+                                                EasyMock.isA(InputStream.class),
+                                                EasyMock.anyLong(),
+                                                EasyMock.isA(String.class),
+                                                (String) EasyMock.isNull(),
+                                                (Map<String, String>) EasyMock.isNull()))
+                .andReturn("test")
+                .times(2);
+
         EasyMock.replay(contentStore);
 
         DuracloudFileWriter dfw =
-            new DuracloudFileWriter(spaceId, contentId, mimetype, contentStore);        
-        
+            new DuracloudFileWriter(spaceId, contentId, mimetype, contentStore);
+
         dfw.writeLine("Line 1");
         dfw.writeLine("Line 2");
         dfw.flush();
-        
+
         dfw.close();
 
-        try{
+        try {
             dfw.writeLine("Line3");
             Assert.assertTrue(false);
-        }catch(IOException ex){
+        } catch (IOException ex) {
             Assert.assertTrue(true);
         }
 
-        try{
+        try {
             dfw.flush();
             Assert.assertTrue(false);
-        }catch(IOException ex){
+        } catch (IOException ex) {
             Assert.assertTrue(true);
         }
 
-        try{
+        try {
             dfw.close();
             Assert.assertTrue(false);
-        }catch(IOException ex){
+        } catch (IOException ex) {
             Assert.assertTrue(true);
         }
- 
-        
+
         EasyMock.verify(contentStore);
 
     }

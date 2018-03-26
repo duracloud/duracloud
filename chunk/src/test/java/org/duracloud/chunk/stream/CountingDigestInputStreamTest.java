@@ -7,19 +7,20 @@
  */
 package org.duracloud.chunk.stream;
 
-import org.duracloud.common.util.ChecksumUtil;
 import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
 
+import org.duracloud.common.util.ChecksumUtil;
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
  * @author Andrew Woods
- *         Date: Feb 10, 2010
+ * Date: Feb 10, 2010
  */
 public class CountingDigestInputStreamTest {
 

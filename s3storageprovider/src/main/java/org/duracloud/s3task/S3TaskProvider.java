@@ -21,14 +21,13 @@ import org.duracloud.storage.provider.TaskProviderBase;
 import org.slf4j.LoggerFactory;
 
 /**
- * Handles tasks specific to content stored in Amazon S3 
+ * Handles tasks specific to content stored in Amazon S3
  *
  * @author: Bill Branan
  * Date: May 20, 2010
  */
 public class S3TaskProvider extends TaskProviderBase {
-    
-    
+
     public S3TaskProvider(StorageProvider s3Provider,
                           S3StorageProvider unwrappedS3Provider,
                           AmazonS3Client s3Client,
@@ -39,7 +38,7 @@ public class S3TaskProvider extends TaskProviderBase {
                           String storeId) {
         super(storeId);
         log = LoggerFactory.getLogger(S3TaskProvider.class);
-        
+
         taskList.add(new NoopTaskRunner());
         taskList.add(new EnableStreamingTaskRunner(s3Provider,
                                                    unwrappedS3Provider,
@@ -64,5 +63,5 @@ public class S3TaskProvider extends TaskProviderBase {
                                                    cfClient));
         taskList.add(new SetStoragePolicyTaskRunner(unwrappedS3Provider));
     }
-    
+
 }

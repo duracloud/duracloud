@@ -45,14 +45,13 @@ public class MetricsTable {
     }
 
     public MetricsTable getSubTable(Metric parent, MetricElement elem)
-            throws MetricException {
+        throws MetricException {
         if (!table.containsKey(parent)) {
-            throw new MetricException("No parent metric found: "
-                    + parent.toString());
+            throw new MetricException("No parent metric found: " + parent.toString());
         }
         if (!table.get(parent).containsKey(elem)) {
             throw new MetricException("No element found for parent metric: "
-                    + elem.toString() + " | " + parent.toString());
+                                      + elem.toString() + " | " + parent.toString());
         }
 
         return table.get(parent).get(elem);

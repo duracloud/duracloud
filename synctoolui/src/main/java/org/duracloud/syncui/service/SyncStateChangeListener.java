@@ -8,9 +8,7 @@
 package org.duracloud.syncui.service;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public interface SyncStateChangeListener {
     public void stateChanged(SyncStateChangedEvent event);

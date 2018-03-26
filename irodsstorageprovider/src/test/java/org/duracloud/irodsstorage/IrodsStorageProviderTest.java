@@ -7,19 +7,18 @@
  */
 package org.duracloud.irodsstorage;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.duracloud.storage.domain.StorageProviderType;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-
 import static org.duracloud.storage.domain.StorageAccount.OPTS.BASE_DIRECTORY;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.HOST;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.PORT;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.RESOURCE;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.ZONE;
+import static org.junit.Assert.assertEquals;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.duracloud.storage.domain.StorageProviderType;
+import org.junit.Test;
 
 /**
  * @author Bill Branan

@@ -7,15 +7,15 @@
  */
 package org.duracloud.snapshot.dto.task;
 
-import org.junit.Test;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 8/14/14
+ * Date: 8/14/14
  */
 public class CleanupSnapshotTaskResultTest {
 
@@ -27,7 +27,7 @@ public class CleanupSnapshotTaskResultTest {
         String result = new CleanupSnapshotTaskResult(expirationDays).serialize();
         String cleanResult = result.replaceAll("\\s+", "");
         assertThat(cleanResult,
-                   containsString("\"contentExpirationDays\":"+expirationDays));
+                   containsString("\"contentExpirationDays\":" + expirationDays));
 
     }
 
@@ -35,7 +35,7 @@ public class CleanupSnapshotTaskResultTest {
     public void testDeserialize() {
         // Verify valid params
         String taskParamsSerialized =
-            "{\"contentExpirationDays\" : "+expirationDays+"}";
+            "{\"contentExpirationDays\" : " + expirationDays + "}";
 
         CleanupSnapshotTaskResult taskResult =
             CleanupSnapshotTaskResult.deserialize(taskParamsSerialized);

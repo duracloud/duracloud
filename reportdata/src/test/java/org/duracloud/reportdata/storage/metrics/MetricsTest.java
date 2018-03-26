@@ -7,13 +7,13 @@
  */
 package org.duracloud.reportdata.storage.metrics;
 
-import org.duracloud.reportdata.storage.ReportTestHelper;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.duracloud.reportdata.storage.ReportTestHelper;
+import org.junit.Test;
 
 /**
  * @author: Bill Branan
@@ -35,14 +35,14 @@ public class MetricsTest {
         assertNotNull(providerMetrics);
         assertEquals(2, providerMetrics.size());
 
-        for(StorageProviderMetrics provider : providerMetrics) {
+        for (StorageProviderMetrics provider : providerMetrics) {
             assertEquals(12, provider.getTotalItems());
             assertEquals(1200, provider.getTotalSize());
 
             List<SpaceMetrics> spaceMetrics = provider.getSpaceMetrics();
             assertEquals(2, spaceMetrics.size());
 
-            for(SpaceMetrics space : spaceMetrics) {
+            for (SpaceMetrics space : spaceMetrics) {
                 assertEquals(6, space.getTotalItems());
                 assertEquals(600, space.getTotalSize());
                 assertEquals(3, space.getMimetypeMetrics().size());

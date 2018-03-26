@@ -15,25 +15,24 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class GenericHelpCommand extends Command {
-    private Map<String,Command> commandMap;
-    public GenericHelpCommand(Map<String,Command> commandMap){
+    private Map<String, Command> commandMap;
+
+    public GenericHelpCommand(Map<String, Command> commandMap) {
         super("help");
         this.commandMap = commandMap;
     }
-    
+
     @Override
     protected Options createOptions() {
         return new Options();
     }
-    
+
     @Override
     protected void executeImpl(String[] args, CommandLine cl) {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("("+StringUtils.join(commandMap.keySet(), "|")+") [options]", new Options());
+        formatter.printHelp("(" + StringUtils.join(commandMap.keySet(), "|") + ") [options]", new Options());
     }
 }

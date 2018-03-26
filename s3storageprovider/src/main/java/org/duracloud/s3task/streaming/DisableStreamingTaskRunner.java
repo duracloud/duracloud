@@ -49,7 +49,7 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
             DisableStreamingTaskParameters.deserialize(taskParameters);
 
         String spaceId = taskParams.getSpaceId();
-        log.info("Performing " + TASK_NAME + " task on space " + spaceId);        
+        log.info("Performing " + TASK_NAME + " task on space " + spaceId);
 
         // Will throw if bucket does not exist
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
@@ -61,7 +61,7 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
         StreamingDistributionSummary existingDist =
             getExistingDistribution(bucketName);
 
-        if(existingDist != null) {
+        if (existingDist != null) {
             s3Client.deleteBucketPolicy(bucketName);
         } else {
             throw new RuntimeException("No streaming distribution " +

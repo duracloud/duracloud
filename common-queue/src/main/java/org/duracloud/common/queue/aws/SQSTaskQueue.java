@@ -18,18 +18,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.common.queue.TaskException;
-import org.duracloud.common.queue.TaskNotFoundException;
-import org.duracloud.common.queue.TaskQueue;
-import org.duracloud.common.queue.TimeoutException;
-import org.duracloud.common.queue.task.Task;
-import org.duracloud.common.retry.Retriable;
-import org.duracloud.common.retry.Retrier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
@@ -51,14 +39,26 @@ import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
+import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.queue.TaskException;
+import org.duracloud.common.queue.TaskNotFoundException;
+import org.duracloud.common.queue.TaskQueue;
+import org.duracloud.common.queue.TimeoutException;
+import org.duracloud.common.queue.task.Task;
+import org.duracloud.common.retry.Retriable;
+import org.duracloud.common.retry.Retrier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * SQSTaskQueue acts as the interface for interacting with an Amazon
  * Simple Queue Service (SQS) queue.
  * This class provides a way to interact with a remote SQS Queue, it
  * emulates the functionality of a queue.
+ *
  * @author Erik Paulsson
- *         Date: 10/21/13
+ * Date: 10/21/13
  */
 public class SQSTaskQueue implements TaskQueue {
     private static Logger log = LoggerFactory.getLogger(SQSTaskQueue.class);
@@ -74,11 +74,11 @@ public class SQSTaskQueue implements TaskQueue {
 
     /**
      * Creates a SQSTaskQueue that serves as a handle to interacting with a
-     * remote Amazon SQS Queue. 
+     * remote Amazon SQS Queue.
      * The AmazonSQSClient will search for Amazon credentials on the system as
      * described here:
      * http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/auth/DefaultAWSCredentialsProviderChain.html
-     * 
+     *
      * Moreover, it is possible to set the region to use via the AWS_REGION
      * environment variable or one of the other methods described here:
      * http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/java-dg-region-selection.html
@@ -93,7 +93,7 @@ public class SQSTaskQueue implements TaskQueue {
         this.queueUrl = getQueueUrl();
         this.visibilityTimeout = getVisibilityTimeout();
     }
-    
+
     @Override
     public String getName() {
         return this.queueName;
@@ -105,10 +105,10 @@ public class SQSTaskQueue implements TaskQueue {
         try {
             props.load(new StringReader(msg.getBody()));
 
-            if(props.containsKey(Task.KEY_TYPE)) {
+            if (props.containsKey(Task.KEY_TYPE)) {
                 task = new Task();
-                for(final String key: props.stringPropertyNames()) {
-                    if(key.equals(Task.KEY_TYPE)) {
+                for (final String key : props.stringPropertyNames()) {
+                    if (key.equals(Task.KEY_TYPE)) {
                         task.setType(Task.Type.valueOf(props.getProperty(key)));
                     } else {
                         task.addProperty(key, props.getProperty(key));
@@ -117,10 +117,10 @@ public class SQSTaskQueue implements TaskQueue {
                 task.addProperty(MsgProp.MSG_ID.name(), msg.getMessageId());
                 task.addProperty(MsgProp.RECEIPT_HANDLE.name(), msg.getReceiptHandle());
             } else {
-                log.error("SQS message from queue: "+ queueName+", queueUrl: " +
-                              queueUrl +" does not contain a 'task type'");
+                log.error("SQS message from queue: " + queueName + ", queueUrl: " +
+                          queueUrl + " does not contain a 'task type'");
             }
-        } catch(IOException ioe) {
+        } catch (IOException ioe) {
             log.error("Error creating Task", ioe);
         }
         return task;
@@ -129,9 +129,9 @@ public class SQSTaskQueue implements TaskQueue {
     protected String unmarshallTask(Task task) {
         Properties props = new Properties();
         props.setProperty(Task.KEY_TYPE, task.getType().name());
-        for(String key: task.getProperties().keySet()) {
+        for (String key : task.getProperties().keySet()) {
             String value = task.getProperty(key);
-            if(null != value) {
+            if (null != value) {
                 props.setProperty(key, value);
             }
         }
@@ -140,9 +140,9 @@ public class SQSTaskQueue implements TaskQueue {
         try {
             props.store(sw, null);
             msgBody = sw.toString();
-        } catch(IOException ioe) {
+        } catch (IOException ioe) {
             log.error("Error unmarshalling Task, queue: " + queueName +
-                          ", msgBody: " + msgBody, ioe);
+                      ", msgBody: " + msgBody, ioe);
         }
         return msgBody;
     }
@@ -151,27 +151,28 @@ public class SQSTaskQueue implements TaskQueue {
     public void put(final Task task) {
         try {
             final String msgBody = unmarshallTask(task);
-            
-             new Retrier(4, 10000, 2).execute(new Retriable(){
-                 @Override
-                 public Object retry() throws Exception {
-                     sqsClient.sendMessage(new SendMessageRequest(queueUrl, msgBody));
-                     return null;
-                 }
-             });
 
-             log.info("SQS message successfully placed {} on queue - queue: {}",
-                      task, queueName);
+            new Retrier(4, 10000, 2).execute(new Retriable() {
+                @Override
+                public Object retry() throws Exception {
+                    sqsClient.sendMessage(new SendMessageRequest(queueUrl, msgBody));
+                    return null;
+                }
+            });
 
-         }catch(Exception ex){
-             log.error("failed to place {} on {} due to {}", task, queueName, ex.getMessage());
-             throw new DuraCloudRuntimeException(ex);
-         }
+            log.info("SQS message successfully placed {} on queue - queue: {}",
+                     task, queueName);
+
+        } catch (Exception ex) {
+            log.error("failed to place {} on {} due to {}", task, queueName, ex.getMessage());
+            throw new DuraCloudRuntimeException(ex);
+        }
 
     }
 
     /**
      * Convenience method that calls put(Set<Task>)
+     *
      * @param tasks
      */
     @Override
@@ -185,6 +186,7 @@ public class SQSTaskQueue implements TaskQueue {
      * Puts multiple tasks on the queue using batch puts.  The tasks argument
      * can contain more than 10 Tasks, in that case there will be multiple SQS
      * batch send requests made each containing up to 10 messages.
+     *
      * @param tasks
      */
     @Override
@@ -192,15 +194,15 @@ public class SQSTaskQueue implements TaskQueue {
         String msgBody = null;
         SendMessageBatchRequestEntry msgEntry = null;
         Set<SendMessageBatchRequestEntry> msgEntries = new HashSet<>();
-        for(Task task: tasks) {
+        for (Task task : tasks) {
             msgBody = unmarshallTask(task);
             msgEntry = new SendMessageBatchRequestEntry()
                 .withMessageBody(msgBody)
-                .withId(msgEntries.size()+"");  // must set unique ID for each msg in the batch request
+                .withId(msgEntries.size() + "");  // must set unique ID for each msg in the batch request
             msgEntries.add(msgEntry);
 
             // Can only send batch of max 10 messages in a SQS queue request
-            if(msgEntries.size() == 10) {
+            if (msgEntries.size() == 10) {
                 this.sendBatchMessages(msgEntries);
                 msgEntries.clear();  // clear the already sent messages
             }
@@ -208,18 +210,18 @@ public class SQSTaskQueue implements TaskQueue {
 
         // After for loop check to see if there are msgs in msgEntries that
         // haven't been sent yet because the size never reached 10.
-        if(! msgEntries.isEmpty()) {
+        if (!msgEntries.isEmpty()) {
             this.sendBatchMessages(msgEntries);
         }
     }
 
     private void sendBatchMessages(Set<SendMessageBatchRequestEntry> msgEntries) {
         try {
-           final  SendMessageBatchRequest sendMessageBatchRequest = new SendMessageBatchRequest()
+            final SendMessageBatchRequest sendMessageBatchRequest = new SendMessageBatchRequest()
                 .withQueueUrl(queueUrl)
                 .withEntries(msgEntries);
-           
-            new Retrier(4, 5000, 2).execute(new Retriable(){
+
+            new Retrier(4, 5000, 2).execute(new Retriable() {
                 @Override
                 public Object retry() throws Exception {
                     sqsClient.sendMessageBatch(sendMessageBatchRequest);
@@ -229,8 +231,8 @@ public class SQSTaskQueue implements TaskQueue {
 
             log.info("{} SQS messages successfully placed on queue: {}",
                      msgEntries.size(), queueName);
-        
-        }catch(Exception ex){
+
+        } catch (Exception ex) {
             log.error("failed to place {} on {} due to {}", msgEntries, queueName, ex.getMessage());
             throw new DuraCloudRuntimeException(ex);
         }
@@ -243,9 +245,9 @@ public class SQSTaskQueue implements TaskQueue {
                 .withQueueUrl(queueUrl)
                 .withMaxNumberOfMessages(maxTasks)
                 .withAttributeNames("SentTimestamp", "ApproximateReceiveCount"));
-        if(result.getMessages() != null && result.getMessages().size() > 0) {
+        if (result.getMessages() != null && result.getMessages().size() > 0) {
             Set<Task> tasks = new HashSet<>();
-            for(Message msg : result.getMessages()){
+            for (Message msg : result.getMessages()) {
 
                 // The Amazon docs claim this attribute is 'returned as an integer
                 // representing the epoch time in milliseconds.'
@@ -254,28 +256,28 @@ public class SQSTaskQueue implements TaskQueue {
                     Long sentTime = Long.parseLong(msg.getAttributes().get("SentTimestamp"));
                     Long preworkQueueTime = System.currentTimeMillis() - sentTime;
                     log.info("SQS message received - queue: {}, queueUrl: {}, msgId: {}," +
-                                 " preworkQueueTime: {}, receiveCount: {}"
+                             " preworkQueueTime: {}, receiveCount: {}"
                         , queueName, queueUrl, msg.getMessageId()
                         , DurationFormatUtils.formatDuration(preworkQueueTime, "HH:mm:ss,SSS")
                         , msg.getAttributes().get("ApproximateReceiveCount"));
-                } catch(NumberFormatException nfe) {
+                } catch (NumberFormatException nfe) {
                     log.error("Error converting 'SentTimestamp' SQS message" +
-                                  " attribute to Long, messageId: " +
-                                  msg.getMessageId(), nfe);
+                              " attribute to Long, messageId: " +
+                              msg.getMessageId(), nfe);
                 }
 
                 Task task = marshallTask(msg);
                 task.setVisibilityTimeout(visibilityTimeout);
                 tasks.add(task);
             }
-            
+
             return tasks;
-         } else {
+        } else {
             throw new TimeoutException("No tasks available from queue: " +
-                                           queueName + ", queueUrl: " + queueUrl);
+                                       queueName + ", queueUrl: " + queueUrl);
         }
     }
-    
+
     @Override
     public Task take() throws TimeoutException {
         return take(1).iterator().next();
@@ -289,10 +291,10 @@ public class SQSTaskQueue implements TaskQueue {
                                                   .withReceiptHandle(task.getProperty(MsgProp.RECEIPT_HANDLE.name()))
                                                   .withVisibilityTimeout(task.getVisibilityTimeout()));
             log.info("extended visibility timeout {} seconds for {}",
-                    task.getVisibilityTimeout(), task);
-        } catch(ReceiptHandleIsInvalidException rhe) {
+                     task.getVisibilityTimeout(), task);
+        } catch (ReceiptHandleIsInvalidException rhe) {
             log.error("failed to extend visibility timeout on task " + task
-                    + ": " + rhe.getMessage(), rhe);
+                      + ": " + rhe.getMessage(), rhe);
 
             throw new TaskNotFoundException(rhe);
         }
@@ -302,62 +304,58 @@ public class SQSTaskQueue implements TaskQueue {
     public void deleteTask(Task task) throws TaskNotFoundException {
         try {
             sqsClient.deleteMessage(new DeleteMessageRequest()
-                    .withQueueUrl(queueUrl)
-                    .withReceiptHandle(
-                        task.getProperty(MsgProp.RECEIPT_HANDLE.name())));
+                                        .withQueueUrl(queueUrl)
+                                        .withReceiptHandle(
+                                            task.getProperty(MsgProp.RECEIPT_HANDLE.name())));
             log.info("successfully deleted {}", task);
 
-        } catch(ReceiptHandleIsInvalidException rhe) {
-            log.error(
-                    "failed to delete task " + task + ": " + rhe.getMessage(),
-                    rhe);
-
+        } catch (ReceiptHandleIsInvalidException rhe) {
+            log.error("failed to delete task " + task + ": " + rhe.getMessage(), rhe);
             throw new TaskNotFoundException(rhe);
         }
     }
-    
+
     @Override
     public void deleteTasks(Set<Task> tasks) throws TaskException {
-        if(tasks.size() > 10) {
+        if (tasks.size() > 10) {
             throw new IllegalArgumentException("task set must contain 10 or fewer tasks");
         }
-        
+
         try {
-            
+
             List<DeleteMessageBatchRequestEntry> entries = new ArrayList<>(tasks.size());
-            
-            for(Task task : tasks){
+
+            for (Task task : tasks) {
                 DeleteMessageBatchRequestEntry entry =
                     new DeleteMessageBatchRequestEntry().withId(task.getProperty(MsgProp.MSG_ID.name()))
-                                                        .withReceiptHandle(task.getProperty(MsgProp.RECEIPT_HANDLE.name()));
+                                                        .withReceiptHandle(
+                                                            task.getProperty(MsgProp.RECEIPT_HANDLE.name()));
                 entries.add(entry);
             }
-            
+
             DeleteMessageBatchRequest request = new DeleteMessageBatchRequest()
-                                                        .withQueueUrl(queueUrl)
-                                                        .withEntries(entries);
+                .withQueueUrl(queueUrl)
+                .withEntries(entries);
             DeleteMessageBatchResult result = sqsClient.deleteMessageBatch(request);
             List<BatchResultErrorEntry> failed = result.getFailed();
-            if(failed != null && failed.size() > 0){
-                for(BatchResultErrorEntry error : failed){
+            if (failed != null && failed.size() > 0) {
+                for (BatchResultErrorEntry error : failed) {
                     log.info("failed to delete message: " + error);
                 }
             }
-            
-            for(DeleteMessageBatchResultEntry entry : result.getSuccessful()){
-                log.info("successfully deleted {}" , entry);
+
+            for (DeleteMessageBatchResultEntry entry : result.getSuccessful()) {
+                log.info("successfully deleted {}", entry);
             }
 
-        } catch(AmazonServiceException se) {
-            log.error(
-                    "failed to batch delete tasks " + tasks + ": " + se.getMessage(),
-                    se);
+        } catch (AmazonServiceException se) {
+            log.error("failed to batch delete tasks " + tasks + ": " + se.getMessage(), se);
 
             throw new TaskException(se);
         }
-        
+
     }
-    
+
     /* (non-Javadoc)
      * @see org.duracloud.queue.TaskQueue#requeue(org.duracloud.queue.task.Task)
      */
@@ -368,12 +366,12 @@ public class SQSTaskQueue implements TaskQueue {
         try {
             deleteTask(task);
         } catch (TaskNotFoundException e) {
-            log.error("unable to delete " + task+ " ignoring - requeuing anyway");
+            log.error("unable to delete " + task + " ignoring - requeuing anyway");
         }
 
         put(task);
         log.warn("requeued {} after {} failed attempts.", task, attempts);
-        
+
     }
 
     @Override
@@ -390,9 +388,9 @@ public class SQSTaskQueue implements TaskQueue {
             queryQueueAttributes(QueueAttributeName.ApproximateNumberOfMessages,
                                  QueueAttributeName.ApproximateNumberOfMessagesNotVisible,
                                  QueueAttributeName.ApproximateNumberOfMessagesDelayed);
-        Map<String,String> attributes = result.getAttributes();
+        Map<String, String> attributes = result.getAttributes();
         int size = 0;
-        for(String attrKey : attributes.keySet()){
+        for (String attrKey : attributes.keySet()) {
             String value = attributes.get(attrKey);
             log.debug("retrieved attribute: {}={}", attrKey, value);
             int intValue = Integer.parseInt(value);
@@ -416,8 +414,8 @@ public class SQSTaskQueue implements TaskQueue {
 
     private GetQueueAttributesResult queryQueueAttributes(QueueAttributeName... attrNames) {
         return sqsClient.getQueueAttributes(new GetQueueAttributesRequest()
-            .withQueueUrl(queueUrl)
-            .withAttributeNames(attrNames));
+                                                .withQueueUrl(queueUrl)
+                                                .withAttributeNames(attrNames));
     }
 
 }

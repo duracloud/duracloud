@@ -7,21 +7,50 @@
  */
 package org.duracloud.integration.durastore.storage.probe;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.*;
-import org.duracloud.common.util.metrics.Metric;
-import org.duracloud.common.util.metrics.MetricException;
-import org.duracloud.common.util.metrics.MetricsProbed;
-import org.duracloud.common.util.metrics.MetricsTable;
-
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
+
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AccessControlList;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.BucketLoggingConfiguration;
+import com.amazonaws.services.s3.model.BucketNotificationConfiguration;
+import com.amazonaws.services.s3.model.BucketPolicy;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.CreateBucketRequest;
+import com.amazonaws.services.s3.model.DeleteBucketRequest;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.DeleteVersionRequest;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ListBucketsRequest;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ListVersionsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.Owner;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
+import com.amazonaws.services.s3.model.Region;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.SetBucketLoggingConfigurationRequest;
+import com.amazonaws.services.s3.model.SetBucketVersioningConfigurationRequest;
+import com.amazonaws.services.s3.model.StorageClass;
+import com.amazonaws.services.s3.model.VersionListing;
+import org.duracloud.common.util.metrics.Metric;
+import org.duracloud.common.util.metrics.MetricException;
+import org.duracloud.common.util.metrics.MetricsProbed;
+import org.duracloud.common.util.metrics.MetricsTable;
 
 /**
  * This class wraps an AmazonS3Client implementation, collecting timing metrics
@@ -29,9 +58,7 @@ import java.util.List;
  *
  * @author Bill Branan
  */
-public class ProbedRestS3Client
-        extends AmazonS3Client
-        implements MetricsProbed {
+public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,8 +66,7 @@ public class ProbedRestS3Client
 
     protected Metric metric = null;
 
-    public ProbedRestS3Client(AWSCredentials credentials)
-        throws AmazonServiceException {
+    public ProbedRestS3Client(AWSCredentials credentials) throws AmazonServiceException {
         super(credentials);
     }
 
@@ -87,7 +113,7 @@ public class ProbedRestS3Client
     public VersionListing listVersions(String bucketName, String prefix)
         throws AmazonClientException {
         startMetric("listVersions");
-        VersionListing result =  super.listVersions(bucketName, prefix);
+        VersionListing result = super.listVersions(bucketName, prefix);
         stopMetric("listVersions");
         return result;
     }
@@ -101,12 +127,12 @@ public class ProbedRestS3Client
                                        Integer maxKeys)
         throws AmazonClientException {
         startMetric("listVersions");
-        VersionListing result =  super.listVersions(bucketName,
-                                                    prefix,
-                                                    keyMarker,
-                                                    versionIdMarker,
-                                                    delimiter,
-                                                    maxKeys);
+        VersionListing result = super.listVersions(bucketName,
+                                                   prefix,
+                                                   keyMarker,
+                                                   versionIdMarker,
+                                                   delimiter,
+                                                   maxKeys);
         stopMetric("listVersions");
         return result;
     }
@@ -115,7 +141,7 @@ public class ProbedRestS3Client
     public VersionListing listVersions(ListVersionsRequest listVersionsRequest)
         throws AmazonClientException {
         startMetric("listVersions");
-        VersionListing result =  super.listVersions(listVersionsRequest);
+        VersionListing result = super.listVersions(listVersionsRequest);
         stopMetric("listVersions");
         return result;
     }
@@ -282,7 +308,7 @@ public class ProbedRestS3Client
                              CannedAccessControlList acl)
         throws AmazonClientException {
         startMetric("setObjectAcl");
-        super.setObjectAcl(bucketName, key, versionId, acl); 
+        super.setObjectAcl(bucketName, key, versionId, acl);
         stopMetric("setObjectAcl");
     }
 
@@ -418,7 +444,7 @@ public class ProbedRestS3Client
     public PutObjectResult putObject(PutObjectRequest putObjectRequest)
         throws AmazonClientException {
         startMetric("putObject");
-        PutObjectResult result = super.putObject(putObjectRequest); 
+        PutObjectResult result = super.putObject(putObjectRequest);
         stopMetric("putObject");
         return result;
     }
@@ -442,7 +468,7 @@ public class ProbedRestS3Client
     public CopyObjectResult copyObject(CopyObjectRequest copyObjectRequest)
         throws AmazonClientException {
         startMetric("copyObject");
-        CopyObjectResult result = super.copyObject(copyObjectRequest); 
+        CopyObjectResult result = super.copyObject(copyObjectRequest);
         stopMetric("copyObject");
         return result;
     }
@@ -451,7 +477,7 @@ public class ProbedRestS3Client
     public void deleteObject(String bucketName, String key)
         throws AmazonClientException {
         startMetric("deleteObject");
-        super.deleteObject(bucketName, key); 
+        super.deleteObject(bucketName, key);
         stopMetric("deleteObject");
     }
 
@@ -484,8 +510,7 @@ public class ProbedRestS3Client
         SetBucketVersioningConfigurationRequest setBucketVersioningConfigurationRequest)
         throws AmazonClientException {
         startMetric("setBucketVersioningConfiguration");
-        super.setBucketVersioningConfiguration(
-            setBucketVersioningConfigurationRequest); 
+        super.setBucketVersioningConfiguration(setBucketVersioningConfigurationRequest);
         stopMetric("setBucketVersioningConfiguration");
     }
 
@@ -506,13 +531,12 @@ public class ProbedRestS3Client
         throws AmazonClientException {
         startMetric("setBucketNotificationConfiguration");
         super.setBucketNotificationConfiguration(bucketName,
-                                                 bucketNotificationConfiguration); 
+                                                 bucketNotificationConfiguration);
         stopMetric("setBucketNotificationConfiguration");
     }
 
     @Override
-    public BucketNotificationConfiguration getBucketNotificationConfiguration(
-        String bucketName)
+    public BucketNotificationConfiguration getBucketNotificationConfiguration(String bucketName)
         throws AmazonClientException {
         startMetric("getBucketNotificationConfiguration");
         BucketNotificationConfiguration result =
@@ -522,8 +546,7 @@ public class ProbedRestS3Client
     }
 
     @Override
-    public BucketLoggingConfiguration getBucketLoggingConfiguration(
-        String bucketName)
+    public BucketLoggingConfiguration getBucketLoggingConfiguration(String bucketName)
         throws AmazonClientException {
         startMetric("getBucketLoggingConfiguration");
         BucketLoggingConfiguration result =
@@ -538,7 +561,7 @@ public class ProbedRestS3Client
         throws AmazonClientException {
         startMetric("setBucketLoggingConfiguration");
         super.setBucketLoggingConfiguration(
-            setBucketLoggingConfigurationRequest); 
+            setBucketLoggingConfigurationRequest);
         stopMetric("setBucketLoggingConfiguration");
     }
 
@@ -555,7 +578,7 @@ public class ProbedRestS3Client
     public void setBucketPolicy(String bucketName, String policyText)
         throws AmazonClientException {
         startMetric("setBucketPolicy");
-        super.setBucketPolicy(bucketName, policyText); 
+        super.setBucketPolicy(bucketName, policyText);
         stopMetric("setBucketPolicy");
     }
 
@@ -568,8 +591,7 @@ public class ProbedRestS3Client
     }
 
     @Override
-    public URL generatePresignedUrl(String bucketName, String key,
-                                    Date expiration)
+    public URL generatePresignedUrl(String bucketName, String key, Date expiration)
         throws AmazonClientException {
         startMetric("generatePresignedUrl");
         URL result = super.generatePresignedUrl(bucketName, key, expiration);
@@ -583,8 +605,7 @@ public class ProbedRestS3Client
                                     com.amazonaws.HttpMethod method)
         throws AmazonClientException {
         startMetric("generatePresignedUrl");
-        URL result =
-            super.generatePresignedUrl(bucketName, key, expiration, method);
+        URL result = super.generatePresignedUrl(bucketName, key, expiration, method);
         stopMetric("generatePresignedUrl");
         return result;
     }
@@ -594,7 +615,7 @@ public class ProbedRestS3Client
         GeneratePresignedUrlRequest generatePresignedUrlRequest)
         throws AmazonClientException {
         startMetric("generatePresignedUrl");
-        URL result = super.generatePresignedUrl(generatePresignedUrlRequest); 
+        URL result = super.generatePresignedUrl(generatePresignedUrlRequest);
         stopMetric("generatePresignedUrl");
         return result;
     }

@@ -14,10 +14,9 @@ import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class DuracloudCredentialsCoherenceCheckerValidatorTest {
 
@@ -26,7 +25,7 @@ public class DuracloudCredentialsCoherenceCheckerValidatorTest {
     }
 
     @Test
-    public void testIsValid() throws Exception{
+    public void testIsValid() throws Exception {
         ContentStoreFactory f = EasyMock.createMock(ContentStoreFactory.class);
         DuracloudCredentialsForm credentials = new DuracloudCredentialsForm();
         ContentStore contentStore = EasyMock.createMock(ContentStore.class);
@@ -38,7 +37,7 @@ public class DuracloudCredentialsCoherenceCheckerValidatorTest {
     }
 
     @Test
-    public void testIsInvalid() throws Exception{
+    public void testIsInvalid() throws Exception {
         ContentStoreFactory f = EasyMock.createMock(ContentStoreFactory.class);
         DuracloudCredentialsForm credentials = new DuracloudCredentialsForm();
         EasyMock.expect(f.create(credentials)).andThrow(new ContentStoreException("test exception"));

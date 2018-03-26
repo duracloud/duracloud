@@ -15,7 +15,7 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
  * FileChunker.
  *
  * @author Andrew Woods
- *         Date: Mar 17, 2010
+ * Date: Mar 17, 2010
  */
 public class FileChunkerOptions {
     private IOFileFilter fileFilter = TrueFileFilter.TRUE;

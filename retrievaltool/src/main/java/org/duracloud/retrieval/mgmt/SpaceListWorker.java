@@ -7,18 +7,18 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import org.duracloud.chunk.util.ChunkUtil;
-import org.duracloud.client.ContentStore;
-import org.duracloud.common.util.DateUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Iterator;
+
+import org.duracloud.chunk.util.ChunkUtil;
+import org.duracloud.client.ContentStore;
+import org.duracloud.common.util.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles the retrieving of a single file from DuraCloud.
@@ -36,7 +36,7 @@ public class SpaceListWorker implements Runnable {
     private File outputFile;
     private boolean overwrite;
     private ChunkUtil chunkUtil;
-    
+
     /**
      * Creates a Space List Worker to handle retrieving a list of space contents
      */
@@ -62,35 +62,35 @@ public class SpaceListWorker implements Runnable {
     protected void createSpaceListFile() {
         try {
             String providerType = contentStore.getStorageProviderType().toLowerCase();
-            outputFile = new File(contentDir, spaceId + "-content-listing-" + 
-                                   providerType + ".txt");
-            if(outputFile.exists() && overwrite) {
+            outputFile = new File(contentDir, spaceId + "-content-listing-" +
+                                              providerType + ".txt");
+            if (outputFile.exists() && overwrite) {
                 outputFile.delete();
-            } else if(outputFile.exists() && !overwrite) {
-                outputFile = new File(contentDir, spaceId + "-content-listing-" + 
-                                   providerType + "-" + DateUtil.nowPlain() + ".txt");
+            } else if (outputFile.exists() && !overwrite) {
+                outputFile = new File(contentDir, spaceId + "-content-listing-" +
+                                                  providerType + "-" + DateUtil.nowPlain() + ".txt");
             }
 
             System.out.println("Writing space '" + spaceId + "' listing to: " +
                                outputFile.getAbsolutePath());
             Iterator<String> contentIterator = contentStore.getSpaceContents(spaceId);
             try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(outputFile), "UTF-8"))) {
-                while(contentIterator.hasNext()) {
+                new FileOutputStream(outputFile), "UTF-8"))) {
+                while (contentIterator.hasNext()) {
                     String contentId = contentIterator.next();
-                    if(!chunkUtil.isChunk(contentId) &&
-                       !chunkUtil.isChunkManifest(contentId)) {
+                    if (!chunkUtil.isChunk(contentId) &&
+                        !chunkUtil.isChunkManifest(contentId)) {
                         writer.write(contentId + System.lineSeparator());
-                    } else if(chunkUtil.isChunkManifest(contentId)) {
+                    } else if (chunkUtil.isChunkManifest(contentId)) {
                         writer.write(chunkUtil.preChunkedContentId(contentId) +
                                      System.lineSeparator());
                     }
                 }
             }
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             String error = "Failed to retrieve content listing for space: '" +
-                       spaceId + "'.  Error message: " + e.getMessage();
+                           spaceId + "'.  Error message: " + e.getMessage();
             System.err.println(error);
             logger.error(error, e);
         }

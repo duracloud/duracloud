@@ -9,7 +9,6 @@ package org.duracloud.integration.sync.endpoint;
 
 import org.duracloud.integration.sync.SyncIntegrationTestBase;
 import org.duracloud.sync.endpoint.DuraStoreSyncEndpoint;
-import org.junit.Test;
 
 /**
  * @author: Bill Branan
@@ -35,5 +34,5 @@ public class TestDuraStoreSyncEndpoint extends DuraStoreSyncTestBase {
                                       false);
         testSyncNoDeletes(endpoint);
     }
-    
+
 }

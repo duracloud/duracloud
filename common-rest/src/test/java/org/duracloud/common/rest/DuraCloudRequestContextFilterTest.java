@@ -7,10 +7,10 @@
  */
 package org.duracloud.common.rest;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 
 import java.io.IOException;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -26,30 +26,30 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 /**
- * 
- * @author Daniel Bernstein 
- *         Date: 12/09/2015
- *
+ * @author Daniel Bernstein
+ * Date: 12/09/2015
  */
 @RunWith(EasyMockRunner.class)
 public class DuraCloudRequestContextFilterTest extends EasyMockSupport {
 
     @Mock
     private HttpServletRequest request;
-    
-    @Mock 
+
+    @Mock
     private HttpServletResponse response;
-    
+
     @Mock
     private FilterChain chain;
-    
+
     @Mock
     private FilterConfig filterConfig;
 
     private String accountId = "test";
 
     private String host = accountId + ".duracloud.org";
+
     @Before
     public void setUp() throws Exception {
     }
@@ -62,20 +62,20 @@ public class DuraCloudRequestContextFilterTest extends EasyMockSupport {
     }
 
     @Test
-    public void testDoFilterWithOverride() throws Exception{
-        System.setProperty(DuraCloudRequestContextFilter.ACCOUNT_ID_OVERRIDE_SYSTEM_PROP_KEY,accountId);
+    public void testDoFilterWithOverride() throws Exception {
+        System.setProperty(DuraCloudRequestContextFilter.ACCOUNT_ID_OVERRIDE_SYSTEM_PROP_KEY, accountId);
         setupSetAttribute();
         executeDoFilter();
     }
 
     @Test
-    public void testDoFilterWithoutOverride() throws Exception{
+    public void testDoFilterWithoutOverride() throws Exception {
         setupSetAttribute();
         executeDoFilter();
     }
 
     protected void setupSetAttribute() throws IOException, ServletException {
-        
+
         expect(request.getHeader(DuraCloudRequestContextFilter.X_FORWARDED_HOST_HEADER)).andReturn(host);
         expect(request.getServerPort()).andReturn(443);
 
@@ -89,7 +89,7 @@ public class DuraCloudRequestContextFilterTest extends EasyMockSupport {
 
     protected void executeDoFilter()
         throws ServletException,
-            IOException {
+        IOException {
         replayAll();
         Filter filter = new DuraCloudRequestContextFilter();
         filter.init(filterConfig);

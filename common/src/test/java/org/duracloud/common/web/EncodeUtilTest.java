@@ -7,9 +7,10 @@
  */
 package org.duracloud.common.web;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author: Bill Branan
@@ -17,9 +18,9 @@ import static org.junit.Assert.assertEquals;
  */
 public class EncodeUtilTest {
 
-    private String[] chars = {"~","`","!","@","$","^","&","*","(",")","_","-",
-                              "+","=","'",":",".",",","<",">","\"","[","]",
-                              "{","}","#","%",";","|"," ","/"};
+    private String[] chars = {"~", "`", "!", "@", "$", "^", "&", "*", "(", ")", "_", "-",
+                              "+", "=", "'", ":", ".", ",", "<", ">", "\"", "[", "]",
+                              "{", "}", "#", "%", ";", "|", " ", "/"};
 
     private String[] encoded = {"%7E", "%60", "%21", "%40", "%24", "%5E", "%26",
                                 "*", "%28", "%29", "_", "-", "%2B", "%3D",
@@ -34,7 +35,7 @@ public class EncodeUtilTest {
 
     @Test
     public void testUrlEncode() throws Exception {
-        for(int i=0; i<chars.length; i++) {
+        for (int i = 0; i < chars.length; i++) {
             assertEquals("Test encoding '" + chars[i] + "'",
                          encoded[i],
                          EncodeUtil.urlEncode(chars[i]));
@@ -43,7 +44,7 @@ public class EncodeUtilTest {
 
     @Test
     public void testUrlDecode() throws Exception {
-        for(int i=0; i<chars.length; i++) {
+        for (int i = 0; i < chars.length; i++) {
             assertEquals("Test decoding '" + chars[i] + "'",
                          chars[i],
                          EncodeUtil.urlDecode(encoded[i]));
@@ -53,7 +54,7 @@ public class EncodeUtilTest {
     @Test
     public void testRoundTrip() throws Exception {
         StringBuilder allCharsBuilder = new StringBuilder();
-        for(int i=0; i<chars.length; i++) {
+        for (int i = 0; i < chars.length; i++) {
             allCharsBuilder.append(chars[i]);
         }
         String allChars = allCharsBuilder.toString();

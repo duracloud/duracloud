@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <!DOCTYPE tiles-definitions PUBLIC
-       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
-       "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+  "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+  "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
 
 <tiles-definitions>
 
-    <definition name="app-base" template="/WEB-INF/jsp/layout/v2/base.jsp">
-            <put-attribute name="title" value="title" />
-            <put-attribute name="header-extensions" value=""/>
-            <put-attribute name="body" value="body" />
-    </definition>
+  <definition name="app-base" template="/WEB-INF/jsp/layout/v2/base.jsp">
+    <put-attribute name="title" value="title"/>
+    <put-attribute name="header-extensions" value=""/>
+    <put-attribute name="body" value="body"/>
+  </definition>
 
 
-	<definition name="app-frame" template="/WEB-INF/jsp/layout/v2/base-layout.jsp">
-		<put-attribute name="title" value="title" />
-		<put-attribute name="header-extensions" value=""/>
+  <definition name="app-frame" template="/WEB-INF/jsp/layout/v2/base-layout.jsp">
+    <put-attribute name="title" value="title"/>
+    <put-attribute name="header-extensions" value=""/>
 
-		<put-attribute name="main-content" value="main-content"/>
-        <put-attribute name="main-footer" value=""/>
+    <put-attribute name="main-content" value="main-content"/>
+    <put-attribute name="main-footer" value=""/>
 
-	</definition>
+  </definition>
 
-	<definition name="error"  template="/WEB-INF/jsp/error.jsp"/>
+  <definition name="error" template="/WEB-INF/jsp/error.jsp"/>
 
-	<definition name="exception" extends="error">
-	</definition>
+  <definition name="exception" extends="error">
+  </definition>
 
-	 
-	<definition name="login" template="/WEB-INF/jsp/login-v2.jsp"/>
- 	 
- 	<definition name="spaces-manager" template="/WEB-INF/jsp/spaces/spaces-manager.jsp">
- 	</definition>
 
- 	<definition name="admin-manager" template="/WEB-INF/jsp/admin/admin-manager.jsp">
- 	</definition>
+  <definition name="login" template="/WEB-INF/jsp/login-v2.jsp"/>
 
-    <definition name="upload-tool" template="/WEB-INF/jsp/spaces/upload-tool.jsp">
-    </definition>
+  <definition name="spaces-manager" template="/WEB-INF/jsp/spaces/spaces-manager.jsp">
+  </definition>
 
-    <definition name="simple-report" template="/WEB-INF/jsp/services/simple-report.jsp" >
-    </definition>
+  <definition name="admin-manager" template="/WEB-INF/jsp/admin/admin-manager.jsp">
+  </definition>
+
+  <definition name="upload-tool" template="/WEB-INF/jsp/spaces/upload-tool.jsp">
+  </definition>
+
+  <definition name="simple-report" template="/WEB-INF/jsp/services/simple-report.jsp">
+  </definition>
 
 
 </tiles-definitions>

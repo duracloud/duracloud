@@ -13,24 +13,22 @@ import org.junit.Test;
 
 /**
  * @author Bill Branan
- *         Date: 7/28/14
+ * Date: 7/28/14
  */
 public class CreateRestoreBridgeResultTest {
-
-
 
     @Test
     public void testDeserialize() {
         RestoreStatus status = RestoreStatus.INITIALIZED;
         String restoreId = "restore-id";
-        String str = "{ \"status\" : \"" + status + "\","  
-                        + " \"restoreId\" : \"" + restoreId + "\"}";
-        
+        String str = "{ \"status\" : \"" + status + "\","
+                     + " \"restoreId\" : \"" + restoreId + "\"}";
+
         CreateRestoreBridgeResult params = CreateRestoreBridgeResult
             .deserialize(str);
         Assert.assertEquals(status, params.getStatus());
         Assert.assertEquals(restoreId, params.getRestoreId());
-        
+
     }
 
 }

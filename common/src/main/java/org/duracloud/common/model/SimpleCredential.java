@@ -11,7 +11,7 @@ package org.duracloud.common.model;
  * Simple username/password credential
  *
  * @author Bill Branan
- *         Date: 7/31/13
+ * Date: 7/31/13
  */
 public class SimpleCredential {
 

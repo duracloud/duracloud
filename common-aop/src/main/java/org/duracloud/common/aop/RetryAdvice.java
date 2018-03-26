@@ -80,7 +80,7 @@ public class RetryAdvice implements MethodInterceptor, Ordered {
         Object[] arguments = invocation.getArguments();
         for (int i = 0; i < arguments.length; i++) {
             Object argument = arguments[i];
-            if(argument != null) {
+            if (argument != null) {
                 methodArgs.append(argument.toString());
             } else {
                 methodArgs.append("null");
@@ -114,5 +114,5 @@ public class RetryAdvice implements MethodInterceptor, Ordered {
 
     public void setOrder(int order) {
         this.order = order;
-    }    
+    }
 }

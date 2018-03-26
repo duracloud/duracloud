@@ -15,13 +15,13 @@ import org.springframework.stereotype.Component;
 
 /**
  * This class filters out the duracloud system spaces from a list of spaces.
+ *
  * @author Daniel Bernstein
- * 
  */
 @Component("spacesFilter")
 public class SpacesFilter {
 
-    public List<String> filter(List<String> spaces){
+    public List<String> filter(List<String> spaces) {
         List<String> results = new ArrayList<String>();
         results.addAll(spaces);
         results.removeAll(Constants.SYSTEM_SPACES);

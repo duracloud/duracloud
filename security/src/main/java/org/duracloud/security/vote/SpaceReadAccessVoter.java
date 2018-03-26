@@ -7,15 +7,15 @@
  */
 package org.duracloud.security.vote;
 
-import static org.duracloud.security.vote.VoterUtil.*;
+import static org.duracloud.security.vote.VoterUtil.debugText;
 
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
+
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
@@ -34,25 +34,26 @@ import org.springframework.util.CollectionUtils;
  * casting a vote.
  *
  * @author Andrew Woods
- *         Date: 11/18/11
+ * Date: 11/18/11
  */
 public class SpaceReadAccessVoter extends SpaceAccessVoter {
 
     private final Logger log =
         LoggerFactory.getLogger(SpaceReadAccessVoter.class);
-    
+
     private List<String> pathExemptions = null;
+
     public SpaceReadAccessVoter(StorageProviderFactory storageProviderFactory,
                                 UserDetailsService userDetailsService) {
         this(storageProviderFactory,
              userDetailsService,
              new LinkedList<String>());
     }
+
     /**
-     * 
      * @param storageProviderFactory
      * @param userDetailsService
-     * @param pathExemptions A list of regular expressions designating path info strings allowable for users.
+     * @param pathExemptions         A list of regular expressions designating path info strings allowable for users.
      */
     public SpaceReadAccessVoter(StorageProviderFactory storageProviderFactory,
                                 UserDetailsService userDetailsService, List<String> pathExemptions) {
@@ -108,8 +109,7 @@ public class SpaceReadAccessVoter extends SpaceAccessVoter {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }
-        
-        
+
         Map<String, AclType> acls = getSpaceACLs(httpRequest);
         // All READs on PUBLIC spaces are granted.
         if (acls.containsKey(StorageProvider.PROPERTIES_SPACE_ACL_PUBLIC)) {
@@ -134,31 +134,32 @@ public class SpaceReadAccessVoter extends SpaceAccessVoter {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }
-        
-        //allow users to read snapshot metadata files for snapshots to which the 
+
+        //allow users to read snapshot metadata files for snapshots to which the
         //user has access
-        if(isSnapshotMetadataSpace(httpRequest) && hasContentId(httpRequest)){
+        if (isSnapshotMetadataSpace(httpRequest) && hasContentId(httpRequest)) {
             return hasSnapshotSpacePermissions(httpRequest,
                                                username,
                                                userGroups)
-                                                   ? ACCESS_GRANTED
-                                                   : ACCESS_DENIED;
+                   ? ACCESS_GRANTED
+                   : ACCESS_DENIED;
         }
 
-        //special case allowing configurable file patterns to be exempted 
-        if(matchesPathExemptions(httpRequest)){
-          return ACCESS_GRANTED;
+        //special case allowing configurable file patterns to be exempted
+        if (matchesPathExemptions(httpRequest)) {
+            return ACCESS_GRANTED;
         }
-        
+
         int grant = ACCESS_DENIED;
         log.debug(debugText(label, auth, config, resource, grant));
         return grant;
     }
 
-    private boolean hasSnapshotSpacePermissions(HttpServletRequest httpRequest, String username, List<String> userGroups) {
+    private boolean hasSnapshotSpacePermissions(HttpServletRequest httpRequest, String username,
+                                                List<String> userGroups) {
         String contentId = getContentId(httpRequest);
         String metadataSuffix = ".zip";
-        if(contentId != null && contentId.endsWith(metadataSuffix)){
+        if (contentId != null && contentId.endsWith(metadataSuffix)) {
             try {
                 String snapshotId =
                     contentId.substring(0,
@@ -168,32 +169,32 @@ public class SpaceReadAccessVoter extends SpaceAccessVoter {
                 String spaceId = identifier.getSpaceId();
                 Map<String, AclType> snapshotSpaceAcls =
                     getSpaceACLs(getStoreId(httpRequest), spaceId);
-                if(hasReadAccess(username, snapshotSpaceAcls) || 
-                    groupsHaveReadAccess(userGroups, snapshotSpaceAcls)){
+                if (hasReadAccess(username, snapshotSpaceAcls) ||
+                    groupsHaveReadAccess(userGroups, snapshotSpaceAcls)) {
                     return true;
                 }
             } catch (ParseException e) {
                 log.error("unable to parse snapshot metadata content id : "
                           + contentId + ": " + e.getMessage(), e);
             }
-        }else{
+        } else {
             log.error("snapshot metadata content id did not end in '.zip' as expected.");
         }
-        
+
         return false;
     }
 
     private boolean matchesPathExemptions(HttpServletRequest httpRequest) {
         String path = httpRequest.getPathInfo();
-        
-        if(!CollectionUtils.isEmpty(this.pathExemptions)){
-            for(String pattern : this.pathExemptions){
-                if(path.matches(pattern)){
+
+        if (!CollectionUtils.isEmpty(this.pathExemptions)) {
+            for (String pattern : this.pathExemptions) {
+                if (path.matches(pattern)) {
                     return true;
                 }
             }
         }
         return false;
-       
+
     }
 }

@@ -36,19 +36,18 @@ public class DirWalker extends DirectoryWalker implements Runnable {
     private boolean continueWalk;
 
     private List<File> filesAndDirs;
- 
+
     protected final ChangedList changedList;
     private int files = 0;
     private boolean complete = false;
     protected FileExclusionManager fileExclusionManager;
-    
+
     protected DirWalker(List<File> filesAndDirs, FileExclusionManager fileExclusionManager) {
         super();
         this.filesAndDirs = filesAndDirs;
         this.changedList = ChangedList.getInstance();
         this.fileExclusionManager = fileExclusionManager;
     }
-
 
     public void run() {
         walkDirs();
@@ -59,41 +58,41 @@ public class DirWalker extends DirectoryWalker implements Runnable {
     }
 
     protected void walkDirs() {
-        try{
+        try {
             continueWalk = true;
-            for(File item : filesAndDirs) {
+            for (File item : filesAndDirs) {
                 if (null != item && item.exists() && continueWalk) {
 
-                    if(item.isDirectory()) { // Directory
+                    if (item.isDirectory()) { // Directory
                         try {
                             List results = new ArrayList();
                             walk(item, results);
-                        } catch(IOException e) {
+                        } catch (IOException e) {
                             throw new RuntimeException("Error walking directory " +
-                                item.getAbsolutePath() + ":" + e.getMessage(), e);
+                                                       item.getAbsolutePath() + ":" + e.getMessage(), e);
                         }
                     } else { // File
                         handleFile(item, 0, null);
                     }
                 } else {
                     String filename = "null";
-                    if(item !=null){
+                    if (item != null) {
                         filename = item.getAbsolutePath();
                     }
-                    
-                    if(!continueWalk){
+
+                    if (!continueWalk) {
                         logger.info("Walk discontinued. Exiting walkDirs routine...");
                         break;
                     }
-                    
+
                     logger.warn("Skipping " + filename +
                                 ", as it does not exist");
                 }
             }
             logger.info("Found " + files +
-                " files to sync in initial directory walk");
-        
-        }catch(Exception e){
+                        " files to sync in initial directory walk");
+
+        } catch (Exception e) {
             logger.error("dir walker failed: " + e.getMessage(), e);
         }
 
@@ -107,19 +106,17 @@ public class DirWalker extends DirectoryWalker implements Runnable {
         throws IOException {
         return !this.fileExclusionManager.isExcluded(directory);
     }
-    
-    
+
     @Override
     protected void handleFile(File file, int depth, Collection results) {
-        if( null == file){
+        if (null == file) {
             logger.warn("The file parameter is unexpectedly null. Ignoring...");
-        } else if(!this.fileExclusionManager.isExcluded(file)) {
-            if(changedList.addChangedFile(file)){
+        } else if (!this.fileExclusionManager.isExcluded(file)) {
+            if (changedList.addChangedFile(file)) {
                 ++files;
             }
-        } 
+        }
     }
-
 
     @Override
     protected boolean handleIsCancelled(File file,

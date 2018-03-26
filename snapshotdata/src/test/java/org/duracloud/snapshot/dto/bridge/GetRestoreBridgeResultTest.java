@@ -7,26 +7,26 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import org.duracloud.snapshot.dto.RestoreStatus;
-import org.junit.Test;
-
-import java.util.Date;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import java.util.Date;
+
+import org.duracloud.snapshot.dto.RestoreStatus;
+import org.junit.Test;
+
 /**
  * @author Daniel Bernstein
- *         Date: 7/29/14
+ * Date: 7/29/14
  */
 public class GetRestoreBridgeResultTest {
 
     private String restoreId = "restoreId";
     private String snapshotId = "snapshotId";
     private RestoreStatus status = RestoreStatus.RESTORATION_COMPLETE;
-    private Date startDate  = new Date();
-    private Date endDate  = new Date();
+    private Date startDate = new Date();
+    private Date endDate = new Date();
     private Date expirationDate = new Date();
     private String statusText = "status text";
     private String destinationHost = "dest-host";
@@ -35,20 +35,20 @@ public class GetRestoreBridgeResultTest {
     private String destinationSpaceId = "dest-space-id";
 
     @Test
-    public void testDeSerialize(){
+    public void testDeSerialize() {
         String str =
             "{ \"restoreId\": \"" + restoreId + "\"," +
-             " \"snapshotId\" : \"" + snapshotId + "\"," +
-             " \"startDate\" : \"" + startDate.getTime() + "\"," +
-             " \"endDate\" : \"" + endDate.getTime() + "\","  +
-             " \"expirationDate\" : \"" + expirationDate.getTime() + "\","  +
-             " \"status\" : \"" + status + "\"," +
-             " \"statusText\" : \"" + statusText + "\"," +
-             " \"destinationHost\" : \"" + destinationHost + "\"," +
-             " \"destinationPort\" : " + destinationPort + "," +
-             " \"destinationStoreId\" : \"" + destinationStoreId + "\"," +
-             " \"destinationSpaceId\" : \"" + destinationSpaceId + "\"" +
-             "}";
+            " \"snapshotId\" : \"" + snapshotId + "\"," +
+            " \"startDate\" : \"" + startDate.getTime() + "\"," +
+            " \"endDate\" : \"" + endDate.getTime() + "\"," +
+            " \"expirationDate\" : \"" + expirationDate.getTime() + "\"," +
+            " \"status\" : \"" + status + "\"," +
+            " \"statusText\" : \"" + statusText + "\"," +
+            " \"destinationHost\" : \"" + destinationHost + "\"," +
+            " \"destinationPort\" : " + destinationPort + "," +
+            " \"destinationStoreId\" : \"" + destinationStoreId + "\"," +
+            " \"destinationSpaceId\" : \"" + destinationSpaceId + "\"" +
+            "}";
 
         GetRestoreBridgeResult params = GetRestoreBridgeResult
             .deserialize(str);

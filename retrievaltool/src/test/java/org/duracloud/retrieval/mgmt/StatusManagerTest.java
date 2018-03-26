@@ -7,9 +7,9 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import org.junit.Test;
-
 import static junit.framework.Assert.assertEquals;
+
+import org.junit.Test;
 
 /**
  * @author: Bill Branan
@@ -27,7 +27,7 @@ public class StatusManagerTest {
         assertEquals(0, status.getNoChange());
         assertEquals(0, status.getFailed());
 
-        for(int i=0; i<150; i++) {
+        for (int i = 0; i < 150; i++) {
             status.startingWork();
         }
 
@@ -36,7 +36,7 @@ public class StatusManagerTest {
         assertEquals(0, status.getNoChange());
         assertEquals(0, status.getFailed());
 
-        for(int i=0; i<50; i++) {
+        for (int i = 0; i < 50; i++) {
             status.successfulCompletion();
         }
 
@@ -45,7 +45,7 @@ public class StatusManagerTest {
         assertEquals(0, status.getNoChange());
         assertEquals(0, status.getFailed());
 
-        for(int i=0; i<50; i++) {
+        for (int i = 0; i < 50; i++) {
             status.noChangeCompletion();
         }
 
@@ -54,7 +54,7 @@ public class StatusManagerTest {
         assertEquals(50, status.getNoChange());
         assertEquals(0, status.getFailed());
 
-        for(int i=0; i<50; i++) {
+        for (int i = 0; i < 50; i++) {
             status.failedCompletion();
         }
 

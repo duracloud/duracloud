@@ -17,12 +17,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Completes the process of cancelling a snapshot by cleaning
- * up the snapshot properties file, removing readonly access for the 
+ * up the snapshot properties file, removing readonly access for the
  * snapshot user, and removing the snapshot space property.
  *
- *
  * @author Daniel Bernstein
- *         Date: 9/22/15
+ * Date: 9/22/15
  */
 public class CompleteCancelSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
 
@@ -56,7 +55,7 @@ public class CompleteCancelSnapshotTaskRunner extends SpaceModifyingSnapshotTask
         CompleteCancelSnapshotTaskParameters taskParams =
             CompleteCancelSnapshotTaskParameters.deserialize(taskParameters);
         String spaceId = taskParams.getSpaceId();
-        
+
         removeSnapshotIdFromSpaceProps(spaceId);
         removeSnapshotProps(spaceId);
         removeSnapshotUserPermissions(spaceId);

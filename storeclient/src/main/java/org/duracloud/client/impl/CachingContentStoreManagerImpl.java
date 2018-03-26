@@ -7,6 +7,8 @@
  */
 package org.duracloud.client.impl;
 
+import java.util.Map;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.web.RestHttpHelper;
@@ -14,8 +16,6 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.storage.domain.StorageAccount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  * This class retains the results of the initial call to both:
@@ -25,7 +25,7 @@ import java.util.Map;
  * and returns these cached values on subsequent calls.
  *
  * @author Andrew Woods
- *         Date: Nov 30, 2010
+ * Date: Nov 30, 2010
  */
 public class CachingContentStoreManagerImpl extends ContentStoreManagerImpl {
 
@@ -61,7 +61,6 @@ public class CachingContentStoreManagerImpl extends ContentStoreManagerImpl {
         }
         return this.primaryContentStore;
     }
-
 
     protected ContentStore newContentStoreImpl(StorageAccount acct) {
         return new CachingContentStoreImpl(getBaseURL(),

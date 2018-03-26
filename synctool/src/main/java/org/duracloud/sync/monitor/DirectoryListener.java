@@ -7,10 +7,10 @@
  */
 package org.duracloud.sync.monitor;
 
+import java.io.File;
+
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.duracloud.sync.mgmt.ChangedList;
-
-import java.io.File;
 
 /**
  * Handles update notifications from the Directory Update Monitor by adding
@@ -41,7 +41,7 @@ public class DirectoryListener extends FileAlterationListenerAdaptor {
 
     @Override
     public void onFileDelete(File file) {
-        if(syncDeletes) {
+        if (syncDeletes) {
             addFileToChangedList(file);
         }
     }

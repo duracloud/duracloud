@@ -7,18 +7,17 @@
  */
 package org.duracloud.s3storageprovider.dto;
 
-import org.duracloud.error.TaskDataException;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.duracloud.error.TaskDataException;
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 3/5/15
+ * Date: 3/5/15
  */
 public class EnableStreamingTaskParametersTest {
 
@@ -34,16 +33,16 @@ public class EnableStreamingTaskParametersTest {
 
         String result = taskParams.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId +"\""));
-        assertThat(cleanResult, containsString("\"secure\":"+secure +""));
+        assertThat(cleanResult, containsString("\"spaceId\":\"" + spaceId + "\""));
+        assertThat(cleanResult, containsString("\"secure\":" + secure + ""));
     }
 
     @Test
     public void testDeserialize() {
         // Verify valid params
         String taskParamsSerialized =
-            "{\"spaceId\" : \""+spaceId+"\"," +
-            " \"secure\" : \""+secure+"\"}";
+            "{\"spaceId\" : \"" + spaceId + "\"," +
+            " \"secure\" : \"" + secure + "\"}";
 
         EnableStreamingTaskParameters taskParams =
             EnableStreamingTaskParameters.deserialize(taskParamsSerialized);
@@ -58,14 +57,16 @@ public class EnableStreamingTaskParametersTest {
         try {
             EnableStreamingTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
-        } catch(TaskDataException e) {
+        } catch (TaskDataException e) {
+            // Expected exception
         }
 
         // Verify that empty params throw
         try {
             EnableStreamingTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
-        } catch(TaskDataException e) {
+        } catch (TaskDataException e) {
+            // Expected exception
         }
     }
 

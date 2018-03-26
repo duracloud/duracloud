@@ -7,23 +7,19 @@
  */
 package org.duracloud.glacierstorage;
 
+import java.io.InputStream;
+import java.util.Map;
+
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StoragePolicy;
 import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.error.StorageStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides content storage backed by Amazon's Glacier storage system.
@@ -41,7 +37,7 @@ public class GlacierStorageProvider extends S3StorageProvider {
     public GlacierStorageProvider(String accessKey, String secretKey, Map<String, String> options) {
         super(accessKey, secretKey, options);
     }
-    
+
     public GlacierStorageProvider(String accessKey, String secretKey) {
         super(accessKey, secretKey);
     }
@@ -79,7 +75,6 @@ public class GlacierStorageProvider extends S3StorageProvider {
         }
     }
 
-
     /**
      * {@inheritDoc}
      */
@@ -110,7 +105,7 @@ public class GlacierStorageProvider extends S3StorageProvider {
                                        contentProperties);
         } catch (StorageException e) {
             checkStorageState(e);
-            throw e; 
+            throw e;
         }
     }
 
@@ -119,15 +114,15 @@ public class GlacierStorageProvider extends S3StorageProvider {
      * but has not been retrieved for access.
      */
     private void checkStorageState(StorageException e) {
-        if(e.getCause() instanceof AmazonS3Exception) {
+        if (e.getCause() instanceof AmazonS3Exception) {
             String errorCode =
-                ((AmazonS3Exception)e.getCause()).getErrorCode();
-            if(INVALID_OBJECT_STATE.equals(errorCode)) {
+                ((AmazonS3Exception) e.getCause()).getErrorCode();
+            if (INVALID_OBJECT_STATE.equals(errorCode)) {
                 String message = "The storage state of this content item " +
-                    "does not allow for this action to be taken. To resolve " +
-                    "this issue: 1. Request that this content item be " +
-                    "retrieved from offline storage 2. Wait (retrieval may " +
-                    "take up to 5 hours) 3. Retry this request";
+                                 "does not allow for this action to be taken. To resolve " +
+                                 "this issue: 1. Request that this content item be " +
+                                 "retrieved from offline storage 2. Wait (retrieval may " +
+                                 "take up to 5 hours) 3. Retry this request";
                 throw new StorageStateException(message, e);
             }
         }

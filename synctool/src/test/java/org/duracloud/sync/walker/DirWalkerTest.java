@@ -7,8 +7,12 @@
  */
 package org.duracloud.sync.walker;
 
-import static junit.framework.Assert.*;
-import static org.easymock.EasyMock.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +25,6 @@ import org.duracloud.sync.mgmt.ChangedList;
 import org.duracloud.sync.mgmt.FileExclusionManager;
 import org.easymock.Mock;
 import org.junit.Test;
-
 
 /**
  * @author: Bill Branan
@@ -39,12 +42,12 @@ public class DirWalkerTest extends SyncTestBase {
         File checkDir = new File("src");
         List<File> dirs = new ArrayList<File>();
         dirs.add(checkDir);
-        
+
         replayAll();
         DirWalker dirWalker = createDirWalker(dirs);
 
         int walkerFilesFound = 0;
-        while(changedList.reserve() != null) {
+        while (changedList.reserve() != null) {
             walkerFilesFound++;
         }
 
@@ -62,21 +65,21 @@ public class DirWalkerTest extends SyncTestBase {
         File checkDir = new File("src");
         List<File> dirs = new ArrayList<File>();
         dirs.add(checkDir);
-        
+
         replayAll();
         DirWalker dirWalker = createDirWalker(dirs);
 
         Collection<File> tempDirFiles = listFiles(checkDir);
 
         assertTrue(tempDirFiles.size() > 1);
-        assertEquals(0,ChangedList.getInstance().getListSize());
+        assertEquals(0, ChangedList.getInstance().getListSize());
         assertEquals(0, dirWalker.getFilesCount());
     }
-    
+
     protected DirWalker createDirWalker(List<File> dirs) {
         DirWalker dirWalker = new DirWalker(dirs, fileExclusionManager);
         assertFalse(dirWalker.walkComplete());
-        dirWalker.walkDirs();        
+        dirWalker.walkDirs();
         assertTrue(dirWalker.walkComplete());
         return dirWalker;
     }

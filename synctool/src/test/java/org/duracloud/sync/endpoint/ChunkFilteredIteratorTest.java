@@ -7,19 +7,19 @@
  */
 package org.duracloud.sync.endpoint;
 
+import static org.duracloud.chunk.manifest.ChunksManifest.manifestSuffix;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.duracloud.chunk.manifest.ChunksManifest.manifestSuffix;
-
 /**
  * @author Andrew Woods
- *         Date: 9/9/11
+ * Date: 9/9/11
  */
 public class ChunkFilteredIteratorTest {
 
@@ -164,6 +164,7 @@ public class ChunkFilteredIteratorTest {
             iterator.remove();
             Assert.fail("exception expected.");
         } catch (UnsupportedOperationException e) {
+            // Expected exception
         }
     }
 

@@ -7,15 +7,15 @@
  */
 package org.duracloud.s3storageprovider.dto;
 
+import java.io.IOException;
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.error.TaskDataException;
 
-import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
-
 /**
  * @author Bill Branan
- *         Date: 09/25/2015
+ * Date: 09/25/2015
  */
 public class SetStoragePolicyTaskParameters {
 
@@ -66,7 +66,7 @@ public class SetStoragePolicyTaskParameters {
             new JaxbJsonSerializer<>(SetStoragePolicyTaskParameters.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new TaskDataException(
                 "Unable to create task parameters due to: " + e.getMessage());
         }
@@ -84,14 +84,14 @@ public class SetStoragePolicyTaskParameters {
             SetStoragePolicyTaskParameters params =
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
-            if(null == params.getSpaceId() || params.getSpaceId().isEmpty() ||
-               null == params.getStorageClass() || params.getStorageClass().isEmpty() ||
-               null == params.daysToTransition || params.daysToTransition < 0) {
+            if (null == params.getSpaceId() || params.getSpaceId().isEmpty() ||
+                null == params.getStorageClass() || params.getStorageClass().isEmpty() ||
+                null == params.daysToTransition || params.daysToTransition < 0) {
                 throw new TaskDataException(
                     "Task parameter values may not be empty");
             }
             return params;
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new TaskDataException(
                 "Unable to parse task parameters due to: " + e.getMessage());
         }

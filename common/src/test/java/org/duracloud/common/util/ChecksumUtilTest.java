@@ -7,14 +7,9 @@
  */
 package org.duracloud.common.util;
 
-import org.duracloud.common.util.ChecksumUtil.Algorithm;
-import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -28,6 +23,13 @@ import java.security.DigestInputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.duracloud.common.util.ChecksumUtil.Algorithm;
+import org.easymock.EasyMock;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ChecksumUtilTest {
 
@@ -86,11 +88,9 @@ public class ChecksumUtilTest {
         assertNotNull(sha384);
         assertNotNull(sha512);
 
-        boolean diff0 =
-                (md2 != md5 && md2 != sha1 && md2 != sha256 && md2 != sha384 && md2 != sha512);
+        boolean diff0 = (md2 != md5 && md2 != sha1 && md2 != sha256 && md2 != sha384 && md2 != sha512);
 
-        boolean diff1 =
-                (md5 != sha1 && md5 != sha256 && md5 != sha384 && md5 != sha256);
+        boolean diff1 = (md5 != sha1 && md5 != sha256 && md5 != sha384 && md5 != sha256);
 
         boolean diff2 = (sha1 != sha256 && sha1 != sha384 && sha1 != sha512);
 
@@ -118,7 +118,7 @@ public class ChecksumUtilTest {
         DigestInputStream wrappedStream =
             ChecksumUtil.wrapStream(getStream(content), Algorithm.MD5);
 
-        while(wrappedStream.read() > -1) {
+        while (wrappedStream.read() > -1) {
             // Just read through the bytes
         }
 
@@ -134,7 +134,7 @@ public class ChecksumUtilTest {
         DigestInputStream wrappedStream =
             ChecksumUtil.wrapStream(getStream(content), Algorithm.MD5);
 
-        while(wrappedStream.read() > -1) {
+        while (wrappedStream.read() > -1) {
             // Just read through the bytes
         }
 
@@ -178,22 +178,24 @@ public class ChecksumUtilTest {
 
         assertEquals(shortContentMd5Base64, base64Checksum);
     }
-    
+
     @Test
     public void testReusable() throws Exception {
         ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
-        
+
         String checksum = util.generateChecksum(new ByteArrayInputStream("test".getBytes()));
-        
+
         InputStream is = EasyMock.createMock(InputStream.class);
         EasyMock.expect(is.available()).andReturn(100).anyTimes();
-        EasyMock.expect(is.read((byte[])EasyMock.anyObject())).andReturn(100).times(1);
-        EasyMock.expect(is.read((byte[])EasyMock.anyObject())).andThrow(new IOException("test exception"));
+        EasyMock.expect(is.read((byte[]) EasyMock.anyObject())).andReturn(100).times(1);
+        EasyMock.expect(is.read((byte[]) EasyMock.anyObject())).andThrow(new IOException("test exception"));
         EasyMock.replay(is);
         try {
             util.generateChecksum(is);
             Assert.fail("expected previous statement to throw exception");
-        }catch(Exception ex){}
+        } catch (Exception ex) {
+            // Expected exception
+        }
 
         EasyMock.verify(is);
 
@@ -222,8 +224,8 @@ public class ChecksumUtilTest {
 
     @Test
     public void testCompareChecksumMethods() throws Exception {
-        String data = "Survival’s research"; // Note: the apostrophe in this text is
-                                             // unicode U+2019, not a standard apostrophe.
+        // Note: the apostrophe in this text is unicode U+2019, not a standard apostrophe.
+        String data = "Survival’s research";
 
         File tempFile = File.createTempFile("checksum-util-test", "file");
         Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), "UTF-8");
@@ -248,26 +250,26 @@ public class ChecksumUtilTest {
 
     @Test
     public void testNotThreadSafe() throws Exception {
-        byte[] data = new byte[1024*1024];
+        byte[] data = new byte[1024 * 1024];
         ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
         String checksum = util.generateChecksum(new ByteArrayInputStream(data));
         int count = 40;
         CountDownLatch latch = new CountDownLatch(count);
-        AtomicInteger successes = new AtomicInteger(0); 
-        for(int i = 0; i < 40; i++){
+        AtomicInteger successes = new AtomicInteger(0);
+        for (int i = 0; i < 40; i++) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    if(util.generateChecksum(new ByteArrayInputStream(data)).equals(checksum)){
+                    if (util.generateChecksum(new ByteArrayInputStream(data)).equals(checksum)) {
                         successes.incrementAndGet();
                     }
-                    
+
                     latch.countDown();
 
                 }
             }).start();
         }
-        
+
         assertTrue(latch.await(10, TimeUnit.SECONDS));
         assertTrue(count != successes.get());
     }

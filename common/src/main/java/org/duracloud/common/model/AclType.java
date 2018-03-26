@@ -9,8 +9,8 @@ package org.duracloud.common.model;
 
 /**
  * @author Andrew Woods
- *         Date: 12/3/11
+ * Date: 12/3/11
  */
 public enum AclType {
-    READ,WRITE;
+    READ, WRITE;
 }

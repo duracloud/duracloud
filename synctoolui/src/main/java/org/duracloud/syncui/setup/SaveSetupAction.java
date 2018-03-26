@@ -22,9 +22,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 @Component
 public class SaveSetupAction {
@@ -56,7 +54,7 @@ public class SaveSetupAction {
         UpdatePolicyHelper.set(this.syncConfigurationManager, UpdatePolicy.valueOf(up));
         syncConfigurationManager.setJumpStart(advancedForm.isJumpStart());
         syncConfigurationManager.setMode(modeForm.getMode());
-        
+
         log.info("successfully saved setup.");
         return "success";
     }

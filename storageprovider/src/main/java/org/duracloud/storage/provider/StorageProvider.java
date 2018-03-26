@@ -7,17 +7,17 @@
  */
 package org.duracloud.storage.provider;
 
-import org.duracloud.common.model.AclType;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.storage.error.NotFoundException;
-import org.duracloud.storage.error.StorageException;
-
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.error.StorageException;
 
 /**
  * A Storage Provider provides services which allow content to be
@@ -42,13 +42,13 @@ public interface StorageProvider {
     public static final String PROPERTIES_CONTENT_MODIFIED = "content-modified";
 
     //created date of the file read from the original file at the time of upload.
-    public static final String PROPERTIES_CONTENT_FILE_CREATED = "content-file-created"; 
+    public static final String PROPERTIES_CONTENT_FILE_CREATED = "content-file-created";
     //modified date of the file read from the original file at the time of upload.
-    public static final String PROPERTIES_CONTENT_FILE_MODIFIED = "content-file-modified"; 
+    public static final String PROPERTIES_CONTENT_FILE_MODIFIED = "content-file-modified";
     //last accessed date of the file read from the original file at the time of upload
-    public static final String PROPERTIES_CONTENT_FILE_LAST_ACCESSED = "content-file-last-accessed"; 
+    public static final String PROPERTIES_CONTENT_FILE_LAST_ACCESSED = "content-file-last-accessed";
     //path of the file at the time of upload.
-    public static final String PROPERTIES_CONTENT_FILE_PATH = "content-file-path"; 
+    public static final String PROPERTIES_CONTENT_FILE_PATH = "content-file-path";
 
     public static final String PROPERTIES_COPY_SOURCE = "copy-source";
     public static final String PROPERTIES_COPY_SOURCE_STORE = "copy-source-store";
@@ -86,10 +86,10 @@ public interface StorageProvider {
      * IDs starting with the prefix value.
      *
      * @param spaceId - ID of the space
-     * @param prefix - The prefix of the content id (null for no constraints)
+     * @param prefix  - The prefix of the content id (null for no constraints)
      * @return Iterator of contentIds
      * @throws NotFoundException if space with ID spaceId does not exist
-     * @throws StorageException if errors occur
+     * @throws StorageException  if errors occur
      */
     public Iterator<String> getSpaceContents(String spaceId,
                                              String prefix);
@@ -101,13 +101,14 @@ public interface StorageProvider {
      * as the marker. Set prefix to return only content IDs starting with the
      * prefix value.
      *
-     * @param spaceId - ID of the space
-     * @param prefix - Only retrieve content IDs with this prefix (null for all content ids)
+     * @param spaceId    - ID of the space
+     * @param prefix     - Only retrieve content IDs with this prefix (null for all content ids)
      * @param maxResults - The maximum number of content IDs to return in the list (0 indicates default (1000))
-     * @param marker - The content ID marking the last item in the previous set (null indicates the first set of ids)
+     * @param marker     - The content ID marking the last item in the previous set (null indicates the first set of
+     *                   ids)
      * @return List of contentIds
      * @throws NotFoundException if space with ID spaceId does not exist
-     * @throws StorageException if errors occur
+     * @throws StorageException  if errors occur
      */
     public List<String> getSpaceContentsChunked(String spaceId,
                                                 String prefix,
@@ -134,7 +135,7 @@ public interface StorageProvider {
      *
      * @param spaceId - ID of the space
      * @throws NotFoundException if space with ID spaceId does not exist
-     * @throws StorageException if errors occur
+     * @throws StorageException  if errors occur
      */
     public void deleteSpace(String spaceId);
 
@@ -144,7 +145,7 @@ public interface StorageProvider {
      * @param spaceId - ID of the space
      * @return Map of space properties or empty map if no properties exists
      * @throws NotFoundException if space with ID spaceId does not exist
-     * @throws StorageException if errors occur
+     * @throws StorageException  if errors occur
      */
     public Map<String, String> getSpaceProperties(String spaceId);
 
@@ -175,16 +176,16 @@ public interface StorageProvider {
      * of the uploaded content to protect against loss or
      * corruption during transfer.
      *
-     * @param spaceId - ID of the space
-     * @param contentId - ID of the content in the space
+     * @param spaceId         - ID of the space
+     * @param contentId       - ID of the content in the space
      * @param contentMimeType - the MIME type of the content being added
-     * @param userProperties - the metadata associated with the content
-     * @param contentSize - the file size (in bytes) of the content being added
+     * @param userProperties  - the metadata associated with the content
+     * @param contentSize     - the file size (in bytes) of the content being added
      * @param contentChecksum - the MD5 checksum of the content being added (null if no checksum is known)
-     * @param content - content to add
+     * @param content         - content to add
      * @return The checksum of the provided content
      * @throws NotFoundException if space with ID spaceId does not exist
-     * @throws StorageException if errors occur
+     * @throws StorageException  if errors occur
      */
     public String addContent(String spaceId,
                              String contentId,
@@ -212,12 +213,12 @@ public interface StorageProvider {
     /**
      * Gets content from a space.
      *
-     * @param spaceId - ID of the space
+     * @param spaceId   - ID of the space
      * @param contentId - ID of the content in the space
      * @return the content stream
      * @throws NotFoundException if space with ID spaceId does not exist or the
      *                           content item with ID contentId does not exist
-     * @throws StorageException if errors occur
+     * @throws StorageException  if errors occur
      */
     public InputStream getContent(String spaceId,
                                   String contentId);
@@ -225,11 +226,11 @@ public interface StorageProvider {
     /**
      * Removes content from a space.
      *
-     * @param spaceId - ID of the space
+     * @param spaceId   - ID of the space
      * @param contentId - ID of the content in the space
      * @throws NotFoundException if space with ID spaceId does not exist or the
      *                           content item with ID contentId does not exist
-     * @throws StorageException if errors occur
+     * @throws StorageException  if errors occur
      */
     public void deleteContent(String spaceId,
                               String contentId);
@@ -248,12 +249,12 @@ public interface StorageProvider {
      *
      * Content-Type cannot be removed, but it can be updated
      *
-     * @param spaceId - ID of the space
-     * @param contentId - ID of the content in the space
+     * @param spaceId           - ID of the space
+     * @param contentId         - ID of the content in the space
      * @param contentProperties - new content properties
      * @throws NotFoundException if space with ID spaceId does not exist or the
      *                           content item with ID contentId does not exist
-     * @throws StorageException if errors occur
+     * @throws StorageException  if errors occur
      */
     public void setContentProperties(String spaceId,
                                      String contentId,
@@ -267,15 +268,14 @@ public interface StorageProvider {
      * Use the PROPERTIES_CONTENT_* constants to retrieve standard
      * properties values.
      *
-     * @param spaceId - ID of the space
+     * @param spaceId   - ID of the space
      * @param contentId - ID of the content in the space
      * @return content properties
      * @throws NotFoundException if space with ID spaceId does not exist or the
      *                           content item with ID contentId does not exist
-     * @throws StorageException if errors occur
+     * @throws StorageException  if errors occur
      */
     public Map<String, String> getContentProperties(String spaceId,
                                                     String contentId);
-    
 
 }

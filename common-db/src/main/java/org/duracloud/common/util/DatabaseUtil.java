@@ -9,19 +9,15 @@ package org.duracloud.common.util;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import java.util.LinkedList;
 import java.util.List;
-
 import javax.sql.DataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
-
 import org.duracloud.common.model.Credential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,8 +59,7 @@ public abstract class DatabaseUtil {
         dataSource.setPassword(cred.getPassword());
         dataSource.setDatabaseName(baseDir);
         if (!bootPassword.equals(NOT_ENCRYPTED)) {
-            String connAtts =
-                    "dataEncryption=true;bootPassword=" + bootPassword;
+            String connAtts = "dataEncryption=true;bootPassword=" + bootPassword;
             dataSource.setConnectionAttributes(connAtts);
         }
         jdbcTemplate = new JdbcTemplate(dataSource);
@@ -151,6 +146,7 @@ public abstract class DatabaseUtil {
             try {
                 conn.close();
             } catch (SQLException e) {
+                log.warn("Exception closing DB connection: " + e.getMessage());
             }
         }
     }

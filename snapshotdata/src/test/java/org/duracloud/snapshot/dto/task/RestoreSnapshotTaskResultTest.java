@@ -7,16 +7,16 @@
  */
 package org.duracloud.snapshot.dto.task;
 
-import org.duracloud.snapshot.dto.RestoreStatus;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.duracloud.snapshot.dto.RestoreStatus;
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 7/30/14
+ * Date: 7/30/14
  */
 public class RestoreSnapshotTaskResultTest {
 
@@ -33,18 +33,18 @@ public class RestoreSnapshotTaskResultTest {
 
         String result = taskResult.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId+"\""));
-        assertThat(cleanResult, containsString("\"restoreId\":\""+restoreId+"\""));
-        assertThat(cleanResult, containsString("\"status\":\""+status+"\""));
+        assertThat(cleanResult, containsString("\"spaceId\":\"" + spaceId + "\""));
+        assertThat(cleanResult, containsString("\"restoreId\":\"" + restoreId + "\""));
+        assertThat(cleanResult, containsString("\"status\":\"" + status + "\""));
     }
 
     @Test
     public void testDeserialize() {
         // Verify valid params
         String resultSerialized = "{\"spaceId\" : \"space-id\"," +
-                                   "\"restoreId\" : \"restore-id\"," +
-                                   "\"status\":\"" +
-                                   RestoreStatus.TRANSFERRING_TO_DURACLOUD +"\"}";
+                                  "\"restoreId\" : \"restore-id\"," +
+                                  "\"status\":\"" +
+                                  RestoreStatus.TRANSFERRING_TO_DURACLOUD + "\"}";
 
         RestoreSnapshotTaskResult taskResult =
             RestoreSnapshotTaskResult.deserialize(resultSerialized);

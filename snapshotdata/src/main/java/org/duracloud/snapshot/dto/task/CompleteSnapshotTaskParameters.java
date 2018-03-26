@@ -8,7 +8,6 @@
 package org.duracloud.snapshot.dto.task;
 
 import java.io.IOException;
-
 import javax.xml.bind.annotation.XmlValue;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
@@ -17,7 +16,7 @@ import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * @author Bill Branan
- *         Date: 7/25/14
+ * Date: 7/25/14
  */
 public class CompleteSnapshotTaskParameters extends BaseDTO {
 
@@ -49,7 +48,7 @@ public class CompleteSnapshotTaskParameters extends BaseDTO {
             new JaxbJsonSerializer<>(CompleteSnapshotTaskParameters.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task parameters due to: " + e.getMessage());
         }
@@ -67,12 +66,12 @@ public class CompleteSnapshotTaskParameters extends BaseDTO {
             CompleteSnapshotTaskParameters params =
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
-            if(null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
+            if (null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
                 throw new SnapshotDataException(
                     "Task parameter values may not be empty");
             }
             return params;
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to parse task parameters due to: " + e.getMessage());
         }

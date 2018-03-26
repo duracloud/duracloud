@@ -1,7 +1,8 @@
 package org.duracloud.manifeststitch;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
+import static org.easymock.EasyMock.expect;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -28,6 +29,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 @RunWith(EasyMockRunner.class)
 public class StitchedManifestGeneratorTest extends EasyMockSupport {
     private String spaceId = "space-id";
@@ -43,7 +45,7 @@ public class StitchedManifestGeneratorTest extends EasyMockSupport {
 
     @Test
     public void testGenerate() throws Exception {
-        String sourceContentId = "content.dat" ;
+        String sourceContentId = "content.dat";
         String sourceMd5 = "checksum";
         String chunkManifestContentId = sourceContentId + ChunksManifest.manifestSuffix;
         String chunkContentId = "content.dat" + ChunksManifest.chunkSuffix + "0000";
@@ -53,27 +55,27 @@ public class StitchedManifestGeneratorTest extends EasyMockSupport {
         TsvManifestFormatter formatter = new TsvManifestFormatter();
         File unstitchedManifest = File.createTempFile("unstitched", "tsv");
         unstitchedManifest.deleteOnExit();
-        
+
         BufferedWriter writer =
-            new BufferedWriter(new OutputStreamWriter(new FileOutputStream(unstitchedManifest)));        
-        writer.write(formatter.getHeader()+"\n");
+            new BufferedWriter(new OutputStreamWriter(new FileOutputStream(unstitchedManifest)));
+        writer.write(formatter.getHeader() + "\n");
         write(writer, formatter, chunkManifestContentId);
         write(writer, formatter, chunkContentId);
         write(writer, formatter, unchunkedContentId);
         writer.close();
-        
+
         expect(store.getManifest(spaceId, ManifestFormat.TSV)).andReturn(new FileInputStream(unstitchedManifest));
-        
+
         ChunksManifest manifest = new ChunksManifest(sourceContentId, "text/plain", 1000);
         manifest.setMD5OfSourceContent(sourceMd5);
         String xml = ManifestDocumentBinding.createDocumentFrom(manifest);
         InputStream is = new ByteArrayInputStream(xml.getBytes());
         expect(content.getStream()).andReturn(is);
-        
+
         expect(store.getContent(spaceId, chunkManifestContentId)).andReturn(content);
         replayAll();
         StitchedManifestGenerator generator = new StitchedManifestGenerator(store);
-        
+
         InputStream stitched = generator.generate(spaceId, ManifestFormat.TSV);
         BufferedReader reader =
             new BufferedReader(new InputStreamReader(stitched));
@@ -90,7 +92,7 @@ public class StitchedManifestGeneratorTest extends EasyMockSupport {
         item.setContentChecksum("checksum-md5");
         item.setContentId(contentId);
         item.setSpaceId(spaceId);
-        writer.write(formatter.formatLine(item) +"\n");
+        writer.write(formatter.formatLine(item) + "\n");
 
     }
 

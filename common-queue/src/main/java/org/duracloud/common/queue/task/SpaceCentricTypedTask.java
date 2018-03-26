@@ -7,15 +7,15 @@
  */
 package org.duracloud.common.queue.task;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import java.util.Map;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Contains the base information necessary to handle tasks.
  *
  * @author Bill Branan
- *         Date: 10/24/13
+ * Date: 10/24/13
  */
 public abstract class SpaceCentricTypedTask {
 
@@ -31,12 +31,11 @@ public abstract class SpaceCentricTypedTask {
     /* To be used as the value for variables when that variable doesn't apply
        to the current action type, such for contentId when the action involves
        only a space */
-    public static final String NA =  "not-applicable";
+    public static final String NA = "not-applicable";
 
-    
     /**
      * The unique identifier for the account, ie the account's subdomain.
-     * 
+     *
      * @return
      */
     public String getAccount() {
@@ -66,7 +65,7 @@ public abstract class SpaceCentricTypedTask {
     public int getAttempts() {
         return attempts;
     }
-    
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
@@ -74,6 +73,7 @@ public abstract class SpaceCentricTypedTask {
 
     /**
      * Reads the information stored in a Task and sets data in the SpaceCentricTypedTask
+     *
      * @param task
      */
     public void readTask(Task task) {
@@ -86,6 +86,7 @@ public abstract class SpaceCentricTypedTask {
 
     /**
      * Writes all of the information in the SpaceCentricTypedTask into a Task
+     *
      * @return a Task based on the information stored in this SpaceCentricTypedTask
      */
     public Task writeTask() {
@@ -97,7 +98,7 @@ public abstract class SpaceCentricTypedTask {
     }
 
     protected void addProperty(Task task, String propName, String propValue) {
-        if(null != propValue && !propValue.equals(NA)) {
+        if (null != propValue && !propValue.equals(NA)) {
             task.addProperty(propName, propValue);
         }
     }

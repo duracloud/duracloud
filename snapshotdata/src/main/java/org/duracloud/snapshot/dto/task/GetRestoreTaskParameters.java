@@ -8,7 +8,6 @@
 package org.duracloud.snapshot.dto.task;
 
 import java.io.IOException;
-
 import javax.xml.bind.annotation.XmlValue;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,9 +18,9 @@ import org.duracloud.snapshot.error.SnapshotDataException;
 /**
  * This class is used for passing either a snapshotId or a restoreId to the
  * GetRestoreTaskRunner.
- * 
- * @author Daniel Bernstein 
- *         Date: 8/7/14
+ *
+ * @author Daniel Bernstein
+ * Date: 8/7/14
  */
 public class GetRestoreTaskParameters extends BaseDTO {
 
@@ -41,7 +40,7 @@ public class GetRestoreTaskParameters extends BaseDTO {
     }
 
     private void check(String snapshotId, String restoreId) {
-        if(!StringUtils.isBlank(snapshotId) && !StringUtils.isBlank(restoreId)){
+        if (!StringUtils.isBlank(snapshotId) && !StringUtils.isBlank(restoreId)) {
             throw new IllegalArgumentException(
                 "EITHER a snapshotId or a restoreId may be set, but not both");
         }
@@ -66,7 +65,7 @@ public class GetRestoreTaskParameters extends BaseDTO {
             new JaxbJsonSerializer<>(GetRestoreTaskParameters.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task parameters due to: " + e.getMessage());
         }
@@ -84,14 +83,14 @@ public class GetRestoreTaskParameters extends BaseDTO {
             GetRestoreTaskParameters params =
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
-            if(StringUtils.isBlank(params.getSnapshotId()) && StringUtils.isBlank(params.getRestoreId())) {
+            if (StringUtils.isBlank(params.getSnapshotId()) && StringUtils.isBlank(params.getRestoreId())) {
                 throw new SnapshotDataException("Task parameter values may not be empty");
             }
             return params;
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to parse task parameters due to: " + e.getMessage());
         }
     }
-    
+
 }

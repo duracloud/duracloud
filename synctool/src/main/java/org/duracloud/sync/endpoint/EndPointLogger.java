@@ -11,15 +11,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This class monitors and logs evnet point events.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 public class EndPointLogger implements EndPointListener {
     private Logger log = LoggerFactory.getLogger("history-log");
-    
+
     @Override
     public void contentBackedUp(String storeId,
                                 String spaceId,
@@ -28,7 +27,7 @@ public class EndPointLogger implements EndPointListener {
                                 String localFilePath) {
         log.info(format(new Object[] {
             SyncResultType.BACKED_UP, storeId, spaceId, contentId, localFilePath,
-            "back up copy: " + backupContentId }));
+            "back up copy: " + backupContentId}));
     }
 
     private String format(Object[] objects) {
@@ -57,18 +56,18 @@ public class EndPointLogger implements EndPointListener {
     public void contentDeleted(String storeId,
                                String spaceId,
                                String contentId) {
-        log.info(format(new Object[] { 
+        log.info(format(new Object[] {
             SyncResultType.DELETED, storeId, spaceId, contentId}));
     }
-    
+
     @Override
     public void contentUpdateIgnored(String storeId,
-                               String spaceId,
-                               String contentId,
-                               String localFilePath) {
-        log.info(format(new Object[] { 
+                                     String spaceId,
+                                     String contentId,
+                                     String localFilePath) {
+        log.info(format(new Object[] {
             SyncResultType.UPDATE_IGNORED,
             storeId, spaceId, contentId, localFilePath,
-            "local content changed but was not uploaded" }));
+            "local content changed but was not uploaded"}));
     }
 }

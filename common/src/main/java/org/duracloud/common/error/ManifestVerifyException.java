@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * @author Andrew Woods
- *         Date: Oct 24, 2009
+ * Date: Oct 24, 2009
  */
 public class ManifestVerifyException extends DuraCloudCheckedException {
 
@@ -90,6 +90,5 @@ public class ManifestVerifyException extends DuraCloudCheckedException {
     public ErrorType getErrorType() {
         return this.errorType;
     }
-
 
 }

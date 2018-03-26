@@ -9,7 +9,7 @@ package org.duracloud.durastore.error;
 
 /**
  * @author Bill Branan
- *         Date: 9/4/14
+ * Date: 9/4/14
  */
 public class ResourceChecksumException extends ResourceException {
 

@@ -11,7 +11,7 @@ import org.duracloud.common.error.NoUserLoggedInException;
 
 /**
  * @author Bill Branan
- *         Date: 3/17/14
+ * Date: 3/17/14
  */
 public interface UserUtil {
 

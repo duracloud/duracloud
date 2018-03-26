@@ -7,19 +7,19 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.duracloud.storage.util.StorageProviderFactory;
+import java.util.List;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
+
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
-import java.util.List;
 
 /**
  * Provides interaction with storage providers accounts via REST
@@ -47,7 +47,7 @@ public class StoreRest extends BaseRest {
      * @return 200 response with XML file listing stores
      */
     @GET
-    public Response getStores(){
+    public Response getStores() {
         String msg = "getting stores.";
         try {
             return doGetStores(msg);

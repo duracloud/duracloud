@@ -7,10 +7,10 @@
  */
 package org.duracloud.sync.endpoint;
 
-import org.duracloud.error.ContentStoreException;
-
 import java.io.File;
 import java.util.Iterator;
+
+import org.duracloud.error.ContentStoreException;
 
 /**
  * Endpoint to which files are synchronized.
@@ -28,10 +28,10 @@ public interface SyncEndpoint {
      * - If the local file exists and is different from a file with the same
      * path at the endpoint, the local file will replace the file at the
      * endpoint.
-     * - If the local file does not exist (it has been deleted), a file with 
+     * - If the local file does not exist (it has been deleted), a file with
      * the same path will be removed at the endpoint (if it exists)
      *
-     * @param file local file to sync with the endpoint
+     * @param file     local file to sync with the endpoint
      * @param watchDir the directory under watch in which this file resides
      * @return true if file was successfully synced, false otherwise
      */
@@ -44,29 +44,30 @@ public interface SyncEndpoint {
      * @return Iterator allowing access to complete file listing
      */
     public Iterator<String> getFilesList();
-    
 
     /**
      * Registers a listener
+     *
      * @param listener
      */
     public void addEndPointListener(EndPointListener listener);
 
     /**
      * Unregisters a listener
+     *
      * @param listener
      */
     public void removeEndPointListener(EndPointListener listener);
 
     /**
      * An alternate form of the syncFile method that returns a more nuanced result.
+     *
      * @param monitoredFile
      * @param watchDir
      * @return
      */
-    public SyncResultType
-        syncFileAndReturnDetailedResult(MonitoredFile monitoredFile,
-                                        File watchDir);
+    public SyncResultType syncFileAndReturnDetailedResult(MonitoredFile monitoredFile,
+                                                          File watchDir);
 
     /**
      * Removes content from the endpoint.
@@ -74,7 +75,6 @@ public interface SyncEndpoint {
      * @param spaceId
      * @param contentId
      */
-    public void deleteContent(String spaceId, String contentId)
-        throws ContentStoreException;
+    public void deleteContent(String spaceId, String contentId) throws ContentStoreException;
 
 }

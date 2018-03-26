@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
@@ -17,7 +17,7 @@
 
   <profiles>
     <profile>
-            <!--Allows for skipping integration tests-->
+      <!--Allows for skipping integration tests-->
       <id>skipIntTests</id>
       <activation>
         <activeByDefault>false</activeByDefault>
@@ -66,28 +66,28 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common-queue</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>s3storageprovider</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>rackspacestorageprovider</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>sdscstorageprovider</artifactId>
@@ -108,7 +108,7 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>synctool</artifactId>

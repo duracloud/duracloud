@@ -9,7 +9,7 @@ package org.duracloud.common.model;
 
 /**
  * @author Andrew Woods
- *         Date: Mar 25, 2010
+ * Date: Mar 25, 2010
  */
 public interface Securable {
 

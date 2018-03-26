@@ -7,11 +7,11 @@
  */
 package org.duracloud.storage.domain;
 
-import org.duracloud.storage.provider.StorageProvider;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import org.duracloud.storage.provider.StorageProvider;
 
 /**
  * @author: Bill Branan
@@ -76,7 +76,7 @@ public class ContentIterator implements Iterator<String> {
     }
 
     private void updateList() {
-        String lastItem = contentList.get(contentList.size()-1);
+        String lastItem = contentList.get(contentList.size() - 1);
         contentList = provider.getSpaceContentsChunked(spaceId,
                                                        prefix,
                                                        maxResults,

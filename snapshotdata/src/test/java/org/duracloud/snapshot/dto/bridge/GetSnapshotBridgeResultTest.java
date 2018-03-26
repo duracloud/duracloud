@@ -18,10 +18,9 @@ import java.util.List;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.junit.Test;
 
-
 /**
  * @author Daniel Bernstein
- *         Date: 7/29/14
+ * Date: 7/29/14
  */
 public class GetSnapshotBridgeResultTest {
 
@@ -34,14 +33,16 @@ public class GetSnapshotBridgeResultTest {
     private String snapshotId = "snapshot-id";
     private Long contentItemCount = 424242l;
     private Long totalSizeInBytes = 111111l;
-    private String alternateId1 = "alternate-1", alternateId2 = "alternate-2";
+    private String alternateId1 = "alternate-1";
+    private String alternateId2 = "alternate-2";
     private String memberId = "member-id";
     private List<String> alternateIds = new ArrayList<String>();
+
     {
         alternateIds.add(alternateId1);
         alternateIds.add(alternateId2);
     }
-    
+
     @Test
     public void testSerialize() {
 
@@ -58,32 +59,32 @@ public class GetSnapshotBridgeResultTest {
         params.setTotalSizeInBytes(totalSizeInBytes);
         params.setAlternateIds(alternateIds);
         params.setMemberId(memberId);
-        
+
         String result = params.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
         assertThat(cleanResult,
-                   containsString("\"status\":\""+status.name()+"\""));
+                   containsString("\"status\":\"" + status.name() + "\""));
         assertThat(cleanResult,
-                   containsString("\"description\":\""+description+"\""));
+                   containsString("\"description\":\"" + description + "\""));
         assertThat(cleanResult,
-                   containsString("\"sourceHost\":\""+sourceHost+"\""));
+                   containsString("\"sourceHost\":\"" + sourceHost + "\""));
         assertThat(cleanResult,
-                   containsString("\"sourceSpaceId\":\""+sourceSpaceId+"\""));
+                   containsString("\"sourceSpaceId\":\"" + sourceSpaceId + "\""));
         assertThat(cleanResult,
-                   containsString("\"sourceStoreId\":\""+sourceStoreId+"\""));
+                   containsString("\"sourceStoreId\":\"" + sourceStoreId + "\""));
         assertThat(cleanResult,
-                   containsString("\"snapshotDate\":"+snapshotDate.getTime()));
+                   containsString("\"snapshotDate\":" + snapshotDate.getTime()));
         assertThat(cleanResult,
-                   containsString("\"description\":\""+description+"\""));
+                   containsString("\"description\":\"" + description + "\""));
         assertThat(cleanResult,
-                   containsString("\"contentItemCount\":"+contentItemCount));
+                   containsString("\"contentItemCount\":" + contentItemCount));
         assertThat(cleanResult,
-                   containsString("\"totalSizeInBytes\":"+totalSizeInBytes));
+                   containsString("\"totalSizeInBytes\":" + totalSizeInBytes));
         assertThat(cleanResult,
-                   containsString("\"memberId\":\""+memberId+"\""));
+                   containsString("\"memberId\":\"" + memberId + "\""));
 
         assertThat(cleanResult,
-                containsString("\"alternateIds\":[\"" + alternateId1 + "\",\"" + alternateId2 + "\"]"));
+                   containsString("\"alternateIds\":[\"" + alternateId1 + "\",\"" + alternateId2 + "\"]"));
 
         GetSnapshotBridgeResult params2 =
             GetSnapshotBridgeResult.deserialize(result);

@@ -7,14 +7,14 @@
  */
 package org.duracloud.client.impl;
 
+import java.util.List;
+
 import org.duracloud.client.ContentStoreImpl;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * This class retains the results of the initial call to:
@@ -23,7 +23,7 @@ import java.util.List;
  * and returns this cached value on subsequent calls.
  *
  * @author Andrew Woods
- *         Date: Nov 30, 2010
+ * Date: Nov 30, 2010
  */
 public class CachingContentStoreImpl extends ContentStoreImpl {
 

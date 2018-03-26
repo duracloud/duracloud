@@ -28,7 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * @author Andrew Woods
- *         Date: 11/22/11
+ * Date: 11/22/11
  */
 public class SecurityContextUtilTest {
 
@@ -48,7 +48,7 @@ public class SecurityContextUtilTest {
 
         context = EasyMock.createMock("SecurityContext", SecurityContext.class);
 
-        authorities = Arrays.asList(new GrantedAuthority[]{new SimpleGrantedAuthority(
+        authorities = Arrays.asList(new GrantedAuthority[] {new SimpleGrantedAuthority(
             "ROLE_USER"), new SimpleGrantedAuthority("ROLE_ADMIN")});
         groups = new ArrayList<String>();
         groups.add("group-curators");

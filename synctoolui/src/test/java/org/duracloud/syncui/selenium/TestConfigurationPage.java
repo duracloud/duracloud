@@ -12,14 +12,13 @@ import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Test;
+
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class TestConfigurationPage extends BasePostSetupPage {
     @Test
-    public void testGet(){
+    public void testGet() {
         openConfigurationPage();
         Assert.assertTrue(isElementPresent("css=#watched-directories"));
         Assert.assertTrue(isTextPresent(uploadDir.getAbsolutePath()));
@@ -28,9 +27,9 @@ public class TestConfigurationPage extends BasePostSetupPage {
         Assert.assertTrue(isTextPresent(props.getProperty("username")));
 
     }
-    
+
     @Test
-    public void testAddCancel() throws Exception{
+    public void testAddCancel() throws Exception {
         openConfigurationPage();
         Assert.assertTrue(isElementPresent("css=#add"));
         sc.click("css=#add");
@@ -42,15 +41,15 @@ public class TestConfigurationPage extends BasePostSetupPage {
     }
 
     @Test
-    public void testAddAndRemoveDirectory() throws Exception{
-        
+    public void testAddAndRemoveDirectory() throws Exception {
+
         File testDir =
             new File(System.getProperty("java.io.tmpdir")
-                + File.separator + System.currentTimeMillis());
-        
+                     + File.separator + System.currentTimeMillis());
+
         testDir.mkdirs();
         testDir.deleteOnExit();
-        
+
         openConfigurationPage();
         Assert.assertTrue(isElementPresent("css=#add"));
         sc.click("css=#add");
@@ -59,16 +58,18 @@ public class TestConfigurationPage extends BasePostSetupPage {
 
         String[] list = testDir.getAbsolutePath().split(File.separator);
         String path = "/";
-        
-        for(String dir : list){
-            if("".equals(dir)) continue;
-            
+
+        for (String dir : list) {
+            if ("".equals(dir)) {
+                continue;
+            }
+
             path += dir + "/";
-             String pathSelector = "css=a[rel='"+path+"']";
-             log.debug("checking if " + pathSelector + " is present");
-             Assert.assertTrue(isElementPresent(pathSelector));
-             sc.click(pathSelector);
-             Thread.sleep(2000);
+            String pathSelector = "css=a[rel='" + path + "']";
+            log.debug("checking if " + pathSelector + " is present");
+            Assert.assertTrue(isElementPresent(pathSelector));
+            sc.click(pathSelector);
+            Thread.sleep(2000);
         }
         sc.click("css=#directoryConfigForm #add");
         Thread.sleep(1000);
@@ -80,10 +81,9 @@ public class TestConfigurationPage extends BasePostSetupPage {
         Assert.assertFalse(sc.isElementPresent(removeButton));
 
     }
-    
 
     @Test
-    public void testEditEnterInvalidDataCancelDuracloudConfig() throws Exception{
+    public void testEditEnterInvalidDataCancelDuracloudConfig() throws Exception {
         openConfigurationPage();
         Assert.assertTrue(isElementPresent("css=#edit"));
         sc.click("css=#edit");
@@ -100,10 +100,9 @@ public class TestConfigurationPage extends BasePostSetupPage {
         Assert.assertFalse(sc.isVisible("css=#duracloudCredentialsForm"));
 
     }
-    
-    
+
     @Test
-    public void testEditSaveDuracloudConfig() throws Exception{
+    public void testEditSaveDuracloudConfig() throws Exception {
         Properties properties = getProperties();
         String username = properties.getProperty("username");
         String password = properties.getProperty("password");
@@ -124,8 +123,8 @@ public class TestConfigurationPage extends BasePostSetupPage {
         sc.click("css=#next");
 
         int second = 0;
-        while(true){
-            if(sc.isElementPresent("css=#spaceForm") || second > 20){
+        while (true) {
+            if (sc.isElementPresent("css=#spaceForm") || second > 20) {
                 break;
             }
 
@@ -143,13 +142,13 @@ public class TestConfigurationPage extends BasePostSetupPage {
         Thread.sleep(5000);
         String endButton = "css=#end";
         Assert.assertTrue(sc.isVisible(endButton));
-       
+
         clickAndWait("css=#end");
         Assert.assertFalse(sc.isVisible("css=#edit-dialog"));
 
     }
 
     protected void openConfigurationPage() {
-        sc.open(getAppRoot()+"/configuration");
+        sc.open(getAppRoot() + "/configuration");
     }
 }

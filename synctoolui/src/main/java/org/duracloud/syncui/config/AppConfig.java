@@ -28,66 +28,67 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 /**
  * The root application configuration class.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 @Configuration
-@ImportResource(value="/WEB-INF/config/webflow-config.xml")
-@ComponentScan( basePackages = {"org.duracloud.syncui"} )
+@ImportResource(value = "/WEB-INF/config/webflow-config.xml")
+@ComponentScan(basePackages = {"org.duracloud.syncui"})
 public class AppConfig extends WebMvcConfigurationSupport {
-   
-   @Bean
-   public static PropertyPlaceholderConfigurer properties(){
-      PropertyPlaceholderConfigurer ppc = new PropertyPlaceholderConfigurer();
-      final Resource[] resources = new ClassPathResource[ ] { 
-         //new ClassPathResource( "properties1.properties" ),  
-         //new ClassPathResource( "properties2.properties" ) 
-      };  
-      ppc.setLocations( resources );
-      ppc.setIgnoreUnresolvablePlaceholders( true );
-      return ppc;
-   } 
- 
-   @Bean
-   public MessageSource messageSource(){
-       ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
-       ms.setBasename("classpath:messages");
-       ms.setDefaultEncoding("UTF-8");
-       ms.setCacheSeconds(5);
-       return ms;
-   }
-   
-   @Bean
-   public MessageSource localeChangeInterceptor(){
-       return messageSource();
-   }
 
-   @Override
-   @Bean
-   public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {
-       RequestMappingHandlerAdapter adapter = super.requestMappingHandlerAdapter();
-       ConfigurableWebBindingInitializer initializer = 
-           (ConfigurableWebBindingInitializer) adapter.getWebBindingInitializer();
-       
-       PropertyEditorRegistrar propertyEditorRegistrar = new PropertyEditorRegistrar() {
-           @Override
-           public void registerCustomEditors(PropertyEditorRegistry registry) {
-               //Trim strings before setting values on all form beans.
-               registry.registerCustomEditor(Object.class, new StringTrimmerEditor(true));
-           }
-       };
+    @Bean
+    public static PropertyPlaceholderConfigurer properties() {
+        PropertyPlaceholderConfigurer ppc = new PropertyPlaceholderConfigurer();
+        final Resource[] resources = new ClassPathResource[] {
+            //new ClassPathResource( "properties1.properties" ),
+            //new ClassPathResource( "properties2.properties" )
+        };
+        ppc.setLocations(resources);
+        ppc.setIgnoreUnresolvablePlaceholders(true);
+        return ppc;
+    }
 
-       initializer.setPropertyEditorRegistrar(propertyEditorRegistrar);
-       return adapter;
-   }
-   
-   @Bean
-   public DefaultFormattingConversionService defaultFormattingConversionService() {
-       return new ApplicationFormattingConversionService();
-   }
-   
-   @Bean ConversionService defaultConversionService() {
-       return new DefaultConversionService(defaultFormattingConversionService());
-   }
-   
+    @Bean
+    public MessageSource messageSource() {
+        ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
+        ms.setBasename("classpath:messages");
+        ms.setDefaultEncoding("UTF-8");
+        ms.setCacheSeconds(5);
+        return ms;
+    }
+
+    @Bean
+    public MessageSource localeChangeInterceptor() {
+        return messageSource();
+    }
+
+    @Override
+    @Bean
+    public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {
+        RequestMappingHandlerAdapter adapter = super.requestMappingHandlerAdapter();
+        ConfigurableWebBindingInitializer initializer =
+            (ConfigurableWebBindingInitializer) adapter.getWebBindingInitializer();
+
+        PropertyEditorRegistrar propertyEditorRegistrar = new PropertyEditorRegistrar() {
+            @Override
+            public void registerCustomEditors(PropertyEditorRegistry registry) {
+                //Trim strings before setting values on all form beans.
+                registry.registerCustomEditor(Object.class, new StringTrimmerEditor(true));
+            }
+        };
+
+        initializer.setPropertyEditorRegistrar(propertyEditorRegistrar);
+        return adapter;
+    }
+
+    @Bean
+    public DefaultFormattingConversionService defaultFormattingConversionService() {
+        return new ApplicationFormattingConversionService();
+    }
+
+    @Bean
+    ConversionService defaultConversionService() {
+        return new DefaultConversionService(defaultFormattingConversionService());
+    }
+
 }

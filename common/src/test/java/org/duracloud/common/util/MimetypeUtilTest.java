@@ -8,9 +8,10 @@
 package org.duracloud.common.util;
 
 import static junit.framework.Assert.assertEquals;
-import org.junit.Test;
 
 import java.io.File;
+
+import org.junit.Test;
 
 /**
  * @author: Bill Branan

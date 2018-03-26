@@ -7,15 +7,15 @@
  */
 package org.duracloud.s3storageprovider.dto;
 
+import java.io.IOException;
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.error.TaskDataException;
 
-import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
-
 /**
  * @author Bill Branan
- *         Date: 3/23/15
+ * Date: 3/23/15
  */
 public class GetUrlTaskParameters {
 
@@ -37,7 +37,6 @@ public class GetUrlTaskParameters {
      */
     @XmlValue
     private String resourcePrefix;
-
 
     // Required by JAXB
     public GetUrlTaskParameters() {
@@ -77,7 +76,7 @@ public class GetUrlTaskParameters {
             new JaxbJsonSerializer<>(GetUrlTaskParameters.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new TaskDataException(
                 "Unable to create task parameters due to: " + e.getMessage());
         }
@@ -95,16 +94,16 @@ public class GetUrlTaskParameters {
             GetUrlTaskParameters params =
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
-            if(null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
+            if (null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
                 throw new TaskDataException(
                     "Task parameter 'spaceId' may not be empty");
-            } else if(null == params.getContentId() || params.getContentId().isEmpty()) {
+            } else if (null == params.getContentId() || params.getContentId().isEmpty()) {
                 throw new TaskDataException(
                     "Task parameter 'contentId' may not be empty");
             }
 
             return params;
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new TaskDataException(
                 "Unable to parse task parameters due to: " + e.getMessage());
         }

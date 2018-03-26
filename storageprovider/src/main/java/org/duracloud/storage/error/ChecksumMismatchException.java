@@ -11,7 +11,7 @@ package org.duracloud.storage.error;
  * Exception thrown when there is a mismatch in checksum values
  *
  * @author Bill Branan
- *         Date: 9/4/14
+ * Date: 9/4/14
  */
 public class ChecksumMismatchException extends StorageException {
 

@@ -7,14 +7,14 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 8/4/2015
+ * Date: 8/4/2015
  */
 public class UpdateSnapshotHistoryBridgeParametersTest {
 
@@ -28,8 +28,8 @@ public class UpdateSnapshotHistoryBridgeParametersTest {
         String result = params.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
 
-        assertThat(cleanResult, containsString("\"alternate\":"+alternate+""));
-        assertThat(cleanResult, containsString("\"history\":\""+history+"\""));
+        assertThat(cleanResult, containsString("\"alternate\":" + alternate + ""));
+        assertThat(cleanResult, containsString("\"history\":\"" + history + "\""));
     }
 
 }

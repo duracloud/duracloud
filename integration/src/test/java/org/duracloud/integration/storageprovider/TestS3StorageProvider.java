@@ -7,6 +7,8 @@
  */
 package org.duracloud.integration.storageprovider;
 
+import java.io.IOException;
+
 import junit.framework.Assert;
 import org.duracloud.common.model.SimpleCredential;
 import org.duracloud.common.test.StorageProviderCredential;
@@ -14,11 +16,9 @@ import org.duracloud.common.test.TestConfigUtil;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 
-import java.io.IOException;
-
 /**
  * @author Bill Branan
- *         Date: 9/8/14
+ * Date: 9/8/14
  */
 public class TestS3StorageProvider extends TestStorageProvider {
 

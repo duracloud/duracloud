@@ -7,17 +7,17 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
+import java.io.IOException;
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
-import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
-
 /**
  * @author Bill Branan
- *         Date: 9/17/2015
+ * Date: 9/17/2015
  */
 public class SnapshotErrorBridgeResult extends BaseDTO {
 
@@ -33,7 +33,8 @@ public class SnapshotErrorBridgeResult extends BaseDTO {
     @XmlValue
     private String details;
 
-    public SnapshotErrorBridgeResult(){}
+    public SnapshotErrorBridgeResult() {
+    }
 
     public SnapshotErrorBridgeResult(SnapshotStatus status,
                                      String details) {
@@ -67,7 +68,7 @@ public class SnapshotErrorBridgeResult extends BaseDTO {
             new JaxbJsonSerializer<>(SnapshotErrorBridgeResult.class);
         try {
             return serializer.deserialize(bridgeResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to deserialize result due to: " + e.getMessage());
         }

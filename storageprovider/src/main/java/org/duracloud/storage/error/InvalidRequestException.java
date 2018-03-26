@@ -11,7 +11,7 @@ import org.duracloud.common.error.DuraCloudCheckedException;
 
 /**
  * @author Andrew Woods
- *         Date: 8/16/11
+ * Date: 8/16/11
  */
 public class InvalidRequestException extends DuraCloudCheckedException {
 

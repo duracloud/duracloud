@@ -7,10 +7,6 @@
  */
 package org.duracloud.common.util;
 
-import org.apache.commons.io.input.AutoCloseInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,24 +14,30 @@ import java.io.InputStream;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 
+import org.apache.commons.io.input.AutoCloseInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Andrew Woods
  */
 public class ApplicationConfig {
 
+    protected ApplicationConfig() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     protected static final Logger log =
-            LoggerFactory.getLogger(ApplicationConfig.class);
+        LoggerFactory.getLogger(ApplicationConfig.class);
 
     public static Properties getPropsFromResource(String resourceName) {
         Properties props = new Properties();
-        AutoCloseInputStream in =
-                new AutoCloseInputStream(ApplicationConfig.class
-                        .getClassLoader().getResourceAsStream(resourceName));
+        AutoCloseInputStream in = new AutoCloseInputStream(
+            ApplicationConfig.class.getClassLoader().getResourceAsStream(resourceName));
         try {
             props.load(in);
         } catch (Exception e) {
-            String error = "Unable to find resource: '" + resourceName + "': "
-                    + e.getMessage();
+            String error = "Unable to find resource: '" + resourceName + "': " + e.getMessage();
             throw new RuntimeException(error, e);
         }
         return props;
@@ -43,8 +45,7 @@ public class ApplicationConfig {
 
     public static Properties getPropsFromXml(String propsXml) {
         AutoCloseInputStream in =
-                new AutoCloseInputStream(new ByteArrayInputStream(propsXml
-                        .getBytes()));
+            new AutoCloseInputStream(new ByteArrayInputStream(propsXml.getBytes()));
 
         return getPropsFromXmlStream(in);
     }
@@ -65,7 +66,7 @@ public class ApplicationConfig {
             if (propsXmlStream != null) {
                 try {
                     propsXmlStream.close();
-                } catch(IOException e) {
+                } catch (IOException e) {
                     String error =
                         "Error closing properties stream: " + e.getMessage();
                     throw new RuntimeException(error, e);
@@ -78,14 +79,13 @@ public class ApplicationConfig {
 
     public static Properties getPropsFromXmlResource(String resourceName) {
         Properties props = new Properties();
-        AutoCloseInputStream in =
-                new AutoCloseInputStream(ApplicationConfig.class
-                        .getClassLoader().getResourceAsStream(resourceName));
+        AutoCloseInputStream in = new AutoCloseInputStream(
+            ApplicationConfig.class.getClassLoader().getResourceAsStream(resourceName));
         try {
             props.loadFromXML(in);
         } catch (Exception e) {
             String error = "Unable to find resource: '" + resourceName + "': "
-                    + e.getMessage();
+                           + e.getMessage();
             throw new RuntimeException(error);
         }
         return props;
@@ -100,8 +100,7 @@ public class ApplicationConfig {
             os.flush();
             xml = os.toString();
         } catch (IOException e) {
-            String error = "IO exception for props: '" + props + "':" +
-                e.getMessage();
+            String error = "IO exception for props: '" + props + "':" + e.getMessage();
             log.error(error);
             log.error(ExceptionUtil.getStackTraceAsString(e));
             throw new RuntimeException(error, e);
@@ -110,8 +109,7 @@ public class ApplicationConfig {
                 try {
                     os.close();
                 } catch (IOException e) {
-                    String error =
-                        "Error closing xml stream: " + e.getMessage();
+                    String error = "Error closing xml stream: " + e.getMessage();
                     throw new RuntimeException(error, e);
                 }
             }

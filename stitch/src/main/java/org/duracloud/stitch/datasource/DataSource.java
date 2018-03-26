@@ -13,7 +13,7 @@ import org.duracloud.domain.Content;
  * This interface defines the contract of DataSource used by a FileStitcher.
  *
  * @author Andrew Woods
- *         Date: 9/2/11
+ * Date: 9/2/11
  */
 public interface DataSource {
 

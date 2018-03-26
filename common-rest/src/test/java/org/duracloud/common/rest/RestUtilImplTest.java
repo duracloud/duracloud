@@ -7,13 +7,12 @@
  */
 package org.duracloud.common.rest;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
+import static org.easymock.EasyMock.expect;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
@@ -33,10 +32,10 @@ public class RestUtilImplTest extends EasyMockSupport {
 
     @Mock
     private HttpServletRequest request;
-    
+
     @Mock
     private HttpHeaders headers;
-    
+
     @Before
     public void setUp() throws Exception {
     }
@@ -47,8 +46,8 @@ public class RestUtilImplTest extends EasyMockSupport {
     }
 
     @Test
-    public void testDuracloud882() throws Exception{
-        long contentSize = (long)Integer.MAX_VALUE + 1l;
+    public void testDuracloud882() throws Exception {
+        long contentSize = (long) Integer.MAX_VALUE + 1l;
 
         File file = File.createTempFile("temp", "txt");
         file.createNewFile();
@@ -59,15 +58,15 @@ public class RestUtilImplTest extends EasyMockSupport {
         expect(request.getContentType()).andReturn("text/plain");
         expect(request.getInputStream()).andReturn(is);
         expect(request.getContentLength()).andReturn(-1);
-        
+
         expect(headers.getMediaType()).andReturn(MediaType.TEXT_PLAIN_TYPE);
-        List<String> contentLengthHeaders = Arrays.asList(new String[]{contentSize+""});
+        List<String> contentLengthHeaders = Arrays.asList(new String[] {contentSize + ""});
         expect(headers.getRequestHeader("Content-Length")).andReturn(contentLengthHeaders);
         replayAll();
         RestUtilImpl util = new RestUtilImpl();
         RequestContent content = util.getRequestContent(request, headers);
         assertEquals(contentSize, content.getSize());
-        
+
     }
 
 }

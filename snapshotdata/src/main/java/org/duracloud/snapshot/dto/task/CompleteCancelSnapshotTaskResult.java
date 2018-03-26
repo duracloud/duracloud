@@ -8,7 +8,6 @@
 package org.duracloud.snapshot.dto.task;
 
 import java.io.IOException;
-
 import javax.xml.bind.annotation.XmlValue;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
@@ -17,7 +16,7 @@ import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * @author Bill Branan
- *         Date: 7/25/14
+ * Date: 7/25/14
  */
 public class CompleteCancelSnapshotTaskResult extends BaseDTO {
 
@@ -26,10 +25,10 @@ public class CompleteCancelSnapshotTaskResult extends BaseDTO {
      */
     @XmlValue
     private String result;
-    
 
     // Required by JAXB
-    public CompleteCancelSnapshotTaskResult() {}
+    public CompleteCancelSnapshotTaskResult() {
+    }
 
     public CompleteCancelSnapshotTaskResult(String result) {
         setResult(result);
@@ -42,9 +41,7 @@ public class CompleteCancelSnapshotTaskResult extends BaseDTO {
     public void setResult(String result) {
         this.result = result;
     }
-    
 
-    
     /**
      * Creates a serialized version of task results
      *
@@ -55,7 +52,7 @@ public class CompleteCancelSnapshotTaskResult extends BaseDTO {
             new JaxbJsonSerializer<>(CompleteCancelSnapshotTaskResult.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task result due to: " + e.getMessage());
         }
@@ -71,7 +68,7 @@ public class CompleteCancelSnapshotTaskResult extends BaseDTO {
             new JaxbJsonSerializer<>(CompleteCancelSnapshotTaskResult.class);
         try {
             return serializer.deserialize(taskResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task result due to: " + e.getMessage());
         }

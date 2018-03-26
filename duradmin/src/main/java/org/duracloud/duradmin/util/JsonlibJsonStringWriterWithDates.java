@@ -18,7 +18,6 @@ import net.sf.json.JSONSerializer;
 import net.sf.json.JsonConfig;
 import net.sf.json.processors.JsonBeanProcessor;
 import net.sf.json.processors.JsonValueProcessorMatcher;
-
 import org.duracloud.snapshot.dto.SnapshotHistoryItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,31 +32,37 @@ import org.springframework.web.servlet.view.json.writer.jsonlib.PropertyEditorRe
 
 /**
  * This is an exact copy of JsonlibJsonStringWriter
- * We're only interested in @Override of convertAndWrite() to extend functionality through JsonConfig to allow of adding of custom parsing for Date objects
- * 
+ * We're only interested in @Override of convertAndWrite() to extend functionality through JsonConfig to allow of
+ * adding of custom parsing for Date objects
+ *
  * @author Gad Krumholz
  * Date: 7/02/2015
  */
 public class JsonlibJsonStringWriterWithDates extends JsonlibJsonStringWriter {
     protected final Logger logger = LoggerFactory.getLogger(JsonlibJsonStringWriterWithDates.class);
-    
+
     @Override
     @SuppressWarnings("rawtypes")
-    public void convertAndWrite(Map model, JsonWriterConfiguratorTemplateRegistry configuratorTemplateRegistry, Writer writer, BindingResult br) throws IOException {
+    public void convertAndWrite(Map model, JsonWriterConfiguratorTemplateRegistry configuratorTemplateRegistry,
+                                Writer writer, BindingResult br) throws IOException {
 
         JsonConfig jsonConfig = null;
 
-        JsonlibJsonWriterConfiguratorTemplate configuratorTemplate = (JsonlibJsonWriterConfiguratorTemplate) configuratorTemplateRegistry.findConfiguratorTemplate(JsonlibJsonWriterConfiguratorTemplate.class.getName());
+        JsonlibJsonWriterConfiguratorTemplate configuratorTemplate =
+            (JsonlibJsonWriterConfiguratorTemplate) configuratorTemplateRegistry
+                .findConfiguratorTemplate(JsonlibJsonWriterConfiguratorTemplate.class.getName());
 
         if (isEnableJsonConfigSupport() && configuratorTemplate != null) {
             jsonConfig = (JsonConfig) configuratorTemplate.getConfigurator();
         }
 
-        if (jsonConfig == null)
+        if (jsonConfig == null) {
             jsonConfig = new JsonConfig();
+        }
 
-        if (jsonConfig.getJsonPropertyFilter() == null && !isKeepNullProperties())
+        if (jsonConfig.getJsonPropertyFilter() == null && !isKeepNullProperties()) {
             jsonConfig.setJsonPropertyFilter(new NullPropertyFilter());
+        }
 
         if (jsonConfig.getJsonValueProcessorMatcher().getClass().equals(JsonValueProcessorMatcher.DEFAULT.getClass())) {
             PropertyEditorRegistry per = null;
@@ -84,8 +89,9 @@ public class JsonlibJsonStringWriterWithDates extends JsonlibJsonStringWriter {
         jsonConfig.registerJsonBeanProcessor(SnapshotHistoryItem.class, new SnapshotHistoryItemJsonBeanProcessor());
 
         JSON json = JSONSerializer.toJSON(model, jsonConfig);
-        if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled()) {
             logger.debug(json.toString());
+        }
 
         json.write(writer);
         writer.flush();
@@ -97,7 +103,9 @@ public class JsonlibJsonStringWriterWithDates extends JsonlibJsonStringWriter {
             SnapshotHistoryItem snapmeta = (SnapshotHistoryItem) paramObject;
             JSONObject history = new JSONObject();
             history.put("historyDate", snapmeta.getHistoryDate().getTime());
-            history.put("history", "'" + snapmeta.getHistory() + "'"); // wrap single quotes around the string so that JSONObject doesn't try to parse the String as possibly valid JSON String
+            history.put("history", "'" + snapmeta.getHistory() +
+                                   "'"); // wrap single quotes around the string so that JSONObject doesn't try to
+            // parse the String as possibly valid JSON String
             return history;
         }
     }

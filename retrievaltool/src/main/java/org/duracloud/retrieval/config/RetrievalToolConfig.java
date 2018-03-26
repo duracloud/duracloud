@@ -43,11 +43,11 @@ public class RetrievalToolConfig implements Serializable {
         config.append(" Retrieval Tool " + version + " - Configuration");
         config.append("\n--------------------------------------\n");
 
-        if(allSpaces) {
+        if (allSpaces) {
             config.append("Retrieve all spaces: true");
         } else {
             config.append("Retrieve spaces:");
-            for(String space : spaces) {
+            for (String space : spaces) {
                 config.append(" ").append(space);
             }
         }
@@ -60,7 +60,7 @@ public class RetrievalToolConfig implements Serializable {
         config.append("DuraStore Username: ");
         config.append(getUsername()).append("\n");
 
-        if(storeId != null) {
+        if (storeId != null) {
             config.append("DuraStore Store: ");
             config.append(getStoreId()).append("\n");
         }
@@ -76,7 +76,7 @@ public class RetrievalToolConfig implements Serializable {
         config.append("Retrieval Tool List Content Only: ");
         config.append(isListOnly()).append("\n");
 
-        if(listFile != null) {
+        if (listFile != null) {
             config.append("Retrieval Tool content ID 'list file': ");
             config.append(listFile.getAbsolutePath()).append("\n");
         }

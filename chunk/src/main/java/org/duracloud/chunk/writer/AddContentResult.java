@@ -9,7 +9,7 @@ package org.duracloud.chunk.writer;
 
 /**
  * @author Andrew Woods
- *         Date: Feb 15, 2010
+ * Date: Feb 15, 2010
  */
 public class AddContentResult {
     private String spaceId;

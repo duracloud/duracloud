@@ -7,6 +7,8 @@
  */
 package org.duracloud.durastore.aop;
 
+import java.lang.reflect.Method;
+
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
@@ -15,8 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.AfterReturningAdvice;
 import org.springframework.core.Ordered;
 
-import java.lang.reflect.Method;
-
 /**
  * Verifies that when a space is created it is available for access
  * prior to returning.
@@ -24,8 +24,7 @@ import java.lang.reflect.Method;
  * Assumes that the breakpoint for this advice is on method
  * StatelessStorageProvider.createSpace(String storeId, String spaceId)
  */
-public class VerifySpaceCreationAdvice
-        implements AfterReturningAdvice, Ordered {
+public class VerifySpaceCreationAdvice implements AfterReturningAdvice, Ordered {
 
     private final Logger log = LoggerFactory.getLogger(VerifySpaceCreationAdvice.class);
 
@@ -42,10 +41,10 @@ public class VerifySpaceCreationAdvice
         boolean spaceExists = false;
         int numAttempts = 0;
 
-        StatelessStorageProvider provider = (StatelessStorageProvider)targetObj;
-        StorageProvider target = (StorageProvider)methodArgs[0];
-        String storeId = (String)methodArgs[1];
-        String spaceId = (String)methodArgs[2];
+        StatelessStorageProvider provider = (StatelessStorageProvider) targetObj;
+        StorageProvider target = (StorageProvider) methodArgs[0];
+        String storeId = (String) methodArgs[1];
+        String spaceId = (String) methodArgs[2];
 
         do {
             numAttempts++;
@@ -53,19 +52,17 @@ public class VerifySpaceCreationAdvice
                 // Simple test to determine if a space exists
                 provider.getSpaceProperties(target, storeId, spaceId);
                 spaceExists = true;
-            } catch(StorageException se) {
+            } catch (StorageException se) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Attempt " + numAttempts + " to verify " +
-                              "that space " + spaceId +
+                    log.debug("Attempt " + numAttempts + " to verify " + "that space " + spaceId +
                               " exists after creation failed.");
                 }
                 Thread.sleep(waitTime);
             }
-        } while(!spaceExists && (numAttempts <= maxRetries));
+        } while (!spaceExists && (numAttempts <= maxRetries));
 
-        if(!spaceExists) {
-            String error = "Unable to verify creation of space " +
-                           spaceId + " after " +
+        if (!spaceExists) {
+            String error = "Unable to verify creation of space " + spaceId + " after " +
                            maxRetries + " attempts.";
             throw new StorageException(error, StorageException.RETRY);
         }

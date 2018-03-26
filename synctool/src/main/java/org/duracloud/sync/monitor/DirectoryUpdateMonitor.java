@@ -33,7 +33,7 @@ public class DirectoryUpdateMonitor {
      * Creates a directory update monitor which, when started, will notify
      * on changes within the given directories.
      *
-     * @param directories to monitor
+     * @param directories   to monitor
      * @param pollFrequency how often the monitor should look for changes
      */
     public DirectoryUpdateMonitor(List<File> directories,
@@ -43,27 +43,26 @@ public class DirectoryUpdateMonitor {
 
         for (File watchDir : directories) {
             if (watchDir.exists()) {
-                FileAlterationObserver observer; 
-                if(watchDir.isDirectory()){
+                FileAlterationObserver observer;
+                if (watchDir.isDirectory()) {
                     observer =
                         new FileAlterationObserver(watchDir);
-                }else {
+                } else {
                     final File file = watchDir;
                     observer =
-                        new FileAlterationObserver(watchDir.getParentFile(), new FileFilter(){
+                        new FileAlterationObserver(watchDir.getParentFile(), new FileFilter() {
                             @Override
                             public boolean accept(File pathname) {
                                 return (file.equals(pathname));
-                            }});
+                            }
+                        });
                 }
 
                 observer.addListener(new DirectoryListener(syncDeletes));
                 monitor.addObserver(observer);
 
             } else {
-                throw new RuntimeException("Path " +
-                    watchDir.getAbsolutePath() +
-                    " does not exist");
+                throw new RuntimeException("Path " + watchDir.getAbsolutePath() + " does not exist");
             }
         }
     }
@@ -75,9 +74,9 @@ public class DirectoryUpdateMonitor {
         logger.info("Starting Directory Update Monitor");
         try {
             monitor.start();
-        } catch(IllegalStateException e) {
+        } catch (IllegalStateException e) {
             logger.info("File alteration monitor is already started: " + e.getMessage());
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -89,9 +88,9 @@ public class DirectoryUpdateMonitor {
         logger.info("Stopping Directory Update Monitor");
         try {
             monitor.stop();
-        } catch(IllegalStateException e) {
+        } catch (IllegalStateException e) {
             logger.info("File alteration monitor is already stopped: " + e.getMessage());
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

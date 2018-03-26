@@ -21,8 +21,15 @@ import org.springframework.core.io.ResourceLoader;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @PropertySource("${duracloud.config.file}") //this references the system property.
 public class PropertyConfig {
+
+    private PropertyConfig() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer(ResourceLoader resourceLoader) throws IOException{
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer(
+        ResourceLoader resourceLoader) throws IOException {
+
         PropertySourcesPlaceholderConfigurer p = new PropertySourcesPlaceholderConfigurer();
         return p;
     }

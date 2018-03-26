@@ -7,15 +7,15 @@
  */
 package org.duracloud.s3storageprovider.dto;
 
+import java.io.IOException;
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.error.TaskDataException;
 
-import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
-
 /**
  * @author Bill Branan
- *         Date: 3/9/15
+ * Date: 3/9/15
  */
 public class GetSignedUrlTaskResult {
 
@@ -26,7 +26,8 @@ public class GetSignedUrlTaskResult {
     private String signedUrl;
 
     // Required by JAXB
-    public GetSignedUrlTaskResult() {}
+    public GetSignedUrlTaskResult() {
+    }
 
     public GetSignedUrlTaskResult(String signedUrl) {
         this.signedUrl = signedUrl;
@@ -50,7 +51,7 @@ public class GetSignedUrlTaskResult {
             new JaxbJsonSerializer<>(GetSignedUrlTaskResult.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new TaskDataException(
                 "Unable to create task result due to: " + e.getMessage());
         }
@@ -66,10 +67,10 @@ public class GetSignedUrlTaskResult {
             new JaxbJsonSerializer<>(GetSignedUrlTaskResult.class);
         try {
             return serializer.deserialize(taskResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new TaskDataException(
                 "Unable to create task result due to: " + e.getMessage());
         }
     }
-    
+
 }

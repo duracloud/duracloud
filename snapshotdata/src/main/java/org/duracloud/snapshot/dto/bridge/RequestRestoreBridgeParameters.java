@@ -8,7 +8,6 @@
 package org.duracloud.snapshot.dto.bridge;
 
 import java.io.IOException;
-
 import javax.xml.bind.annotation.XmlValue;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
@@ -16,10 +15,9 @@ import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * @author Daniel Bernstein
- *         Date: 11/04/2015
+ * Date: 11/04/2015
  */
 public class RequestRestoreBridgeParameters extends CreateRestoreBridgeParameters {
-
 
     /**
      * The host name of the DuraCloud instance
@@ -51,7 +49,8 @@ public class RequestRestoreBridgeParameters extends CreateRestoreBridgeParameter
     @XmlValue
     private String userEmail;
 
-    public RequestRestoreBridgeParameters(){}
+    public RequestRestoreBridgeParameters() {
+    }
 
     public RequestRestoreBridgeParameters(String host,
                                           String port,
@@ -115,7 +114,7 @@ public class RequestRestoreBridgeParameters extends CreateRestoreBridgeParameter
             new JaxbJsonSerializer<>(CreateRestoreBridgeParameters.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create  result due to: " + e.getMessage());
         }

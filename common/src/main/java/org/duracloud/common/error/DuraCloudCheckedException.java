@@ -14,7 +14,7 @@ import org.duracloud.common.util.ExceptionUtil;
  * internal exceptions extend.
  *
  * @author Andrew Woods
- *         Date: Oct 24, 2009
+ * Date: Oct 24, 2009
  */
 public class DuraCloudCheckedException extends Exception implements MessageFormattable {
 
@@ -73,7 +73,7 @@ public class DuraCloudCheckedException extends Exception implements MessageForma
         String msg = core.getFormattedMessage();
         if (null == msg) {
             msg = this.getMessage();
-            msg += ExceptionUtil.getStackTraceAsString(this);            
+            msg += ExceptionUtil.getStackTraceAsString(this);
         }
         return msg;
     }

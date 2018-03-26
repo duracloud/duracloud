@@ -27,11 +27,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /**
  * Verifies that the caller is authorized to make call to retrieve snapshot
  * detail info. See durastore/src/main/webapp/WEB-INF/config/aop-config.xml for
- * pointcut matching pattern. This pointcut is designed intercept calls to TaskProvider 
+ * pointcut matching pattern. This pointcut is designed intercept calls to TaskProvider
  * instances.
- * 
- * @author Daniel Bernstein Date: 11/16/2015
  *
+ * @author Daniel Bernstein Date: 11/16/2015
  */
 public class SnapshotAccessAdvice implements MethodBeforeAdvice, Ordered {
     private Logger log = LoggerFactory.getLogger(SnapshotAccessAdvice.class);
@@ -55,19 +54,18 @@ public class SnapshotAccessAdvice implements MethodBeforeAdvice, Ordered {
     public void before(Method method, Object[] args, Object target)
         throws Throwable {
         String taskName = (String) args[0];
-        
-        if(!taskName.matches("get-snapshot[^s]?(-.+)?")){
+
+        if (!taskName.matches("get-snapshot[^s]?(-.+)?")) {
             return;
         }
-        
-        
+
         Authentication auth =
             SecurityContextHolder.getContext().getAuthentication();
-        
-        if(this.authHelper.hasAdmin(auth)){
+
+        if (this.authHelper.hasAdmin(auth)) {
             return;
         }
-        
+
         String taskParams = (String) args[1];
 
         ObjectMapper mapper = new ObjectMapper();
@@ -84,10 +82,10 @@ public class SnapshotAccessAdvice implements MethodBeforeAdvice, Ordered {
             this.authHelper.getSpaceACLs(sourceStoreId, sourceSpaceId);
         if (!this.authHelper.hasReadAccess(auth.getName(), acls)
             && !this.authHelper.groupsHaveReadAccess(auth, acls)) {
-            log.error(auth.getName() + " is not authorized to view "+ rawSnapshotId);
+            log.error(auth.getName() + " is not authorized to view " + rawSnapshotId);
             throw new UnauthorizedException("You are not authorized to access snapshot "
                                             + rawSnapshotId + ".");
-        }else{
+        } else {
             log.debug("successfully authorized {} to view {}",
                       auth.getName(),
                       rawSnapshotId);

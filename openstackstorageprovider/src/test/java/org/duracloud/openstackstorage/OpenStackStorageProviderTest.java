@@ -7,6 +7,11 @@
  */
 package org.duracloud.openstackstorage;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
@@ -22,11 +27,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author: Bill Branan
@@ -64,15 +64,15 @@ public class OpenStackStorageProviderTest {
 
         List<ObjectInfo> objects = new ArrayList<ObjectInfo>();
         objects.add(ObjectInfoImpl.builder().container(spaceId)
-                .name("test-content").build());
+                                  .name("test-content").build());
         PageSet<ObjectInfo> filesObjectInfo = new PageSetImpl<ObjectInfo>(objects, null);
         ListContainerOptions containerOptions =
-                ListContainerOptions.Builder.maxResults(maxResults.intValue());
+            ListContainerOptions.Builder.maxResults(maxResults.intValue());
         containerOptions = containerOptions.afterMarker(provider.sanitizeForURI(marker));
         containerOptions = containerOptions.withPrefix(provider.sanitizeForURI(prefix));
 
         EasyMock.expect(swiftClient.listObjects(spaceId,
-                containerOptions))
+                                                containerOptions))
                 .andReturn(filesObjectInfo);
 
         replayMocks();
@@ -168,6 +168,5 @@ public class OpenStackStorageProviderTest {
             return "Open Stack Test Provider";
         }
     }
-
 
 }

@@ -21,22 +21,18 @@ import org.duracloud.storage.provider.ProbedStorageProvider;
  *
  * @author Andrew Woods
  */
-public class ProbedS3StorageProvider
-        extends ProbedStorageProvider {
+public class ProbedS3StorageProvider extends ProbedStorageProvider {
 
     private ProbedRestS3Client probedCore;
 
     public ProbedS3StorageProvider(String accessKey, String secretKey)
-            throws StorageException {
-        AWSCredentials awsCredentials =
-                new BasicAWSCredentials(accessKey, secretKey);
+        throws StorageException {
+        AWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
 
         try {
             probedCore = new ProbedRestS3Client(awsCredentials);
         } catch (AmazonServiceException e) {
-            String err =
-                    "Could not create connection to S3 due to error: "
-                            + e.getMessage();
+            String err = "Could not create connection to S3 due to error: " + e.getMessage();
             throw new StorageException(err, e);
         }
 

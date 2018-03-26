@@ -7,6 +7,11 @@
  */
 package org.duracloud.syncoptimize.test;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.sync.SyncToolInitializer;
@@ -16,17 +21,12 @@ import org.duracloud.syncoptimize.config.SyncOptimizeConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 /**
  * Handles running a single sync action using the SyncTool and capturing the
  * time required for the test to complete.
  *
  * @author Bill Branan
- *         Date: 5/16/14
+ * Date: 5/16/14
  */
 public class SyncTester {
 
@@ -83,7 +83,7 @@ public class SyncTester {
         args.add("-t");
         args.add(String.valueOf(threads));
 
-        syncTool.runSyncTool(args.toArray(new String[]{}));
+        syncTool.runSyncTool(args.toArray(new String[] {}));
     }
 
     protected SyncToolInitializer getSyncTool() {
@@ -95,10 +95,10 @@ public class SyncTester {
             String spaceId = syncOptConfig.getSpaceId();
             Iterator<String> testContent =
                 contentStore.getSpaceContents(spaceId, prefix);
-            while(testContent.hasNext()) {
+            while (testContent.hasNext()) {
                 contentStore.deleteContent(spaceId, testContent.next());
             }
-        } catch(ContentStoreException e) {
+        } catch (ContentStoreException e) {
             log.error("Error cleaning up DuraStore content: " +
                       e.getMessage());
         }

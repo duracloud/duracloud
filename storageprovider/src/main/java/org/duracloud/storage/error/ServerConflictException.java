@@ -9,10 +9,11 @@ package org.duracloud.storage.error;
 
 /**
  * Represents a task exception associated with a server conflict.
+ *
  * @author dbernstein
  */
-public class ServerConflictException extends TaskException{
-    public ServerConflictException(String message){
+public class ServerConflictException extends TaskException {
+    public ServerConflictException(String message) {
         super(message);
     }
 }

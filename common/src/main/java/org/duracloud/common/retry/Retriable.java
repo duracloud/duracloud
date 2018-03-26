@@ -12,7 +12,7 @@ package org.duracloud.common.retry;
  * attempted more than once to allow for a greater likelihood of success.
  *
  * @author Bill Branan
- *         Date: 10/23/13
+ * Date: 10/23/13
  */
 public interface Retriable {
 

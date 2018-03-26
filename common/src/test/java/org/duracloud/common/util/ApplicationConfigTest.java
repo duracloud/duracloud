@@ -7,14 +7,14 @@
  */
 package org.duracloud.common.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.Properties;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class ApplicationConfigTest {
 
@@ -37,7 +37,7 @@ public class ApplicationConfigTest {
     @Test
     public void testGetPropsFromResource() throws Exception {
         Properties props =
-                ApplicationConfig.getPropsFromResource("test.properties");
+            ApplicationConfig.getPropsFromResource("test.properties");
         assertNotNull(props);
         assertEquals(val0, props.getProperty(key0));
         assertEquals(val1, props.getProperty(key1));

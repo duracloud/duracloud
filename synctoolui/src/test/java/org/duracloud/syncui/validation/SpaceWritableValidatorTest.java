@@ -7,6 +7,8 @@
  */
 package org.duracloud.syncui.validation;
 
+import javax.validation.ConstraintValidatorContext;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.syncui.AbstractTest;
 import org.duracloud.syncui.domain.DuracloudCredentialsForm;
@@ -16,26 +18,23 @@ import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.validation.ConstraintValidatorContext;
-
 /**
  * @author Daniel Bernstein
  */
-public class SpaceWritableValidatorTest  extends AbstractTest {
-    
+public class SpaceWritableValidatorTest extends AbstractTest {
+
     @Test
     public void testIsValid() throws Exception {
         ContentStore cs = createMock(ContentStore.class);
-        ContentStoreFactory csf =  createMock(ContentStoreFactory.class);
-        EasyMock.expect(csf.create(
-                    EasyMock.anyObject(DuracloudCredentialsForm.class),
-                    EasyMock.eq(false)))
+        ContentStoreFactory csf = createMock(ContentStoreFactory.class);
+        EasyMock.expect(csf.create(EasyMock.anyObject(DuracloudCredentialsForm.class),
+                                   EasyMock.eq(false)))
                 .andReturn(cs);
 
         cs.deleteContent(EasyMock.isA(String.class),
-                                      EasyMock.isA(String.class));
+                         EasyMock.isA(String.class));
         EasyMock.expectLastCall().once();
-        
+
         ConstraintValidatorContext cvc =
             createMock(ConstraintValidatorContext.class);
         replay();

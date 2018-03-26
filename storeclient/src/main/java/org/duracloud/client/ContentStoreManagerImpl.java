@@ -55,8 +55,8 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
     /**
      * <p>Constructor for ContentStoreManagerImpl.</p>
      *
-     * @param host the host name on which DuraStore can be accessed
-     * @param port the port on which DuraStore can be accessed
+     * @param host    the host name on which DuraStore can be accessed
+     * @param port    the port on which DuraStore can be accessed
      * @param context the application context by which DuraStore can be accessed
      */
     public ContentStoreManagerImpl(String host, String port, String context) {
@@ -200,8 +200,8 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
                 }
             } else {
                 error += "Response code was " + response.getStatusCode() +
-                    ", expected value was " + HttpStatus.SC_OK +
-                    ". Response Body: " + response.getResponseBody();
+                         ", expected value was " + HttpStatus.SC_OK +
+                         ". Response Body: " + response.getResponseBody();
                 throw new StorageException(error);
             }
         } catch (Exception e) {

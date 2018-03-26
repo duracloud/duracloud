@@ -7,18 +7,18 @@
  */
 package org.duracloud.durastore.rest;
 
+import javax.ws.rs.core.Response;
+
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.ws.rs.core.Response;
-
 /**
  * This class tests top-level error handling of StoreRest.
  *
  * @author Andrew Woods
- *         Date: Aug 31, 2010
+ * Date: Aug 31, 2010
  */
 public class StoreRestExceptionsTest {
 

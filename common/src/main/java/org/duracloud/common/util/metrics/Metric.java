@@ -7,12 +7,12 @@
  */
 package org.duracloud.common.util.metrics;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Stack;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class holds timing metrics for a set of related events (MetricElements).
@@ -97,8 +97,8 @@ public class Metric {
         MetricElement elem = timerStack.peek();
         if (!name.equals(elem.getSubHeader())) {
             String msg =
-                    "Element to start does not match top of stack: " + name
-                            + ", " + elem.getSubHeader();
+                "Element to start does not match top of stack: " + name
+                + ", " + elem.getSubHeader();
             throw new RuntimeException(new MetricException(msg));
         }
         elem.start();

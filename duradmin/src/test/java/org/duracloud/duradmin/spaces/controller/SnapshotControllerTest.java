@@ -19,12 +19,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpStatus;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.http.HttpStatus;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
@@ -58,9 +57,7 @@ import org.junit.runner.RunWith;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 @RunWith(EasyMockRunner.class)
 public class SnapshotControllerTest extends EasyMockSupport {
@@ -286,13 +283,12 @@ public class SnapshotControllerTest extends EasyMockSupport {
                     i++;
                 }
             }
-            
-            topLevelPropCount++;
 
+            topLevelPropCount++;
 
         }
 
-        Assert.assertEquals(6, topLevelPropCount-1);
+        Assert.assertEquals(6, topLevelPropCount - 1);
         jParser.close();
     }
 

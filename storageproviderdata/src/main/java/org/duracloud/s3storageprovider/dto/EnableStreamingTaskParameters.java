@@ -8,7 +8,6 @@
 package org.duracloud.s3storageprovider.dto;
 
 import java.io.IOException;
-
 import javax.xml.bind.annotation.XmlValue;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
@@ -16,7 +15,7 @@ import org.duracloud.error.TaskDataException;
 
 /**
  * @author Bill Branan
- *         Date: 3/5/15
+ * Date: 3/5/15
  */
 public class EnableStreamingTaskParameters {
 
@@ -59,7 +58,7 @@ public class EnableStreamingTaskParameters {
             new JaxbJsonSerializer<>(EnableStreamingTaskParameters.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new TaskDataException(
                 "Unable to create task parameters due to: " + e.getMessage());
         }
@@ -77,12 +76,12 @@ public class EnableStreamingTaskParameters {
             EnableStreamingTaskParameters params =
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
-            if(null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
+            if (null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
                 throw new TaskDataException(
                     "Task parameter values may not be empty");
             }
             return params;
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new TaskDataException(
                 "Unable to parse task parameters due to: " + e.getMessage());
         }

@@ -21,7 +21,6 @@ import org.duracloud.syncui.domain.SyncProcessState;
 import org.duracloud.syncui.domain.ThreadCountForm;
 import org.duracloud.syncui.service.RunMode;
 import org.duracloud.syncui.service.SyncConfigurationManager;
-import org.duracloud.syncui.service.SyncConfigurationManagerImpl;
 import org.duracloud.syncui.service.SyncOptimizeManager;
 import org.duracloud.syncui.service.SyncProcessException;
 import org.duracloud.syncui.service.SyncProcessManager;
@@ -41,9 +40,8 @@ import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * A spring controller for configuration related functions.
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 @Controller
 @RequestMapping(ConfigurationController.CONFIGURATION_MAPPING)
@@ -84,7 +82,7 @@ public class ConfigurationController {
 
     @ModelAttribute("maxFileSizeForm")
     public MaxFileSizeForm maxFileSizeForm() {
-        MaxFileSizeForm form =  new MaxFileSizeForm();
+        MaxFileSizeForm form = new MaxFileSizeForm();
         form.setMaxFileSizeInGB((int) (this.syncConfigurationManager.getMaxFileSizeInBytes()
                                        / SyncConfigurationManager.GIGABYTES));
         return form;
@@ -92,7 +90,7 @@ public class ConfigurationController {
 
     @ModelAttribute("modeForm")
     public ModeForm modeForm() {
-        ModeForm form =  new ModeForm();
+        ModeForm form = new ModeForm();
         form.setMode(this.syncConfigurationManager.getMode());
         return form;
     }
@@ -103,7 +101,7 @@ public class ConfigurationController {
     }
 
     @ModelAttribute("advancedForm")
-    public AdvancedForm advancedForm(){
+    public AdvancedForm advancedForm() {
         AdvancedForm f = new AdvancedForm();
         f.setSyncDeletes(this.syncConfigurationManager.isSyncDeletes());
         f.setUpdatePolicy(UpdatePolicyHelper.get(this.syncConfigurationManager).name());
@@ -111,14 +109,13 @@ public class ConfigurationController {
         return f;
     }
 
-
-    @RequestMapping(value = { "" }, method= RequestMethod.GET)
+    @RequestMapping(value = {""}, method = RequestMethod.GET)
     public String get(Model model) {
         log.debug("accessing configuration page");
         return "configuration";
     }
 
-    @RequestMapping(value = { "/remove" }, method = RequestMethod.POST)
+    @RequestMapping(value = {"/remove"}, method = RequestMethod.POST)
     public View removeDirectory(@Valid DirectoryConfigForm directoryConfigForm,
                                 RedirectAttributes redirectAttributes) {
         String path = directoryConfigForm.getDirectoryPath();
@@ -133,10 +130,8 @@ public class ConfigurationController {
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
 
-    @RequestMapping(value = { "/advanced" }, method = RequestMethod.POST)
-    public View updateOptions(
-                                AdvancedForm form,
-                                RedirectAttributes redirectAttributes) {
+    @RequestMapping(value = {"/advanced"}, method = RequestMethod.POST)
+    public View updateOptions(AdvancedForm form, RedirectAttributes redirectAttributes) {
 
         boolean syncDeletes = form.isSyncDeletes();
         log.debug("updating sync deletes to : {}", syncDeletes);
@@ -152,11 +147,9 @@ public class ConfigurationController {
 
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
-    
-    @RequestMapping(value = { "/mode" }, method = RequestMethod.POST)
-    public View updateMode(
-                                ModeForm form,
-                                RedirectAttributes redirectAttributes) {
+
+    @RequestMapping(value = {"/mode"}, method = RequestMethod.POST)
+    public View updateMode(ModeForm form, RedirectAttributes redirectAttributes) {
 
         RunMode mode = form.getMode();
         log.debug("updating mode to : {}", mode);
@@ -164,37 +157,29 @@ public class ConfigurationController {
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
 
-    @RequestMapping(value = { "/max-file-size" }, method = RequestMethod.POST)
-    public View updateMaxFileSize(
-                                MaxFileSizeForm form,
-                                RedirectAttributes redirectAttributes) {
+    @RequestMapping(value = {"/max-file-size"}, method = RequestMethod.POST)
+    public View updateMaxFileSize(MaxFileSizeForm form, RedirectAttributes redirectAttributes) {
 
-        long maxFileSize = form.getMaxFileSizeInGB()*SyncConfigurationManager.GIGABYTES;
+        long maxFileSize = form.getMaxFileSizeInGB() * SyncConfigurationManager.GIGABYTES;
         log.debug("maxFileSize  to : {}", maxFileSize);
         this.syncConfigurationManager.setMaxFileSizeInBytes(maxFileSize);
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
 
-    
     @ModelAttribute("threadCountForm")
-    public ThreadCountForm threadCountForm(){
+    public ThreadCountForm threadCountForm() {
         ThreadCountForm f = new ThreadCountForm();
         f.setThreadCount(this.syncConfigurationManager.getThreadCount());
         return f;
     }
-    
+
     @ModelAttribute("syncOptimizeManager")
-    public SyncOptimizeManager syncOptimizeManager(){
+    public SyncOptimizeManager syncOptimizeManager() {
         return this.syncOptimizeManager;
     }
 
-
- 
-
-    @RequestMapping(value = { "/thread-count" }, method = RequestMethod.POST)
-    public View updateThreadCount(
-                                ThreadCountForm form,
-                                RedirectAttributes redirectAttributes) {
+    @RequestMapping(value = {"/thread-count"}, method = RequestMethod.POST)
+    public View updateThreadCount(ThreadCountForm form, RedirectAttributes redirectAttributes) {
 
         int threadCount = form.getThreadCount();
         log.debug("updating thread count  to : {}", threadCount);
@@ -202,19 +187,18 @@ public class ConfigurationController {
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
 
-
     @ModelAttribute("directoryConfigForm")
     public DirectoryConfigForm directoryConfigForm() {
         return new DirectoryConfigForm();
     }
 
-    @RequestMapping(value = { "/add" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/add"}, method = RequestMethod.GET)
     public String getAdd() {
         log.debug("accessing new directory page");
         return "directory";
     }
 
-    @RequestMapping(value = { "/add" }, method = RequestMethod.POST)
+    @RequestMapping(value = {"/add"}, method = RequestMethod.POST)
     public View add(@Valid DirectoryConfigForm directoryConfigForm,
                     RedirectAttributes redirectAttributes) {
         log.debug("adding new directory");
@@ -229,19 +213,15 @@ public class ConfigurationController {
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
 
-    
-
     @ModelAttribute("prefixForm")
-    public PrefixForm prefixForm(){
+    public PrefixForm prefixForm() {
         PrefixForm f = new PrefixForm();
         f.setPrefix(this.syncConfigurationManager.getPrefix());
         return f;
     }
 
-    @RequestMapping(value = { "/prefix" }, method = RequestMethod.POST)
-    public View updatePrefix(
-                                PrefixForm form,
-                                RedirectAttributes redirectAttributes) {
+    @RequestMapping(value = {"/prefix"}, method = RequestMethod.POST)
+    public View updatePrefix(PrefixForm form, RedirectAttributes redirectAttributes) {
 
         String prefix = form.getPrefix();
         log.debug("updating prefix  to : {}", prefix);
@@ -249,54 +229,46 @@ public class ConfigurationController {
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
 
-    @RequestMapping(value = { "/optimize" }, method = RequestMethod.GET)
+    @RequestMapping(value = {"/optimize"}, method = RequestMethod.GET)
     public String optimize() {
         return "optimize";
     }
 
-    @RequestMapping(value = { "/optimize" }, method = RequestMethod.POST)
-    public View
-        optimize(@RequestParam(value = "autoStart", defaultValue = "false") final boolean autoStart,
-                 RedirectAttributes redirectAttributes) {
-        
+    @RequestMapping(value = {"/optimize"}, method = RequestMethod.POST)
+    public View optimize(@RequestParam(value = "autoStart", defaultValue = "false") final boolean autoStart,
+                         RedirectAttributes redirectAttributes) {
+
         if (!syncProcessManager.getProcessState()
-            .equals(SyncProcessState.STOPPED)) {
-                throw new IllegalStateException("The  optimizer cannot run when the sync process is running.");
+                               .equals(SyncProcessState.STOPPED)) {
+            throw new IllegalStateException("The  optimizer cannot run when the sync process is running.");
         }
 
-        
-        this.syncOptimizeManager.start(new SyncOptimizeManagerResultCallBack(){
-            public void onSuccess(){
-                if(autoStart){
+        this.syncOptimizeManager.start(new SyncOptimizeManagerResultCallBack() {
+            public void onSuccess() {
+                if (autoStart) {
                     try {
                         syncProcessManager.start();
                     } catch (SyncProcessException e) {
-                        log.error("failed to start sync process manager: "
-                                      + e.getMessage(),
-                                  e);
+                        log.error("failed to start sync process manager: " + e.getMessage(), e);
                     }
                 }
             }
-            
+
             @Override
             public void onFailure(Exception ex, String status) {
                 //do nothing.
             }
         });
 
-
-        
         return createRedirect(redirectAttributes, "syncOptimizeStarted");
     }
 
-    private View
-        createConfigUpdatedRedirectView(RedirectAttributes redirectAttributes) {
+    private View createConfigUpdatedRedirectView(RedirectAttributes redirectAttributes) {
         String include = "configUpdated";
         return createRedirect(redirectAttributes, include);
     }
 
-    protected View createRedirect(RedirectAttributes redirectAttributes,
-                                  String include) {
+    protected View createRedirect(RedirectAttributes redirectAttributes, String include) {
         RedirectView view =
             new RedirectView(CONFIGURATION_MAPPING, true, true, false);
         redirectAttributes.addFlashAttribute("messageInclude", include);

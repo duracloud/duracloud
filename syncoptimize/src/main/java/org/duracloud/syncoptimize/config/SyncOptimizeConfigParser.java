@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * is used to run the Sync Optimizer tests.
  *
  * @author Bill Branan
- *         Date: 5/16/14
+ * Date: 5/16/14
  */
 
 public class SyncOptimizeConfigParser {
@@ -47,52 +47,52 @@ public class SyncOptimizeConfigParser {
     public SyncOptimizeConfigParser() {
         cmdLineUtil = new CommandLineToolUtil();
 
-       // Command Line Options
-       cmdOptions = new Options();
+        // Command Line Options
+        cmdOptions = new Options();
 
-       Option hostOption =
-           new Option("h", "host", true,
-                      "the host address of the DuraCloud " +
-                      "DuraStore application");
-       hostOption.setRequired(true);
-       cmdOptions.addOption(hostOption);
+        Option hostOption =
+            new Option("h", "host", true,
+                       "the host address of the DuraCloud " +
+                       "DuraStore application");
+        hostOption.setRequired(true);
+        cmdOptions.addOption(hostOption);
 
-       Option portOption =
-           new Option("r", "port", true,
-                      "the port of the DuraCloud DuraStore application " +
-                      "(optional, default value is " + DEFAULT_PORT + ")");
-       portOption.setRequired(false);
-       cmdOptions.addOption(portOption);
+        Option portOption =
+            new Option("r", "port", true,
+                       "the port of the DuraCloud DuraStore application " +
+                       "(optional, default value is " + DEFAULT_PORT + ")");
+        portOption.setRequired(false);
+        cmdOptions.addOption(portOption);
 
-       Option usernameOption =
-           new Option("u", "username", true,
-                      "the username necessary to perform writes to DuraStore");
-       usernameOption.setRequired(true);
-       cmdOptions.addOption(usernameOption);
+        Option usernameOption =
+            new Option("u", "username", true,
+                       "the username necessary to perform writes to DuraStore");
+        usernameOption.setRequired(true);
+        cmdOptions.addOption(usernameOption);
 
-       Option passwordOption =
-           new Option("p", "password", true,
-        		      "the password necessary to perform writes to DuraStore; NOTICE: "
-                           + "if no password is specified in the command line the retrieval tool will "
-                           + "look for an environment variable named "
-                           + CommandLineToolUtil.PASSWORD_ENV_VARIABLE_NAME
-                           + " containing the password.  Finally, if this environment variable "
-                           + "does not exist the user will be prompted for the password.");
-       passwordOption.setRequired(false);
-       cmdOptions.addOption(passwordOption);
+        Option passwordOption =
+            new Option("p", "password", true,
+                       "the password necessary to perform writes to DuraStore; NOTICE: "
+                       + "if no password is specified in the command line the retrieval tool will "
+                       + "look for an environment variable named "
+                       + CommandLineToolUtil.PASSWORD_ENV_VARIABLE_NAME
+                       + " containing the password.  Finally, if this environment variable "
+                       + "does not exist the user will be prompted for the password.");
+        passwordOption.setRequired(false);
+        cmdOptions.addOption(passwordOption);
 
-       Option spaceIdOption =
-           new Option("s", "space", true,
-                      "the space in which test content will be placed");
-       spaceIdOption.setRequired(true);
-       spaceIdOption.setArgs(Option.UNLIMITED_VALUES);
-       cmdOptions.addOption(spaceIdOption);
+        Option spaceIdOption =
+            new Option("s", "space", true,
+                       "the space in which test content will be placed");
+        spaceIdOption.setRequired(true);
+        spaceIdOption.setArgs(Option.UNLIMITED_VALUES);
+        cmdOptions.addOption(spaceIdOption);
 
-       Option numFilesOption =
-           new Option("n", "num-files", true,
-                      "the number of files to transfer on each test run");
-       numFilesOption.setRequired(false);
-       cmdOptions.addOption(numFilesOption);
+        Option numFilesOption =
+            new Option("n", "num-files", true,
+                       "the number of files to transfer on each test run");
+        numFilesOption.setRequired(false);
+        cmdOptions.addOption(numFilesOption);
 
         Option sizeFilesOption =
             new Option("m", "size-files", true,
@@ -139,7 +139,7 @@ public class SyncOptimizeConfigParser {
         } else {
             ConsolePrompt console = getConsole();
             if (null == console) {
-                printHelp("You must either specify a password in the command "+
+                printHelp("You must either specify a password in the command " +
                           "line or specify the " +
                           CommandLineToolUtil.PASSWORD_ENV_VARIABLE_NAME +
                           " environmental variable.");
@@ -149,10 +149,10 @@ public class SyncOptimizeConfigParser {
             }
         }
 
-        if(cmd.hasOption("r")) {
+        if (cmd.hasOption("r")) {
             try {
                 config.setPort(Integer.valueOf(cmd.getOptionValue("r")));
-            } catch(NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 throw new ParseException("The value for port (-r) must be " +
                                          "a number.");
             }
@@ -160,10 +160,10 @@ public class SyncOptimizeConfigParser {
             config.setPort(DEFAULT_PORT);
         }
 
-        if(cmd.hasOption("n")) {
+        if (cmd.hasOption("n")) {
             try {
                 config.setNumFiles(Integer.valueOf(cmd.getOptionValue("n")));
-            } catch(NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 throw new ParseException("The value for num-files (-n) must " +
                                          "be a number.");
             }
@@ -171,10 +171,10 @@ public class SyncOptimizeConfigParser {
             config.setNumFiles(DEFAULT_NUM_FILES);
         }
 
-        if(cmd.hasOption("m")) {
+        if (cmd.hasOption("m")) {
             try {
                 config.setSizeFiles(Integer.valueOf(cmd.getOptionValue("m")));
-            } catch(NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 throw new ParseException("The value for size-files (-m) must " +
                                          "be a number.");
             }

@@ -7,7 +7,7 @@
  */
 package org.duracloud.integration.durastore.storage;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,13 +43,13 @@ import org.slf4j.LoggerFactory;
 public class TestStorageProviders {
 
     protected final static Logger log =
-            LoggerFactory.getLogger(TestStorageProviders.class);
+        LoggerFactory.getLogger(TestStorageProviders.class);
 
     private final static StorageProvidersTestInterface tester =
-            new StorageProvidersTestProxyPipe();
+        new StorageProvidersTestProxyPipe();
 
     private final static List<StorageProvider> storageProviders =
-            new ArrayList<StorageProvider>();
+        new ArrayList<StorageProvider>();
 
     private final static List<String> spaceIds = new ArrayList<String>();
 
@@ -94,13 +94,13 @@ public class TestStorageProviders {
             throw new RuntimeException(e1);
         }
         SimpleCredential credential = null;
-        for(StorageProviderCredential spc : config.getProviderCredentials()){
-            if(spc.getType().name().equals(type.name())){
+        for (StorageProviderCredential spc : config.getProviderCredentials()) {
+            if (spc.getType().name().equals(type.name())) {
                 credential = spc.getCredential();
                 break;
             }
         }
-        
+
         try {
             assertNotNull(credential);
 
@@ -127,7 +127,7 @@ public class TestStorageProviders {
     }
 
     private void checkSpacesCreated() {
-        if(spaceIds.size() <= 0) {
+        if (spaceIds.size() <= 0) {
             spaceId0 = getNewSpaceId();
             spaceId1 = getNewSpaceId();
             spaceIds.add(spaceId0);
@@ -167,10 +167,10 @@ public class TestStorageProviders {
     private static void cleanSpaces() {
         for (StorageProvider provider : storageProviders) {
             assertNotNull(provider);
-            for(String spaceId : spaceIds) {
+            for (String spaceId : spaceIds) {
                 Iterator<String> contentIds =
                     provider.getSpaceContents(spaceId, null);
-                while(contentIds.hasNext()) {
+                while (contentIds.hasNext()) {
                     String contentId = contentIds.next();
                     provider.deleteContent(spaceId, contentId);
                 }
@@ -182,7 +182,7 @@ public class TestStorageProviders {
         for (StorageProvider provider : storageProviders) {
             assertNotNull(provider);
             log.info("Removing spaces for provider " + provider.getClass());
-            for(String spaceId : spaceIds) {
+            for (String spaceId : spaceIds) {
                 log.info("Removing space: " + spaceId);
                 tester.testDeleteSpace(provider, spaceId);
             }

@@ -8,10 +8,11 @@
 package org.duracloud.sync.mgmt;
 
 import static junit.framework.Assert.assertEquals;
-import org.duracloud.sync.SyncTestBase;
-import org.junit.Test;
 
 import java.io.File;
+
+import org.duracloud.sync.SyncTestBase;
+import org.junit.Test;
 
 /**
  * @author: Bill Branan
@@ -34,7 +35,7 @@ public class ChangeWatcherTest extends SyncTestBase {
 
         changes = 0;
         int changedFiles = 10;
-        for(int i=0; i < changedFiles; i++) {
+        for (int i = 0; i < changedFiles; i++) {
             changedList.addChangedFile(new File("test-file-" + i));
         }
         Thread.sleep(200);
@@ -44,7 +45,7 @@ public class ChangeWatcherTest extends SyncTestBase {
         changeWatcher.endWatch();
         changedList.addChangedFile(new File("test-3"));
         Thread.sleep(200);
-        assertEquals(0, changes);        
+        assertEquals(0, changes);
     }
 
     private class TestHandler implements ChangeHandler {

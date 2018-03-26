@@ -11,12 +11,16 @@ package org.duracloud.storage.domain;
  * This class contains constants for running hadoop jobs.
  *
  * @author Andrew Woods
- *         Date: Sep 28, 2010
+ * Date: Sep 28, 2010
  */
 public class HadoopTypes {
     public static final String RUN_HADOOP_TASK_NAME = "run-hadoop-job";
     public static final String STOP_JOB_TASK_NAME = "stop-hadoop-job";
     public static final String DESCRIBE_JOB_TASK_NAME = "describe-hadoop-job";
+
+    private HadoopTypes() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     public enum TASK_PARAMS {
         JOB_TYPE("-"),

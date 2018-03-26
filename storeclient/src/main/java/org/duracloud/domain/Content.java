@@ -8,7 +8,6 @@
 package org.duracloud.domain;
 
 import java.io.InputStream;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +52,7 @@ public class Content {
     /**
      * <p>Adds an item to the content properties map</p>
      *
-     * @param name properties key
+     * @param name  properties key
      * @param value properties value
      */
     public void addProperties(String name, String value) {

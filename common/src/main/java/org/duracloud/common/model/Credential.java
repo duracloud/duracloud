@@ -9,8 +9,7 @@ package org.duracloud.common.model;
 
 import java.io.Serializable;
 
-public class Credential extends SimpleCredential
-        implements Serializable {
+public class Credential extends SimpleCredential implements Serializable {
 
     private static final long serialVersionUID = -7069231739026478165L;
 
@@ -41,15 +40,13 @@ public class Credential extends SimpleCredential
         }
         Credential otherCred = (Credential) other;
 
-        if ((this.username != null && this.username.equals(otherCred
-                .getUsername()))
-                || this.username == null && otherCred.getUsername() == null) {
+        if ((this.username != null && this.username.equals(otherCred.getUsername()))
+            || this.username == null && otherCred.getUsername() == null) {
             usernameSame = true;
         }
 
-        if ((this.password != null && this.password.equals(otherCred
-                .getPassword()))
-                || this.password == null && otherCred.getPassword() == null) {
+        if ((this.password != null && this.password.equals(otherCred.getPassword()))
+            || this.password == null && otherCred.getPassword() == null) {
             passwordSame = true;
         }
 

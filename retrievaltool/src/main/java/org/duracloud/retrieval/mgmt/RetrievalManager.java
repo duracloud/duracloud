@@ -7,16 +7,16 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import org.duracloud.common.model.ContentItem;
-import org.duracloud.retrieval.source.RetrievalSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import org.duracloud.common.model.ContentItem;
+import org.duracloud.retrieval.source.RetrievalSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The RetreivalManager manages the retrieval of files from DuraCloud to the
@@ -71,14 +71,14 @@ public class RetrievalManager implements Runnable {
      * Begins the content retrieval process
      */
     public void run() {
-        while(!complete) {
+        while (!complete) {
             ContentItem contentItem = source.getNextContentItem();
-            if(contentItem == null) {
+            if (contentItem == null) {
                 shutdown();
                 break;
             }
 
-            while(!retrieveContent(contentItem)) {
+            while (!retrieveContent(contentItem)) {
                 sleep(1000);
             }
         }
@@ -88,13 +88,14 @@ public class RetrievalManager implements Runnable {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
+            // Exit sleep on interruption
         }
     }
 
     private boolean retrieveContent(ContentItem contentItem) {
         try {
             logger.debug("contentItem={}", contentItem);
-            RetrievalWorker worker = new RetrievalWorker(contentItem, 
+            RetrievalWorker worker = new RetrievalWorker(contentItem,
                                                          source,
                                                          contentDir,
                                                          overwrite,
@@ -103,7 +104,7 @@ public class RetrievalManager implements Runnable {
                                                          applyTimestamps);
             workerPool.execute(worker);
             return true;
-        } catch(RejectedExecutionException e) {
+        } catch (RejectedExecutionException e) {
             return false;
         }
     }
@@ -118,7 +119,8 @@ public class RetrievalManager implements Runnable {
 
         try {
             workerPool.awaitTermination(30, TimeUnit.MINUTES);
-        } catch(InterruptedException e) {          
+        } catch (InterruptedException e) {
+            // Exit wait on interruption
         }
 
         complete = true;

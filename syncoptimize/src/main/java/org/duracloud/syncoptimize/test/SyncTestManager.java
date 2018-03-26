@@ -7,6 +7,9 @@
  */
 package org.duracloud.syncoptimize.test;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
@@ -16,9 +19,6 @@ import org.duracloud.syncoptimize.config.SyncOptimizeConfig;
 import org.duracloud.syncoptimize.status.SyncTestEvent;
 import org.duracloud.syncoptimize.status.SyncTestStatus;
 
-import java.io.File;
-import java.io.IOException;
-
 /**
  * Manages the running of the optimizer tests. These tests use the SyncTool
  * to transfer content, then capture the time required for the transfer to
@@ -27,7 +27,7 @@ import java.io.IOException;
  * the tests are repeated with larger thread numbers.
  *
  * @author Bill Branan
- *         Date: 5/16/14
+ * Date: 5/16/14
  */
 public class SyncTestManager {
 
@@ -72,7 +72,7 @@ public class SyncTestManager {
         int optimalThreads =
             optimizeThreadCount(syncTester, lowThreads, highThreads);
 
-        while(optimalThreads >= (highThreads -2)) {
+        while (optimalThreads >= (highThreads - 2)) {
             highThreads = highThreads * 2;
             optimalThreads =
                 optimizeThreadCount(syncTester, optimalThreads, highThreads);
@@ -103,17 +103,17 @@ public class SyncTestManager {
                          SyncTestEvent lowEvent,
                          int highThreads,
                          SyncTestEvent highEvent) {
-        if((highThreads - lowThreads) <= 2) {
-            if(lowEvent.getElapsed() < highEvent.getElapsed()) {
+        if ((highThreads - lowThreads) <= 2) {
+            if (lowEvent.getElapsed() < highEvent.getElapsed()) {
                 return lowThreads;
             } else {
                 return highThreads;
             }
         }
 
-        int midThreads = (lowThreads + highThreads)/2;
+        int midThreads = (lowThreads + highThreads) / 2;
         SyncTestEvent midEvent = runSyncTest(syncTester, midThreads);
-        if(lowEvent.getElapsed() <= highEvent.getElapsed()) {
+        if (lowEvent.getElapsed() <= highEvent.getElapsed()) {
             highThreads = midThreads;
             highEvent = midEvent;
         } else {
@@ -146,7 +146,7 @@ public class SyncTestManager {
 
         try {
             return storeManager.getPrimaryContentStore();
-        } catch(ContentStoreException e) {
+        } catch (ContentStoreException e) {
             throw new RuntimeException("Unable to create ContentStore due to" +
                                        e.getMessage());
         }

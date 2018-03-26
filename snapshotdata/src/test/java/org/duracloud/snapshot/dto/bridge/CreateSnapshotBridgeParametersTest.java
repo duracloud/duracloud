@@ -7,14 +7,14 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 7/28/14
+ * Date: 7/28/14
  */
 public class CreateSnapshotBridgeParametersTest {
 
@@ -34,13 +34,13 @@ public class CreateSnapshotBridgeParametersTest {
         String result = params.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
 
-        assertThat(cleanResult, containsString("\"host\":\""+host+"\""));
-        assertThat(cleanResult, containsString("\"port\":\""+port+"\""));
-        assertThat(cleanResult, containsString("\"storeId\":\""+storeId+"\""));
-        assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId+"\""));
-        assertThat(cleanResult, containsString("\"description\":\""+description+"\""));
-        assertThat(cleanResult, containsString("\"userEmail\":\""+userEmail+"\""));
-        assertThat(cleanResult, containsString("\"memberId\":\""+memberId+"\""));
+        assertThat(cleanResult, containsString("\"host\":\"" + host + "\""));
+        assertThat(cleanResult, containsString("\"port\":\"" + port + "\""));
+        assertThat(cleanResult, containsString("\"storeId\":\"" + storeId + "\""));
+        assertThat(cleanResult, containsString("\"spaceId\":\"" + spaceId + "\""));
+        assertThat(cleanResult, containsString("\"description\":\"" + description + "\""));
+        assertThat(cleanResult, containsString("\"userEmail\":\"" + userEmail + "\""));
+        assertThat(cleanResult, containsString("\"memberId\":\"" + memberId + "\""));
 
     }
 

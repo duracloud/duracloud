@@ -49,15 +49,15 @@ public class RestoreContentTaskRunner implements TaskRunner {
         // separated by a '/'. Example: my-space/image-42.jpg
         String spaceId = null;
         String contentId = null;
-        if(null != taskParameters && taskParameters.length() > 0) {
+        if (null != taskParameters && taskParameters.length() > 0) {
             int separator = taskParameters.indexOf("/");
             spaceId = taskParameters.substring(0, separator);
-            contentId = taskParameters.substring(separator+1);
+            contentId = taskParameters.substring(separator + 1);
         }
-        if(null == spaceId || null == contentId ||
-           spaceId.equals("") || contentId.equals("")) {
+        if (null == spaceId || null == contentId ||
+            spaceId.equals("") || contentId.equals("")) {
             throw new RuntimeException("A path including a space ID and an " +
-                "content ID (separated by a '/') is required.");
+                                       "content ID (separated by a '/') is required.");
         }
 
         // Restore content item
@@ -65,8 +65,8 @@ public class RestoreContentTaskRunner implements TaskRunner {
             s3Client.restoreObject(unwrappedGlacierProvider.getBucketName(spaceId),
                                    contentId,
                                    RESTORE_EXPIRATION_DAYS);
-        } catch(AmazonS3Exception e) {
-            if(RESTORE_IN_PROGRESS.equals(e.getErrorCode())) {
+        } catch (AmazonS3Exception e) {
+            if (RESTORE_IN_PROGRESS.equals(e.getErrorCode())) {
                 throw new StorageStateException(
                     "Restore is already in progress for " + taskParameters, e);
             }

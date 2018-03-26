@@ -7,16 +7,16 @@
  */
 package org.duracloud.integration.durastore.storage;
 
+import static org.junit.Assert.assertNotNull;
+
+import java.io.IOException;
+
 import org.duracloud.common.util.metrics.Metric;
 import org.duracloud.common.util.metrics.MetricsProbed;
 import org.duracloud.common.util.metrics.MetricsReport;
 import org.duracloud.common.util.metrics.MetricsTable;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
-
-import java.io.IOException;
-
-import static org.junit.Assert.assertNotNull;
 
 /**
  * This class captures timing metrics for each executed method of the
@@ -26,7 +26,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Andrew Woods
  */
 public class StorageProvidersTestMetricsProxy
-        implements StorageProvidersTestInterface {
+    implements StorageProvidersTestInterface {
 
     private final String reportTitle = "TestStorageProviders";
 
@@ -41,7 +41,7 @@ public class StorageProvidersTestMetricsProxy
     private StorageProvider currentProvider;
 
     public StorageProvidersTestMetricsProxy(StorageProvidersTestInterface tester)
-            throws IOException {
+        throws IOException {
         assertNotNull(tester);
         this.tester = tester;
 
@@ -102,7 +102,7 @@ public class StorageProvidersTestMetricsProxy
                                               String spaceId0,
                                               String contentId0,
                                               String contentId1)
-            throws Exception {
+        throws Exception {
         startMetric("testAddAndGetContentOverwrite", provider);
         tester.testAddAndGetContentOverwrite(provider,
                                              spaceId0,
@@ -121,7 +121,7 @@ public class StorageProvidersTestMetricsProxy
     }
 
     public void testCreateSpace(StorageProvider provider, String spaceId)
-            throws StorageException {
+        throws StorageException {
         startMetric("testCreateSpace", provider);
         tester.testCreateSpace(provider, spaceId);
         stopMetric(provider);
@@ -146,7 +146,7 @@ public class StorageProvidersTestMetricsProxy
     public void testGetContentProperties(StorageProvider provider,
                                          String spaceId0,
                                          String contentId0)
-            throws StorageException {
+        throws StorageException {
         startMetric("testGetContentProperties", provider);
         tester.testGetContentProperties(provider, spaceId0, contentId0);
         stopMetric(provider);
@@ -162,7 +162,7 @@ public class StorageProvidersTestMetricsProxy
     }
 
     public void testGetSpaceProperties(StorageProvider provider, String spaceId0)
-            throws StorageException {
+        throws StorageException {
         startMetric("testGetSpaceProperties", provider);
         tester.testGetSpaceProperties(provider, spaceId0);
         stopMetric(provider);
@@ -181,7 +181,7 @@ public class StorageProvidersTestMetricsProxy
                                          String spaceId1,
                                          String contentId0,
                                          String contentId1)
-            throws StorageException {
+        throws StorageException {
         startMetric("testSetContentProperties", provider);
         tester.testSetContentProperties(provider,
                                         spaceId0,
@@ -194,7 +194,7 @@ public class StorageProvidersTestMetricsProxy
     public void close() {
         try {
             MetricsReport report =
-                    new MetricsReport(reportTitle, reportFileName);
+                new MetricsReport(reportTitle, reportFileName);
             report.writeReport(metricsTable);
         } catch (IOException e) {
             System.err.println("Unable to create metrics report.");

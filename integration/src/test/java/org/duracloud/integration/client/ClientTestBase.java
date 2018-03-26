@@ -20,24 +20,29 @@ import org.junit.Assert;
 
 /**
  * @author Andrew Woods
- *         Date: Apr 20, 2010
+ * Date: Apr 20, 2010
  */
 public class ClientTestBase {
 
     private static TestConfig testConfig = getTestConfig();
-    
+
     protected static RestHttpHelper restHelper = getAuthorizedRestHelper();
 
     private static String context = "durastore";
-    
-    protected static TestConfig getTestConfig(){
+
+    protected ClientTestBase() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
+    protected static TestConfig getTestConfig() {
         try {
-           return  new TestConfigUtil().getTestConfig();
+            return new TestConfigUtil().getTestConfig();
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
+
     protected static String getBaseUrl() throws Exception {
         return "http" + (getPort().equals("443") ? "s" : "") + "://" + getHost() + ":" + getPort() + "/" + context;
     }
@@ -45,13 +50,13 @@ public class ClientTestBase {
     protected static String getContext() {
         return context;
     }
-    
-    protected static String getHost(){
+
+    protected static String getHost() {
         return testConfig.getTestEndPoint().getHost();
     }
 
-    protected static String getPort(){
-        return testConfig.getTestEndPoint().getPort()+"";
+    protected static String getPort() {
+        return testConfig.getTestEndPoint().getPort() + "";
     }
 
     protected static RestHttpHelper getAuthorizedRestHelper() {
@@ -59,10 +64,9 @@ public class ClientTestBase {
     }
 
     protected static Credential getRootCredential() {
-        SimpleCredential cred =  testConfig.getRootCredential();
+        SimpleCredential cred = testConfig.getRootCredential();
         return new Credential(cred.getUsername(), cred.getPassword());
     }
-
 
     protected static void createSpace(final String url) throws Exception {
         ClientTestBase.HttpCaller caller = new ClientTestBase.HttpCaller() {
@@ -74,7 +78,6 @@ public class ClientTestBase {
         };
         caller.makeCall(201);
     }
-
 
     protected static void createContent(final String url) throws Exception {
         HttpCaller caller = new HttpCaller() {

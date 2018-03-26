@@ -7,8 +7,13 @@
  */
 package org.duracloud.durastore.rest;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -17,7 +22,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 
@@ -39,11 +43,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
 /**
- * 
  * @author Daniel Bernstein
- *          Date: Sep 2, 2014
- *
+ * Date: Sep 2, 2014
  */
 @RunWith(EasyMockRunner.class)
 public class BitIntegrityReportRestTest extends EasyMockSupport {
@@ -112,7 +115,7 @@ public class BitIntegrityReportRestTest extends EasyMockSupport {
         verifyHeaders(response);
         assertTrue(response.getEntity() instanceof InputStream);
     }
-    
+
     @Test
     public void testGetReportNoBitReportFound() {
         setupHeader();
@@ -147,13 +150,14 @@ public class BitIntegrityReportRestTest extends EasyMockSupport {
     public void testGetReportError() {
         setupHeader();
         expect(repo.findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(eq(storeId),
-                                                                     eq(spaceId),
-                                                                     isA(PageRequest.class))).andThrow(new RuntimeException("failure"));
+                                                                                   eq(spaceId),
+                                                                                   isA(PageRequest.class)))
+            .andThrow(new RuntimeException("failure"));
         replayAll();
         createRest();
         Response response = rest.getReport(spaceId, storeId);
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
-        
+
     }
 
     protected void setupHeader() {
@@ -186,8 +190,9 @@ public class BitIntegrityReportRestTest extends EasyMockSupport {
 
         expect(page.getContent()).andReturn(list).times(2);
         expect(repo.findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(eq(storeId),
-                                                                     eq(spaceId),
-                                                                     isA(PageRequest.class))).andReturn(page);
+                                                                                   eq(spaceId),
+                                                                                   isA(PageRequest.class)))
+            .andReturn(page);
     }
 
     protected void createRest() {

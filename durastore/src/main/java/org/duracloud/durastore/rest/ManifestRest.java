@@ -15,7 +15,6 @@ import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -45,8 +44,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-
-
 /**
  * REST interface for the Manifest Generator.
  *
@@ -67,7 +64,7 @@ public class ManifestRest extends BaseRest {
     private static Executor executor = Executors.newFixedThreadPool(10);
 
     private static final String DEFAULT_FORMAT = ManifestFormat.TSV.name();
-    
+
     @Autowired
     public ManifestRest(ManifestResource manifestResource,
                         StorageProviderFactory storageProviderFactory) {
@@ -75,9 +72,6 @@ public class ManifestRest extends BaseRest {
         this.storageProviderFactory = storageProviderFactory;
     }
 
-    
-    
-    
     @Path("/{spaceId}")
     @GET
     public Response getManifest(@PathParam("spaceId") String spaceId,
@@ -89,8 +83,8 @@ public class ManifestRest extends BaseRest {
                            .entity("This endpoint is currently disabled.")
                            .build();
         }
-        
-        if(format == null){
+
+        if (format == null) {
             format = DEFAULT_FORMAT;
         }
 
@@ -105,84 +99,76 @@ public class ManifestRest extends BaseRest {
 
             InputStream manifest =
                 manifestResource.getManifest(account, storeId, spaceId, format);
-            
+
             return Response.ok(manifest)
                            .type(ManifestFormat.valueOf(format)
                                                .getMimeType()).build();
 
         } catch (ManifestArgumentException e) {
             log.error("Error for, {}:{} [{}]",
-                      new Object[] { storeId, spaceId, format, e });
+                      new Object[] {storeId, spaceId, format, e});
             return responseBadRequest(e);
 
         } catch (ManifestNotFoundException e) {
             log.error("Error for, {}:{} [{}]",
-                      new Object[] { storeId, spaceId, format, e });
+                      new Object[] {storeId, spaceId, format, e});
             return responseNotFound(e.getMessage());
 
         } catch (Exception e) {
             log.error("Error for, {}:{} [{}]",
-                      new Object[] { storeId, spaceId, format, e });
+                      new Object[] {storeId, spaceId, format, e});
             return responseBad(e);
         }
     }
-    
+
     @Path("/{spaceId}")
     @POST
     public Response generateManifest(@PathParam("spaceId") String spaceId,
-                                @QueryParam("format") String format,
-                                @QueryParam("storeID") String storeId) {
+                                     @QueryParam("format") String format,
+                                     @QueryParam("storeID") String storeId) {
 
         if (!enabled) {
             return Response.status(501)
                            .entity("This endpoint is currently disabled.")
                            .build();
         }
-        
-        if(format == null){
+
+        if (format == null) {
             format = DEFAULT_FORMAT;
         }
 
         String account = getSubdomain();
-        log.info("generating manifest, {}:{}:{} [{}]",
-                 account,
-                 storeId,
-                 spaceId,
-                 format);
+        log.info("generating manifest, {}:{}:{} [{}]", account, storeId, spaceId, format);
 
         try {
-                URI uri = generateAsynchronously(account,
-                                                 spaceId,
-                                                 storeId,
-                                                 format);
-                return Response.accepted("We are processing your manifest generation request. " +
-                                         "To retrieve your file, please poll the URI in the Location " + 
-                                         "header of this response: (" + uri + ").").location(uri).build();
+            URI uri = generateAsynchronously(account, spaceId, storeId, format);
+            return Response.accepted("We are processing your manifest generation request. " +
+                                     "To retrieve your file, please poll the URI in the Location " +
+                                     "header of this response: (" + uri + ").").location(uri).build();
         } catch (ManifestArgumentException e) {
             log.error("Error for, {}:{} [{}]",
-                      new Object[] { storeId, spaceId, format, e });
+                      new Object[] {storeId, spaceId, format, e});
             return responseBadRequest(e);
 
         } catch (ManifestNotFoundException e) {
             log.error("Error for, {}:{} [{}]",
-                      new Object[] { storeId, spaceId, format, e });
+                      new Object[] {storeId, spaceId, format, e});
             return responseNotFound(e.getMessage());
 
         } catch (Exception e) {
             log.error("Error for, {}:{} [{}]",
-                      new Object[] { storeId, spaceId, format, e });
+                      new Object[] {storeId, spaceId, format, e});
             return responseBad(e);
         }
     }
 
     /**
      * Generates a manifest file asynchronously and uploads to DuraCloud
-     * 
+     *
      * @param account
      * @param spaceId
      * @param storeId
      * @param format
-     * @param compress
      * @return The URI of the generated manifest.
      */
     private URI generateAsynchronously(String account,
@@ -195,7 +181,6 @@ public class ManifestRest extends BaseRest {
         InputStream manifest =
             manifestResource.getManifest(account, storeId, spaceId, format);
 
-        
         String contentId =
             MessageFormat.format("generated-manifests/manifest-{0}_{1}_{2}.txt{3}",
                                  spaceId,
@@ -203,14 +188,12 @@ public class ManifestRest extends BaseRest {
                                  DateUtil.convertToString(System.currentTimeMillis(), DateFormat.PLAIN_FORMAT),
                                  ".gz");
 
-       
-
         String adminSpace = "x-duracloud-admin";
 
         URI uri = buildURI(adminSpace, contentId);
 
         StorageProvider provider = storageProviderFactory.getStorageProvider();
-        
+
         executor.execute(() -> {
 
             try {
@@ -221,7 +204,7 @@ public class ManifestRest extends BaseRest {
                 uploadManifestToDefaultStorageProvider(format,
                                                        adminSpace,
                                                        contentId,
-                                                       file, 
+                                                       file,
                                                        provider);
             } catch (Exception ex) {
                 log.error("failed to generate manifest for space: spaceId="
@@ -249,7 +232,7 @@ public class ManifestRest extends BaseRest {
                 }
             }
         }
-        
+
         //this should never happen.
         throw new DuraCloudRuntimeException("storage provider type could not be resolved");
     }
@@ -260,22 +243,21 @@ public class ManifestRest extends BaseRest {
         int port = (Integer) request.getAttribute(Constants.SERVER_PORT);
         String context = request.getContextPath();
 
-        URIBuilder builder = new URIBuilder()
-               .setHost(host)
-               .setScheme("http" + (port == 443 ? "s" : ""))
-               .setPath(context + "/" + adminSpace + "/" + contentId);
-        
-        if(port != 443 && port != 80){
+        URIBuilder builder = new URIBuilder().setHost(host)
+                                             .setScheme("http" + (port == 443 ? "s" : ""))
+                                             .setPath(context + "/" + adminSpace + "/" + contentId);
+
+        if (port != 443 && port != 80) {
             builder = builder.setPort(port);
         }
-        
+
         return builder.build();
     }
 
     protected void uploadManifestToDefaultStorageProvider(String format,
                                                           String adminSpace,
                                                           String contentId,
-                                                          File file, 
+                                                          File file,
                                                           StorageProvider provider)
         throws Exception {
         try {
@@ -289,13 +271,12 @@ public class ManifestRest extends BaseRest {
                     try (FileInputStream content = new FileInputStream(file)) {
 
                         return provider.addContent(adminSpace,
-                                                                 contentId,
-                                                                 ManifestFormat.valueOf(format.toUpperCase())
-                                                                               .getMimeType(),
-                                                                 null,
-                                                                 file.length(),
-                                                                 checksum,
-                                                                 content);
+                                                   contentId,
+                                                   ManifestFormat.valueOf(format.toUpperCase()).getMimeType(),
+                                                   null,
+                                                   file.length(),
+                                                   checksum,
+                                                   content);
                     } catch (Exception ex) {
                         throw new DuraCloudRuntimeException(ex);
                     }

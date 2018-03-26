@@ -1,4 +1,4 @@
-<configuration> 
+<configuration>
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%-6p %d{yyyy/MM/dd HH:mm:ss} [%t] \(%F:%L\) [%M\(\)] - %m%n</pattern>
@@ -6,5 +6,5 @@
   </appender>
   <root level="DEBUG">
     <appender-ref ref="STDOUT"/>
-  </root>  
+  </root>
 </configuration>

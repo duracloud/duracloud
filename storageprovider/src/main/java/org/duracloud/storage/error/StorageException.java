@@ -7,7 +7,6 @@
  */
 package org.duracloud.storage.error;
 
-import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.error.RetryFlaggableException;
 
 /**
@@ -18,7 +17,6 @@ import org.duracloud.common.error.RetryFlaggableException;
 public class StorageException extends RetryFlaggableException {
 
     private static final long serialVersionUID = 1L;
-
 
     public StorageException(String message) {
         this(message, RetryFlaggableException.NO_RETRY);
@@ -41,7 +39,7 @@ public class StorageException extends RetryFlaggableException {
     }
 
     public StorageException(Throwable throwable, boolean retry) {
-        this(null, throwable,retry);
+        this(null, throwable, retry);
         this.retry = retry;
     }
 

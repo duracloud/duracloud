@@ -7,6 +7,13 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.http.HttpHeaders;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.util.DateUtil;
@@ -24,13 +31,6 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 /**
  * Begins the process of creating a snapshot by collecting the necessary
  * information and passing it down to the snapshot bridge application. Along
@@ -38,7 +38,7 @@ import java.util.Properties;
  * be made to the content.
  *
  * @author: Bill Branan
- *          Date: 2/1/13
+ * Date: 2/1/13
  */
 public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
 
@@ -60,7 +60,7 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
                                     String bridgeAppHost,
                                     String bridgeAppPort,
                                     String bridgeAppUser,
-                                    String bridgeAppPass, 
+                                    String bridgeAppPass,
                                     String bridgeMemberId) {
         super(snapshotProvider,
               unwrappedSnapshotProvider,
@@ -95,16 +95,15 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
             CreateSnapshotTaskParameters.deserialize(taskParameters);
         String spaceId = taskParams.getSpaceId();
 
-        
         //check if snapshot  properties file already exists
         //and if so throw StorageStateException
         String snapshotId = getSnapshotIdFromProperties(spaceId);
         if (snapshotId != null) {
-            throw new StorageStateException(MessageFormat.format("A snapshot ({0}) + is already underway for this space ({1})",
-                                                                 snapshotId,
-                                                                 spaceId),null);
+            throw new StorageStateException(
+                MessageFormat.format("A snapshot ({0}) + is already underway for this space ({1})",
+                                     snapshotId, spaceId), null);
         }
-        
+
         // Generate snapshot ID
         long now = System.currentTimeMillis();
         snapshotId = generateSnapshotId(spaceId, now);
@@ -144,20 +143,20 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
             // Make call to DPN bridge ingest app to kick off transfer
             callResult =
                 callBridge(createRestHelper(), snapshotURL, snapshotBody);
-        } catch(Exception e) {
+        } catch (Exception e) {
             // Bridge call did not complete successfully, clean up!
-            try{
+            try {
                 removeSnapshotProps(spaceId);
                 removeSnapshotIdFromSpaceProps(spaceId);
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 log.error("Failed to fully clean up snapshot props for " +
                           spaceId + ": " + ex.getMessage(), ex);
             }
 
-            if(!(e instanceof TaskException)){
+            if (!(e instanceof TaskException)) {
                 throw new TaskException(e.getMessage());
-            }else{
-                throw (TaskException)e;
+            } else {
+                throw (TaskException) e;
             }
         }
 
@@ -210,14 +209,14 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
      */
     protected String buildSnapshotProps(Map<String, String> props) {
         Properties snapshotProperties = new Properties();
-        for(String key : props.keySet()) {
+        for (String key : props.keySet()) {
             snapshotProperties.setProperty(key, props.get(key));
         }
 
         StringWriter writer = new StringWriter();
         try {
             snapshotProperties.store(writer, null);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new TaskException("Could not write snapshot properties: " +
                                     e.getMessage(), e);
         }
@@ -234,29 +233,29 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
         log.info("Making SNAPSHOT call to URL {} with body {}",
                  snapshotURL, snapshotBody);
 
-            Map<String, String> headers = new HashMap<>();
-            headers.put(HttpHeaders.CONTENT_TYPE, "application/json");
-            RestHttpHelper.HttpResponse response = restHelper.put(snapshotURL, snapshotBody, headers);
-            int statusCode = response.getStatusCode();
-            if(statusCode != 200 && statusCode != 201) {
-                String responseStr = response.getResponseBody();
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaders.CONTENT_TYPE, "application/json");
+        RestHttpHelper.HttpResponse response = restHelper.put(snapshotURL, snapshotBody, headers);
+        int statusCode = response.getStatusCode();
+        if (statusCode != 200 && statusCode != 201) {
+            String responseStr = response.getResponseBody();
 
-                try {
-                    String m = getMessageValue(responseStr);
-                    if(m != null){
-                        responseStr = m;
-                    }
-                } catch (IOException ex) {
-                    log.warn(ex.getMessage(), ex);
+            try {
+                String m = getMessageValue(responseStr);
+                if (m != null) {
+                    responseStr = m;
                 }
-
-                if(statusCode == 409){
-                    throw new ServerConflictException(responseStr);
-                }else {
-                    throw new RuntimeException(responseStr + " (" + statusCode + ")");
-                }
-
+            } catch (IOException ex) {
+                log.warn(ex.getMessage(), ex);
             }
-            return response.getResponseBody();
+
+            if (statusCode == 409) {
+                throw new ServerConflictException(responseStr);
+            } else {
+                throw new RuntimeException(responseStr + " (" + statusCode + ")");
+            }
+
+        }
+        return response.getResponseBody();
     }
 }

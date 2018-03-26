@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * This class is a DuraStore implementation of the DataSource interface.
  *
  * @author Andrew Woods
- *         Date: 9/2/11
+ * Date: 9/2/11
  */
 public class DuraStoreDataSource implements DataSource {
 
@@ -41,9 +41,9 @@ public class DuraStoreDataSource implements DataSource {
 
         } catch (ContentStoreException e) {
             String msg = "Error getting content: " + e.getMessage();
-            if(!(e instanceof NotFoundException)){
+            if (!(e instanceof NotFoundException)) {
                 log.error(msg);
-            }else{
+            } else {
                 log.debug(msg);
             }
             throw new DataSourceException(msg, e);

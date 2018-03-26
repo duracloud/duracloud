@@ -7,8 +7,10 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +30,7 @@ import org.junit.Test;
 
 /**
  * @author Daniel Bernstein
- *         Date: 11/04/15
+ * Date: 11/04/15
  */
 public class RequestRestoreSnapshotTaskRunnerTest {
 
@@ -49,12 +51,11 @@ public class RequestRestoreSnapshotTaskRunnerTest {
         restHelper = EasyMock.createMock("RestHttpHelper", RestHttpHelper.class);
         taskRunner =
             new RequestRestoreSnapshotTaskRunner(dcHost, dcPort, dcStoreId, dcSnapshotUser,
-                                         bridgeHost, bridgePort, bridgeUser,
-                                         bridgePass);
+                                                 bridgeHost, bridgePort, bridgeUser, bridgePass);
     }
 
     private void replayMocks() {
-        EasyMock.replay( restHelper);
+        EasyMock.replay(restHelper);
     }
 
     @After
@@ -73,7 +74,7 @@ public class RequestRestoreSnapshotTaskRunnerTest {
         replayMocks();
 
         String bridgeUrl = taskRunner.buildBridgeURL();
-        String expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
+        String expectedUrl = "http://" + bridgeHost + ":" + bridgePort +
                              "/bridge/restore/request";
         assertEquals(expectedUrl, bridgeUrl);
     }
@@ -89,14 +90,12 @@ public class RequestRestoreSnapshotTaskRunnerTest {
             taskRunner.buildBridgeBody(snapshotId, userEmail);
         String cleanResult = result.replaceAll("\\s+", "");
 
-        assertThat(cleanResult, containsString("\"host\":\""+dcHost+"\""));
-        assertThat(cleanResult, containsString("\"port\":\""+dcPort+"\""));
-        assertThat(cleanResult, containsString("\"storeId\":\""+dcStoreId+"\""));
-        assertThat(cleanResult, containsString("\"snapshotId\":\""+snapshotId+"\""));
-        assertThat(cleanResult, containsString("\"userEmail\":\""+userEmail+"\""));
+        assertThat(cleanResult, containsString("\"host\":\"" + dcHost + "\""));
+        assertThat(cleanResult, containsString("\"port\":\"" + dcPort + "\""));
+        assertThat(cleanResult, containsString("\"storeId\":\"" + dcStoreId + "\""));
+        assertThat(cleanResult, containsString("\"snapshotId\":\"" + snapshotId + "\""));
+        assertThat(cleanResult, containsString("\"userEmail\":\"" + userEmail + "\""));
     }
-
- 
 
     @Test
     public void testCallBridgeSuccess() throws Exception {
@@ -136,7 +135,7 @@ public class RequestRestoreSnapshotTaskRunnerTest {
         InputStream resultStream = IOUtil.writeStringToStream("Error");
         RestHttpHelper.HttpResponse response =
             RestHttpHelper.HttpResponse.buildMock(500, null, resultStream);
-                Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
         EasyMock.expect(restHelper.put(snapshotURL, snapshotBody, headers))
                 .andReturn(response);
@@ -146,8 +145,9 @@ public class RequestRestoreSnapshotTaskRunnerTest {
         try {
             taskRunner.callBridge(restHelper, snapshotURL, snapshotBody);
             fail("Exception expected on 500 response");
-        } catch(TaskException e) {
+        } catch (TaskException e) {
+            // Expected exception
         }
     }
 
- }
+}

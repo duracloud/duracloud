@@ -7,30 +7,19 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.*;
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.common.util.IOUtil;
-import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.SnapshotConstants;
-import org.duracloud.snapshot.dto.SnapshotStatus;
-import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeResult;
-import org.duracloud.snapshot.dto.task.CompleteCancelSnapshotTaskParameters;
-import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
-import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
-import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -43,8 +32,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * @author Daniel Bernstein 
- *         Date: 9/22/2015
+ * @author Daniel Bernstein
+ * Date: 9/22/2015
  */
 @RunWith(EasyMockRunner.class)
 public class CompleteCancelSnapshotTaskRunnerTest extends EasyMockSupport {
@@ -54,9 +43,7 @@ public class CompleteCancelSnapshotTaskRunnerTest extends EasyMockSupport {
 
     @Mock
     private SnapshotStorageProvider unwrappedSnapshotProvider;
-    
-    
-    
+
     private CompleteCancelSnapshotTaskRunner taskRunner;
 
     private String dcSnapshotUser = "snapshot-user";
@@ -69,8 +56,7 @@ public class CompleteCancelSnapshotTaskRunnerTest extends EasyMockSupport {
     public void setup() {
     }
 
-
-    protected void setupSubject(){
+    protected void setupSubject() {
         taskRunner =
             new CompleteCancelSnapshotTaskRunner(snapshotProvider,
                                                  unwrappedSnapshotProvider,
@@ -81,7 +67,7 @@ public class CompleteCancelSnapshotTaskRunnerTest extends EasyMockSupport {
                                                  bridgePass);
 
     }
-    
+
     @After
     public void tearDown() throws IOException {
         verifyAll();
@@ -98,10 +84,10 @@ public class CompleteCancelSnapshotTaskRunnerTest extends EasyMockSupport {
     public void testPerform() {
         String spaceId = "space-id";
         String snapshotId = "snapshot-id";
-        
+
         //setup delete space properties
         snapshotProvider.deleteContent(eq(spaceId),
-                                                    eq(Constants.SNAPSHOT_PROPS_FILENAME));
+                                       eq(Constants.SNAPSHOT_PROPS_FILENAME));
         expectLastCall().once();
 
         //setup remove snapshot space property
@@ -130,17 +116,16 @@ public class CompleteCancelSnapshotTaskRunnerTest extends EasyMockSupport {
 
         replayAll();
         setupSubject();
-        taskRunner.performTask("{\"spaceId\":\""+spaceId+"\"}");
-        
+        taskRunner.performTask("{\"spaceId\":\"" + spaceId + "\"}");
+
         spaceProps = propsCapture.getValue();
-        
+
         assertFalse(spaceProps.containsKey(Constants.SNAPSHOT_ID_PROP));
-        
-        
+
         spaceACLs = spaceACLsCapture.getValue();
-        
+
         assertFalse(spaceProps.containsKey(aclUserName));
-        
+
     }
 
 }

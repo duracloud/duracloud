@@ -7,17 +7,17 @@
  */
 package org.duracloud.snapshot.id;
 
-import org.duracloud.common.util.DateUtil;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.duracloud.common.util.DateUtil;
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 7/30/14
+ * Date: 7/30/14
  */
 public class SnapshotIdentifierTest {
 

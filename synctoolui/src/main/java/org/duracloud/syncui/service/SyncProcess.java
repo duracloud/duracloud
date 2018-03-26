@@ -7,13 +7,11 @@
  */
 package org.duracloud.syncui.service;
 
-import org.duracloud.sync.mgmt.SyncSummary;
 import org.duracloud.syncui.domain.SyncProcessState;
 import org.duracloud.syncui.domain.SyncProcessStats;
+
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public interface SyncProcess {
 
@@ -50,17 +48,16 @@ public interface SyncProcess {
 
     /**
      * Returns an enum designating the runtime state of the sync process
-     * 
+     *
      * @return
      */
     public SyncProcessState getProcessState();
 
     /**
      * Returns stats related the sync process
-     * 
+     *
      * @return
      */
     public SyncProcessStats getProcessStats();
-
 
 }

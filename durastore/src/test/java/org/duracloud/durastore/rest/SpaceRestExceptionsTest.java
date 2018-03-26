@@ -7,16 +7,16 @@
  */
 package org.duracloud.durastore.rest;
 
+import javax.ws.rs.core.Response;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.ws.rs.core.Response;
 
 /**
  * This class tests top-level error handling of SpaceRest.
  *
  * @author Andrew Woods
- *         Date: Aug 31, 2010
+ * Date: Aug 31, 2010
  */
 public class SpaceRestExceptionsTest {
 

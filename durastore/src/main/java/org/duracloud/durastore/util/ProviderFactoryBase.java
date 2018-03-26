@@ -13,12 +13,11 @@ import org.duracloud.storage.error.StorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * @author: Bill Branan
  * Date: May 20, 2010
  */
-public abstract class ProviderFactoryBase  {
+public abstract class ProviderFactoryBase {
 
     private Logger log =
         LoggerFactory.getLogger(ProviderFactoryBase.class);
@@ -30,23 +29,19 @@ public abstract class ProviderFactoryBase  {
         this.storageAccountManager = storageAccountManager;
     }
 
-
     /**
      * Initializes DuraStore with account information
      * necessary to connect to Storage Providers.
-     *
-     * @param initXml A stream containing account information in XML format
      */
     public void initialize(DuraStoreInitConfig initConfig,
                            String instanceHost,
                            String instancePort,
                            String accountId)
-            throws StorageException {
+        throws StorageException {
         this.initConfig = initConfig;
         storageAccountManager.initialize(initConfig.getStorageAccounts());
-        storageAccountManager.setEnvironment(instanceHost, instancePort,accountId);
+        storageAccountManager.setEnvironment(instanceHost, instancePort, accountId);
     }
-
 
     /**
      * @return the account manager
@@ -71,7 +66,7 @@ public abstract class ProviderFactoryBase  {
         try {
             checkInitialized();
             return true;
-        } catch(StorageException e) {
+        } catch (StorageException e) {
             return false;
         }
     }
@@ -80,12 +75,11 @@ public abstract class ProviderFactoryBase  {
      * Ensures that the account manager has been initialized
      */
     private void checkInitialized()
-    throws StorageException {
+        throws StorageException {
         if (storageAccountManager == null || !storageAccountManager.isInitialized()) {
-            String error =
-                    "DuraStore must be initialized with an XML file " +
-                    "containing storage account information before any " +
-                    "further requests can be fulfilled.";
+            String error = "DuraStore must be initialized with an XML file " +
+                           "containing storage account information before any " +
+                           "further requests can be fulfilled.";
             throw new StorageException(error);
         }
     }

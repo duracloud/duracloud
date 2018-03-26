@@ -7,6 +7,8 @@
  */
 package org.duracloud.durastore.aop;
 
+import java.lang.reflect.Method;
+
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
@@ -15,8 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.AfterReturningAdvice;
 import org.springframework.core.Ordered;
 
-import java.lang.reflect.Method;
-
 /**
  * Verifies that when a space is deleted it is no longer available
  * for access prior to returning.
@@ -24,8 +24,7 @@ import java.lang.reflect.Method;
  * Assumes that the breakpoint for this advice is on method
  * StatelessStorageProvider.deleteSpace(String storeId, spaceId)
  */
-public class VerifySpaceDeletionAdvice
-        implements AfterReturningAdvice, Ordered {
+public class VerifySpaceDeletionAdvice implements AfterReturningAdvice, Ordered {
 
     private final Logger log = LoggerFactory.getLogger(VerifySpaceDeletionAdvice.class);
 
@@ -42,10 +41,10 @@ public class VerifySpaceDeletionAdvice
         boolean spaceExists = true;
         int numAttempts = 0;
 
-        StatelessStorageProvider provider = (StatelessStorageProvider)targetObj;
-        StorageProvider target = (StorageProvider)methodArgs[0];
-        String storeId = (String)methodArgs[1];
-        String spaceId = (String)methodArgs[2];
+        StatelessStorageProvider provider = (StatelessStorageProvider) targetObj;
+        StorageProvider target = (StorageProvider) methodArgs[0];
+        String storeId = (String) methodArgs[1];
+        String spaceId = (String) methodArgs[2];
 
         do {
             numAttempts++;
@@ -55,20 +54,18 @@ public class VerifySpaceDeletionAdvice
 
                 // The space is still available, log, wait, and try again
                 if (log.isDebugEnabled()) {
-                    log.debug("Attempt " + numAttempts + " to verify " +
-                              "that space " + spaceId +
+                    log.debug("Attempt " + numAttempts + " to verify " + "that space " + spaceId +
                               " is no longer available after deletion failed.");
                 }
                 Thread.sleep(waitTime);
-            } catch(StorageException se) {
+            } catch (StorageException se) {
                 // Assume that the space is no longer available
                 spaceExists = false;
             }
-        } while(spaceExists && (numAttempts <= maxRetries));
+        } while (spaceExists && (numAttempts <= maxRetries));
 
-        if(spaceExists) {
-            String error = "Unable to verify deletion of space " +
-                           spaceId + " after " +
+        if (spaceExists) {
+            String error = "Unable to verify deletion of space " + spaceId + " after " +
                            maxRetries + " attempts.";
             throw new StorageException(error, StorageException.RETRY);
         }

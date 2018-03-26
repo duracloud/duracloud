@@ -7,7 +7,9 @@
  */
 package org.duracloud.durastore.storage;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
@@ -43,7 +45,7 @@ public class StorageProviderUtilsTest {
 
     @Test
     public void testStorageProviderUtilities() throws Exception {
-        
+
         AccountChangeNotifier accountChangeNotifier = EasyMock.createMock(AccountChangeNotifier.class);
         StorageAccountManager acctManager = new StorageAccountManager();
         StorageProviderFactory storageProviderFactory =
@@ -52,17 +54,16 @@ public class StorageProviderUtilsTest {
                                            new TestUserUtil(),
                                            new DuraCloudRequestContextUtil(),
                                            accountChangeNotifier);
-        
+
         DuraStoreInitConfig config = new DuraStoreInitConfig();
-        config.setStorageAccounts(Arrays.asList((StorageAccount) new StorageAccountImpl("id",
-                                                                                        "username",
-                                                                                        "password",
-                                                                                        StorageProviderType.AMAZON_S3)));
-        
+        config.setStorageAccounts(
+            Arrays.asList((StorageAccount) new StorageAccountImpl("id", "username", "password",
+                                                                  StorageProviderType.AMAZON_S3)));
+
         config.setMillDbConfig(new DatabaseConfig());
-        
+
         EasyMock.replay(accountChangeNotifier);
-        
+
         storageProviderFactory.initialize(config, "host", "port", "accountid");
         StorageProvider storage =
             storageProviderFactory.getStorageProvider();

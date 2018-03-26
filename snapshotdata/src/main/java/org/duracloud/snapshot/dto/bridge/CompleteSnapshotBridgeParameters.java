@@ -7,16 +7,16 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
+import java.io.IOException;
+import java.util.List;
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
-import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
-import java.util.List;
-
 /**
  * @author Bill Branan
- *         Date: 8/3/2015
+ * Date: 8/3/2015
  */
 public class CompleteSnapshotBridgeParameters {
 
@@ -26,7 +26,8 @@ public class CompleteSnapshotBridgeParameters {
     @XmlValue
     private List<String> alternateIds;
 
-    public CompleteSnapshotBridgeParameters() {}
+    public CompleteSnapshotBridgeParameters() {
+    }
 
     public CompleteSnapshotBridgeParameters(List<String> alternateIds) {
         this.alternateIds = alternateIds;
@@ -50,7 +51,7 @@ public class CompleteSnapshotBridgeParameters {
             new JaxbJsonSerializer<>(CompleteSnapshotBridgeParameters.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task result due to: " + e.getMessage());
         }

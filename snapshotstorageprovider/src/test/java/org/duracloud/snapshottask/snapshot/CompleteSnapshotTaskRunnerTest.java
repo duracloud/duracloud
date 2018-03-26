@@ -7,6 +7,10 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Map;
+
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
@@ -15,13 +19,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Bill Branan
- *         Date: 7/25/14
+ * Date: 7/25/14
  */
 public class CompleteSnapshotTaskRunnerTest {
 
@@ -48,7 +48,7 @@ public class CompleteSnapshotTaskRunnerTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         EasyMock.verify(snapshotProvider, unwrappedSnapshotProvider, s3Client);
     }
 

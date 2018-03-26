@@ -7,19 +7,17 @@
  */
 package org.duracloud.syncui.setup;
 
+import org.duracloud.syncui.AbstractTest;
 import org.duracloud.syncui.domain.DirectoryConfigForm;
 import org.duracloud.syncui.domain.DirectoryConfigs;
-import org.duracloud.syncui.AbstractTest;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
-public class AddDirectoryConfigActionTest  extends AbstractTest {
-    
+public class AddDirectoryConfigActionTest extends AbstractTest {
+
     @Test
     public void testExecute() throws Exception {
         AddDirectoryConfigAction action = new AddDirectoryConfigAction();
@@ -27,7 +25,7 @@ public class AddDirectoryConfigActionTest  extends AbstractTest {
         form.setDirectoryPath("test");
         DirectoryConfigs configs = new DirectoryConfigs();
         replay();
-        
+
         action.execute(form, configs);
         Assert.assertEquals(1, configs.size());
 

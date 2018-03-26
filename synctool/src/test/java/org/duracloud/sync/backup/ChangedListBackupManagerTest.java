@@ -7,7 +7,10 @@
  */
 package org.duracloud.sync.backup;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -23,7 +26,7 @@ import org.junit.Test;
  * @author: Bill Branan
  * Date: Mar 25, 2010
  */
-public class ChangedListBackupManagerTest  extends SyncTestBase {
+public class ChangedListBackupManagerTest extends SyncTestBase {
 
     private File tempDir;
 
@@ -46,12 +49,12 @@ public class ChangedListBackupManagerTest  extends SyncTestBase {
             new ChangedListBackupManager(changedList, tempDir, backupFrequency, new LinkedList<File>());
         new Thread(bkMan).start();
 
-        String testFileName =  "testfile" + System.currentTimeMillis();
+        String testFileName = "testfile" + System.currentTimeMillis();
         File file = new File(tempDir, testFileName);
         file.createNewFile();
         file.deleteOnExit();
         changedList.addChangedFile(file);
-        Thread.sleep((backupFrequency*3) + ChangedListBackupManager.DEFAULT_SLEEP_TIME);
+        Thread.sleep((backupFrequency * 3) + ChangedListBackupManager.DEFAULT_SLEEP_TIME);
         bkMan.endBackup();
 
         ChangedFile changedFile = changedList.reserve();
@@ -60,11 +63,11 @@ public class ChangedListBackupManagerTest  extends SyncTestBase {
         assertEquals(testFileName, changedFile.getFile().getName());
         assertNull(changedList.reserve());
 
-        assertTrue(bkMan.loadBackup()  > 0);
+        assertTrue(bkMan.loadBackup() > 0);
 
         changedFile = changedList.reserve();
         assertNotNull(changedFile);
         assertEquals(testFileName, changedFile.getFile().getName());
-        assertNull(changedList.reserve());        
+        assertNull(changedList.reserve());
     }
 }

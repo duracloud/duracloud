@@ -14,16 +14,16 @@ import java.util.Iterator;
  * of the total count upon reaching the iteration end.
  *
  * @author Andrew Woods
- *         Date: Aug 10, 2010
+ * Date: Aug 10, 2010
  */
 public class IteratorCounterThread implements Runnable {
 
     @SuppressWarnings("unchecked")
-	private Iterator itr;
+    private Iterator itr;
     private CountListener listener;
 
     @SuppressWarnings("unchecked")
-	public IteratorCounterThread(Iterator itr, CountListener listener) {
+    public IteratorCounterThread(Iterator itr, CountListener listener) {
         this.itr = itr;
         this.listener = listener;
     }

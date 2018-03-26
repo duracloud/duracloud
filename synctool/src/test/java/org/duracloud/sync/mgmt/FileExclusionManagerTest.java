@@ -7,7 +7,8 @@
  */
 package org.duracloud.sync.mgmt;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,13 +20,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-
 /**
  * @author: Daniel Bernstein
  * Date: July 27, 2017
  */
-public class FileExclusionManagerTest  {
-
+public class FileExclusionManagerTest {
 
     @Before
     public void setUp() throws Exception {
@@ -62,7 +61,7 @@ public class FileExclusionManagerTest  {
 
         FileUtils.deleteQuietly(excludeFile);
     }
-    
+
     @Test
     public void testExclude() {
         String fileByName = "reallybig.tiff";
@@ -71,7 +70,6 @@ public class FileExclusionManagerTest  {
         String fileWildStar = "*.log";
         String fileWildQues = "file-dated-19??.txt";
         String dirWildStar = "files-*";
-
 
         // Test file by name (exclude list includes file name)
         assertTrue(testExcluded(fileByName, fileByName));
@@ -119,19 +117,17 @@ public class FileExclusionManagerTest  {
 
     private boolean testExcluded(String test,
                                  String... rules) {
-        
-        
+
         FileExclusionManager fem = new FileExclusionManager(buildExcludeList(rules));
         return fem.isExcluded(new File(test));
     }
 
     private List<String> buildExcludeList(String... rules) {
         List<String> excludeList = new ArrayList<>();
-        for(String rule : rules) {
+        for (String rule : rules) {
             excludeList.add(rule);
         }
         return excludeList;
     }
-
 
 }

@@ -17,9 +17,8 @@ package org.duracloud.common.util;
  */
 public class CommandLineToolUtil {
 
-    public static final String PASSWORD_ENV_VARIABLE_NAME =
-            "DURACLOUD_PASSWORD";
-    
+    public static final String PASSWORD_ENV_VARIABLE_NAME = "DURACLOUD_PASSWORD";
+
     private ConsolePrompt console;
 
     public String getPasswordEnvVariable() {
@@ -27,7 +26,7 @@ public class CommandLineToolUtil {
     }
 
     public ConsolePrompt getConsole() {
-        if(console == null) {
+        if (console == null) {
             console = new ConsolePrompt();
         }
         return console;

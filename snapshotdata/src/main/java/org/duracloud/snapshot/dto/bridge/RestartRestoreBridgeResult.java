@@ -14,8 +14,8 @@ import org.duracloud.snapshot.dto.RestoreStatus;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
- * @author Daniel Bernstein 
- *         Date: 11/06/15
+ * @author Daniel Bernstein
+ * Date: 11/06/15
  */
 public class RestartRestoreBridgeResult extends GenericRestoreBridgeResult {
 
@@ -24,7 +24,7 @@ public class RestartRestoreBridgeResult extends GenericRestoreBridgeResult {
     }
 
     public RestartRestoreBridgeResult(String description, RestoreStatus status) {
-        super(description,status);
+        super(description, status);
     }
 
     /**
@@ -37,7 +37,7 @@ public class RestartRestoreBridgeResult extends GenericRestoreBridgeResult {
             new JaxbJsonSerializer<>(RestartRestoreBridgeResult.class);
         try {
             return serializer.deserialize(bridgeResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task result due to: " + e.getMessage());
         }

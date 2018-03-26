@@ -11,27 +11,21 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 
- * @author Daniel Bernstein 
- * 
+ * @author Daniel Bernstein
  */
 public class MaxFileSizeForm {
     private int maxFileSizeInGB = 1;
 
-    
-    public List<Integer> getValues(){
-        return Arrays.asList(new Integer[]{1,2,3,4,5});
+    public List<Integer> getValues() {
+        return Arrays.asList(new Integer[] {1, 2, 3, 4, 5});
     }
-
 
     public int getMaxFileSizeInGB() {
         return maxFileSizeInGB;
     }
 
-
     public void setMaxFileSizeInGB(int maxFileSizeInGB) {
         this.maxFileSizeInGB = maxFileSizeInGB;
     }
-    
-   
+
 }

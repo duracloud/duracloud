@@ -7,6 +7,16 @@
  */
 package org.duracloud.glacierstorage;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
@@ -24,16 +34,6 @@ import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 /**
  * @author: Bill Branan
@@ -147,7 +147,7 @@ public class GlacierStorageProviderTest {
         try {
             provider.getContent(spaceId, contentId);
             fail("StorageStateException expected");
-        } catch(StorageStateException expected) {
+        } catch (StorageStateException expected) {
             assertNotNull(expected.getMessage());
         }
     }
@@ -181,7 +181,7 @@ public class GlacierStorageProviderTest {
             Map<String, String> props = new HashMap<>();
             provider.setContentProperties(spaceId, contentId, props);
             fail("StorageStateException expected");
-        } catch(StorageStateException expected) {
+        } catch (StorageStateException expected) {
             assertNotNull(expected.getMessage());
         }
     }
@@ -212,7 +212,7 @@ public class GlacierStorageProviderTest {
         try {
             provider.copyContent(spaceId, contentId, destSpaceId, destContentId);
             fail("StorageStateException expected");
-        } catch(StorageStateException expected) {
+        } catch (StorageStateException expected) {
             assertNotNull(expected.getMessage());
         }
     }

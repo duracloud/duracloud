@@ -31,14 +31,14 @@ public class StoreClientUtil {
 
         ContentStore contentStore;
         try {
-            if(storeId != null) {
+            if (storeId != null) {
                 contentStore = storeManager.getContentStore(storeId);
             } else {
                 contentStore = storeManager.getPrimaryContentStore();
             }
-        } catch(ContentStoreException e) {
+        } catch (ContentStoreException e) {
             throw new RuntimeException("Could not create connection to " +
-                "DuraStore due to " + e.getMessage(), e);
+                                       "DuraStore due to " + e.getMessage(), e);
         }
 
         return contentStore;

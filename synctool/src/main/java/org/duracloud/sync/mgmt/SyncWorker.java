@@ -10,15 +10,15 @@ package org.duracloud.sync.mgmt;
 import java.io.File;
 import java.util.Date;
 
-import org.duracloud.sync.endpoint.SyncResultType;
 import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
+import org.duracloud.sync.endpoint.SyncResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Handles the syncing of a single changed file using the given endpoint.
- * 
+ *
  * @author: Bill Branan Date: Mar 15, 2010
  */
 public class SyncWorker implements Runnable {
@@ -33,18 +33,16 @@ public class SyncWorker implements Runnable {
     private StatusManager statusManager;
     private boolean complete;
     private MonitoredFile monitoredFile;
-    private Date start, stop;
+    private Date start;
+    private Date stop;
 
     /**
      * Creates a SyncWorker to handle syncing a file
-     * 
-     * @param file
-     *            the file to sync
-     * @param watchDir
-     *            dir under watch where file exists or null if file does not
-     *            reside in a watched directory
-     * @param endpoint
-     *            the endpoint to which the file should be synced
+     *
+     * @param file     the file to sync
+     * @param watchDir dir under watch where file exists or null if file does not
+     *                 reside in a watched directory
+     * @param endpoint the endpoint to which the file should be synced
      */
     public SyncWorker(ChangedFile file, File watchDir, SyncEndpoint endpoint) {
         this.syncFile = file;
@@ -65,39 +63,27 @@ public class SyncWorker implements Runnable {
             result = syncEndpoint.syncFileAndReturnDetailedResult(monitoredFile, watchDir);
             stop = new Date();
         } catch (Exception e) {
-            logger.error("Exception syncing file "
-                             + filePath + " was "
-                             + e.getMessage(),
-                         e);
+            logger.error("Exception syncing file " + filePath + " was " + e.getMessage(), e);
             result = SyncResultType.FAILED;
         }
-        
-        try{
+
+        try {
             if (result != SyncResultType.FAILED) {
-                SyncSummary summary =
-                    new SyncSummary(file,
-                                    start,
-                                    stop,
-                                    result,
-                                    "");
-                
+                SyncSummary summary = new SyncSummary(file, start, stop, result, "");
                 statusManager.successfulCompletion(summary);
             } else {
                 retryOnFailure();
             }
-        }catch(Throwable e){
-            logger.error("Unexpected error: " + e.getMessage()
-                         + " - sync result = "
-                         + result
-                         + "; file="
-                         + filePath, e);
-            
+        } catch (Throwable e) {
+            logger.error("Unexpected error: " + e.getMessage() + " - sync result = " + result
+                         + "; file=" + filePath, e);
+
         }
         //remove from the list.
         this.syncFile.remove();
 
         complete = true;
-        
+
     }
 
     public boolean isComplete() {
@@ -108,9 +94,8 @@ public class SyncWorker implements Runnable {
         int syncAttempts = syncFile.getSyncAttempts();
         String syncFilePath = syncFile.getFile().getAbsolutePath();
         if (syncAttempts < MAX_RETRIES) {
-            logger.info("Adding "
-                + syncFilePath + " back to the changed "
-                + "list, another attempt will be made to sync file.");
+            logger.info("Adding " + syncFilePath + " back to the changed "
+                        + "list, another attempt will be made to sync file.");
             syncFile.incrementSyncAttempts();
             ChangedList.getInstance().addChangedFile(syncFile);
             statusManager.stoppingWork();
@@ -124,9 +109,8 @@ public class SyncWorker implements Runnable {
                                 "Failed after " + syncAttempts + " attempts.");
 
             statusManager.failedCompletion(summary);
-            logger.error("Failed to sync file "
-                + syncFilePath + " after " + syncAttempts
-                + " attempts. No further attempts will be made.");
+            logger.error("Failed to sync file " + syncFilePath + " after " + syncAttempts
+                         + " attempts. No further attempts will be made.");
         }
     }
 

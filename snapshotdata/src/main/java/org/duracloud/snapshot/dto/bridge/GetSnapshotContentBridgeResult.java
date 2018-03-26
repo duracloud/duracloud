@@ -7,18 +7,18 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
+import java.io.IOException;
+import java.util.List;
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
-import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
-import java.util.List;
-
 /**
  * @author Daniel Bernstein
- *         Date: 7/28/14
+ * Date: 7/28/14
  */
 public class GetSnapshotContentBridgeResult extends BaseDTO {
 
@@ -37,7 +37,7 @@ public class GetSnapshotContentBridgeResult extends BaseDTO {
     public void setContentItems(List<SnapshotContentItem> contentItems) {
         this.contentItems = contentItems;
     }
-    
+
     public Long getTotalCount() {
         return totalCount;
     }
@@ -56,7 +56,7 @@ public class GetSnapshotContentBridgeResult extends BaseDTO {
             new JaxbJsonSerializer<>(GetSnapshotContentBridgeResult.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException("Unable to create bridge result due to: " +
                                             e.getMessage());
         }
@@ -72,7 +72,7 @@ public class GetSnapshotContentBridgeResult extends BaseDTO {
             new JaxbJsonSerializer<>(GetSnapshotContentBridgeResult.class);
         try {
             return serializer.deserialize(bridgeResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to deserialize result due to: " + e.getMessage());
         }

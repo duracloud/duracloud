@@ -16,10 +16,8 @@ import org.junit.Before;
 
 /**
  * A handy base class for unit tests.
- * 
+ *
  * @author Daniel Bernstein
- * 
- * 
  */
 public abstract class AbstractTestBase {
 
@@ -47,7 +45,7 @@ public abstract class AbstractTestBase {
     /**
      * Creates the mock with a simple name, adds it to the internal list of
      * mocks to be replayed and verified.
-     * 
+     *
      * @param clazz
      * @return
      */

@@ -7,15 +7,15 @@
  */
 package org.duracloud.snapshot.dto.task;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.junit.Test;
+
 /**
  * @author Daniel Bernstein
- *         Date: 9/22/15
+ * Date: 9/22/15
  */
 public class CompleteCancelSnapshotTaskResultTest {
 
@@ -25,14 +25,14 @@ public class CompleteCancelSnapshotTaskResultTest {
     public void testSerialize() {
         String result = new CompleteCancelSnapshotTaskResult(resultValue).serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"result\":\""+ String.valueOf(resultValue)+"\""));
+        assertThat(cleanResult, containsString("\"result\":\"" + String.valueOf(resultValue) + "\""));
 
     }
 
     @Test
     public void testDeserialize() {
         // Verify valid params
-        String taskParamsSerialized = "{\"result\" : \""+String.valueOf(resultValue)+"\"}";
+        String taskParamsSerialized = "{\"result\" : \"" + String.valueOf(resultValue) + "\"}";
 
         CompleteCancelSnapshotTaskResult taskResult =
             CompleteCancelSnapshotTaskResult.deserialize(taskParamsSerialized);

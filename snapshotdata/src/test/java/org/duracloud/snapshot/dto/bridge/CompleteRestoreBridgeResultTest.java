@@ -11,25 +11,23 @@ import org.duracloud.snapshot.dto.RestoreStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
-
 /**
  * @author Daniel Bernstein
- *         Date: 7/29/14
+ * Date: 7/29/14
  */
 public class CompleteRestoreBridgeResultTest {
 
     @Test
-    public void testDeSerialize(){
+    public void testDeSerialize() {
         RestoreStatus status = RestoreStatus.INITIALIZED;
         String details = "details";
-        String str = "{ \"status\" : \"" + status + "\","  
-                        + " \"details\" : \"" + details + "\"}";
-        
+        String str = "{ \"status\" : \"" + status + "\","
+                     + " \"details\" : \"" + details + "\"}";
+
         CompleteRestoreBridgeResult params =
             CompleteRestoreBridgeResult.deserialize(str);
         Assert.assertEquals(status, params.getStatus());
         Assert.assertEquals(details, params.getDetails());
     }
-
 
 }

@@ -9,7 +9,6 @@ package org.duracloud.duradmin.common;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -17,8 +16,7 @@ import org.duracloud.error.ContentStoreException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
-public class SimpleExceptionResolver
-        extends SimpleMappingExceptionResolver {
+public class SimpleExceptionResolver extends SimpleMappingExceptionResolver {
 
     @Override
     public ModelAndView resolveException(HttpServletRequest request,

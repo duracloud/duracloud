@@ -182,17 +182,18 @@ public class ContentResourceImplTest {
                                                        is))
                 .andReturn(expectedMd5);
     }
-    
+
     @Test
-    public void testDuracloud757() throws ResourceException, InvalidIdException{
-        
+    public void testDuracloud757() throws ResourceException, InvalidIdException {
+
         EasyMock.expect(storageProviderFactory.getStorageProvider(EasyMock.isA(String.class)))
-        .andReturn(storageProvider);
+                .andReturn(storageProvider);
 
         InputStream is = createEmptyInputStream();
-        
-        String customPropName = "name", customPropValue = "value";
-        
+
+        String customPropName = "name";
+        String customPropValue = "value";
+
         Map<String, String> map = new HashMap<String, String>();
         map.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, "12345");
         map.put(StorageProvider.PROPERTIES_CONTENT_SIZE, "1000");
@@ -200,7 +201,6 @@ public class ContentResourceImplTest {
         map.put(StorageProvider.PROPERTIES_CONTENT_MODIFIED, "2013-10-01");
         map.put(customPropName, customPropValue);
 
-        
         EasyMock.expect(storageProvider.getContentProperties(EasyMock.isA(String.class),
                                                              EasyMock.isA(String.class)))
                 .andReturn(map);
@@ -211,7 +211,7 @@ public class ContentResourceImplTest {
         Map<String, String> props = new HashMap<String, String>();
         props.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, "12345");
         props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, "1000");
-        Capture<Map<String,String>> userProps = new Capture<>();
+        Capture<Map<String, String>> userProps = new Capture<>();
         Capture<String> finalMimeType = new Capture<>();
 
         EasyMock.expect(this.storageProvider.addContent(EasyMock.isA(String.class),
@@ -235,7 +235,7 @@ public class ContentResourceImplTest {
                                         checksum,
                                         storeId);
 
-        Map<String,String> p = userProps.getValue();
+        Map<String, String> p = userProps.getValue();
         Assert.assertTrue(p.containsKey(customPropName));
         Assert.assertEquals(customPropValue, p.get(customPropName));
         Assert.assertEquals(mimetype, finalMimeType.getValue());

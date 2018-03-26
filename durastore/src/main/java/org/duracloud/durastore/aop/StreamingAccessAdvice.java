@@ -24,13 +24,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * Verifies that the caller is authorized to make call to stream content. 
+ * Verifies that the caller is authorized to make call to stream content.
  * See durastore/src/main/webapp/WEB-INF/config/aop-config.xml for
- * pointcut matching pattern. This pointcut is designed intercept calls to TaskProvider 
+ * pointcut matching pattern. This pointcut is designed intercept calls to TaskProvider
  * instances.
- * 
- * @author Daniel Bernstein Date: 12/07/2015
  *
+ * @author Daniel Bernstein Date: 12/07/2015
  */
 public class StreamingAccessAdvice implements MethodBeforeAdvice, Ordered {
     private Logger log = LoggerFactory.getLogger(StreamingAccessAdvice.class);
@@ -54,23 +53,22 @@ public class StreamingAccessAdvice implements MethodBeforeAdvice, Ordered {
     public void before(Method method, Object[] args, Object target)
         throws Throwable {
         String taskName = (String) args[0];
-        
-        if(!taskName.matches(StorageTaskConstants.GET_URL_TASK_NAME) &&
-            !taskName.matches(StorageTaskConstants.GET_SIGNED_URL_TASK_NAME)){
+
+        if (!taskName.matches(StorageTaskConstants.GET_URL_TASK_NAME) &&
+            !taskName.matches(StorageTaskConstants.GET_SIGNED_URL_TASK_NAME)) {
             return;
         }
-        
-        TaskProvider taskProvider = (TaskProvider)target;
+
+        TaskProvider taskProvider = (TaskProvider) target;
         String storeId = taskProvider.getStoreId();
-        
-        
+
         Authentication auth =
             SecurityContextHolder.getContext().getAuthentication();
-        
-        if(this.authHelper.hasAdmin(auth)){
+
+        if (this.authHelper.hasAdmin(auth)) {
             return;
         }
-        
+
         String taskParams = (String) args[1];
         GetUrlTaskParameters params = GetUrlTaskParameters.deserialize(taskParams);
         String spaceId = params.getSpaceId();
@@ -78,10 +76,10 @@ public class StreamingAccessAdvice implements MethodBeforeAdvice, Ordered {
             this.authHelper.getSpaceACLs(storeId, spaceId);
         if (!this.authHelper.hasReadAccess(auth.getName(), acls)
             && !this.authHelper.groupsHaveReadAccess(auth, acls)) {
-            log.error(auth.getName() + " is not authorized to view content in "+ spaceId);
+            log.error(auth.getName() + " is not authorized to view content in " + spaceId);
             throw new UnauthorizedException("You are not authorized to access space "
                                             + spaceId + ".");
-        }else{
+        } else {
             log.debug("successfully authorized {} to view {}",
                       auth.getName(),
                       spaceId);

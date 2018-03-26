@@ -12,7 +12,7 @@ import java.util.Date;
 
 /**
  * @author Andrew Woods
- *         Date: 4/6/12
+ * Date: 4/6/12
  */
 public class CalendarUtil {
 
