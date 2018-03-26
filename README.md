@@ -36,7 +36,10 @@ The DuraCloud project is goverened by the [DuraSpace Code of Conduct](http://www
 
 ## Contribute
 
-We welcome contributions to DuraCloud! You do not need to be able to write code to pitch in. See the [CONTRIBUTING](CONTRIBUTING.md) page for more details.
+We welcome contributions to DuraCloud! You do not need to be able to write code to pitch in. See the [CONTRIBUTING](CONTRIBUTING.md) page or click on one of these links for more details:
+
+* [I'm a Java developer](CONTRIBUTING.md#im-a-java-developer)
+* [I'm a DuraCloud user](CONTRIBUTING.md#im-a-duracloud-user)
 
 ## License
 
