@@ -33,7 +33,10 @@ Ready to start diving into code?
 
 1. Look for a [JIRA ticket](https://jira.duraspace.org/projects/DURACLOUD) which interests you, or create a new one.
 2. [Fork the code repository](https://help.github.com/articles/fork-a-repo/) in Github. There are several repos for DuraCloud, the primary one is: https://github.com/duracloud/duracloud
-3. Make your changes, do fantastic things, just make sure the build passes and your changes work
+3. Make your changes, do fantastic things, just make sure:
+    * Your changes work
+    * The build passes
+    * You are following the [code style guidelines](https://github.com/duraspace/resources/tree/master/checkstyle)
 4. Commit to a branch on your fork, and [submit a pull request](https://help.github.com/articles/about-pull-requests/). The pull request should be against the **develop** branch of the DuraCloud repository (not master).
 
 
