@@ -16,9 +16,9 @@
 
 ## Why DuraCloud?
 
-In the digital era, ensuring that critically important documents remain safe and available is a continual challenge. Physical computing hardware that is used to create and store documents can fail or become obsolete very quickly.
+In the digital era, ensuring that critically important documents remain safe and available is a continual challenge. Physical computing hardware that is used to create and store documents can fail or become obsolete very quickly, providing a need for tools to ensure that these documents remain available.
 
-There are many options for file storage and backup, with a growing trend toward the use of service providers offering off-site storage and backup solutions. However, several concerns often remain:
+There are many options for file storage and backup, with a growing trend toward the use of service providers offering off-site storage and backup solutions. These solutions are enticing, but several concerns often remain:
 
 1. How do I ensure that files remain intact over time after I have transferred them to a storage service?
 2. How do I ensure that each of the storage services that I am using receives a copy of my local files?
