@@ -16,9 +16,9 @@
 
 ## Why DuraCloud?
 
-In the digital era, ensuring that critically important documents remain safe and available is a continual challenge. Physical computing hardware that is used to create and store documents can fail or become obsolete very quickly, providing a clear need for decisive action to ensure that these documents remain available.
+In the digital era, ensuring that critically important documents remain safe and available is a continual challenge. Physical computing hardware that is used to create and store documents can fail or become obsolete very quickly, providing a need for tools to ensure that these documents remain available.
 
-There are many options for file storage and backup, with a growing trend toward the use of service providers offering off-site storage and backup solutions. The convenience and elasticity of these solutions is enticing, but several concerns often remain:
+There are many options for file storage and backup, with a growing trend toward the use of service providers offering off-site storage and backup solutions. These solutions are enticing, but several concerns often remain:
 
 1. How do I ensure that files remain intact over time after I have transferred them to a storage service?
 2. How do I ensure that each of the storage services that I am using receives a copy of my local files?
@@ -54,7 +54,7 @@ DuraCloud documentation is found on the [DuraCloud Wiki](https://wiki.duraspace.
 
 ## Overview
 
-DuraCloud is an open source project and a hosted service. This summary articulates our current and aspirational parameters of product and community development, community engagement, project execution, and unique value proposition.
+DuraCloud is an open source software product and a hosted service. This summary articulates our current and aspirational parameters of product and community development, community engagement, project execution, and unique value proposition.
 
 <p align="center">
   <img src="https://wiki.duraspace.org/download/attachments/96993626/open-canvas-duracloud.jpg" alt="DuraCloud Open Canvas"  width="100%" />
