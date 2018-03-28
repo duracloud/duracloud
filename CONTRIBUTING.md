@@ -40,7 +40,7 @@ Ready to start diving into code?
 3. Make your changes, do fantastic things, just make sure:
     * Your changes work
     * The build passes
-    * You are following the [code style guidelines](https://github.com/duraspace/resources/tree/master/checkstyle)
+    * You are following the [code style guidelines](https://github.com/duraspace/codestyle)
 4. Commit to a branch on your fork, and [submit a pull request](https://help.github.com/articles/about-pull-requests/). The pull request should be against the **develop** branch of the DuraCloud repository (not master).
 
 
