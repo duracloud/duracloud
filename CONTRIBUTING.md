@@ -4,6 +4,7 @@ There are many ways to contribute, first look for a section which describes you,
 
 * [I'm a Java developer](#im-a-java-developer)
 * [I'm a DuraCloud user](#im-a-duracloud-user)
+* [I'd like to get involved](#id-like-to-get-involved)
 
 Do you have an idea which doesn't fit into one of the categories below? Are you still not sure how to get started? Then join the [mailing list](https://groups.google.com/group/duracloud-users) and ask a question or make a suggestion, we'd be happy to talk through your ideas and find ways for you to contribute.
 
@@ -52,3 +53,10 @@ Already have an account? There are many ways to help:
 * Did you notice something wrong or missing in the [documentation](https://wiki.duraspace.org/display/DURACLOUD)? Add a comment to the page so we can get it updated. If you would like to help more with documentation, just let us know!
 * Speaking of the [mailing list](https://groups.google.com/group/duracloud-users), many users of DuraCloud have questions about local processes for organizing, preparing, and transferring content to DuraCloud. Help to answer questions, or start a conversation with a list of tips from what you have learned.
 
+## I'd like to get involved
+
+Fantastic! We can use your help!
+
+If you are looking for a place to start, take a look at the [issues listed in Github](https://github.com/duracloud/duracloud/issues). These are intentionally targetted toward non-development activities, and are all good places to get your feet wet.
+
+Do you have an idea for an interest or working group? Join the [mailing list](https://groups.google.com/group/duracloud-users) and let us know your ideas. You are likely to not be the only one interested in digging deeper.
