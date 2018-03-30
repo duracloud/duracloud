@@ -70,6 +70,7 @@ We welcome contributions to DuraCloud! You do not need to be able to write code 
 
 * [I'm a Java developer](CONTRIBUTING.md#im-a-java-developer)
 * [I'm a DuraCloud user](CONTRIBUTING.md#im-a-duracloud-user)
+* [I'd like to get involved](CONTRIBUTING.md#id-like-to-get-involved)
 
 ## License
 
