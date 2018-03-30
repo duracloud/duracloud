@@ -6,15 +6,15 @@ There are many ways to contribute, first look for a section which describes you,
 * [I'm a DuraCloud user](#im-a-duracloud-user)
 * [I'd like to get involved](#id-like-to-get-involved)
 
-Do you have an idea which doesn't fit into one of the categories below? Are you still not sure how to get started? Then join the [mailing list](https://groups.google.com/group/duracloud-users) and ask a question or make a suggestion, we'd be happy to talk through your ideas and find ways for you to contribute.
+Do you have an idea which doesn't fit into one of these categories? Are you still not sure how to get started? Then join the [mailing list](https://groups.google.com/group/duracloud-users) and ask a question or make a suggestion, we'd be happy to talk through your ideas and find ways for you to contribute.
 
 ## I'm a Java developer
 
 Awesome! You can use your skills to help us develop new features for DuraCloud, or squash some bugs. 
 
-Before you can start making code changes, you will need to get DuraCloud deployed. Take a look first at the [deployment docs](https://wiki.duraspace.org/display/DURACLOUDDOC/Building+DuraCloud+from+Source), then ask on the [mailing list](https://groups.google.com/group/duracloud-users) if you run into trouble or have questions. 
+Before you can start making code changes, you will need to get DuraCloud deployed. Take a look first at the [deployment docs](https://wiki.duraspace.org/display/DURACLOUDDOC/Building+DuraCloud+from+Source), then ask on the [mailing list](https://groups.google.com/group/duracloud-users) if you run into trouble or have questions. If you would prefer to deploy in AWS, the [production deployment documentation](https://github.com/duracloud/deployment-docs) will provide guidance.
 
-We welcome suggestions or recommendations that will make this documentation better or make the deployment simpler. We know there is work to be done there, so we'd be happy to chat.
+We welcome suggestions or recommendations that will make this documentation better or make the deployment simpler. We know there is work to be done there, so your assistance is appreciated.
 
 Once you have DuraCloud running, you can contribute in two ways:
 
@@ -39,6 +39,7 @@ Ready to start diving into code?
 2. [Fork the code repository](https://help.github.com/articles/fork-a-repo/) in Github. There are several repos for DuraCloud, the primary one is: https://github.com/duracloud/duracloud
 3. Make your changes, do fantastic things, just make sure:
     * Your changes work
+    * Unit tests are included which exercise your changes
     * The build passes
     * You are following the [code style guidelines](https://github.com/duraspace/codestyle)
 4. Commit to a branch on your fork, and [submit a pull request](https://help.github.com/articles/about-pull-requests/). The pull request should be against the **develop** branch of the DuraCloud repository (not master).
