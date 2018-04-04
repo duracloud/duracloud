@@ -10,7 +10,6 @@ package org.duracloud.sync.backup;
 import java.io.File;
 import java.util.List;
 
-import org.duracloud.sync.config.SyncToolConfig;
 import org.duracloud.sync.mgmt.ChangedList;
 import org.duracloud.sync.util.DirectoryUtil;
 import org.slf4j.Logger;
@@ -36,12 +35,12 @@ public class ChangedListBackupManager implements Runnable {
     private long changedListVersion;
     private List<File> contentDirs;
     private boolean backingUp = false;
-    
+
     public ChangedListBackupManager(ChangedList changedList,
                                     File backupDir,
                                     long backupFrequency, List<File> contentDirs) {
         this.backupDir = new File(backupDir, "changeList");
-        if(!this.backupDir.exists()) {
+        if (!this.backupDir.exists()) {
             this.backupDir.mkdir();
         }
 
@@ -57,20 +56,20 @@ public class ChangedListBackupManager implements Runnable {
      * the backup file is loaded and the time the backup file was written is
      * returned.
      *
-     * @return the write time of the backup file, or -1 if no backup is available 
+     * @return the write time of the backup file, or -1 if no backup is available
      */
     public long loadBackup() {
         long backupTime = -1;
         File[] backupDirFiles = getSortedBackupDirFiles();
-        if(backupDirFiles.length > 0) {
+        if (backupDirFiles.length > 0) {
             File latestBackup = backupDirFiles[0];
             try {
                 backupTime = Long.parseLong(latestBackup.getName());
                 changedList.restore(latestBackup, this.contentDirs);
-            } catch(NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 logger.error("Unable to load changed list backup. File in " +
-                    "changed list backup dir has invalid name: " +
-                    latestBackup.getName());
+                             "changed list backup dir has invalid name: " +
+                             latestBackup.getName());
                 backupTime = -1;
             }
         }
@@ -83,8 +82,8 @@ public class ChangedListBackupManager implements Runnable {
      * number of backup files, removes the rest.
      */
     public void run() {
-        while(continueBackup) {
-            if(changedListVersion < changedList.getVersion()) {
+        while (continueBackup) {
+            if (changedListVersion < changedList.getVersion()) {
                 cleanupBackupDir(SAVED_BACKUPS);
                 String filename = String.valueOf(System.currentTimeMillis());
                 File persistFile = new File(backupDir, filename);
@@ -106,9 +105,9 @@ public class ChangedListBackupManager implements Runnable {
      */
     private void sleepAndCheck(long backupFrequency) {
         long sleepTime = DEFAULT_SLEEP_TIME;
-        for(long sleepCompleted = 0;
-            continueBackup && sleepCompleted < backupFrequency;
-            sleepCompleted += sleepTime) {
+        for (long sleepCompleted = 0;
+             continueBackup && sleepCompleted < backupFrequency;
+             sleepCompleted += sleepTime) {
             sleep(sleepTime);
         }
     }
@@ -116,7 +115,7 @@ public class ChangedListBackupManager implements Runnable {
     protected void sleep(long milliseconds) {
         try {
             Thread.sleep(milliseconds);
-        } catch(InterruptedException e) {
+        } catch (InterruptedException e) {
             logger.warn("ChangedListBackupManager thread interrupted");
         }
     }
@@ -126,19 +125,19 @@ public class ChangedListBackupManager implements Runnable {
      */
     private void cleanupBackupDir(int keep) {
         File[] backupDirFiles = getSortedBackupDirFiles();
-        if(backupDirFiles.length > keep) {
-            for(int i=keep; i<backupDirFiles.length; i++) {
+        if (backupDirFiles.length > keep) {
+            for (int i = keep; i < backupDirFiles.length; i++) {
                 backupDirFiles[i].delete();
             }
         }
     }
-    
-    public void clear(){
-        while(backingUp){
+
+    public void clear() {
+        while (backingUp) {
             sleep(100);
         }
-        
-        synchronized(this){
+
+        synchronized (this) {
             cleanupBackupDir(0);
         }
 
@@ -154,5 +153,5 @@ public class ChangedListBackupManager implements Runnable {
 
     public boolean hasBackups() {
         return getSortedBackupDirFiles().length > 0;
-    }    
+    }
 }

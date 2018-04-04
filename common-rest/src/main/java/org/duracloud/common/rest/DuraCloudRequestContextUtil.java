@@ -10,33 +10,32 @@ package org.duracloud.common.rest;
 import org.duracloud.common.constant.Constants;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class DuraCloudRequestContextUtil {
     /**
      * Retrieves the account associated with the current thread.
+     *
      * @return
      */
-    public String getAccountId(){
-        return (String)getAttribute(Constants.ACCOUNT_ID_ATTRIBUTE);
+    public String getAccountId() {
+        return (String) getAttribute(Constants.ACCOUNT_ID_ATTRIBUTE);
     }
-    
-    private Object getAttribute(String attributeName){
+
+    private Object getAttribute(String attributeName) {
         return RequestContextHolder.currentRequestAttributes()
-        .getAttribute(attributeName,
-                      RequestAttributes.SCOPE_REQUEST);
+                                   .getAttribute(attributeName,
+                                                 RequestAttributes.SCOPE_REQUEST);
     }
 
-
-    public int  getPort(){
-        return (Integer)getAttribute(Constants.SERVER_PORT);
+    public int getPort() {
+        return (Integer) getAttribute(Constants.SERVER_PORT);
     }
 
-    public String  getHost(){
-        return (String)getAttribute(Constants.SERVER_HOST);
+    public String getHost() {
+        return (String) getAttribute(Constants.SERVER_HOST);
     }
 
 }

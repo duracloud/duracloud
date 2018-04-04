@@ -7,6 +7,9 @@
  */
 package org.duracloud.storage.xml.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -18,12 +21,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 /**
  * @author Andrew Woods
- *         Date: 5/11/11
+ * Date: 5/11/11
  */
 public class StorageAccountProviderSimpleBindingImplTest {
 

@@ -8,10 +8,9 @@
 package org.duracloud.common.sns;
 
 import com.amazonaws.services.sqs.model.Message;
+
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public interface MessageListener {
     void onMessage(Message message);

@@ -7,17 +7,17 @@
  */
 package org.duracloud.syncoptimize.test;
 
+import static org.junit.Assert.assertEquals;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.syncoptimize.config.SyncOptimizeConfig;
 import org.duracloud.syncoptimize.status.SyncTestStatus;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Bill Branan
- *         Date: 5/23/14
+ * Date: 5/23/14
  */
 public class SyncTestManagerTest {
 

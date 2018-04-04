@@ -14,9 +14,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public abstract class Command {
     private Options options;
@@ -34,11 +32,11 @@ public abstract class Command {
     }
 
     public void execute(String[] args) {
-        try{
+        try {
             PosixParser parser = new PosixParser();
             CommandLine cl = parser.parse(options, args);
             executeImpl(args, cl);
-        }catch(ParseException ex){
+        } catch (ParseException ex) {
             usage(args);
         }
     }

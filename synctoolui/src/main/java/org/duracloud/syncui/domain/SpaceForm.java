@@ -14,18 +14,18 @@ import org.springframework.stereotype.Component;
 
 /**
  * This class backs the space selection form.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 @Component("spaceForm")
 @SpaceWritable
 public class SpaceForm implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     private String spaceId;
     private DuracloudCredentialsForm credentialsForm;
-    
+
     public String getSpaceId() {
         return spaceId;
     }
@@ -37,7 +37,7 @@ public class SpaceForm implements Serializable {
     public DuracloudCredentialsForm getCredentialsForm() {
         return this.credentialsForm;
     }
-    
+
     public void setCredentialsForm(DuracloudCredentialsForm credentialsForm) {
         this.credentialsForm = credentialsForm;
     }

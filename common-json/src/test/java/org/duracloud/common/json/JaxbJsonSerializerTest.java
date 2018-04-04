@@ -7,7 +7,8 @@
  */
 package org.duracloud.common.json;
 
-import org.duracloud.common.model.Credential;
+import java.util.List;
+
 import org.duracloud.common.model.SimpleCredential;
 import org.duracloud.common.test.StorageProviderCredential;
 import org.duracloud.common.test.TestConfig;
@@ -15,17 +16,15 @@ import org.duracloud.common.test.TestEndPoint;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
-
 /**
  * @author Bill Branan
- *         Date: 7/29/13
+ * Date: 7/29/13
  */
 public class JaxbJsonSerializerTest {
 
     private String jsonTestConfig;
 
-    public JaxbJsonSerializerTest () {
+    public JaxbJsonSerializerTest() {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
         sb.append("  \"providerCredentials\" : [ {");
@@ -49,19 +48,17 @@ public class JaxbJsonSerializerTest {
         sb.append("  \"userCredential\" : { ");
         sb.append("      \"username\" : \"testuser\",");
         sb.append("      \"password\" : \"password\"");
-        sb.append("  },");  
+        sb.append("  },");
         sb.append("  \"adminCredential\" : { ");
         sb.append("      \"username\" : \"testuser\",");
         sb.append("      \"password\" : \"password\"");
-        sb.append("  }, ");  
+        sb.append("  }, ");
         sb.append("  \"rootCredential\" : { ");
         sb.append("      \"username\" : \"testuser\",");
         sb.append("      \"password\" : \"password\"");
         sb.append("  }");
         sb.append("}");
-        
-        
-        
+
         jsonTestConfig = sb.toString();
     }
 
@@ -79,7 +76,7 @@ public class JaxbJsonSerializerTest {
         Assert.assertEquals("rack-user",
                             credList.get(1).getCredential().getUsername());
         Assert.assertEquals("queue-name", desCreds.getQueueName());
-  }
+    }
 
     @Test
     public void testSerialize() throws Exception {
@@ -106,8 +103,8 @@ public class JaxbJsonSerializerTest {
         String json = serializer.serialize(testConfig);
         // Verify that the resulting json matches the expected value, ignoring
         // whitespace.
-        Assert.assertEquals(jsonTestConfig.replaceAll("\\s",""),
-                            json.replaceAll("\\s",""));
-  }
+        Assert.assertEquals(jsonTestConfig.replaceAll("\\s", ""),
+                            json.replaceAll("\\s", ""));
+    }
 
 }

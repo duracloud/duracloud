@@ -9,11 +9,11 @@ package org.duracloud.sync.endpoint;
 
 /**
  * This interface defines listener methods for monitoring changes in the SyncEndPoint
+ *
  * @author Daniel Bernstein
  */
 public interface EndPointListener {
     /**
-     * 
      * @param storeId
      * @param spaceId
      * @param contentId
@@ -25,9 +25,8 @@ public interface EndPointListener {
                          String contentId,
                          String backupContentId,
                          String localFilePath);
-    
+
     /**
-     * 
      * @param storeId
      * @param spaceId
      * @param contentId
@@ -39,11 +38,10 @@ public interface EndPointListener {
                       String localFilePath);
 
     /**
-     * 
      * @param storeId
      * @param spaceId
      * @param contentId
-     * @param localFilePath 
+     * @param localFilePath
      */
     void contentUpdated(String storeId,
                         String spaceId,
@@ -51,7 +49,6 @@ public interface EndPointListener {
                         String localFilePath);
 
     /**
-     * 
      * @param storeId
      * @param spaceId
      * @param contentId
@@ -61,14 +58,13 @@ public interface EndPointListener {
                         String contentId);
 
     /**
-     * 
      * @param storeId
      * @param spaceId
      * @param contentId
      * @param absPath
      */
     void contentUpdateIgnored(String storeId,
-                        String spaceId,
-                        String contentId,
-                        String absPath);
+                              String spaceId,
+                              String contentId,
+                              String absPath);
 }

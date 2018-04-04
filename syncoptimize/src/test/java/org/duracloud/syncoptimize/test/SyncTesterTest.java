@@ -7,6 +7,13 @@
  */
 package org.duracloud.syncoptimize.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.sync.SyncToolInitializer;
 import org.duracloud.syncoptimize.config.SyncOptimizeConfig;
@@ -14,16 +21,9 @@ import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /**
  * @author Bill Branan
- *         Date: 5/21/14
+ * Date: 5/21/14
  */
 public class SyncTesterTest {
 
@@ -62,11 +62,11 @@ public class SyncTesterTest {
 
         SyncTester syncTester =
             new SyncTester(config, dataDir, workDir, contentStore, prefix) {
-            @Override
-            protected SyncToolInitializer getSyncTool() {
-                return syncTool;
-            }
-        };
+                @Override
+                protected SyncToolInitializer getSyncTool() {
+                    return syncTool;
+                }
+            };
 
         EasyMock.replay(syncTool, contentStore);
 

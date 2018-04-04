@@ -22,7 +22,7 @@ import org.springframework.security.core.Authentication;
  * AuthZ decision for the principal (authentication) and resource.
  *
  * @author Andrew Woods
- *         Date: Mar 12, 2010
+ * Date: Mar 12, 2010
  */
 public class AccessDecisionManagerImpl extends AbstractAccessDecisionManager {
 

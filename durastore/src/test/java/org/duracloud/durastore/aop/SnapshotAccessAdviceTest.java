@@ -7,8 +7,10 @@
  */
 package org.duracloud.durastore.aop;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,10 +28,9 @@ import org.junit.runner.RunWith;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 @RunWith(EasyMockRunner.class)
 public class SnapshotAccessAdviceTest extends EasyMockSupport {
@@ -62,13 +63,13 @@ public class SnapshotAccessAdviceTest extends EasyMockSupport {
         verifyAll();
     }
 
-    private String[] getArgs(){
+    private String[] getArgs() {
         return getArgs("get-snapshot");
     }
-    private String[] getArgs(String taskName){
-        return new String[]{taskName, "{\"snapshotId\":\"" + snapshotId + "\"}"};
+
+    private String[] getArgs(String taskName) {
+        return new String[] {taskName, "{\"snapshotId\":\"" + snapshotId + "\"}"};
     }
-    
 
     @Test
     public void testSuccessUserAuthorizedSnapshotHistory() throws Throwable {
@@ -87,7 +88,7 @@ public class SnapshotAccessAdviceTest extends EasyMockSupport {
         advice = new SnapshotAccessAdvice(helper);
 
         advice.before(null, getArgs("get-snapshots"), null);
-        
+
     }
 
     @Test
@@ -95,10 +96,9 @@ public class SnapshotAccessAdviceTest extends EasyMockSupport {
         setupSubjectAdmin();
         replayAll();
         advice.before(null, getArgs("get-snapshot"), null);
-        
+
     }
 
-    
     public void testSuccessUserAuthorized(String taskName) throws Throwable {
         setupSubject();
         expect(helper.hasReadAccess(isA(String.class),
@@ -128,19 +128,19 @@ public class SnapshotAccessAdviceTest extends EasyMockSupport {
         replayAll();
         try {
             advice.before(null, getArgs(), null);
-        }catch(UnauthorizedException ex){
-            assertTrue("expected failure",true);
+        } catch (UnauthorizedException ex) {
+            assertTrue("expected failure", true);
         }
     }
 
-    private void setupSubjectAdmin(){
+    private void setupSubjectAdmin() {
         advice = new SnapshotAccessAdvice(helper);
         SecurityContextHolder.setContext(context);
         expect(context.getAuthentication()).andReturn(auth).atLeastOnce();
         expect(helper.hasAdmin(auth)).andReturn(true);
     }
 
-    private void setupSubject(){
+    private void setupSubject() {
         advice = new SnapshotAccessAdvice(helper);
         expect(helper.getSpaceACLs(storeId, spaceId)).andReturn(acls);
         SecurityContextHolder.setContext(context);

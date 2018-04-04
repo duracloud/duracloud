@@ -15,14 +15,14 @@ import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * @author Daniel Bernstein
- *         Date: 11/05/2015
+ * Date: 11/05/2015
  */
 public class CancelRestoreBridgeResult extends GenericRestoreBridgeResult {
 
+    public CancelRestoreBridgeResult() {
+    }
 
-    public CancelRestoreBridgeResult(){}
-
-    public CancelRestoreBridgeResult(String description, RestoreStatus status){
+    public CancelRestoreBridgeResult(String description, RestoreStatus status) {
         super(description, status);
     }
 
@@ -36,7 +36,7 @@ public class CancelRestoreBridgeResult extends GenericRestoreBridgeResult {
             new JaxbJsonSerializer<>(CancelRestoreBridgeResult.class);
         try {
             return serializer.deserialize(bridgeResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to deserialize result due to: " + e.getMessage());
         }

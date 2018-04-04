@@ -17,8 +17,9 @@ import org.duracloud.storage.provider.TaskProviderFactory;
 import org.duracloud.storage.util.StorageProviderFactory;
 
 /**
- * This class is responsible for loading and caching global account information 
+ * This class is responsible for loading and caching global account information
  * from a remote data store.
+ *
  * @author Daniel Bernstein
  */
 public class TaskProviderFactoryCache extends AbstractAccountComponentCache<TaskProviderFactory> {
@@ -26,45 +27,43 @@ public class TaskProviderFactoryCache extends AbstractAccountComponentCache<Task
     private StorageProviderFactory storageProviderFactory;
     private ManifestStore manifestStore;
     private DuraCloudRequestContextUtil contextUtil;
-    
+
     public TaskProviderFactoryCache(DuraCloudRequestContextUtil contextUtil,
                                     StorageAccountManagerFactory storageAccountManagerFactory,
                                     StorageProviderFactory storageProviderFactory,
-                              ManifestStore manifestStore) {
+                                    ManifestStore manifestStore) {
         super();
         this.contextUtil = contextUtil;
         this.storageAccountManagerFactory = storageAccountManagerFactory;
         this.storageProviderFactory = storageProviderFactory;
         this.manifestStore = manifestStore;
     }
-    
-    
+
     @Override
     public void onEvent(AccountChangeEvent event) {
         String accountId = event.getAccountId();
         EventType eventType = event.getEventType();
-        if(accountId != null){
-            if(eventType.equals(EventType.STORAGE_PROVIDERS_CHANGED)|| 
-                eventType.equals(EventType.ACCOUNT_CHANGED) || 
-                eventType.equals(EventType.STORAGE_PROVIDER_CACHE_ON_NODE_CHANGED)){
+        if (accountId != null) {
+            if (eventType.equals(EventType.STORAGE_PROVIDERS_CHANGED) ||
+                eventType.equals(EventType.ACCOUNT_CHANGED) ||
+                eventType.equals(EventType.STORAGE_PROVIDER_CACHE_ON_NODE_CHANGED)) {
                 remove(accountId);
             }
-        }else if(eventType.equals(EventType.ALL_ACCOUNTS_CHANGED)){
+        } else if (eventType.equals(EventType.ALL_ACCOUNTS_CHANGED)) {
             removeAll();
         }
     }
-    
+
     public TaskProviderFactory getObject() throws Exception {
         return get(this.contextUtil.getAccountId());
     }
 
-    
     @Override
-    protected TaskProviderFactory createInstance (String accountId) {
+    protected TaskProviderFactory createInstance(String accountId) {
         // retrieve account info from db
         StorageAccountManager storageAccountManager =
             this.storageAccountManagerFactory.createInstance();
-        return  new TaskProviderFactoryImpl(storageAccountManager, storageProviderFactory, manifestStore);
+        return new TaskProviderFactoryImpl(storageAccountManager, storageProviderFactory, manifestStore);
     }
-   
+
 }

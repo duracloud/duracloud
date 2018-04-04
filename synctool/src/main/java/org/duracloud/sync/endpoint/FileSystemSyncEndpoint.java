@@ -7,10 +7,6 @@
  */
 package org.duracloud.sync.endpoint;
 
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -21,6 +17,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Allows syncing to be performed to a location on the local file system.
  *
@@ -30,7 +30,7 @@ import java.util.List;
  * Note that directories that have been deleted at the source are not deleted
  * by this endpoint. The nature of cloud storage is that if no files exist in
  * a given directory, that directory doesn't exist (directories are completely
- * virtual and exist only in the names of the individual files.) 
+ * virtual and exist only in the names of the individual files.)
  *
  * @author: Bill Branan
  * Date: Mar 26, 2010
@@ -38,7 +38,7 @@ import java.util.List;
 public class FileSystemSyncEndpoint implements SyncEndpoint {
 
     private final Logger logger =
-        LoggerFactory.getLogger(FileSystemSyncEndpoint.class);    
+        LoggerFactory.getLogger(FileSystemSyncEndpoint.class);
 
     private File syncToDir;
     private boolean syncDeletes;
@@ -61,29 +61,29 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
         logger.info("Syncing file: " + syncFile.getAbsolutePath() +
                     "\n   to " + syncToFile.getAbsolutePath());
 
-        if(syncFile.exists()) { // File was added or updated
+        if (syncFile.exists()) { // File was added or updated
             InputStream inStream = null;
             OutputStream outStream = null;
             try {
-                if(!syncToFile.getParentFile().exists()) {
+                if (!syncToFile.getParentFile().exists()) {
                     createParentDir(syncToFile.getParentFile());
                 }
                 inStream = syncFile.getStream();
                 outStream = new FileOutputStream(syncToFile);
                 IOUtils.copy(inStream, outStream);
                 success = true;
-            } catch(IOException e) {
+            } catch (IOException e) {
                 logger.error("Unable to sync updated file " +
-                    syncFile.getAbsolutePath() + " to " +
-                    syncToFile.getAbsolutePath() + " due to " +
-                    e.getMessage(), e);
+                             syncFile.getAbsolutePath() + " to " +
+                             syncToFile.getAbsolutePath() + " due to " +
+                             e.getMessage(), e);
                 success = false;
             } finally {
                 IOUtils.closeQuietly(inStream);
                 IOUtils.closeQuietly(outStream);
             }
         } else { // File was deleted
-            if(syncDeletes) {
+            if (syncDeletes) {
                 success = syncToFile.delete();
             } else {
                 success = true;
@@ -91,11 +91,10 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
         }
         return success;
     }
-    
+
     @Override
-    public SyncResultType
-        syncFileAndReturnDetailedResult(MonitoredFile monitoredFile,
-                                        File watchDir) {
+    public SyncResultType syncFileAndReturnDetailedResult(MonitoredFile monitoredFile,
+                                                          File watchDir) {
         throw new UnsupportedOperationException();
     }
 
@@ -105,7 +104,7 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
 
     protected File getSyncToFile(MonitoredFile syncFile, File watchDir) {
         File syncToFile;
-        if(null == watchDir) {
+        if (null == watchDir) {
             syncToFile = new File(syncToDir, syncFile.getName());
         } else {
             URI relativeFileURI = watchDir.toURI().relativize(syncFile.toURI());
@@ -121,9 +120,9 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
     }
 
     private void getFilesRelative(List<String> filesList, File dir) {
-        if(dir.isDirectory()) {
-            for(File file : dir.listFiles()) {
-                if(file.isDirectory()) {
+        if (dir.isDirectory()) {
+            for (File file : dir.listFiles()) {
+                if (file.isDirectory()) {
                     getFilesRelative(filesList, file);
                 } else {
                     filesList.add(getRelativeFilePath(file));
@@ -135,12 +134,12 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
     private String getRelativeFilePath(File file) {
         return syncToDir.toURI().relativize(file.toURI()).getPath();
     }
-    
+
     @Override
     public void addEndPointListener(EndPointListener listener) {
         // TODO Auto-generated method stub
     }
-    
+
     @Override
     public void removeEndPointListener(EndPointListener listener) {
         // TODO Auto-generated method stub

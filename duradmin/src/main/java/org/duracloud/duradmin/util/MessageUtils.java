@@ -19,6 +19,10 @@ public class MessageUtils {
 
     public static final String FLASH_MESSAGE = "flashMessage";
 
+    private MessageUtils() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     public static void addFlashMessage(Message message,
                                        HttpServletRequest request) {
         request.setAttribute(FLASH_MESSAGE, message);
@@ -27,16 +31,13 @@ public class MessageUtils {
     public static String addMessageToRedirect(Message message,
                                               HttpServletRequest request) {
         String key = String.valueOf(System.currentTimeMillis());
-        request.getSession().setAttribute(key,
-                                          new NameValuePair(FLASH_MESSAGE,
-                                                            message));
+        request.getSession().setAttribute(key, new NameValuePair(FLASH_MESSAGE, message));
         return key;
     }
 
     public static Message getRedirectMessage(HttpServletRequest request) {
         String key = request.getParameter(REDIRECT_KEY);
-        NameValuePair obj =
-                (NameValuePair) request.getSession().getAttribute(key);
+        NameValuePair obj = (NameValuePair) request.getSession().getAttribute(key);
         if (obj != null) {
             request.getSession().removeAttribute(key);
             return (Message) obj.getValue();
@@ -49,7 +50,7 @@ public class MessageUtils {
      * adds a redirect message and appends the redirect key to the outcomeUrl.
      * If a redirect key already exists, it is replaced. replace redirect key if
      * it exists in the outcomeUrl.
-     * 
+     *
      * @param outcomeUrl
      * @param message
      * @param request
@@ -74,9 +75,8 @@ public class MessageUtils {
                 end = outcomeUrl.length();
             }
             String value = outcomeUrl.substring(start, end);
-            outcomeUrl =
-                    outcomeUrl.replace(REDIRECT_KEY + "=" + value, REDIRECT_KEY
-                            + "=" + key);
+            outcomeUrl = outcomeUrl.replace(REDIRECT_KEY + "=" + value,
+                                            REDIRECT_KEY + "=" + key);
         } else {
             outcomeUrl += REDIRECT_KEY + "=" + key;
         }

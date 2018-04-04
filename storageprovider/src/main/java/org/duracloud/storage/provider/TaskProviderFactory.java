@@ -19,5 +19,5 @@ public interface TaskProviderFactory {
      * @return
      */
     public TaskProvider getTaskProvider(String storageAccountId)
-            throws TaskException;
+        throws TaskException;
 }

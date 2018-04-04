@@ -15,7 +15,7 @@ import org.junit.Test;
 
 /**
  * @author Andrew Woods
- *         Date: 5/13/11
+ * Date: 5/13/11
  */
 public class StorageAccountImplTest {
 

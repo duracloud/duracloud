@@ -7,11 +7,6 @@
  */
 package org.duracloud.storage.provider.mock;
 
-import org.duracloud.common.model.AclType;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,8 +14,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
+
 public class MockStorageProvider
-        implements StorageProvider {
+    implements StorageProvider {
 
     private String spaceId;
 
@@ -88,7 +88,7 @@ public class MockStorageProvider
     }
 
     public void deleteContent(String spaceId, String contentId)
-            throws StorageException {
+        throws StorageException {
         this.spaceId = spaceId;
         this.contentId = contentId;
     }
@@ -98,18 +98,18 @@ public class MockStorageProvider
     }
 
     public InputStream getContent(String spaceId, String contentId)
-            throws StorageException {
+        throws StorageException {
         return content;
     }
 
     public Map<String, String> getContentProperties(String spaceId,
                                                     String contentId)
-            throws StorageException {
+        throws StorageException {
         return contentProperties;
     }
 
     public Iterator<String> getSpaceContents(String spaceId, String prefix)
-            throws StorageException {
+        throws StorageException {
         return spaceContents.iterator();
     }
 
@@ -122,7 +122,7 @@ public class MockStorageProvider
     }
 
     public Map<String, String> getSpaceProperties(String spaceId)
-    throws StorageException {
+        throws StorageException {
         return spaceProperties;
     }
 
@@ -133,7 +133,7 @@ public class MockStorageProvider
     public void setContentProperties(String spaceId,
                                      String contentId,
                                      Map<String, String> contentProperties)
-            throws StorageException {
+        throws StorageException {
         this.spaceId = spaceId;
         this.contentId = contentId;
         this.contentProperties = contentProperties;

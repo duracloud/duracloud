@@ -12,14 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.duracloud.s3storage.S3StorageProvider;
-import org.duracloud.storage.error.NotFoundException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.easymock.Capture;
-import org.easymock.EasyMock;
-import org.easymock.IExpectationSetters;
-import org.junit.After;
-
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.cloudfront.model.ListStreamingDistributionsRequest;
 import com.amazonaws.services.cloudfront.model.ListStreamingDistributionsResult;
@@ -28,6 +20,13 @@ import com.amazonaws.services.cloudfront.model.StreamingDistributionList;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
 import com.amazonaws.services.cloudfront.model.TrustedSigners;
 import com.amazonaws.services.s3.AmazonS3Client;
+import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.easymock.Capture;
+import org.easymock.EasyMock;
+import org.easymock.IExpectationSetters;
+import org.junit.After;
 
 /**
  * @author: Bill Branan
@@ -92,42 +91,43 @@ public class StreamingTaskRunnerTestBase {
     protected StorageProvider createMockStorageProvider() {
         return createMockStorageProvider(true);
     }
+
     protected StorageProvider createMockStorageProvider(boolean contentIdExists) {
-       Map<String,String> props = new HashMap<>();
-       props.put(StorageProvider.PROPERTIES_STREAMING_TYPE, "any-streaming-type");
-       return createMockStorageProvider(props, contentIdExists);
+        Map<String, String> props = new HashMap<>();
+        props.put(StorageProvider.PROPERTIES_STREAMING_TYPE, "any-streaming-type");
+        return createMockStorageProvider(props, contentIdExists);
     }
 
-    protected StorageProvider createMockStorageProvider(Map<String,String> spaceProps, boolean contentIdExists) {
+    protected StorageProvider createMockStorageProvider(Map<String, String> spaceProps, boolean contentIdExists) {
         StorageProvider provider = EasyMock.createMock(StorageProvider.class);
 
         List<String> contents = new ArrayList<>();
         contents.add("item1");
         contents.add("item2");
-        contents.add("item3");        
+        contents.add("item3");
 
         EasyMock
             .expect(provider.getSpaceContents(EasyMock.isA(String.class),
                                               EasyMock.<String>isNull()))
             .andReturn(contents.iterator())
             .anyTimes();
-        
+
         EasyMock.expect(provider.getSpaceProperties(EasyMock.isA(String.class)))
                 .andReturn(spaceProps)
                 .anyTimes();
-        
+
         IExpectationSetters<Map<String, String>> expection =
             EasyMock.expect(provider.getContentProperties(EasyMock.isA(String.class),
                                                           EasyMock.isA(String.class)));
 
-        if(contentIdExists){
-            expection.andReturn(new HashMap<String,String>());
-        }else{
+        if (contentIdExists) {
+            expection.andReturn(new HashMap<String, String>());
+        } else {
             expection.andThrow(new NotFoundException(""));
         }
-        
+
         expection.anyTimes();
-        
+
         EasyMock.replay(provider);
         return provider;
     }
@@ -144,7 +144,7 @@ public class StreamingTaskRunnerTestBase {
             EasyMock.createMock(StorageProvider.class);
 
         Map<String, String> props = new HashMap<>();
-        if(includeStreamingProp) {
+        if (includeStreamingProp) {
             props.put(BaseStreamingTaskRunner.STREAMING_HOST_PROP, domainName);
         }
         EasyMock.expect(provider.getSpaceProperties(spaceId))
@@ -230,6 +230,7 @@ public class StreamingTaskRunnerTestBase {
     /**
      * Used when expecting a valid distribution as a result of the
      * listStreamingDistributions call.
+     *
      * @param secure defines if the returned distribution is secure or open
      */
     protected void cfClientExpectValidDistribution(AmazonCloudFrontClient cfClient,
@@ -240,7 +241,8 @@ public class StreamingTaskRunnerTestBase {
     /**
      * Used when expecting a valid distribution as a result of the
      * listStreamingDistributions call.
-     * @param secure defines if the returned distribution is secure or open
+     *
+     * @param secure            defines if the returned distribution is secure or open
      * @param listCallsExpected the number of times the call to list distributions will
      *                          be called in order to retrieve the entire list
      */
@@ -254,15 +256,15 @@ public class StreamingTaskRunnerTestBase {
                 .withId("id").withStatus("status").withDomainName(domainName)
                 .withEnabled(true).withS3Origin(origin);
         TrustedSigners trustedSigners = new TrustedSigners().withQuantity(0);
-        if(secure) {
+        if (secure) {
             trustedSigners =
                 new TrustedSigners().withQuantity(1).withItems("trusted-signer-item");
         }
         distSummary.setTrustedSigners(trustedSigners);
 
-        for(int i=0; i<listCallsExpected; i++) {
+        for (int i = 0; i < listCallsExpected; i++) {
             boolean truncated = false;
-            if((listCallsExpected - i) > 1) {
+            if ((listCallsExpected - i) > 1) {
                 truncated = true;
             }
 

@@ -27,7 +27,7 @@ public class MimetypeUtil {
     private FileNameMap fileNameMap = URLConnection.getFileNameMap();
 
     public String getMimeType(File file) {
-        if(file == null) {
+        if (file == null) {
             return DEFAULT_MIMETYPE;
         } else {
             return getMimeType(file.getName());
@@ -35,15 +35,15 @@ public class MimetypeUtil {
     }
 
     public String getMimeType(String fileName) {
-        if(fileName == null) {
+        if (fileName == null) {
             return DEFAULT_MIMETYPE;
         }
 
-        String mimetype = fileNameMap.getContentTypeFor(fileName);        
-        if(mimetype == null) {
+        String mimetype = fileNameMap.getContentTypeFor(fileName);
+        if (mimetype == null) {
             return DEFAULT_MIMETYPE;
         } else {
-            return mimetype;   
+            return mimetype;
         }
     }
 

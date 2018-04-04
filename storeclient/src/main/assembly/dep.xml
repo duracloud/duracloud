@@ -11,8 +11,8 @@
       <outputDirectory>/docs</outputDirectory>
       <includes>
         <include>*javadoc.jar</include>
-      </includes>      
-    </fileSet>  
+      </includes>
+    </fileSet>
     <fileSet>
       <directory>resources</directory>
       <outputDirectory>/</outputDirectory>

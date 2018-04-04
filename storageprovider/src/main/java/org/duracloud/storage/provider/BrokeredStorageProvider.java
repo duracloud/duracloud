@@ -7,17 +7,17 @@
  */
 package org.duracloud.storage.provider;
 
-import org.duracloud.common.model.AclType;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.storage.error.StorageException;
-
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.error.StorageException;
+
 public class BrokeredStorageProvider
-        implements StorageProvider {
+    implements StorageProvider {
 
     private final StatelessStorageProvider dispatchProvider;
 
@@ -83,7 +83,7 @@ public class BrokeredStorageProvider
     }
 
     public void deleteContent(String spaceId, String contentId)
-            throws StorageException {
+        throws StorageException {
         dispatchProvider.deleteContent(targetProvider,
                                        storeId,
                                        spaceId,
@@ -96,7 +96,7 @@ public class BrokeredStorageProvider
     }
 
     public InputStream getContent(String spaceId, String contentId)
-            throws StorageException {
+        throws StorageException {
         return dispatchProvider.getContent(targetProvider,
                                            storeId,
                                            spaceId,
@@ -105,7 +105,7 @@ public class BrokeredStorageProvider
 
     public Map<String, String> getContentProperties(String spaceId,
                                                     String contentId)
-            throws StorageException {
+        throws StorageException {
         return dispatchProvider.getContentProperties(targetProvider,
                                                      storeId,
                                                      spaceId,
@@ -113,7 +113,7 @@ public class BrokeredStorageProvider
     }
 
     public Iterator<String> getSpaceContents(String spaceId, String prefix)
-            throws StorageException {
+        throws StorageException {
         return dispatchProvider.getSpaceContents(targetProvider,
                                                  storeId,
                                                  spaceId,
@@ -147,7 +147,7 @@ public class BrokeredStorageProvider
     public void setContentProperties(String spaceId,
                                      String contentId,
                                      Map<String, String> contentProperties)
-            throws StorageException {
+        throws StorageException {
         dispatchProvider.setContentProperties(targetProvider,
                                               storeId,
                                               spaceId,

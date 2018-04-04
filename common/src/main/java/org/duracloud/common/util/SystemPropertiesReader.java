@@ -7,25 +7,27 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+
 /**
  * Reads one or more and overlays them on the system properties.
- * 
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
-public class SystemPropertiesReader{
+public class SystemPropertiesReader {
     private Logger log = LoggerFactory.getLogger(SystemPropertiesReader.class);
-    
-    public SystemPropertiesReader(final Collection<Resource> resources){
+
+    public SystemPropertiesReader(final Collection<Resource> resources) {
         Properties systemProperties = System.getProperties();
-        for(Resource resource : resources){
-            try(InputStream inputStream = resource.getInputStream()){
+        for (Resource resource : resources) {
+            try (InputStream inputStream = resource.getInputStream()) {
                 systemProperties.load(inputStream);
                 log.info("loaded {}", resource.getFile().getAbsolutePath());
-            }catch(Exception ex){
-                try{
+            } catch (Exception ex) {
+                try {
                     log.warn("unable to load resource: {}", resource.getFile().getAbsolutePath());
-                }catch(Exception e){}
+                } catch (Exception e) {
+                    log.error("unable to load resource: {}", e.getMessage());
+                }
             }
         }
     }

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * });
  *
  * @author Bill Branan
- *         Date: 10/23/13
+ * Date: 10/23/13
  */
 public class Retrier {
 
@@ -45,20 +45,20 @@ public class Retrier {
     public static final int DEFAULT_WAIT_BETWEEN_RETRIES = 1000;
     public static final int DEFAULT_WAIT_MULTIPLIER = 1;
     private int maxRetries;
-    
+
     /**
      * The number of milliseconds to wait between retries
      */
     private long waitBetweenRetries;
 
     /**
-     * A multiplier to make waits between retries increase exponentially. The wait time will 
+     * A multiplier to make waits between retries increase exponentially. The wait time will
      * for each retry equals  (attempt ^ multiplier) * wait
      */
     private int waitBetweenRetriesMultiplier;
 
     private static final Logger log = LoggerFactory.getLogger(Retrier.class);
-    
+
     public Retrier() {
         this(DEFAULT_MAX_RETRIES,
              DEFAULT_WAIT_BETWEEN_RETRIES,
@@ -66,15 +66,13 @@ public class Retrier {
     }
 
     /**
-     * 
      * @param maxRetries
      */
-    public Retrier(int maxRetries){
+    public Retrier(int maxRetries) {
         this(maxRetries, DEFAULT_WAIT_BETWEEN_RETRIES, DEFAULT_WAIT_MULTIPLIER);
     }
 
     /**
-     * 
      * @param maxRetries
      * @param waitBetweenRetries
      * @param waitBetweenRetriesMultiplier
@@ -84,14 +82,14 @@ public class Retrier {
         this.waitBetweenRetries = waitBetweenRetries;
         this.waitBetweenRetriesMultiplier = waitBetweenRetriesMultiplier;
     }
-    
+
     private static final ExceptionHandler DEFAULT_EXCEPTION_HANDLER =
         new ExceptionHandler() {
-        @Override
-        public void handle(Exception ex) {
-            log.debug(ex.getMessage(),ex);
-        }
-    };
+            @Override
+            public void handle(Exception ex) {
+                log.debug(ex.getMessage(), ex);
+            }
+        };
 
     /**
      * Executes the action of a Retriable, and retries on error. Provides a
@@ -114,13 +112,12 @@ public class Retrier {
      * Executes the action of a Retriable, and retries on error. Provides a way
      * to execute a variety of methods and allow a retry to occur on method
      * failure.
-     * 
+     *
      * Returns the necessary object type.
-     * 
+     *
      * @param retriable
-     * @param exceptionHandler
-     *            for customing handling of exceptions - especially with respect
-     *            to customized logging.
+     * @param exceptionHandler for customing handling of exceptions - especially with respect
+     *                         to customized logging.
      * @throws Exception
      */
     public <T extends Object> T execute(Retriable retriable,
@@ -129,18 +126,18 @@ public class Retrier {
 
         if (exceptionHandler == null) {
             throw new IllegalArgumentException(
-                    "exceptionHandler must be non-null");
+                "exceptionHandler must be non-null");
         }
-        
+
         Exception lastException = null;
-        for(int i=0; i<=maxRetries; i++) {
+        for (int i = 0; i <= maxRetries; i++) {
             try {
-                return (T)retriable.retry();
+                return (T) retriable.retry();
             } catch (Exception e) {
                 lastException = e;
                 exceptionHandler.handle(e);
-                if(i <= maxRetries){
-                    WaitUtil.waitMs((long)Math.pow(i,waitBetweenRetriesMultiplier)*waitBetweenRetries);
+                if (i <= maxRetries) {
+                    WaitUtil.waitMs((long) Math.pow(i, waitBetweenRetriesMultiplier) * waitBetweenRetries);
                 }
             }
         }

@@ -7,13 +7,13 @@
  */
 package org.duracloud.storage.domain;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 /**
  * @author Bill Branan
- *         Date: 3/17/14
+ * Date: 3/17/14
  */
 public class StorageAccountManagerTest {
 

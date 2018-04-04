@@ -1,17 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>durastore</artifactId>
   <packaging>war</packaging>
-  <version>4.4.4</version>
+  <version>4.4.5</version>
   <name>DuraCloud DuraStore</name>
   <url>http://localhost:8080/${project.artifactId}</url>
 
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>4.4.4</version>
+    <version>4.4.5</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -71,7 +71,7 @@
 
   <dependencies>
 
-        <!-- internal projects -->
+    <!-- internal projects -->
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common</artifactId>
@@ -134,7 +134,7 @@
       <groupId>org.duracloud.db</groupId>
       <artifactId>account-management-db-model</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>manifest</artifactId>
@@ -147,7 +147,7 @@
       <version>${project.version}</version>
     </dependency>
 
-   <dependency>
+    <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>reportdata</artifactId>
       <version>${project.version}</version>

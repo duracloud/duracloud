@@ -7,15 +7,15 @@
  */
 package org.duracloud.durastore.test;
 
-import org.duracloud.common.model.AclType;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider;
-
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
 
 /**
  * Storage Provider implementation used for testing verify creation AOP
@@ -70,11 +70,11 @@ public class MockVerifyCreateStorageProvider implements StorageProvider {
         int attemptsBeforeSuccess = Integer.valueOf(spaceId);
 
         // allow the most recent successful id to complete successfully
-        if(spaceId.equals(lastSuccessfulSpacePropertiesId)) {
+        if (spaceId.equals(lastSuccessfulSpacePropertiesId)) {
             return null;
         }
 
-        if(getSpacePropertiesAttempts < attemptsBeforeSuccess) {
+        if (getSpacePropertiesAttempts < attemptsBeforeSuccess) {
             getSpacePropertiesAttempts++;
             throw new StorageException(attemptsBeforeSuccess +
                                        " calls required before success.",

@@ -7,12 +7,6 @@
  */
 package org.duracloud.common.util.bulk;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.input.AutoCloseInputStream;
-import org.duracloud.common.error.ManifestVerifyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +22,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.input.AutoCloseInputStream;
+import org.duracloud.common.error.ManifestVerifyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class compares two manifest files for
  * equal size and
@@ -36,7 +36,7 @@ import java.util.Map;
  * <checksum><whitespace><entryname>
  *
  * @author Andrew Woods
- *         Date: Oct 24, 2009
+ * Date: Oct 24, 2009
  */
 public class ManifestVerifier {
 
@@ -244,7 +244,6 @@ public class ManifestVerifier {
 
         log.info(sb.toString());
     }
-
 
     public class ResultEntry {
         private String title;

@@ -24,6 +24,10 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
  */
 public class SerializationUtil {
 
+    private SerializationUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     /**
      * Serializes a Map to XML. If the map is either empty or null
      * the XML will indicate an empty map.
@@ -32,7 +36,7 @@ public class SerializationUtil {
      * @return
      */
     public static String serializeMap(Map<String, String> map) {
-        if(map == null) {
+        if (map == null) {
             map = new HashMap<String, String>();
         }
         XStream xstream = new XStream(new DomDriver());
@@ -48,11 +52,11 @@ public class SerializationUtil {
      */
     @SuppressWarnings("unchecked")
     public static Map<String, String> deserializeMap(String map) {
-        if(map == null || map.equals("")) {
+        if (map == null || map.equals("")) {
             return new HashMap<String, String>();
         } else {
             XStream xstream = new XStream(new DomDriver());
-            return (Map<String, String>)xstream.fromXML(map);
+            return (Map<String, String>) xstream.fromXML(map);
         }
     }
 
@@ -64,7 +68,7 @@ public class SerializationUtil {
      * @return
      */
     public static String serializeList(List<?> list) {
-        if(list == null) {
+        if (list == null) {
             list = new ArrayList<String>();
         }
         XStream xstream = new XStream(new DomDriver());
@@ -80,11 +84,11 @@ public class SerializationUtil {
      */
     @SuppressWarnings("unchecked")
     public static List<String> deserializeList(String list) {
-        if(list == null || list.equals("")) {
+        if (list == null || list.equals("")) {
             return new ArrayList<String>();
         }
         XStream xstream = new XStream(new DomDriver());
-        return (List<String>)xstream.fromXML(list);
+        return (List<String>) xstream.fromXML(list);
     }
 
     /**
@@ -95,7 +99,7 @@ public class SerializationUtil {
      * @return serialized Set
      */
     public static String serializeSet(Set<?> set) {
-        if(set == null) {
+        if (set == null) {
             set = new HashSet<String>();
         }
         XStream xstream = new XStream(new DomDriver());
@@ -111,10 +115,10 @@ public class SerializationUtil {
      */
     @SuppressWarnings("unchecked")
     public static Set<String> deserializeSet(String set) {
-        if(set == null || set.equals("")) {
+        if (set == null || set.equals("")) {
             return new HashSet<String>();
         }
         XStream xstream = new XStream(new DomDriver());
-        return (Set<String>)xstream.fromXML(set);
+        return (Set<String>) xstream.fromXML(set);
     }
 }

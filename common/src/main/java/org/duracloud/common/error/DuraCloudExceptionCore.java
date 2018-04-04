@@ -7,16 +7,15 @@
  */
 package org.duracloud.common.error;
 
-import java.text.MessageFormat;
 import java.io.Serializable;
-
+import java.text.MessageFormat;
 
 /**
  * This class is the core utility for supporting DuraCloud exceptions and
  * user-friendly formatted messages.
  *
  * @author Andrew Woods
- *         Date: Nov 20, 2009
+ * Date: Nov 20, 2009
  */
 public class DuraCloudExceptionCore implements MessageFormattable, Serializable {
 

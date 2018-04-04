@@ -8,13 +8,14 @@
 package org.duracloud.integration.durastore.rest;
 
 import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+
 import org.apache.http.HttpStatus;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.RestHttpHelper;
-import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-
-import java.util.List;
 
 /**
  * @author: Bill Branan
@@ -41,7 +42,7 @@ public class TestTaskRest extends BaseRestTester {
         String url = BaseRestTester.baseUrl + "/task/" + taskId;
         RestHttpHelper.HttpResponse response = BaseRestTester.restHelper.post(url, null, null);
         String responseText = checkResponse(response, HttpStatus.SC_OK);
-        assertNotNull(responseText);        
+        assertNotNull(responseText);
 
         // Unsupported Task
         taskId = "unsupported-task";

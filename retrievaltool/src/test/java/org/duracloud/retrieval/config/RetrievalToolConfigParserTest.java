@@ -7,19 +7,19 @@
  */
 package org.duracloud.retrieval.config;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.apache.commons.cli.ParseException;
 import org.duracloud.common.util.ConsolePrompt;
 import org.duracloud.retrieval.RetrievalTestBase;
 import org.easymock.EasyMock;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.fail;
 
 /**
  * @author: Bill Branan
@@ -37,12 +37,12 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         testStandardOptions(envRetConfigParser, "envPassword");
     }
 
-	@Test
+    @Test
     public void testPasswordPrompt() throws Exception {
         RetrievalToolConfigParser promptRetConfigParser = new RetrievalToolConfigParser() {
             protected ConsolePrompt getConsole() {
                 ConsolePrompt console = EasyMock.createMock(ConsolePrompt.class);
-                char[] charPass = {'p','r','o','m','p','t','P','a','s','s','w','o','r','d'};
+                char[] charPass = {'p', 'r', 'o', 'm', 'p', 't', 'P', 'a', 's', 's', 'w', 'o', 'r', 'd'};
                 EasyMock.expect(console.readPassword("DuraCloud password: ")).andReturn(charPass);
                 EasyMock.replay(console);
                 return console;
@@ -51,8 +51,9 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         testStandardOptions(promptRetConfigParser, "promptPassword");
     }
 
-    public void testStandardOptions(RetrievalToolConfigParser retConfigParser, String expectedPassword) throws Exception {
-    	HashMap<String, String> argsMap = getArgsMap();
+    public void testStandardOptions(RetrievalToolConfigParser retConfigParser, String expectedPassword)
+        throws Exception {
+        HashMap<String, String> argsMap = getArgsMap();
 
         // Process configs, make sure values match
         RetrievalToolConfig retConfig =
@@ -83,7 +84,7 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         assertNull(retConfig.getWorkDir());
 
         // Make sure error is thrown on missing required params
-        for(String arg : argsMap.keySet()) {
+        for (String arg : argsMap.keySet()) {
             String failMsg = "An exception should have been thrown due to " +
                              "missing arg: " + arg;
             removeArgFailTest(retConfigParser, argsMap, arg, failMsg);
@@ -120,7 +121,7 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         assertEquals(argsMap.get("-i"), retConfig.getStoreId());
 
         String spaces = "";
-        for(String space : retConfig.getSpaces()) {
+        for (String space : retConfig.getSpaces()) {
             spaces += space + " ";
         }
         assertEquals(argsMap.get("-s"), spaces.trim());
@@ -129,7 +130,7 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         assertEquals(argsMap.get("-c"),
                      retConfig.getContentDir().getAbsolutePath());
         assertEquals(argsMap.get("-w"),
-                     retConfig.getWorkDir().getAbsolutePath());        
+                     retConfig.getWorkDir().getAbsolutePath());
         assertEquals(true, retConfig.isOverwrite());
         assertEquals(argsMap.get("-t"),
                      String.valueOf(retConfig.getNumThreads()));
@@ -137,7 +138,7 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
 
     private String[] mapToArray(HashMap<String, String> map) {
         ArrayList<String> list = new ArrayList<String>();
-        for(String key : map.keySet()) {
+        for (String key : map.keySet()) {
             list.add(key);
             list.add(map.get(key));
         }
@@ -150,12 +151,12 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
                                 String value,
                                 String failMsg) {
         HashMap<String, String> cloneMap =
-            (HashMap<String, String>)argsMap.clone();
+            (HashMap<String, String>) argsMap.clone();
         cloneMap.put(arg, value);
         try {
             retConfigParser.processOptions(mapToArray(cloneMap));
             fail(failMsg);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             assertNotNull(e);
         }
     }
@@ -165,12 +166,12 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
                                    String arg,
                                    String failMsg) {
         HashMap<String, String> cloneMap =
-            (HashMap<String, String>)argsMap.clone();
+            (HashMap<String, String>) argsMap.clone();
         cloneMap.remove(arg);
         try {
             retConfigParser.processOptions(mapToArray(cloneMap));
             fail(failMsg);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             assertNotNull(e);
         }
     }

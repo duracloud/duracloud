@@ -9,18 +9,18 @@ package org.duracloud.syncui.config;
 
 import org.springframework.core.convert.converter.Converter;
 
-public class StringTrimmerConverter implements Converter<String,String> {
+public class StringTrimmerConverter implements Converter<String, String> {
 
     @Override
     public String convert(String source) {
-        if(source == null){
+        if (source == null) {
             return null;
         }
-        
-        String trimmed = ((String)source).trim();
-        if(trimmed.length() == 0){
+
+        String trimmed = ((String) source).trim();
+        if (trimmed.length() == 0) {
             return null;
-        }else{
+        } else {
             return trimmed;
         }
     }

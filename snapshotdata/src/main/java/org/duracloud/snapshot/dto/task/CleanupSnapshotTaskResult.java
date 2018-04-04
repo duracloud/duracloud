@@ -8,7 +8,6 @@
 package org.duracloud.snapshot.dto.task;
 
 import java.io.IOException;
-
 import javax.xml.bind.annotation.XmlValue;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
@@ -17,7 +16,7 @@ import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * @author Bill Branan
- *         Date: 8/14/14
+ * Date: 8/14/14
  */
 public class CleanupSnapshotTaskResult extends BaseDTO {
 
@@ -28,7 +27,8 @@ public class CleanupSnapshotTaskResult extends BaseDTO {
     private int contentExpirationDays;
 
     // Required by JAXB
-    public CleanupSnapshotTaskResult() {}
+    public CleanupSnapshotTaskResult() {
+    }
 
     public CleanupSnapshotTaskResult(int contentExpirationDays) {
         this.contentExpirationDays = contentExpirationDays;
@@ -52,7 +52,7 @@ public class CleanupSnapshotTaskResult extends BaseDTO {
             new JaxbJsonSerializer<>(CleanupSnapshotTaskResult.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task result due to: " + e.getMessage());
         }
@@ -68,7 +68,7 @@ public class CleanupSnapshotTaskResult extends BaseDTO {
             new JaxbJsonSerializer<>(CleanupSnapshotTaskResult.class);
         try {
             return serializer.deserialize(taskResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task result due to: " + e.getMessage());
         }

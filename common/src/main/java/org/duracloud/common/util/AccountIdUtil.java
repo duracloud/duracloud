@@ -8,12 +8,15 @@
 package org.duracloud.common.util;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class AccountIdUtil {
-    public static String extractAccountIdFromHost(String host){
+
+    private AccountIdUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
+    public static String extractAccountIdFromHost(String host) {
         return host.split("[.]")[0];
     }
 }

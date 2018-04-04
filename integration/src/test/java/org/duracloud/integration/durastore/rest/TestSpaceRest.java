@@ -7,6 +7,15 @@
  */
 package org.duracloud.integration.durastore.rest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.http.HttpStatus;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.jdom.Document;
@@ -15,19 +24,6 @@ import org.jdom.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Runtime test of space REST API. The durastore
@@ -53,7 +49,7 @@ public class TestSpaceRest extends BaseRestTester {
 
     @After
     public void tearDown() throws Exception {
-        for(String spaceId : spaces) {
+        for (String spaceId : spaces) {
             RestTestHelper.deleteSpace(spaceId);
         }
     }
@@ -61,7 +57,7 @@ public class TestSpaceRest extends BaseRestTester {
     @Test
     public void testAddSpace() throws Exception {
         // Test invalid space names
-        
+
         List<String> invalidIds = new ArrayList<String>();
 
         invalidIds.add("Test-Space");  // Uppercase
@@ -75,7 +71,7 @@ public class TestSpaceRest extends BaseRestTester {
                        "test-space-test-space-test-spac)"); // Too long
         invalidIds.add("127.0.0.1");   // Formatted as an IP address
 
-        for(String id : invalidIds) {
+        for (String id : invalidIds) {
             checkInvalidSpaceId(id);
         }
 
@@ -140,9 +136,9 @@ public class TestSpaceRest extends BaseRestTester {
         responseText = checkResponse(response, HttpStatus.SC_OK);
         contentIds = parseContentList(responseText);
         assertEquals(2, contentIds.size());
-        for(String contentId : contentIds) {
+        for (String contentId : contentIds) {
             assertTrue(contentId.startsWith("test"));
-        }        
+        }
     }
 
     private void addContent() throws Exception {
@@ -150,7 +146,7 @@ public class TestSpaceRest extends BaseRestTester {
         String[] contentIds = {"test1", "test2", "check3"};
 
         // Add content to space
-        for(String contentId : contentIds) {
+        for (String contentId : contentIds) {
             String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/" + contentId;
             HttpResponse response = BaseRestTester.restHelper.put(url, content, null);
             checkResponse(response, HttpStatus.SC_CREATED);
@@ -174,7 +170,6 @@ public class TestSpaceRest extends BaseRestTester {
         return contentItems;
     }
 
-
     @Test
     public void testNotFound() throws Exception {
         String invalidSpaceId = "non-existant-space";
@@ -197,4 +192,4 @@ public class TestSpaceRest extends BaseRestTester {
         checkResponse(response, HttpStatus.SC_NOT_FOUND);
     }
 
- }
+}

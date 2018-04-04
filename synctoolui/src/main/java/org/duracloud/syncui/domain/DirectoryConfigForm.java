@@ -7,14 +7,14 @@
  */
 package org.duracloud.syncui.domain;
 
-import org.springframework.stereotype.Component;
-
 import java.io.Serializable;
+
+import org.springframework.stereotype.Component;
 
 /**
  * This class backs the directory configuration form.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 @Component("directoryConfigForm")
 public class DirectoryConfigForm implements Serializable {

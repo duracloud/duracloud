@@ -26,7 +26,7 @@ import org.duracloud.s3storageprovider.dto.GetUrlTaskResult;
  * a ContentStore.
  *
  * @author Bill Branan
- *         Date: 3/6/15
+ * Date: 3/6/15
  */
 public class S3TaskClientImpl implements S3TaskClient {
 

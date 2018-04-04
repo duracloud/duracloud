@@ -7,6 +7,11 @@
  */
 package org.duracloud.retrieval.source;
 
+import static org.duracloud.retrieval.source.DuraStoreSpecifiedRetrievalSourceTest.ContentType.BASIC;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.AssertionFailedError;
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.client.ContentStore;
@@ -17,14 +22,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.duracloud.retrieval.source.DuraStoreSpecifiedRetrievalSourceTest.ContentType.*;
-
 /**
  * @author Erik Paulsson
- *         Date: 7/30/13
+ * Date: 7/30/13
  */
 public class DuraStoreSpecifiedRetrievalSourceTest {
 
@@ -57,19 +57,19 @@ public class DuraStoreSpecifiedRetrievalSourceTest {
         // uses the specified content IDs and not all the content IDs of the space.
         EasyMock.expect(store.getSpaceContents(spaceId0))
                 .andThrow(new AssertionFailedError("method getSpaceContents should never " +
-                        "be called for DuraStoreSpecifiedRetrievalSource.")).anyTimes();
+                                                   "be called for DuraStoreSpecifiedRetrievalSource.")).anyTimes();
         replayMocks();
 
         retrievalSource = new DuraStoreSpecifiedRetrievalSource(store,
-                spaces,
-                specifiedContentIds.iterator());
+                                                                spaces,
+                                                                specifiedContentIds.iterator());
         verifyContents(spaceId0, specifiedContentIds);
 
         ContentItem item = retrievalSource.getNextContentItem();
         Assert.assertNull(item);
     }
 
-    @Test(expected= DuraCloudRuntimeException.class)
+    @Test(expected = DuraCloudRuntimeException.class)
     public void testSpecifiedRetrievalWithMultipleSpaces() {
         // add a second space ID to the list
         // this should cause DuraCloudRuntimeException when
@@ -78,15 +78,15 @@ public class DuraStoreSpecifiedRetrievalSourceTest {
         replayMocks();
 
         retrievalSource = new DuraStoreSpecifiedRetrievalSource(store,
-                spaces,
-                specifiedContentIds.iterator());
+                                                                spaces,
+                                                                specifiedContentIds.iterator());
     }
 
     private void verifyContents(String spaceId, List<String> specifiedContentIds) {
         ContentItem item = null;
         List<ContentItem> retrievedItems = new ArrayList<ContentItem>();
         int i = 0;
-        while((item = retrievalSource.getNextContentItem()) != null) {
+        while ((item = retrievalSource.getNextContentItem()) != null) {
             retrievedItems.add(item);
             Assert.assertNotNull(item);
             Assert.assertEquals(spaceId, item.getSpaceId());

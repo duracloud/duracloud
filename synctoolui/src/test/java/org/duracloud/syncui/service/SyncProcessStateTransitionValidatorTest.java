@@ -32,7 +32,7 @@ public class SyncProcessStateTransitionValidatorTest {
     public void testValidate() {
 
         validate(SyncProcessState.STOPPED, SyncProcessState.STARTING);
-        
+
         validate(SyncProcessState.STARTING,
                  SyncProcessState.RUNNING,
                  SyncProcessState.STOPPING,

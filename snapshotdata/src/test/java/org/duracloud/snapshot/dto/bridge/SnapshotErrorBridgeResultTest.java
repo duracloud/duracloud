@@ -11,19 +11,18 @@ import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
-
 /**
  * @author Bill Branan
- *         Date: 9/17/2015
+ * Date: 9/17/2015
  */
 public class SnapshotErrorBridgeResultTest {
 
     @Test
-    public void testDeSerialize(){
+    public void testDeSerialize() {
         SnapshotStatus status = SnapshotStatus.ERROR;
         String details = "details";
         String str = "{ \"status\" : \"" + status + "\"," +
-                      " \"details\" : \"" + details + "\"}";
+                     " \"details\" : \"" + details + "\"}";
 
         SnapshotErrorBridgeResult params =
             SnapshotErrorBridgeResult.deserialize(str);

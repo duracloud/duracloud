@@ -18,15 +18,15 @@ import org.duracloud.storage.provider.ProbedStorageProvider;
  *
  * @author Andrew Woods
  */
-public class ProbedRackspaceStorageProvider
-        extends ProbedStorageProvider {
-    private static final String authUrl= "https://auth.api.rackspacecloud.com/v1.0";
+public class ProbedRackspaceStorageProvider extends ProbedStorageProvider {
+
+    private static final String authUrl = "https://auth.api.rackspacecloud.com/v1.0";
     private ProbedSwiftClient probedCore;
 
     public ProbedRackspaceStorageProvider(String username, String apiAccessKey)
-            throws StorageException {
+        throws StorageException {
         String trimmedAuthUrl = // JClouds expects authURL with no version
-                authUrl.substring(0, authUrl.lastIndexOf("/"));
+            authUrl.substring(0, authUrl.lastIndexOf("/"));
         probedCore = new ProbedSwiftClient(username, apiAccessKey, trimmedAuthUrl);
         setStorageProvider(new RackspaceStorageProvider(probedCore));
     }

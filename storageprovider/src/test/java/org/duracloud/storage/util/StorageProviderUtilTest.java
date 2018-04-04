@@ -7,13 +7,11 @@
  */
 package org.duracloud.storage.util;
 
-import org.duracloud.storage.error.ChecksumMismatchException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,11 +21,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+import org.duracloud.storage.error.ChecksumMismatchException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests the Storage Provider Utilities.
@@ -37,7 +37,7 @@ import static junit.framework.Assert.fail;
 public class StorageProviderUtilTest {
 
     private static final Logger log =
-            LoggerFactory.getLogger(StorageProviderUtilTest.class);
+        LoggerFactory.getLogger(StorageProviderUtilTest.class);
 
     @Before
     public void setUp() throws Exception {
@@ -106,17 +106,17 @@ public class StorageProviderUtilTest {
                                                 contentId,
                                                 checksum);
             fail("Exception expected comparing different checksums");
-        } catch(ChecksumMismatchException expected) {
+        } catch (ChecksumMismatchException expected) {
             assertNotNull(expected);
         }
     }
 
     @Test
-    public void testCreateContentProperties() throws IOException{
+    public void testCreateContentProperties() throws IOException {
         File file = File.createTempFile("test", ".properties");
         file.deleteOnExit();
         String creator = "test";
-        Map<String,String> props = StorageProviderUtil.createContentProperties(file.getAbsolutePath(), creator);
+        Map<String, String> props = StorageProviderUtil.createContentProperties(file.getAbsolutePath(), creator);
         String creator2 = props.get(StorageProvider.PROPERTIES_CONTENT_CREATOR);
         assertEquals(creator, creator2);
         assertNotNull(props.get(StorageProvider.PROPERTIES_CONTENT_FILE_CREATED));

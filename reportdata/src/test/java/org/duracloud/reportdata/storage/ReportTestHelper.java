@@ -7,19 +7,19 @@
  */
 package org.duracloud.reportdata.storage;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.LinkedList;
+import java.util.List;
+
 import org.duracloud.common.xml.XmlSerializer;
 import org.duracloud.common.xml.error.XmlSerializationException;
 import org.duracloud.reportdata.storage.metrics.MimetypeMetrics;
 import org.duracloud.reportdata.storage.metrics.SpaceMetrics;
 import org.duracloud.reportdata.storage.metrics.StorageMetrics;
 import org.duracloud.reportdata.storage.metrics.StorageProviderMetrics;
-
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * @author: Bill Branan
@@ -89,10 +89,10 @@ public class ReportTestHelper<T> {
         try {
             serializer.deserialize(xml);
             fail("Exception expected");
-        } catch(XmlSerializationException expected) {
+        } catch (XmlSerializationException expected) {
             assertNotNull(expected.getMessage());
             assertTrue("Exception should include expected schema version",
-                expected.getMessage().contains(StorageReport.SCHEMA_VERSION));
+                       expected.getMessage().contains(StorageReport.SCHEMA_VERSION));
         }
     }
 

@@ -14,13 +14,13 @@ import org.duracloud.common.test.TestConfigUtil;
 
 /**
  * @author Andrew Woods
- *         Date: Apr 19, 2010
+ * Date: Apr 19, 2010
  */
 public class DuradminTestBase {
-    
+
     private static String baseUrl;
     private TestConfig config;
-    
+
     public DuradminTestBase() {
         try {
             this.config = new TestConfigUtil().getTestConfig();
@@ -34,18 +34,13 @@ public class DuradminTestBase {
     }
 
     private String getPort() {
-        return this.config.getTestEndPoint().getPort()+"";
+        return this.config.getTestEndPoint().getPort() + "";
     }
 
     protected String getBaseUrl() {
         if (null == baseUrl) {
-            baseUrl =
-                "http" + (getPort().equals("443") ? "s" : "")
-                      + "://"
-                      + getHost()
-                      + ":"
-                      + getPort()
-                      + "/duradmin";
+            baseUrl = "http" + (getPort().equals("443") ? "s" : "") + "://" +
+                      getHost() + ":" + getPort() + "/duradmin";
         }
         return baseUrl;
     }

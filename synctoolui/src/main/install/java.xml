@@ -1,5 +1,5 @@
- <component>
-<!-- This is a placeholder file to prevent installbuilder from choking when trying to do non-jre-bundled builds.
-This file is required because there is no way to optionally use the <include/> directive in installbuilder.xml 
- -->
- </component>
+<component>
+  <!-- This is a placeholder file to prevent installbuilder from choking when trying to do non-jre-bundled builds.
+  This file is required because there is no way to optionally use the <include/> directive in installbuilder.xml
+   -->
+</component>

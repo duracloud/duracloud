@@ -7,18 +7,17 @@
  */
 package org.duracloud.common.rest;
 
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.fileupload.FileItemHeaders;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import java.util.List;
-
 
 /**
  * Utility class for REST operations.
@@ -31,16 +30,17 @@ public class RestUtilImpl implements RestUtil {
 
     /**
      * Retrieves the contents of the HTTP Request.
+     *
      * @return InputStream from the request
      */
     @Override
     public RequestContent getRequestContent(HttpServletRequest request,
                                             HttpHeaders headers)
-    throws Exception {
+        throws Exception {
         RequestContent rContent = null;
 
         // See if the request is a multi-part file upload request
-        if(ServletFileUpload.isMultipartContent(request)) {
+        if (ServletFileUpload.isMultipartContent(request)) {
 
             // Create a new file upload handler
             ServletFileUpload upload = new ServletFileUpload();
@@ -55,10 +55,10 @@ public class RestUtilImpl implements RestUtil {
                     rContent.mimeType = item.getContentType();
 
                     FileItemHeaders itemHeaders = item.getHeaders();
-                    if(itemHeaders != null) {
+                    if (itemHeaders != null) {
                         String contentLength =
                             itemHeaders.getHeader("Content-Length");
-                        if(contentLength != null) {
+                        if (contentLength != null) {
                             rContent.size = Long.parseLong(contentLength);
                         }
                     }
@@ -72,23 +72,23 @@ public class RestUtilImpl implements RestUtil {
             rContent = new RequestContent();
             rContent.contentStream = request.getInputStream();
             if (request.getContentLength() >= 0) {
-              rContent.size = request.getContentLength();
+                rContent.size = request.getContentLength();
             }
         }
 
         // Attempt to set the mime type and size if not already set
-        if(rContent != null) {
-            if(rContent.mimeType == null) {
+        if (rContent != null) {
+            if (rContent.mimeType == null) {
                 MediaType mediaType = headers.getMediaType();
-                if(mediaType != null) {
+                if (mediaType != null) {
                     rContent.mimeType = mediaType.toString();
                 }
             }
 
-            if(rContent.size == 0) {
+            if (rContent.size == 0) {
                 List<String> lengthHeaders =
                     headers.getRequestHeader("Content-Length");
-                if(lengthHeaders != null && lengthHeaders.size() > 0) {
+                if (lengthHeaders != null && lengthHeaders.size() > 0) {
                     rContent.size = Long.parseLong(lengthHeaders.get(0));
                 }
             }

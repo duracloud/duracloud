@@ -7,13 +7,13 @@
  */
 package org.duracloud.common.xml;
 
+import java.io.File;
+import java.io.IOException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Schema generator which can be used to generate a schema for pojo classes
@@ -41,7 +41,7 @@ public class SchemaGenerator extends SchemaOutputResolver {
      * Creates a SchemaGenerator indicating the preferred name of the
      * generated schema file and the directory in which is should be stored.
      *
-     * @param fileName of the schema
+     * @param fileName  of the schema
      * @param schemaDir directory in which to create the schema
      */
     public SchemaGenerator(String fileName, File schemaDir) {

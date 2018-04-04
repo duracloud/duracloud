@@ -7,6 +7,13 @@
  */
 package org.duracloud.s3task.streaming;
 
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+import java.util.Map;
+
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.cloudfront.model.DeleteStreamingDistributionRequest;
 import com.amazonaws.services.cloudfront.model.DeleteStreamingDistributionResult;
@@ -23,11 +30,6 @@ import org.duracloud.s3storageprovider.dto.DeleteStreamingTaskParameters;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.junit.Test;
-
-import java.util.Map;
-
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.*;
 
 /**
  * @author: Bill Branan
@@ -74,7 +76,7 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         try {
             runner.performTask(null);
             fail("Exception expected");
-        } catch(Exception expected) {
+        } catch (Exception expected) {
             assertNotNull(expected);
         }
 
@@ -84,7 +86,7 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         try {
             runner.performTask(taskParams.serialize());
             fail("Exception expected");
-        } catch(Exception expected) {
+        } catch (Exception expected) {
             assertNotNull(expected);
         }
 

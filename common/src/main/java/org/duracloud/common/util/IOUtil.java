@@ -31,6 +31,10 @@ import org.duracloud.common.error.DuraCloudRuntimeException;
  */
 public class IOUtil {
 
+    private IOUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     public static String readStringFromStream(InputStream stream)
         throws IOException {
         StringWriter writer = new StringWriter();
@@ -70,7 +74,7 @@ public class IOUtil {
         }
     }
 
-    public static void fileFindReplace(File file, String find, String replace) 
+    public static void fileFindReplace(File file, String find, String replace)
         throws IOException {
         String fileContents = FileUtils.readFileToString(file);
         fileContents = fileContents.replaceAll("\\Q" + find + "\\E", replace);
@@ -80,7 +84,7 @@ public class IOUtil {
     public static File writeStreamToFile(InputStream inStream) {
         return writeStreamToFile(inStream, false);
     }
-    
+
     public static File writeStreamToFile(InputStream inStream, boolean gzip) {
 
         File file = null;
@@ -88,7 +92,7 @@ public class IOUtil {
         try {
             file = File.createTempFile("file", ".tmp");
             outStream = FileUtils.openOutputStream(file);
-            if(gzip){
+            if (gzip) {
                 outStream = new GZIPOutputStream(outStream);
             }
             IOUtils.copy(inStream, outStream);
@@ -97,20 +101,20 @@ public class IOUtil {
 
             //close the outputstream if possible
             //so that file can be deleted.
-            if(null != outStream) {
+            if (null != outStream) {
                 IOUtils.closeQuietly(outStream);
             }
 
-            if(file != null && file.exists()){
+            if (file != null && file.exists()) {
                 file.delete();
             }
-            
+
             throw new DuraCloudRuntimeException(err, e);
         } finally {
-            if(null != inStream) {
+            if (null != inStream) {
                 IOUtils.closeQuietly(inStream);
             }
-            if(null != outStream) {
+            if (null != outStream) {
                 IOUtils.closeQuietly(outStream);
             }
         }
@@ -126,15 +130,16 @@ public class IOUtil {
             throw new DuraCloudRuntimeException(err, e);
         }
     }
-    
+
     /**
      * Adds the specified file to the zip output stream.
+     *
      * @param file
      * @param zipOs
      */
     public static void addFileToZipOutputStream(File file, ZipOutputStream zipOs) throws IOException {
         String fileName = file.getName();
-        try (FileInputStream fos = new FileInputStream(file)){
+        try (FileInputStream fos = new FileInputStream(file)) {
             ZipEntry zipEntry = new ZipEntry(fileName);
             zipEntry.setSize(file.length());
             zipEntry.setTime(System.currentTimeMillis());
@@ -146,7 +151,7 @@ public class IOUtil {
             }
             zipOs.closeEntry();
             fos.close();
-        }     
+        }
     }
 
 }

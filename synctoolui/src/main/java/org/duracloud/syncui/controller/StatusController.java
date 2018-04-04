@@ -7,6 +7,9 @@
  */
 package org.duracloud.syncui.controller;
 
+import java.io.File;
+import java.util.List;
+
 import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.mgmt.SyncSummary;
 import org.duracloud.syncui.domain.SyncProcessState;
@@ -29,14 +32,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.io.File;
-import java.util.List;
-
 /**
  * A spring controller for status related functions.
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 @Controller
 @RequestMapping(StatusController.STATUS_MAPPING)
@@ -48,7 +47,7 @@ public class StatusController {
     private SyncProcessManager syncProcessManager;
     private SyncConfigurationManager syncConfigurationManager;
     private SyncOptimizeManager syncOptimizeManager;
-    
+
     @Autowired
     public StatusController(SyncProcessManager syncProcessManager,
                             SyncConfigurationManager syncConfigurationManager,
@@ -58,10 +57,8 @@ public class StatusController {
         this.syncOptimizeManager = syncOptimizeManager;
     }
 
-    @RequestMapping(value = { "" })
-    public String
-        get(@RequestParam(required = false, defaultValue = "queued") String statusTab,
-            Model model) {
+    @RequestMapping(value = {""})
+    public String get(@RequestParam(required = false, defaultValue = "queued") String statusTab, Model model) {
         log.debug("accessing status page");
         model.addAttribute("statusTab", statusTab);
         model.addAttribute("watchList",
@@ -70,11 +67,9 @@ public class StatusController {
         return "status";
     }
 
-    @RequestMapping(value = { "" }, method = RequestMethod.POST, params = { "start" })
-    public View
-        start() {
-        try{
-            
+    @RequestMapping(value = {""}, method = RequestMethod.POST, params = {"start"})
+    public View start() {
+        try {
             this.syncProcessManager.start();
         } catch (SyncProcessException e) {
             log.error(e.getMessage(), e);
@@ -88,16 +83,14 @@ public class StatusController {
         return redirectView;
     }
 
-    @RequestMapping(value = { "" }, method = RequestMethod.POST, params = { "pause" })
-    public View
-        pause() {
+    @RequestMapping(value = {""}, method = RequestMethod.POST, params = {"pause"})
+    public View pause() {
         this.syncProcessManager.pause();
         return redirectTo(StatusController.STATUS_MAPPING);
     }
 
-    @RequestMapping(value = { "" }, method = RequestMethod.POST, params = { "resume" })
-    public View
-        resume() {
+    @RequestMapping(value = {""}, method = RequestMethod.POST, params = {"resume"})
+    public View resume() {
         try {
             this.syncProcessManager.resume();
         } catch (SyncProcessException e) {
@@ -106,23 +99,20 @@ public class StatusController {
         return redirectTo(STATUS_MAPPING);
     }
 
-    @RequestMapping(value = { "" }, method = RequestMethod.POST, params = { "stop" })
-    public View
-        stop() {
-            this.syncProcessManager.stop();
+    @RequestMapping(value = {""}, method = RequestMethod.POST, params = {"stop"})
+    public View stop() {
+        this.syncProcessManager.stop();
         return redirectTo(StatusController.STATUS_MAPPING);
     }
 
-    @RequestMapping(value = { "" }, method = RequestMethod.POST, params = { "restart" })
-    public View
-        restart() {
-            this.syncProcessManager.restart();
+    @RequestMapping(value = {""}, method = RequestMethod.POST, params = {"restart"})
+    public View restart() {
+        this.syncProcessManager.restart();
         return redirectTo(StatusController.STATUS_MAPPING);
     }
 
-    @RequestMapping(value = { "" }, method = RequestMethod.POST, params = { "clear-failures" })
-    public View
-        clearErrors() {
+    @RequestMapping(value = {""}, method = RequestMethod.POST, params = {"clear-failures"})
+    public View clearErrors() {
         this.syncProcessManager.clearFailures();
         return redirectTo(STATUS_MAPPING + "?statusTab=errors");
     }
@@ -166,10 +156,11 @@ public class StatusController {
     public List<File> queuedFiles() {
         return this.syncProcessManager.getQueuedFiles();
     }
-    
+
     private static FileSizeFormatter fileSizeFormatter = new FileSizeFormatter();
+
     @ModelAttribute("fileSizeFormatter")
-    public FileSizeFormatter fileSizeFormatter(){
+    public FileSizeFormatter fileSizeFormatter() {
         return fileSizeFormatter;
     }
 

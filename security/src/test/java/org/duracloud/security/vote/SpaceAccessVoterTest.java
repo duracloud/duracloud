@@ -7,7 +7,7 @@
  */
 package org.duracloud.security.vote;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
 
@@ -15,21 +15,20 @@ import org.junit.Test;
 import org.springframework.security.core.Authentication;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class SpaceAccessVoterTest {
     @Test
-    public void testExtractSpaceIdFromPathInof(){
+    public void testExtractSpaceIdFromPathInof() {
         String spaceId = "space-id";
-        String[] spaceIds = { "/manifest/" + spaceId,
-                              "/bit-integrity/" + spaceId,
-                              "/report/space/" + spaceId,
-                              "/" + spaceId + "/arbitrary-path/content-id"
-                            };
-        SpaceAccessVoter voter = new SpaceAccessVoter(null,null) {
-            
+        String[] spaceIds = {
+            "/manifest/" + spaceId,
+            "/bit-integrity/" + spaceId,
+            "/report/space/" + spaceId,
+            "/" + spaceId + "/arbitrary-path/content-id"
+        };
+        SpaceAccessVoter voter = new SpaceAccessVoter(null, null) {
+
             @Override
             public int vote(Authentication authentication,
                             Object object,
@@ -37,9 +36,9 @@ public class SpaceAccessVoterTest {
                 return 0;
             }
         };
-        
-        for(String spid : spaceIds){
-            assertEquals(spaceId,voter.extractSpaceId(spid));
+
+        for (String spid : spaceIds) {
+            assertEquals(spaceId, voter.extractSpaceId(spid));
         }
     }
 }

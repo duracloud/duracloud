@@ -13,7 +13,7 @@ import java.util.List;
  * This class is a simple bean for a ChunksManifest.
  *
  * @author Andrew Woods
- *         Date: Feb 9, 2010
+ * Date: Feb 9, 2010
  */
 public class ChunksManifestBean {
 

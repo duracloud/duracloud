@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * or it has run out of tries.
  *
  * @author Andrew Woods
- *         Date: Aug 6, 2010
+ * Date: Aug 6, 2010
  */
 public abstract class StoreCaller<T> {
 

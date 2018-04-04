@@ -7,7 +7,6 @@
  */
 package org.duracloud.common.notification;
 
-
 /**
  * A Notifier is responsible for sending notifications to a destination or
  * set of destinations. Each notifier will handle distributing notifications
@@ -37,8 +36,8 @@ public interface Notifier {
     /**
      * Sends a notification to a destination
      *
-     * @param subject the subject of the notification
-     * @param message the actual notification message
+     * @param subject      the subject of the notification
+     * @param message      the actual notification message
      * @param destinations where the notification is to go, could be an
      *                     email address, a URL address, etc.
      */

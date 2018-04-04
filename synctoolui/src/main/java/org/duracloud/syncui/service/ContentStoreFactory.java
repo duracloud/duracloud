@@ -18,9 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 @Component("contentStoreFactory")
 public class ContentStoreFactory {
@@ -42,11 +40,10 @@ public class ContentStoreFactory {
 
         Credential credential = new Credential(username, dcf.getPassword());
         csm.login(credential);
-        log.debug("logged into {}:{} as {}", new Object[] {
-            host, port, username });
+        log.debug("logged into {}:{} as {}", new Object[] {host, port, username});
 
         ContentStore primary;
-        if(retry) {
+        if (retry) {
             primary = csm.getPrimaryContentStore();
         } else {
             primary = csm.getPrimaryContentStore(0);

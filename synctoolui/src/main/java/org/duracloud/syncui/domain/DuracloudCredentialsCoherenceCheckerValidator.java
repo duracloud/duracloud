@@ -7,6 +7,9 @@
  */
 package org.duracloud.syncui.domain;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.syncui.service.ContentStoreFactory;
@@ -14,13 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 public class DuracloudCredentialsCoherenceCheckerValidator
     implements
@@ -38,8 +36,7 @@ public class DuracloudCredentialsCoherenceCheckerValidator
     }
 
     @Override
-    public void
-        initialize(DuracloudCredentialsCoherenceChecker constraintAnnotation) {
+    public void initialize(DuracloudCredentialsCoherenceChecker constraintAnnotation) {
     }
 
     @Override

@@ -7,27 +7,26 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.dto.SnapshotSummary;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
-
-
 /**
  * @author Daniel Bernstein
- *         Date: 7/29/14
+ * Date: 7/29/14
  */
 public class GetSnapshotListBridgeResultTest {
 
     private String storeId = "store-id";
     private String spaceId = "space-id";
-    
+
     @Test
     public void testSerialize() {
         SnapshotSummary summary1 =
@@ -52,37 +51,37 @@ public class GetSnapshotListBridgeResultTest {
                                String storeId, String spaceId) {
         String cleanResult = result.replaceAll("\\s+", "");
 
-        assertThat(cleanResult, containsString("\"snapshotId\":\""+id+"\""));
+        assertThat(cleanResult, containsString("\"snapshotId\":\"" + id + "\""));
         assertThat(cleanResult,
-                   containsString("\"status\":\""+status+"\""));
+                   containsString("\"status\":\"" + status + "\""));
         assertThat(cleanResult,
-                   containsString("\"description\":\""+description+"\""));
+                   containsString("\"description\":\"" + description + "\""));
         assertThat(cleanResult,
-                   containsString("\"sourceStoreId\":\""+storeId+"\""));
+                   containsString("\"sourceStoreId\":\"" + storeId + "\""));
         assertThat(cleanResult,
-                   containsString("\"sourceSpaceId\":\""+spaceId+"\""));
+                   containsString("\"sourceSpaceId\":\"" + spaceId + "\""));
 
     }
-    
+
     @Test
-    public void testDeSerialize(){
+    public void testDeSerialize() {
         String snapshotId = "snapshotId";
         SnapshotStatus status = SnapshotStatus.INITIALIZED;
         String description = "description";
         String str = "{ \"snapshots\" : " +
-                     "[ { \"status\" : \"" + status + "\","  
-                        + " \"description\" : \"" + description + "\"," 
-                        + " \"snapshotId\" : \"" + snapshotId + "\","
-                        + " \"sourceSpaceId\" : \"" + spaceId + "\","
-                        + " \"sourceStoreId\" : \"" + storeId + "\""
-                        + "}]}";
-                GetSnapshotListBridgeResult params =
-                    GetSnapshotListBridgeResult.deserialize(str);
+                     "[ { \"status\" : \"" + status + "\","
+                     + " \"description\" : \"" + description + "\","
+                     + " \"snapshotId\" : \"" + snapshotId + "\","
+                     + " \"sourceSpaceId\" : \"" + spaceId + "\","
+                     + " \"sourceStoreId\" : \"" + storeId + "\""
+                     + "}]}";
+        GetSnapshotListBridgeResult params =
+            GetSnapshotListBridgeResult.deserialize(str);
         List<SnapshotSummary> snapshots = params.getSnapshots();
 
         Assert.assertNotNull(snapshots);
-        Assert.assertEquals(1,snapshots.size());
-        
+        Assert.assertEquals(1, snapshots.size());
+
         SnapshotSummary snapshot = snapshots.get(0);
         Assert.assertEquals(snapshotId, snapshot.getSnapshotId());
         Assert.assertEquals(status, snapshot.getStatus());

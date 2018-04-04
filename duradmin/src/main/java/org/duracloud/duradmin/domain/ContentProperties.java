@@ -12,11 +12,11 @@ import java.util.Set;
 
 /**
  * Stores content properties.
- * 
+ *
  * @author Bill Branan
  */
 public class ContentProperties
-        implements Serializable {
+    implements Serializable {
 
     private String mimetype;
 

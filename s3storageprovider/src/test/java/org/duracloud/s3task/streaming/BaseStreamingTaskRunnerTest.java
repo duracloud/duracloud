@@ -11,12 +11,11 @@ import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
-import org.easymock.EasyMock;
 import org.junit.Test;
 
 /**
  * @author Bill Branan
- *         date: 5/26/2017
+ * date: 5/26/2017
  */
 public class BaseStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
@@ -45,7 +44,5 @@ public class BaseStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
         runner.getAllExistingDistributions("bucketName");
     }
-
-
 
 }

@@ -7,16 +7,16 @@
  */
 package org.duracloud.durastore.test;
 
-import org.duracloud.common.model.AclType;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
 
 /**
  * Storage Provider implementation used for testing retry AOP
@@ -48,7 +48,7 @@ public class MockRetryStorageProvider implements StorageProvider {
                                                 String marker) {
         // spaceId indicates the number of tries until success
         int attemptsBeforeSuccess = Integer.valueOf(spaceId);
-        if(getSpaceContentsAttempts < attemptsBeforeSuccess) {
+        if (getSpaceContentsAttempts < attemptsBeforeSuccess) {
             getSpaceContentsAttempts++;
             throw new StorageException(attemptsBeforeSuccess +
                                        " calls required before success.",

@@ -10,15 +10,13 @@ package org.duracloud.duradmin.util;
 import java.util.List;
 import java.util.Stack;
 
-public abstract class ScrollableList<E>
-        implements Scrollable<E> {
+public abstract class ScrollableList<E> implements Scrollable<E> {
 
     private long maxResultsPerPage = 10;
 
     private List<E> resultList;
 
     private boolean markedForUpdate = true;
-    
 
     private E currentMarker = null;
 
@@ -33,10 +31,10 @@ public abstract class ScrollableList<E>
         return this.maxResultsPerPage;
     }
 
-    public void markForUpdate(){
+    public void markForUpdate() {
         this.markedForUpdate = true;
     }
-    
+
     public void setMaxResultsPerPage(int maxResults) {
         if (this.maxResultsPerPage != maxResults) {
             this.maxResultsPerPage = maxResults;
@@ -102,7 +100,7 @@ public abstract class ScrollableList<E>
     }
 
     public boolean isPreviousAvailable() {
-        return this.markers.size() > 0 || this.currentMarker != null ;
+        return this.markers.size() > 0 || this.currentMarker != null;
     }
 
     public boolean isNextAvailable() {
@@ -129,7 +127,7 @@ public abstract class ScrollableList<E>
 
     protected final void update() throws DataRetrievalException {
         if (markedForUpdate) {
-            this.resultList = getData(isPreviousAvailable() || this.currentMarker != null? this.currentMarker : null);
+            this.resultList = getData(isPreviousAvailable() || this.currentMarker != null ? this.currentMarker : null);
             markedForUpdate = false;
         }
     }

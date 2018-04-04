@@ -10,25 +10,27 @@ package org.duracloud.reportdata.storage;
 
 import java.util.Date;
 
-
 /**
  * Represents a space's byte and object count at a moment in time.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
-public class SpaceStatsDTO  extends StoreStatsDTO {
+public class SpaceStatsDTO extends StoreStatsDTO {
     private String spaceId;
-    
-    public SpaceStatsDTO (){}
-    
-    public SpaceStatsDTO(Date timestamp, String account, String storeId, String spaceId, long byteCount, long objectCount) {
-        super(timestamp, account,storeId, byteCount,objectCount);
+
+    public SpaceStatsDTO() {
+    }
+
+    public SpaceStatsDTO(Date timestamp, String account, String storeId, String spaceId, long byteCount,
+                         long objectCount) {
+        super(timestamp, account, storeId, byteCount, objectCount);
         setSpaceId(spaceId);
     }
-    
+
     public String getSpaceId() {
         return spaceId;
     }
+
     public void setSpaceId(String spaceId) {
         this.spaceId = spaceId;
     }

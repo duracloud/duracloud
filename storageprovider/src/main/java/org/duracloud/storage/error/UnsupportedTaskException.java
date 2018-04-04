@@ -15,6 +15,7 @@ public class UnsupportedTaskException extends TaskException {
 
     /**
      * Indicates that a requested task is not supported
+     *
      * @param task name of task
      */
     public UnsupportedTaskException(String task) {
@@ -23,7 +24,8 @@ public class UnsupportedTaskException extends TaskException {
 
     /**
      * Indicates that the use of a task is not supported
-     * @param task name of task
+     *
+     * @param task    name of task
      * @param message reason for error
      */
     public UnsupportedTaskException(String task, String message) {

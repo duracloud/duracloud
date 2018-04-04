@@ -28,13 +28,13 @@ public interface StorageProvidersTestInterface {
                                      String contentId1) throws StorageException;
 
     public void testCreateSpace(StorageProvider provider, String spaceId)
-            throws StorageException;
+        throws StorageException;
 
     public void testDeleteSpace(StorageProvider provider,
                                 String spaceId) throws StorageException;
 
     public void testGetSpaceProperties(StorageProvider provider, String spaceId0)
-            throws StorageException;
+        throws StorageException;
 
     public void testAddAndGetContent(StorageProvider provider,
                                      String spaceId0,
@@ -46,7 +46,7 @@ public interface StorageProvidersTestInterface {
                                               String spaceId0,
                                               String contentId0,
                                               String contentId1)
-            throws Exception;
+        throws Exception;
 
     public void testAddContentLarge(StorageProvider provider,
                                     String spaceId0,
@@ -63,12 +63,12 @@ public interface StorageProvidersTestInterface {
                                          String spaceId1,
                                          String contentId0,
                                          String contentId1)
-            throws StorageException;
+        throws StorageException;
 
     public void testGetContentProperties(StorageProvider provider,
                                          String spaceId0,
                                          String contentId0)
-            throws StorageException;
+        throws StorageException;
 
     public void close();
 

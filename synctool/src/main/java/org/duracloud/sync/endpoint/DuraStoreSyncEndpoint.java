@@ -7,6 +7,12 @@
  */
 package org.duracloud.sync.endpoint;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.apache.commons.lang3.event.EventListenerSupport;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.ContentIdUtil;
@@ -17,12 +23,6 @@ import org.duracloud.storage.util.StorageProviderUtil;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Endpoint which pushes files to DuraCloud.
@@ -51,7 +51,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                                  String username,
                                  String spaceId,
                                  boolean syncDeletes,
-                                 boolean syncUpdates, 
+                                 boolean syncUpdates,
                                  boolean renameUpdates,
                                  boolean jumpStart,
                                  String updateSuffix,
@@ -76,7 +76,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
 
         ensureSpaceExists();
     }
-    
+
     public DuraStoreSyncEndpoint(ContentStore contentStore,
                                  String username,
                                  String spaceId,
@@ -92,30 +92,31 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
              SyncToolConfig.DEFAULT_UPDATE_SUFFIX,
              null);
     }
-    
-    protected String getUsername(){
+
+    protected String getUsername() {
         return this.username;
     }
 
     private void ensureSpaceExists() {
         boolean spaceExists = false;
-        for(int i=0; i<10; i++) {
-            if(spaceExists()) {
+        for (int i = 0; i < 10; i++) {
+            if (spaceExists()) {
                 spaceExists = true;
                 break;
             }
             sleep(300);
         }
-        if(!spaceExists) {
+        if (!spaceExists) {
             throw new RuntimeException("Could not connect to space with ID '" +
-                spaceId + "'.");
+                                       spaceId + "'.");
         }
     }
 
     private void sleep(long millis) {
         try {
             Thread.sleep(millis);
-        } catch (InterruptedException e) {            
+        } catch (InterruptedException e) {
+            // Exit sleep on interruption
         }
     }
 
@@ -124,11 +125,11 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
             try {
                 Iterator<String> contents =
                     contentStore.getSpaceContents(spaceId);
-                if(contents.hasNext()) {
+                if (contents.hasNext()) {
                     logger.warn("The specified space '" + spaceId +
-                        "' is not empty. If this space is being used for an " +
-                        "activity other than sync there is the possibility " +
-                        "of data loss.");
+                                "' is not empty. If this space is being used for an " +
+                                "activity other than sync there is the possibility " +
+                                "of data loss.");
                 }
                 return true;
             } catch (NotFoundException e) {
@@ -137,7 +138,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
             }
         } catch (ContentStoreException e) {
             logger.warn("Could not connect to space with ID '" + spaceId +
-                "' due to error: " + e.getMessage(), e);
+                        "' due to error: " + e.getMessage(), e);
             return false;
         }
     }
@@ -148,7 +149,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
             syncFileAndReturnDetailedResult(syncFile, watchDir);
         return (result != SyncResultType.FAILED);
     }
-    
+
     @Override
     public SyncResultType syncFileAndReturnDetailedResult(MonitoredFile syncFile,
                                                           File watchDir) {
@@ -158,10 +159,10 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         String absPath = syncFile.getAbsolutePath();
 
         logger.debug("Syncing file " + absPath +
-                    " to DuraCloud with ID " + contentId);
+                     " to DuraCloud with ID " + contentId);
         try {
-            if(jumpStart) { // Skip all of the usual checks, just push the file
-                if(syncFile.exists()) {
+            if (jumpStart) { // Skip all of the usual checks, just push the file
+                if (syncFile.exists()) {
                     doAddContent(syncFile, contentId, absPath);
                     return SyncResultType.ADDED;
                 }
@@ -171,19 +172,19 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                 getContentProperties(spaceId, contentId);
             boolean dcFileExists = (null != contentProperties);
 
-            if(syncFile.exists()) {
-                if(dcFileExists) { // File was updated
+            if (syncFile.exists()) {
+                if (dcFileExists) { // File was updated
                     String dcChecksum =
                         contentProperties.get(ContentStore.CONTENT_CHECKSUM);
-                    if(dcChecksum.equals(syncFile.getChecksum())) {
+                    if (dcChecksum.equals(syncFile.getChecksum())) {
                         logger.debug("Checksum for local file {} matches " +
                                      "file in DuraCloud, no update needed.",
                                      absPath);
                     } else {
-                        if(syncUpdates){
+                        if (syncUpdates) {
                             logger.debug("Local file {} changed, updating DuraCloud.",
                                          absPath);
-                            if(renameUpdates){
+                            if (renameUpdates) {
                                 // create backup of original using current timestamp
                                 // in backup content id. I'm using current timestamp
                                 // since original timestamp is just a date without
@@ -191,8 +192,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                                 // to have the timestamp reflect the moment when the
                                 // backup file was created. -dbernstein
                                 String timeStamp = DateUtil.nowPlain();
-                                String backupContentId = contentId +
-                                    this.updateSuffix + "." +timeStamp;
+                                String backupContentId = contentId + this.updateSuffix + "." + timeStamp;
                                 logger.info("Renaming {} to {} to prevent it " +
                                             "from being overwritten",
                                             contentId, backupContentId);
@@ -214,54 +214,49 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                                 .fire().contentUpdated(this.storeId, this.spaceId,
                                                        contentId, absPath);
                             result = SyncResultType.UPDATED;
-                        }else{
-                            logger.debug("Local file {} changed, but sync updates options ",
-                                         absPath);
-                            this.listenerList.fire()
-                                             .contentUpdateIgnored(this.storeId,
-                                                             this.spaceId,
-                                                             contentId, 
-                                                             absPath);
+                        } else {
+                            logger.debug("Local file {} changed, but sync updates options ", absPath);
+                            this.listenerList.fire().contentUpdateIgnored(this.storeId,
+                                                                          this.spaceId,
+                                                                          contentId,
+                                                                          absPath);
                             result = SyncResultType.UPDATE_IGNORED;
                         }
                     }
                 } else { // File was added
                     doAddContent(syncFile, contentId, absPath);
-                    result =  SyncResultType.ADDED;
+                    result = SyncResultType.ADDED;
                 }
             } else { // File was deleted (does not exist locally)
-                if(syncDeletes) {
-                    if(dcFileExists) {
+                if (syncDeletes) {
+                    if (dcFileExists) {
                         result = deleteContent(spaceId, contentId, absPath);
-                    } else if(null != prefix) {
+                    } else if (null != prefix) {
                         // Check for dc file without prefix
                         String noPrefixContentId =
                             contentId.substring(prefix.length());
-                        if(null != getContentProperties(spaceId,
-                                                        noPrefixContentId)) {
-                            result = deleteContent(spaceId,
-                                                   noPrefixContentId,
-                                                   absPath);
+                        if (null != getContentProperties(spaceId, noPrefixContentId)) {
+                            result = deleteContent(spaceId, noPrefixContentId, absPath);
                         }
                     }
                 } else {
                     logger.debug("Ignoring delete of file {}", absPath);
                 }
             }
-        } catch(ContentStoreException e) {
+        } catch (ContentStoreException e) {
             throw new RuntimeException(e);
         }
-        
+
         return result;
     }
 
     protected void doAddContent(MonitoredFile syncFile,
                                 String contentId,
                                 String absPath) throws ContentStoreException {
-       logger.debug("Local file {} added, moving to DuraCloud.", absPath);
-       addUpdateContent(contentId, syncFile, syncFile.getAbsolutePath());
-       this.listenerList.fire().contentAdded(this.storeId, this.spaceId,
-                                             contentId, absPath);
+        logger.debug("Local file {} added, moving to DuraCloud.", absPath);
+        addUpdateContent(contentId, syncFile, syncFile.getAbsolutePath());
+        this.listenerList.fire().contentAdded(this.storeId, this.spaceId,
+                                              contentId, absPath);
     }
 
     protected Map<String, String> getContentProperties(String spaceId,
@@ -291,8 +286,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         throws ContentStoreException {
         logger.info("Deleting {} from DuraCloud space {}", contentId, spaceId);
         contentStore.deleteContent(spaceId, contentId);
-        this.listenerList.fire().contentDeleted(this.storeId, this.spaceId,
-                                                contentId);
+        this.listenerList.fire().contentDeleted(this.storeId, this.spaceId, contentId);
     }
 
     private void addUpdateContent(String contentId,
@@ -307,7 +301,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     protected void addUpdateContent(String contentId, MonitoredFile syncFile)
         throws ContentStoreException {
         InputStream syncStream = syncFile.getStream();
-        Map<String,String> props = createProps(syncFile.getAbsolutePath(), this.username);        
+        Map<String, String> props = createProps(syncFile.getAbsolutePath(), this.username);
 
         try {
             contentStore.addContent(spaceId,
@@ -320,13 +314,13 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         } finally {
             try {
                 syncStream.close();
-            } catch(IOException e) {
+            } catch (IOException e) {
                 logger.error("Error attempting to close stream for file " +
                              contentId + ": " + e.getMessage(), e);
             }
         }
     }
-    
+
     protected Map<String, String> createProps(String absolutePath, String username) {
         return StorageProviderUtil.createContentProperties(absolutePath, username);
     }
@@ -335,7 +329,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         Iterator<String> spaceContents;
         try {
             spaceContents = contentStore.getSpaceContents(spaceId);
-        } catch(ContentStoreException e) {
+        } catch (ContentStoreException e) {
             throw new RuntimeException("Unable to get list of files from " +
                                        "DuraStore due to: " + e.getMessage());
         }
@@ -349,12 +343,12 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     protected String getSpaceId() {
         return spaceId;
     }
-    
+
     @Override
     public void addEndPointListener(EndPointListener listener) {
         this.listenerList.addListener(listener);
     }
-    
+
     @Override
     public void removeEndPointListener(EndPointListener listener) {
         this.listenerList.removeListener(listener);

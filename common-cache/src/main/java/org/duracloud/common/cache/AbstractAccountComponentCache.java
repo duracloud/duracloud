@@ -11,10 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
- * @author Daniel Bernstein
- *
  * @param <T>
+ * @author Daniel Bernstein
  */
 public abstract class AbstractAccountComponentCache<T> implements AccountComponentCache<T> {
     private Map<String, T> cache;

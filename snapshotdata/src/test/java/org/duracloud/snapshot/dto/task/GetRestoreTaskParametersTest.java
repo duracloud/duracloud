@@ -7,17 +7,17 @@
  */
 package org.duracloud.snapshot.dto.task;
 
-import org.duracloud.snapshot.error.SnapshotDataException;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.duracloud.snapshot.error.SnapshotDataException;
+import org.junit.Test;
+
 /**
  * @author Daniel Bernstein
- *         Date: 8/7/14
+ * Date: 8/7/14
  */
 public class GetRestoreTaskParametersTest {
 
@@ -30,7 +30,7 @@ public class GetRestoreTaskParametersTest {
 
         String result = taskParams.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"restoreId\":\""+restoreId+"\""));
+        assertThat(cleanResult, containsString("\"restoreId\":\"" + restoreId + "\""));
     }
 
     @Test
@@ -43,7 +43,7 @@ public class GetRestoreTaskParametersTest {
         String result = taskParams.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
         assertThat(cleanResult,
-                   containsString("\"snapshotId\":\""+snapshotId +"\""));
+                   containsString("\"snapshotId\":\"" + snapshotId + "\""));
     }
 
     @Test
@@ -55,11 +55,12 @@ public class GetRestoreTaskParametersTest {
             GetRestoreTaskParameters.deserialize(taskParamsSerialized);
         assertEquals("snapshot-id", taskParams.getSnapshotId());
 
-         // Verify that empty params throw
+        // Verify that empty params throw
         try {
             GetRestoreTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
 
         taskParamsSerialized = "{\"snapshotId\" : \"\", \"restoreId\" : \"101\"}";
@@ -68,35 +69,38 @@ public class GetRestoreTaskParametersTest {
             GetRestoreTaskParameters.deserialize(taskParamsSerialized);
         assertEquals("101", taskParams.getRestoreId());
 
-         // Verify that empty params throw
+        // Verify that empty params throw
         try {
             GetRestoreTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
 
     }
 
     @Test
-    public void testSnapshotIdAndRestoreIdMayNotBeNonNullAtTheSameTime(){
+    public void testSnapshotIdAndRestoreIdMayNotBeNonNullAtTheSameTime() {
         // Verify that empty params throw
         try {
             GetRestoreTaskParameters.deserialize("{\"snapshotId\" : \"snapshot-id\", \"restoreId\" : \"101\"}");
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
-        
+
     }
-    
+
     @Test
-    public void testSnapshotIdAndRestoreIdMayNotBeNullAtTheSameTime(){
+    public void testSnapshotIdAndRestoreIdMayNotBeNullAtTheSameTime() {
         // Verify that empty params throw
         try {
             GetRestoreTaskParameters.deserialize("{\"snapshotId\" : \"\", \"restoreId\" : \"\"}");
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
-        
+
     }
 
 }

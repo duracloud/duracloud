@@ -13,12 +13,10 @@ import org.duracloud.syncui.controller.ConfigurationController.UpdatePolicy;
 import org.springframework.stereotype.Component;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 @Component
-public class AdvancedForm implements Serializable{
+public class AdvancedForm implements Serializable {
     private String updatePolicy = UpdatePolicy.OVERWRITE.name();
     private boolean syncDeletes;
     private boolean jumpStart;
@@ -26,15 +24,15 @@ public class AdvancedForm implements Serializable{
     public boolean isSyncDeletes() {
         return syncDeletes;
     }
-    
+
     public void setSyncDeletes(boolean syncDeletes) {
         this.syncDeletes = syncDeletes;
     }
-    
+
     public void setUpdatePolicy(String updatePolicy) {
         this.updatePolicy = updatePolicy;
     }
-    
+
     public String getUpdatePolicy() {
         return updatePolicy;
     }

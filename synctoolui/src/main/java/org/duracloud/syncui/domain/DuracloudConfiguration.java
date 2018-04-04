@@ -6,21 +6,22 @@
  *     http://duracloud.org/license/
  */
 package org.duracloud.syncui.domain;
+
 /**
  * This class provides read-only Duracloud Configuration info: that is, everything
  * one needs to know in order to connect to a duracloud primary content store.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 public class DuracloudConfiguration {
-    
+
     private String username;
     private String password;
     private String host;
     private int port;
     private String spaceId;
 
-    public static final String DEFAULT_PORT =  System.getProperty("duracloud.defaultport", "443");
+    public static final String DEFAULT_PORT = System.getProperty("duracloud.defaultport", "443");
 
     public DuracloudConfiguration(
         String username, String password, String host, int port, String spaceId) {
@@ -35,20 +36,24 @@ public class DuracloudConfiguration {
     public String getUsername() {
         return username;
     }
+
     public String getHost() {
         return host;
     }
+
     public int getPort() {
         return port;
     }
+
     public String getSpaceId() {
         return spaceId;
     }
+
     public String getPassword() {
         return password;
     }
 
-    public boolean isDefaultPort(){
+    public boolean isDefaultPort() {
         return DuracloudConfiguration.DEFAULT_PORT.equals(this.port);
     }
 

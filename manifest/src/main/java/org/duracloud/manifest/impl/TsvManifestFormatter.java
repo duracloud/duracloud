@@ -7,7 +7,7 @@
  */
 package org.duracloud.manifest.impl;
 
-import static org.duracloud.common.util.bulk.ManifestVerifier.*;
+import static org.duracloud.common.util.bulk.ManifestVerifier.DELIM;
 
 import java.text.ParseException;
 import java.util.regex.Matcher;
@@ -21,14 +21,14 @@ import org.slf4j.LoggerFactory;
  * This class formats content manifests as tab-separated-values (TSV).
  *
  * @author Andrew Woods
- *         Date: 3/29/12
+ * Date: 3/29/12
  */
 public class TsvManifestFormatter extends ManifestFormatterBase {
 
     private final Logger log =
         LoggerFactory.getLogger(TsvManifestFormatter.class);
 
-    private static Pattern LINE_PATTERN = Pattern.compile("(.+)"+DELIM+"(.+)"+DELIM+"(.+)");
+    private static Pattern LINE_PATTERN = Pattern.compile("(.+)" + DELIM + "(.+)" + DELIM + "(.+)");
 
     private static final String HEADER =
         "space-id" + DELIM + "content-id" + DELIM + "MD5";
@@ -44,17 +44,15 @@ public class TsvManifestFormatter extends ManifestFormatterBase {
     }
 
     @Override
-    protected String
-        formatLine(String contentMd5, String spaceId, String contentId) {
+    protected String formatLine(String contentMd5, String spaceId, String contentId) {
         StringBuilder line = new StringBuilder();
         line.append(spaceId);
         line.append(DELIM);
         line.append(contentId);
         line.append(DELIM);
         line.append(contentMd5);
-        return line.toString();    
+        return line.toString();
     }
-    
 
     @Override
     public ManifestItem parseLine(String line) throws ParseException {

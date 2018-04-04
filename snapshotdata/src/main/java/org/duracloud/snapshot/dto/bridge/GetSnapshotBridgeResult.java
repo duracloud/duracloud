@@ -10,7 +10,6 @@ package org.duracloud.snapshot.dto.bridge;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlValue;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
@@ -20,7 +19,7 @@ import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * @author Daniel Bernstein
- *         Date: 7/28/14
+ * Date: 7/28/14
  */
 public class GetSnapshotBridgeResult extends BaseDTO {
 
@@ -47,19 +46,19 @@ public class GetSnapshotBridgeResult extends BaseDTO {
 
     @XmlValue
     private Long contentItemCount;
-    
+
     @XmlValue
     private Long totalSizeInBytes;
-    
+
     @XmlValue
     private String memberId;
-    
+
     @XmlValue
     private List<String> alternateIds;
-        
-    public GetSnapshotBridgeResult(){}
 
- 
+    public GetSnapshotBridgeResult() {
+    }
+
     public SnapshotStatus getStatus() {
         return status;
     }
@@ -131,11 +130,11 @@ public class GetSnapshotBridgeResult extends BaseDTO {
     public void setTotalSizeInBytes(Long totalSizeInBytes) {
         this.totalSizeInBytes = totalSizeInBytes;
     }
-    
+
     public List<String> getAlternateIds() {
         return alternateIds;
     }
-    
+
     public void setAlternateIds(List<String> alternateIds) {
         this.alternateIds = alternateIds;
     }
@@ -150,7 +149,7 @@ public class GetSnapshotBridgeResult extends BaseDTO {
             new JaxbJsonSerializer<>(GetSnapshotBridgeResult.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException("Unable to create task result due to: " +
                                             e.getMessage());
         }
@@ -166,20 +165,18 @@ public class GetSnapshotBridgeResult extends BaseDTO {
             new JaxbJsonSerializer<>(GetSnapshotBridgeResult.class);
         try {
             return serializer.deserialize(bridgeResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to deserialize result due to: " + e.getMessage());
         }
     }
 
-
     public String getMemberId() {
         return memberId;
     }
 
-
     public void setMemberId(String memberId) {
         this.memberId = memberId;
     }
-    
+
 }

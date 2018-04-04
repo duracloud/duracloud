@@ -11,15 +11,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class SecurityUtil {
-    
+
+    private SecurityUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     public static boolean isRoot(Authentication auth) {
-        for(GrantedAuthority g : auth.getAuthorities()){
-            if(g.getAuthority().equals("ROLE_ROOT")){
+        for (GrantedAuthority g : auth.getAuthorities()) {
+            if (g.getAuthority().equals("ROLE_ROOT")) {
                 return true;
             }
         }

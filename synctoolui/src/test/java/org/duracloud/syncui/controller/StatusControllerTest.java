@@ -21,9 +21,7 @@ import org.springframework.ui.ExtendedModelMap;
 import org.springframework.web.servlet.View;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 public class StatusControllerTest extends AbstractTest {
 
@@ -31,6 +29,7 @@ public class StatusControllerTest extends AbstractTest {
     private SyncConfigurationManager syncConfigurationManager;
     private SyncOptimizeManager syncOptimizeManager;
     private StatusController statusController;
+
     @Before
     @Override
     public void setup() {
@@ -43,35 +42,34 @@ public class StatusControllerTest extends AbstractTest {
                                  syncConfigurationManager,
                                  syncOptimizeManager);
     }
-    
+
     @Test
     public void testStatus() {
         EasyMock.expect(this.syncConfigurationManager.retrieveDirectoryConfigs())
                 .andReturn(new DirectoryConfigs());
         replay();
-        
+
         String s = statusController.get("queued", new ExtendedModelMap());
         Assert.assertNotNull(s);
     }
 
-    
     @Test
-    public void testStart() throws SyncProcessException{
+    public void testStart() throws SyncProcessException {
         syncProcessManager.start();
 
         EasyMock.expectLastCall().once();
         replay();
-        
+
         View v = statusController.start();
         Assert.assertNotNull(v);
     }
 
     @Test
-    public void testResume() throws SyncProcessException{
+    public void testResume() throws SyncProcessException {
         syncProcessManager.resume();
         EasyMock.expectLastCall().once();
         replay();
-        
+
         View v = statusController.resume();
         Assert.assertNotNull(v);
     }
@@ -81,7 +79,7 @@ public class StatusControllerTest extends AbstractTest {
         syncProcessManager.pause();
         EasyMock.expectLastCall().once();
         replay();
-        
+
         View v = statusController.pause();
         Assert.assertNotNull(v);
     }
@@ -91,11 +89,9 @@ public class StatusControllerTest extends AbstractTest {
         syncProcessManager.stop();
         EasyMock.expectLastCall().once();
         replay();
-        
+
         View v = statusController.stop();
         Assert.assertNotNull(v);
     }
 
- 
- 
 }

@@ -7,9 +7,6 @@
  */
 package org.duracloud.syncui.service;
 
-import com.thoughtworks.xstream.XStream;
-import org.duracloud.sync.config.SyncToolConfig;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -17,13 +14,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 
+import com.thoughtworks.xstream.XStream;
+import org.duracloud.sync.config.SyncToolConfig;
+
 public class SyncToolConfigSerializer {
 
+    private SyncToolConfigSerializer() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     /**
-     * 
      * @param syncToolConfigXmlPath
      * @return deserialized config if the xml file is available and valid,
-     *         otherwise null
+     * otherwise null
      */
     public static SyncToolConfig deserialize(String syncToolConfigXmlPath)
         throws IOException {
@@ -31,13 +34,15 @@ public class SyncToolConfigSerializer {
         InputStream fis = new FileInputStream(f);
         XStream xstream = new XStream();
         configure(xstream);
-        SyncToolConfig c = (SyncToolConfig)xstream.fromXML(fis);
+        SyncToolConfig c = (SyncToolConfig) xstream.fromXML(fis);
         fis.close();
         return c;
     }
-    private static void configure(XStream xstream){
+
+    private static void configure(XStream xstream) {
         xstream.alias("syncToolConfig", SyncToolConfig.class);
     }
+
     public static void serialize(SyncToolConfig syncToolConfig,
                                  String syncToolConfigXmlPath)
         throws IOException {
@@ -45,7 +50,7 @@ public class SyncToolConfigSerializer {
         configure(xstream);
         File file = new File(syncToolConfigXmlPath);
         file.getParentFile().mkdirs();
-        
+
         Writer w = new FileWriter(file);
         xstream.toXML(syncToolConfig, w);
         w.close();

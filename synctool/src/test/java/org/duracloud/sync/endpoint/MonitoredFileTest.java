@@ -7,17 +7,17 @@
  */
 package org.duracloud.sync.endpoint;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.File;
+
 import org.apache.commons.io.FileUtils;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.MimetypeUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author: Bill Branan

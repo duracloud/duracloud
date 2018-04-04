@@ -11,7 +11,7 @@ package org.duracloud.syncoptimize.config;
  * Configuration of the Sync Optimizer.
  *
  * @author Bill Branan
- *         Date: 5/16/14
+ * Date: 5/16/14
  */
 public class SyncOptimizeConfig {
 

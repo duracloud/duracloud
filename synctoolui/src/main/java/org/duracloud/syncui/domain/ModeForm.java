@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * This class backs the Mode form.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 @Component("modeForm")
 public class ModeForm implements Serializable {

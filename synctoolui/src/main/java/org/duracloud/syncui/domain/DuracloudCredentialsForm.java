@@ -7,38 +7,34 @@
  */
 package org.duracloud.syncui.domain;
 
-import org.springframework.stereotype.Component;
-
+import java.io.Serializable;
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
-import java.io.Serializable;
+
+import org.springframework.stereotype.Component;
 
 /**
  * This class backs the Duracloud credentials form.
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 @Component("duracloudCredentialsForm")
-@GroupSequence({
-    DuracloudCredentialsForm.class,
-    DuracloudCredentialsForm.HighLevelCoherence.class })
+@GroupSequence({DuracloudCredentialsForm.class, DuracloudCredentialsForm.HighLevelCoherence.class})
 @DuracloudCredentialsCoherenceChecker(groups = DuracloudCredentialsForm.HighLevelCoherence.class)
 public class DuracloudCredentialsForm implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @NotNull (message="*Required field.")
+    @NotNull(message = "*Required field.")
     private String username;
-    @NotNull (message="*Required field.")
+    @NotNull(message = "*Required field.")
     private String password;
-    @NotNull (message="*Required field.")
+    @NotNull(message = "*Required field.")
     private String host;
     @NotNull
     private String port;
-    
-    
+
     public DuracloudCredentialsForm() {
         this.port = DuracloudConfiguration.DEFAULT_PORT;
     }
@@ -47,13 +43,13 @@ public class DuracloudCredentialsForm implements Serializable {
         this.username = config.getUsername();
         this.password = config.getPassword();
         this.host = config.getHost();
-        this.port = config.getPort()+"";
+        this.port = config.getPort() + "";
     }
 
-    public boolean isDefaultPort(){
+    public boolean isDefaultPort() {
         return DuracloudConfiguration.DEFAULT_PORT.equals(this.port);
     }
-    
+
     public String getUsername() {
         return username;
     }
@@ -93,7 +89,7 @@ public class DuracloudCredentialsForm implements Serializable {
      * check both basic constraints and high level ones. high level constraints
      * are not checked if basic constraints fail
      */
-    @GroupSequence({ Default.class, HighLevelCoherence.class })
+    @GroupSequence({Default.class, HighLevelCoherence.class})
     public interface Complete {
     }
 }

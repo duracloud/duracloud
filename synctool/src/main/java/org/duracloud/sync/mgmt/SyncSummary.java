@@ -7,19 +7,18 @@
  */
 package org.duracloud.sync.mgmt;
 
+import java.io.File;
+import java.util.Date;
+
 import org.duracloud.sync.endpoint.SyncResultType;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
-import java.io.File;
-import java.util.Date;
-
 /**
  * A class that describes a completed sync operation.
  *
  * @author Daniel Bernstein
- *
  */
 public class SyncSummary {
     public static enum Status {
@@ -49,22 +48,22 @@ public class SyncSummary {
         this.message = message;
     }
 
-    public String getDurationAsString(){
-        long duration = this.stop.getTime()-this.start.getTime();
+    public String getDurationAsString() {
+        long duration = this.stop.getTime() - this.start.getTime();
         PeriodFormatter daysHoursMinutes = new PeriodFormatterBuilder()
-        .appendDays()
-        .appendSuffix(" day", " days")
-        .appendSeparator(" ")
-        .appendMinutes()
-        .appendSuffix(" min", " min")
-        .appendSeparator(" ")
-        .appendSeconds()
-        .appendSuffix(" sec", " secs")
-        .toFormatter();
+            .appendDays()
+            .appendSuffix(" day", " days")
+            .appendSeparator(" ")
+            .appendMinutes()
+            .appendSuffix(" min", " min")
+            .appendSeparator(" ")
+            .appendSeconds()
+            .appendSuffix(" sec", " secs")
+            .toFormatter();
 
-      Period period = new Period(duration);
+        Period period = new Period(duration);
 
-      return daysHoursMinutes.print(period);
+        return daysHoursMinutes.print(period);
     }
 
     public Date getStart() {

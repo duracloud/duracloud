@@ -7,18 +7,14 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.duracloud.common.error.NoUserLoggedInException;
-import org.duracloud.common.model.AclType;
-import org.duracloud.common.model.Credential;
-import org.duracloud.durastore.error.ResourceException;
-import org.duracloud.durastore.error.ResourceNotFoundException;
-import org.duracloud.security.context.SecurityContextUtil;
-import org.duracloud.storage.error.InvalidIdException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
@@ -30,14 +26,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
+import org.duracloud.common.error.NoUserLoggedInException;
+import org.duracloud.common.model.AclType;
+import org.duracloud.common.model.Credential;
+import org.duracloud.durastore.error.ResourceException;
+import org.duracloud.durastore.error.ResourceNotFoundException;
+import org.duracloud.security.context.SecurityContextUtil;
+import org.duracloud.storage.error.InvalidIdException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Provides interaction with spaces via REST
@@ -61,13 +61,13 @@ public class SpaceRest extends BaseRest {
 
     /**
      * see SpaceResource.getSpaces()
+     *
      * @return 200 response with XML listing of spaces
      */
     @Path("/spaces")
     @GET
     @Produces(XML)
-    public Response getSpaces(@QueryParam("storeID")
-                              String storeID) {
+    public Response getSpaces(@QueryParam("storeID") String storeID) {
         String msg = "getting spaces(" + storeID + ")";
 
         try {
@@ -85,22 +85,18 @@ public class SpaceRest extends BaseRest {
     /**
      * see SpaceResource.getSpaceProperties(String, String);
      * see SpaceResource.getSpaceContents(String, String);
+     *
      * @return 200 response with XML listing of space content and
-     *         space properties included as header values
+     * space properties included as header values
      */
     @Path("/{spaceID}")
     @GET
     @Produces(XML)
-    public Response getSpace(@PathParam("spaceID")
-                             String spaceID,
-                             @QueryParam("storeID")
-                             String storeID,
-                             @QueryParam("prefix")
-                             String prefix,
-                             @QueryParam("maxResults")
-                             long maxResults,
-                             @QueryParam("marker")
-                             String marker) {
+    public Response getSpace(@PathParam("spaceID") String spaceID,
+                             @QueryParam("storeID") String storeID,
+                             @QueryParam("prefix") String prefix,
+                             @QueryParam("maxResults") long maxResults,
+                             @QueryParam("marker") String marker) {
         StringBuilder msg = new StringBuilder("getting space contents(");
         msg.append(spaceID);
         msg.append(", ");
@@ -117,12 +113,12 @@ public class SpaceRest extends BaseRest {
             log.debug(msg.toString());
             return doGetSpace(spaceID, storeID, prefix, maxResults, marker);
 
-        } catch(ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException e) {
             return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
-            
+
         } catch (Exception e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
         }
@@ -145,14 +141,13 @@ public class SpaceRest extends BaseRest {
 
     /**
      * see SpaceResource.getSpaceProperties(String, String);
+     *
      * @return 200 response with space properties included as header values
      */
     @Path("/{spaceID}")
     @HEAD
-    public Response getSpaceProperties(@PathParam("spaceID")
-                                       String spaceID,
-                                       @QueryParam("storeID")
-                                       String storeID){
+    public Response getSpaceProperties(@PathParam("spaceID") String spaceID,
+                                       @QueryParam("storeID") String storeID) {
         String msg = "adding space properties(" + spaceID + ", " + storeID + ")";
 
         try {
@@ -193,6 +188,7 @@ public class SpaceRest extends BaseRest {
 
     /**
      * see SpaceResource.getSpaceACLs(String, String);
+     *
      * @return 200 response with space ACLs included as header values
      */
     @Path("/acl/{spaceID}")
@@ -234,14 +230,13 @@ public class SpaceRest extends BaseRest {
 
     /**
      * see SpaceResource.addSpace(String, String, String, String)
+     *
      * @return 201 response with request URI
      */
     @Path("/{spaceID}")
     @PUT
-    public Response addSpace(@PathParam("spaceID")
-                             String spaceID,
-                             @QueryParam("storeID")
-                             String storeID){
+    public Response addSpace(@PathParam("spaceID") String spaceID,
+                             @QueryParam("storeID") String storeID) {
         String msg = "adding space(" + spaceID + ", " + storeID + ")";
 
         try {
@@ -322,14 +317,13 @@ public class SpaceRest extends BaseRest {
 
     /**
      * see SpaceResource.deleteSpace(String, String);
+     *
      * @return 200 response indicating space deleted successfully
      */
     @Path("/{spaceID}")
     @DELETE
-    public Response deleteSpace(@PathParam("spaceID")
-                                String spaceID,
-                                @QueryParam("storeID")
-                                String storeID){
+    public Response deleteSpace(@PathParam("spaceID") String spaceID,
+                                @QueryParam("storeID") String storeID) {
         String msg = "deleting space(" + spaceID + ", " + storeID + ")";
 
         try {

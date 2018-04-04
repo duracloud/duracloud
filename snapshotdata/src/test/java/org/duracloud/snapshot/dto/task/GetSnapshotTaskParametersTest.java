@@ -7,17 +7,17 @@
  */
 package org.duracloud.snapshot.dto.task;
 
-import org.duracloud.snapshot.error.SnapshotDataException;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.duracloud.snapshot.error.SnapshotDataException;
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 7/29/14
+ * Date: 7/29/14
  */
 public class GetSnapshotTaskParametersTest {
 
@@ -32,7 +32,7 @@ public class GetSnapshotTaskParametersTest {
         String result = taskParams.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
         assertThat(cleanResult,
-                   containsString("\"snapshotId\":\""+snapshotId +"\""));
+                   containsString("\"snapshotId\":\"" + snapshotId + "\""));
     }
 
     @Test
@@ -50,14 +50,16 @@ public class GetSnapshotTaskParametersTest {
         try {
             GetSnapshotTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
 
         // Verify that empty params throw
         try {
             GetSnapshotTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
     }
 

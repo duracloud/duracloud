@@ -7,6 +7,11 @@
  */
 package org.duracloud.chunk.manifest.xml;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.io.IOUtils;
 import org.duracloud.chunk.manifest.ChunksManifestBean;
 import org.junit.After;
@@ -14,14 +19,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Andrew Woods
- *         Date: Feb 9, 2010
+ * Date: Feb 9, 2010
  */
 public class ManifestElementReaderWriterTest {
 
@@ -96,7 +96,6 @@ public class ManifestElementReaderWriterTest {
         Assert.assertEquals(bean.getHeader().getSourceMimetype(), mime);
         Assert.assertEquals(bean.getHeader().getSourceMD5(), md5);
         Assert.assertEquals(bean.getHeader().getSourceByteSize(), size);
-
 
         List<ChunksManifestBean.ManifestEntry> entries = b.getEntries();
         Assert.assertNotNull(entries);

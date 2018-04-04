@@ -7,8 +7,6 @@
  */
 package org.duracloud.syncui.setup;
 
-import javax.jws.WebParam.Mode;
-
 import org.duracloud.syncui.AbstractTest;
 import org.duracloud.syncui.controller.ConfigurationController.UpdatePolicy;
 import org.duracloud.syncui.domain.AdvancedForm;
@@ -24,9 +22,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 public class SaveSetupActionTest extends AbstractTest {
 
@@ -38,7 +34,7 @@ public class SaveSetupActionTest extends AbstractTest {
 
         SyncConfigurationManager scm =
             createMock(SyncConfigurationManager.class);
-        
+
         String username = "username";
         String password = "password";
         String host = "host";
@@ -48,11 +44,10 @@ public class SaveSetupActionTest extends AbstractTest {
         cred.setPassword(password);
         cred.setHost(host);
         space.setSpaceId(spaceId);
-        
+
         scm.persistDuracloudConfiguration(username, password, host, cred.getPort(), spaceId);
         EasyMock.expectLastCall().once();
         scm.persistDirectoryConfigs(configs);
-
 
         AdvancedForm advanced = new AdvancedForm();
         advanced.setSyncDeletes(false);
@@ -68,7 +63,7 @@ public class SaveSetupActionTest extends AbstractTest {
         scm.setRenameUpdates(false);
         EasyMock.expectLastCall().once();
 
-        ModeForm  modeForm = new ModeForm();
+        ModeForm modeForm = new ModeForm();
         modeForm.setMode(RunMode.SINGLE_PASS);
         scm.setMode(RunMode.SINGLE_PASS);
         EasyMock.expectLastCall().once();
@@ -79,7 +74,6 @@ public class SaveSetupActionTest extends AbstractTest {
         String result = sc.execute(cred, space, configs, advanced, modeForm);
 
         Assert.assertEquals("success", result);
-
     }
 
 }

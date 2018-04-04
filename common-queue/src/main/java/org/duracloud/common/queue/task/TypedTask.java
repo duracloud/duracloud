@@ -13,9 +13,9 @@ import java.util.Map;
  * Contains the base information necessary for tasks working with content items.
  *
  * @author Daniel Bernstein
- *         Date: 05/02/2014
+ * Date: 05/02/2014
  */
-public abstract class TypedTask extends SpaceCentricTypedTask{
+public abstract class TypedTask extends SpaceCentricTypedTask {
 
     public static final String CONTENT_ID_PROP = "contentId";
 

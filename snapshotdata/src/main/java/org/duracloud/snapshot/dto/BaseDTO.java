@@ -10,10 +10,10 @@ package org.duracloud.snapshot.dto;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
- *  Base class for all dtos.
+ * Base class for all dtos.
  *
  * @author Daniel Bernstein
- *         Date: 8/21/14
+ * Date: 8/21/14
  */
 public class BaseDTO {
 

@@ -13,7 +13,7 @@ import org.junit.Test;
 
 /**
  * @author Andrew Woods
- *         Date: 3/11/11
+ * Date: 3/11/11
  */
 public class AmazonNotificationFactoryTest {
 
@@ -44,7 +44,6 @@ public class AmazonNotificationFactoryTest {
         Emailer emailer = emailerFactory.getEmailer("a+b@g.h.com");
         Assert.assertNotNull(emailer);
     }
-
 
     @Test
     public void testCreateMultipleEmailers() throws Exception {

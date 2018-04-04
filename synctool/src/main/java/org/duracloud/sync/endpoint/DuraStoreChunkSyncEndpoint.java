@@ -36,10 +36,10 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
         DuraStoreChunkSyncEndpoint.class);
 
     private FileStitcher stitcher;
-    
+
     private boolean jumpStart;
     private FileChunkerOptions chunkerOptions;
-    
+
     public DuraStoreChunkSyncEndpoint(ContentStore contentStore,
                                       String username,
                                       String spaceId,
@@ -57,13 +57,13 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
              SyncToolConfig.DEFAULT_UPDATE_SUFFIX,
              null);
     }
-    
+
     public DuraStoreChunkSyncEndpoint(ContentStore contentStore,
                                       String username,
                                       String spaceId,
                                       boolean syncDeletes,
                                       long maxFileSize,
-                                      boolean syncUpdates, 
+                                      boolean syncUpdates,
                                       boolean renameUpdates,
                                       boolean jumpStart,
                                       String updateSuffix,
@@ -93,20 +93,19 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
                                                        String contentId) {
         Map<String, String> props = super.getContentProperties(spaceId,
                                                                contentId);
-        
 
         if (null == props) {
-           try {
+            try {
                 ChunksManifest manifest = this.stitcher.getManifest(spaceId, getManifestId(contentId));
 
-                if(chunksInDuraCloudMatchChunksInManifest(spaceId, manifest)){
+                if (chunksInDuraCloudMatchChunksInManifest(spaceId, manifest)) {
                     props = getManifestProperties(spaceId, manifest);
                 }
 
-           } catch(Exception ex){
-               log.debug("Not a chunked content item: {}/{}", spaceId, contentId);
-           }
-            
+            } catch (Exception ex) {
+                log.debug("Not a chunked content item: {}/{}", spaceId, contentId);
+            }
+
         }
 
         return props;
@@ -127,13 +126,13 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
     }
 
     private Map<String, String> getManifestProperties(String spaceId,
-                                                       ChunksManifest manifest) {
+                                                      ChunksManifest manifest) {
         Map<String, String> props = null;
         String manifestId = manifest.getManifestId();
         try {
-            
+
             Content manifesContentItem = stitcher.getContentFromManifest(spaceId,
-                                                               manifestId);
+                                                                         manifestId);
             props = manifesContentItem.getProperties();
             log.info("Manifest found for content: {}/{}", spaceId, manifestId);
 
@@ -193,7 +192,7 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
     @Override
     protected void addUpdateContent(String contentId,
                                     MonitoredFile syncFile) {
-        Map<String,String> properties = createProps(syncFile.getAbsolutePath(),getUsername());
+        Map<String, String> properties = createProps(syncFile.getAbsolutePath(), getUsername());
         DuracloudContentWriter contentWriter =
             new DuracloudContentWriter(getContentStore(), getUsername(), true, this.jumpStart);
         FileChunker chunker = new FileChunker(contentWriter, chunkerOptions);

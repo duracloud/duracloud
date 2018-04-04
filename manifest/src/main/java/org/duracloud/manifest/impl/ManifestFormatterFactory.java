@@ -14,16 +14,17 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Creates instances of ManifestFormatters based on ManifestFormat enum values.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 public class ManifestFormatterFactory {
     private Logger log = LoggerFactory.getLogger(ManifestFormatterFactory.class);
-    public ManifestFormatterFactory(){
-        
+
+    public ManifestFormatterFactory() {
+
     }
-    
-    public ManifestFormatter create(ManifestFormat format){
+
+    public ManifestFormatter create(ManifestFormat format) {
         ManifestFormatter formatter;
         switch (format) {
             case BAGIT:

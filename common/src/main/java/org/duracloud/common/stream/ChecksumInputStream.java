@@ -7,12 +7,13 @@
  */
 package org.duracloud.common.stream;
 
-import org.duracloud.common.util.ChecksumUtil;
 import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
 
 import java.io.FilterInputStream;
 import java.io.InputStream;
 import java.security.DigestInputStream;
+
+import org.duracloud.common.util.ChecksumUtil;
 
 /**
  * @author: Bill Branan

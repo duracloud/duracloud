@@ -7,8 +7,8 @@
  */
 package org.duracloud.client.task;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,7 +41,7 @@ import org.junit.Test;
 
 /**
  * @author Bill Branan
- *         Date: 8/8/14
+ * Date: 8/8/14
  */
 public class SnapshotTaskClientImplTest {
 
@@ -86,10 +86,10 @@ public class SnapshotTaskClientImplTest {
     private void setupMockWithoutRetries(String taskName, String preparedResult)
         throws Exception {
         EasyMock.expect(contentStore.performTaskWithNoRetries(EasyMock.eq(taskName),
-                                                 EasyMock.isA(String.class)))
+                                                              EasyMock.isA(String.class)))
                 .andReturn(preparedResult);
     }
-    
+
     private void setupMock(String taskName, String preparedResult)
         throws Exception {
         EasyMock.expect(contentStore.performTask(EasyMock.eq(taskName),
@@ -177,7 +177,7 @@ public class SnapshotTaskClientImplTest {
 
         List<SnapshotSummary> summaries = new ArrayList<>();
         summaries.add(
-            new SnapshotSummary(snapshotId, snapshotStatus, description, storeId,spaceId));
+            new SnapshotSummary(snapshotId, snapshotStatus, description, storeId, spaceId));
         GetSnapshotListTaskResult preparedResult =
             new GetSnapshotListTaskResult();
         preparedResult.setSnapshots(summaries);
@@ -221,25 +221,25 @@ public class SnapshotTaskClientImplTest {
         assertThat(contentId, equalTo(item.getContentId()));
         assertThat(propValue, equalTo(item.getContentProperties().get(propName)));
     }
-    
+
     @Test
     public void testGetSnapshotHistory() throws Exception {
         String taskName = SnapshotConstants.GET_SNAPSHOT_HISTORY_TASK_NAME;
-        
+
         SnapshotHistoryItem historyItem = new SnapshotHistoryItem();
         historyItem.setHistory(historyValue);
         historyItem.setHistoryDate(snapshotDate);
         List<SnapshotHistoryItem> historyItems = new ArrayList<>();
         historyItems.add(historyItem);
-        
+
         GetSnapshotHistoryTaskResult preparedResult = new GetSnapshotHistoryTaskResult();
         preparedResult.setHistoryItems(historyItems);
-        
+
         setupMock(taskName, preparedResult.serialize());
         replayMocks();
-        
+
         GetSnapshotHistoryTaskResult result =
-                taskClient.getSnapshotHistory(snapshotId, 1, 1000);
+            taskClient.getSnapshotHistory(snapshotId, 1, 1000);
         SnapshotHistoryItem item = result.getHistoryItems().get(0);
         assertThat(historyValue, equalTo(item.getHistory()));
         assertThat(snapshotDate, equalTo(item.getHistoryDate()));
@@ -263,7 +263,7 @@ public class SnapshotTaskClientImplTest {
         assertThat(restoreId, equalTo(result.getRestoreId()));
         assertThat(restoreStatus, equalTo(result.getStatus()));
     }
-    
+
     @Test
     public void testRequestRestoreSnapshot() throws Exception {
         String taskName = SnapshotConstants.REQUEST_RESTORE_SNAPSHOT_TASK_NAME;

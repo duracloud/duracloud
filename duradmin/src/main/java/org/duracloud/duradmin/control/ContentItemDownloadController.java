@@ -36,61 +36,59 @@ public class ContentItemDownloadController {
         this.controllerSupport = controllerSupport;
     }
 
-
-    @RequestMapping(value="/download/contentItem", method=RequestMethod.GET)
+    @RequestMapping(value = "/download/contentItem", method = RequestMethod.GET)
     public ModelAndView handleRequestInternal(HttpServletRequest request,
-                                                 HttpServletResponse response)
-            throws Exception {
-    	
-    	String storeId = request.getParameter("storeID");
-    	if(storeId == null){
-    	    storeId = request.getParameter("storeId");
-    	}
-    	
-    	if(storeId == null){
+                                              HttpServletResponse response)
+        throws Exception {
+
+        String storeId = request.getParameter("storeID");
+        if (storeId == null) {
+            storeId = request.getParameter("storeId");
+        }
+
+        if (storeId == null) {
             storeId =
                 controllerSupport.getContentStoreManager()
                                  .getPrimaryContentStore()
                                  .getStoreId();
-    	}
-    	
-    	
-    	String spaceId = request.getParameter("spaceId");
-    	String contentId = request.getParameter("contentId");
-    	String attachment = request.getParameter("attachment");
-    	
-    	if(Boolean.valueOf(attachment)){
+        }
+
+        String spaceId = request.getParameter("spaceId");
+        String contentId = request.getParameter("contentId");
+        String attachment = request.getParameter("attachment");
+
+        if (Boolean.valueOf(attachment)) {
             StringBuffer contentDisposition = new StringBuffer();
             contentDisposition.append("attachment;");
             contentDisposition.append("filename=\"");
             contentDisposition.append(contentId);
             contentDisposition.append("\"");
             response.setHeader(CONTENT_DISPOSITION_HEADER, contentDisposition.toString());
-    	}
+        }
 
-    	ContentStore store = 
-    	    controllerSupport.getContentStoreManager().getContentStore(storeId);
-    	try {
+        ContentStore store =
+            controllerSupport.getContentStoreManager().getContentStore(storeId);
+        try {
             SpaceUtil.streamContent(store, response, spaceId, contentId);
-    	    
-    	} catch(ContentStoreException ex){
-    	    if(response.containsHeader(CONTENT_DISPOSITION_HEADER)){
-    	        response.setHeader(CONTENT_DISPOSITION_HEADER, null);
-    	    }
-    	    
-    	    if(ex instanceof ContentStateException){
-    	        response.setStatus(HttpStatus.SC_CONFLICT);
-    	    }else if (ex instanceof UnauthorizedException){
-    	        response.setStatus(HttpStatus.SC_UNAUTHORIZED);
-    	    }
-    	    
-    	    Throwable t = ex;
-    	    if(t.getCause() != null){
-    	        t = ex.getCause();
-    	    }
-    	    response.getWriter().println(t.getMessage());
-    	}
 
-    	return null;
+        } catch (ContentStoreException ex) {
+            if (response.containsHeader(CONTENT_DISPOSITION_HEADER)) {
+                response.setHeader(CONTENT_DISPOSITION_HEADER, null);
+            }
+
+            if (ex instanceof ContentStateException) {
+                response.setStatus(HttpStatus.SC_CONFLICT);
+            } else if (ex instanceof UnauthorizedException) {
+                response.setStatus(HttpStatus.SC_UNAUTHORIZED);
+            }
+
+            Throwable t = ex;
+            if (t.getCause() != null) {
+                t = ex.getCause();
+            }
+            response.getWriter().println(t.getMessage());
+        }
+
+        return null;
     }
 }

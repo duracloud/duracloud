@@ -7,18 +7,15 @@
  */
 package org.duracloud.integration.storageprovider;
 
-import junit.framework.Assert;
-import org.apache.commons.io.IOUtils;
-import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.storage.error.ChecksumMismatchException;
-import org.duracloud.storage.error.NotFoundException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.provider.StorageProviderBase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
+import static org.duracloud.storage.util.StorageProviderUtil.contains;
+import static org.duracloud.storage.util.StorageProviderUtil.count;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -33,24 +30,27 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
-import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
-import static org.duracloud.storage.util.StorageProviderUtil.contains;
-import static org.duracloud.storage.util.StorageProviderUtil.count;
+import junit.framework.Assert;
+import org.apache.commons.io.IOUtils;
+import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.storage.error.ChecksumMismatchException;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.provider.StorageProviderBase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Bill Branan
- *         Date: 9/8/14
+ * Date: 9/8/14
  */
 public abstract class TestStorageProvider {
 
     private static final Logger log =
-            LoggerFactory.getLogger(TestStorageProvider.class);
+        LoggerFactory.getLogger(TestStorageProvider.class);
 
     protected StorageProvider storageProvider;
     protected final List<String> spaceIds = new ArrayList<>();
@@ -77,7 +77,7 @@ public abstract class TestStorageProvider {
         // delete all the test spaces
         for (String spaceId : spaceIds) {
             try {
-                ((StorageProviderBase)storageProvider).deleteSpaceSync(spaceId);
+                ((StorageProviderBase) storageProvider).deleteSpaceSync(spaceId);
             } catch (Exception e) {
                 // do nothing.
             }
@@ -93,7 +93,7 @@ public abstract class TestStorageProvider {
         // test createSpace()
         log.debug("Test createSpace()");
         storageProvider.createSpace(SPACE_ID);
-        
+
         // test getSpaceProperties()
         log.debug("Test getSpaceProperties()");
         testSpaceProperties(SPACE_ID);
@@ -124,7 +124,7 @@ public abstract class TestStorageProvider {
         // test getContentProperties()
         log.debug("Test getContentProperties()");
         Map<String, String> cProperties =
-                storageProvider.getContentProperties(SPACE_ID, CONTENT_ID);
+            storageProvider.getContentProperties(SPACE_ID, CONTENT_ID);
         assertNotNull(cProperties);
         assertEquals(CONTENT_MIME_VALUE, cProperties.get(CONTENT_MIME_NAME));
         assertNotNull(cProperties.get(StorageProvider.PROPERTIES_CONTENT_MODIFIED));
@@ -140,33 +140,33 @@ public abstract class TestStorageProvider {
         // test getSpaceContents()
         log.debug("Test getSpaceContents()");
         Iterator<String> spaceContents =
-                storageProvider.getSpaceContents(SPACE_ID, null);
+            storageProvider.getSpaceContents(SPACE_ID, null);
         assertNotNull(spaceContents);
         assertEquals(3, count(spaceContents));
 
         // test getSpaceContentsChunked() maxLimit
         log.debug("Test getSpaceContentsChunked() maxLimit");
         List<String> spaceContentList =
-                storageProvider.getSpaceContentsChunked(SPACE_ID,
-                        null,
-                        2,
-                        null);
+            storageProvider.getSpaceContentsChunked(SPACE_ID,
+                                                    null,
+                                                    2,
+                                                    null);
         assertNotNull(spaceContentList);
         assertEquals(2, spaceContentList.size());
         String lastItem = spaceContentList.get(spaceContentList.size() - 1);
         spaceContentList = storageProvider.getSpaceContentsChunked(SPACE_ID,
-                null,
-                2,
-                lastItem);
+                                                                   null,
+                                                                   2,
+                                                                   lastItem);
         assertNotNull(spaceContentList);
         assertEquals(1, spaceContentList.size());
 
         // test getSpaceContentsChunked() prefix
         log.debug("Test getSpaceContentsChunked() prefix");
         spaceContentList = storageProvider.getSpaceContentsChunked(SPACE_ID,
-                "test",
-                10,
-                null);
+                                                                   "test",
+                                                                   10,
+                                                                   null);
         assertEquals(2, spaceContentList.size());
 
         // test getContent()
@@ -192,8 +192,8 @@ public abstract class TestStorageProvider {
         Map<String, String> contentProperties = new HashMap<String, String>();
         contentProperties.put(CONTENT_PROPS_NAME, CONTENT_PROPS_VALUE);
         storageProvider.setContentProperties(SPACE_ID,
-                CONTENT_ID,
-                contentProperties);
+                                             CONTENT_ID,
+                                             contentProperties);
 
         // test getContentProperties()
         log.debug("Test getContentProperties()");
@@ -210,8 +210,8 @@ public abstract class TestStorageProvider {
         contentProperties = new HashMap<String, String>();
         contentProperties.put(CONTENT_MIME_NAME, newMime);
         storageProvider.setContentProperties(SPACE_ID,
-                CONTENT_ID,
-                contentProperties);
+                                             CONTENT_ID,
+                                             contentProperties);
         cProperties = storageProvider.getContentProperties(SPACE_ID, CONTENT_ID);
         assertNotNull(cProperties);
         assertEquals(newMime, cProperties.get(CONTENT_MIME_NAME));
@@ -222,7 +222,7 @@ public abstract class TestStorageProvider {
         cProperties = storageProvider.getContentProperties(SPACE_ID, testContent3);
         assertNotNull(cProperties);
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
-                cProperties.get(CONTENT_MIME_NAME));
+                     cProperties.get(CONTENT_MIME_NAME));
 
         /* Test Deletes */
 
@@ -234,7 +234,7 @@ public abstract class TestStorageProvider {
 
         // test deleteSpace()
         log.debug("Test deleteSpace()");
-        ((StorageProviderBase)storageProvider).deleteSpaceSync(SPACE_ID);
+        ((StorageProviderBase) storageProvider).deleteSpaceSync(SPACE_ID);
         // remove the space we just deleted from our collection of space IDs
         // because we don't need to try to delete it again in tearDown.
         spaceIds.remove(SPACE_ID);
@@ -247,7 +247,7 @@ public abstract class TestStorageProvider {
         String spaceId = getNewSpaceId();
         String contentId = "NonExistantContent";
         String failMsg = "Should throw NotFoundException attempting to " +
-                "access a space which does not exist";
+                         "access a space which does not exist";
         byte[] content = CONTENT_DATA.getBytes();
 
         // Space Not Found
@@ -282,15 +282,14 @@ public abstract class TestStorageProvider {
 
         try {
             int contentSize = content.length;
-            ByteArrayInputStream contentStream = new ByteArrayInputStream(
-                    content);
+            ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
             storageProvider.addContent(spaceId,
-                    contentId,
-                    "text/plain",
-                    null,
-                    contentSize,
-                    null,
-                    contentStream);
+                                       contentId,
+                                       "text/plain",
+                                       null,
+                                       contentSize,
+                                       null,
+                                       contentStream);
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
@@ -312,8 +311,8 @@ public abstract class TestStorageProvider {
 
         try {
             storageProvider.setContentProperties(spaceId,
-                    contentId,
-                    new HashMap<String, String>());
+                                                 contentId,
+                                                 new HashMap<String, String>());
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
@@ -401,7 +400,7 @@ public abstract class TestStorageProvider {
         ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
 
         String advChecksum = null;
-        if(checksumInAdvance) {
+        if (checksumInAdvance) {
             ChecksumUtil util = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
             advChecksum = util.generateChecksum(contentStream);
             contentStream.reset();
@@ -411,7 +410,7 @@ public abstract class TestStorageProvider {
             doAddContent(spaceId, contentId, content.length, contentStream,
                          mimeType, advChecksum);
 
-        if(checksumInAdvance) {
+        if (checksumInAdvance) {
             assertEquals(advChecksum, checksum);
         }
     }
@@ -447,14 +446,14 @@ public abstract class TestStorageProvider {
             doAddContent(spaceId, contentId, content.length, contentStream,
                          mimeType, invalidChecksum);
             fail("ChecksumMismatchException expected based on invalid checksum");
-        } catch(ChecksumMismatchException e) {
+        } catch (ChecksumMismatchException e) {
             try {
                 // Verify that the content was either not added, or was deleted
                 waitForEventualConsistencyOnDelete(spaceId, contentId);
                 storageProvider.getContentProperties(spaceId, contentId);
                 fail("On checksum mismatch, content item " +
                      "should have been removed from the space");
-            } catch(NotFoundException nfe) {
+            } catch (NotFoundException nfe) {
                 return true;
             }
         }
@@ -469,7 +468,7 @@ public abstract class TestStorageProvider {
         while (null == props && tries++ < maxTries) {
             try {
                 props = storageProvider.getContentProperties(spaceId,
-                        contentId);
+                                                             contentId);
             } catch (Exception e) {
                 // do nothing
             }
@@ -490,7 +489,7 @@ public abstract class TestStorageProvider {
         do {
             try {
                 props = storageProvider.getContentProperties(spaceId,
-                        contentId);
+                                                             contentId);
             } catch (Exception e) {
                 // do nothing
             }
@@ -513,10 +512,10 @@ public abstract class TestStorageProvider {
 
     private Map<String, String> testSpaceProperties(String spaceId) {
         Map<String, String> sProperties =
-                storageProvider.getSpaceProperties(spaceId);
+            storageProvider.getSpaceProperties(spaceId);
 
         assertTrue(sProperties.containsKey(
-                StorageProvider.PROPERTIES_SPACE_CREATED));
+            StorageProvider.PROPERTIES_SPACE_CREATED));
         assertNotNull(sProperties.get(StorageProvider.PROPERTIES_SPACE_CREATED));
 
         assertTrue(sProperties.containsKey(StorageProvider.PROPERTIES_SPACE_COUNT));
@@ -548,29 +547,29 @@ public abstract class TestStorageProvider {
         userProps.put("state", "VA");
 
         storageProvider.setContentProperties(srcSpaceId,
-                srcContentId,
-                userProps);
+                                             srcContentId,
+                                             userProps);
         Map<String, String> props = storageProvider.getContentProperties(
-                srcSpaceId,
-                srcContentId);
+            srcSpaceId,
+            srcContentId);
         verifyContent(srcSpaceId,
-                srcContentId,
-                cksum,
-                props,
-                userProps.keySet());
+                      srcContentId,
+                      cksum,
+                      props,
+                      userProps.keySet());
 
         String md5 = storageProvider.copyContent(srcSpaceId,
-                srcContentId,
-                destSpaceId,
-                destContentId);
+                                                 srcContentId,
+                                                 destSpaceId,
+                                                 destContentId);
         Assert.assertNotNull(md5);
         Assert.assertEquals(cksum, md5);
 
         verifyContent(destSpaceId,
-                destContentId,
-                md5,
-                props,
-                userProps.keySet());
+                      destContentId,
+                      md5,
+                      props,
+                      userProps.keySet());
     }
 
     private void verifyContent(String spaceId,
@@ -589,7 +588,7 @@ public abstract class TestStorageProvider {
         Assert.assertEquals(md5, cksumFromStore);
 
         Map<String, String> propsFromStore =
-                storageProvider.getContentProperties(spaceId, contentId);
+            storageProvider.getContentProperties(spaceId, contentId);
         Assert.assertNotNull(propsFromStore);
         Assert.assertEquals(props.size(), propsFromStore.size());
 
@@ -614,6 +613,5 @@ public abstract class TestStorageProvider {
         String contentId = namePrefix + "-test-content-" + random;
         return contentId;
     }
-
 
 }

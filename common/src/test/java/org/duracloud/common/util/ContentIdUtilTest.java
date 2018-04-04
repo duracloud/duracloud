@@ -7,15 +7,13 @@
  */
 package org.duracloud.common.util;
 
+import java.io.File;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
-
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class ContentIdUtilTest {
 

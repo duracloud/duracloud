@@ -7,10 +7,10 @@
  */
 package org.duracloud.reportdata.storage;
 
-import org.duracloud.reportdata.storage.metrics.StorageMetrics;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.duracloud.reportdata.storage.metrics.StorageMetrics;
 
 /**
  * @author: Bill Branan
@@ -101,7 +101,7 @@ public class StorageReport extends StorageReportBase {
     public int hashCode() {
         int result = reportId != null ? reportId.hashCode() : 0;
         result = 31 * result +
-            (storageMetrics != null ? storageMetrics.hashCode() : 0);
+                 (storageMetrics != null ? storageMetrics.hashCode() : 0);
         result = 31 * result + (int) (completionTime ^ (completionTime >>> 32));
         result = 31 * result + (int) (elapsedTime ^ (elapsedTime >>> 32));
         return result;

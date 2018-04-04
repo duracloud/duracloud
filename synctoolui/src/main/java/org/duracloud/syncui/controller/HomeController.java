@@ -16,9 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * A spring controller for the welcome page.
- * 
+ *
  * @author Daniel Bernstein
- * 
  */
 @Controller
 public class HomeController {
@@ -31,7 +30,7 @@ public class HomeController {
         this.syncConfigurationManager = syncConfigurationManager;
     }
 
-    @RequestMapping(value = { "/" })
+    @RequestMapping(value = {"/"})
     public String get() {
         log.debug("accessing welcome page");
         return "redirect:/status";

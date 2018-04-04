@@ -7,10 +7,10 @@
  */
 package org.duracloud.integration.durastore.storage;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
-
-import static org.junit.Assert.assertNotNull;
 
 /**
  * This class catches AssertionErrors and exposes the name of the offending
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Andrew Woods
  */
 public class StorageProvidersTestExceptionProxy
-        implements StorageProvidersTestInterface {
+    implements StorageProvidersTestInterface {
 
     private final StorageProvidersTestInterface tester;
 
@@ -36,7 +36,7 @@ public class StorageProvidersTestExceptionProxy
      */
     private void throwRuntime(StorageProvider provider, AssertionError e) {
         throw new RuntimeException(provider.getClass().getName() +
-            " exception: " + e.getMessage(), e);
+                                   " exception: " + e.getMessage(), e);
     }
 
     public void testAddAndGetContent(StorageProvider provider,
@@ -59,7 +59,7 @@ public class StorageProvidersTestExceptionProxy
                                               String spaceId0,
                                               String contentId0,
                                               String contentId1)
-            throws Exception {
+        throws Exception {
         try {
             tester.testAddAndGetContentOverwrite(provider,
                                                  spaceId0,
@@ -85,7 +85,7 @@ public class StorageProvidersTestExceptionProxy
     }
 
     public void testCreateSpace(StorageProvider provider, String spaceId)
-            throws StorageException {
+        throws StorageException {
         try {
             tester.testCreateSpace(provider, spaceId);
         } catch (AssertionError e) {
@@ -98,11 +98,10 @@ public class StorageProvidersTestExceptionProxy
                                   String contentId0,
                                   String contentId1) throws StorageException {
         try {
-            tester
-                    .testDeleteContent(provider,
-                                       spaceId0,
-                                       contentId0,
-                                       contentId1);
+            tester.testDeleteContent(provider,
+                                     spaceId0,
+                                     contentId0,
+                                     contentId1);
         } catch (AssertionError e) {
             throwRuntime(provider, e);
         }
@@ -120,7 +119,7 @@ public class StorageProvidersTestExceptionProxy
     public void testGetContentProperties(StorageProvider provider,
                                          String spaceId0,
                                          String contentId0)
-            throws StorageException {
+        throws StorageException {
         try {
             tester.testGetContentProperties(provider, spaceId0, contentId0);
         } catch (AssertionError e) {
@@ -143,7 +142,7 @@ public class StorageProvidersTestExceptionProxy
     }
 
     public void testGetSpaceProperties(StorageProvider provider, String spaceId0)
-            throws StorageException {
+        throws StorageException {
         try {
             tester.testGetSpaceProperties(provider, spaceId0);
         } catch (AssertionError e) {
@@ -166,7 +165,7 @@ public class StorageProvidersTestExceptionProxy
                                          String spaceId1,
                                          String contentId0,
                                          String contentId1)
-            throws StorageException {
+        throws StorageException {
         try {
             tester.testSetContentProperties(provider,
                                             spaceId0,

@@ -28,7 +28,7 @@ import org.junit.Test;
 
 /**
  * @author Gad Krumholz
- *         Date: 7/02/15
+ * Date: 7/02/15
  */
 public class GetSnapshotHistoryTaskRunnerTest {
 
@@ -48,7 +48,7 @@ public class GetSnapshotHistoryTaskRunnerTest {
     public void setup() {
         restHelper = EasyMock.createMock("RestHttpHelper", RestHttpHelper.class);
         taskRunner = new GetSnapshotHistoryTaskRunner(bridgeHost, bridgePort,
-                                                       bridgeUser, bridgePass);
+                                                      bridgeUser, bridgePass);
     }
 
     private void replayMocks() {
@@ -56,7 +56,7 @@ public class GetSnapshotHistoryTaskRunnerTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         EasyMock.verify(restHelper);
     }
 
@@ -70,10 +70,9 @@ public class GetSnapshotHistoryTaskRunnerTest {
         taskParams.setSnapshotId(snapshotId);
         taskParams.setPageNumber(pageNumber);
         taskParams.setPageSize(pageSize);
-        
 
         String url = taskRunner.buildBridgeURL(taskParams);
-        String expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
+        String expectedUrl = "http://" + bridgeHost + ":" + bridgePort +
                              "/bridge/snapshot/" + snapshotId +
                              "/history?page=" + pageNumber +
                              "&pageSize=" + pageSize;
@@ -86,7 +85,7 @@ public class GetSnapshotHistoryTaskRunnerTest {
         taskParams.setPageSize(100000000);
 
         url = taskRunner.buildBridgeURL(taskParams);
-        expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
+        expectedUrl = "http://" + bridgeHost + ":" + bridgePort +
                       "/bridge/snapshot/" + snapshotId +
                       "/history?page=0&pageSize=1000";
         assertEquals(expectedUrl, url);
@@ -97,7 +96,7 @@ public class GetSnapshotHistoryTaskRunnerTest {
         String bridgeURL = "bridge-url";
         String history = "history";
         Date historyDate = new Date();
-        
+
         SnapshotHistoryItem historyItem = new SnapshotHistoryItem();
         historyItem.setHistory(history);
         historyItem.setHistoryDate(historyDate);
@@ -120,7 +119,7 @@ public class GetSnapshotHistoryTaskRunnerTest {
         String callResult = taskRunner.callBridge(restHelper, bridgeURL);
 
         GetSnapshotHistoryBridgeResult taskResult =
-                GetSnapshotHistoryBridgeResult.deserialize(callResult);
+            GetSnapshotHistoryBridgeResult.deserialize(callResult);
         SnapshotHistoryItem item = taskResult.getHistoryItems().get(0);
         assertEquals(history, item.getHistory());
         assertEquals(historyDate, item.getHistoryDate());
@@ -141,7 +140,8 @@ public class GetSnapshotHistoryTaskRunnerTest {
         try {
             taskRunner.callBridge(restHelper, bridgeURL);
             fail("Exception expected on 500 response");
-        } catch(TaskException e) {
+        } catch (TaskException e) {
+            // Expected exception
         }
     }
 

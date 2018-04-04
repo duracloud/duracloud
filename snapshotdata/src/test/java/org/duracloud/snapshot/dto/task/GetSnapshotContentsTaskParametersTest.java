@@ -7,17 +7,17 @@
  */
 package org.duracloud.snapshot.dto.task;
 
-import org.duracloud.snapshot.error.SnapshotDataException;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.duracloud.snapshot.error.SnapshotDataException;
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 8/11/14
+ * Date: 8/11/14
  */
 public class GetSnapshotContentsTaskParametersTest {
 
@@ -37,20 +37,20 @@ public class GetSnapshotContentsTaskParametersTest {
 
         String result = taskParams.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"snapshotId\":\""+ snapshotId +"\""));
-        assertThat(cleanResult, containsString("\"pageNumber\":"+ pageNumber +""));
-        assertThat(cleanResult, containsString("\"pageSize\":"+ pageSize +""));
-        assertThat(cleanResult, containsString("\"prefix\":\""+ prefix +"\""));
+        assertThat(cleanResult, containsString("\"snapshotId\":\"" + snapshotId + "\""));
+        assertThat(cleanResult, containsString("\"pageNumber\":" + pageNumber + ""));
+        assertThat(cleanResult, containsString("\"pageSize\":" + pageSize + ""));
+        assertThat(cleanResult, containsString("\"prefix\":\"" + prefix + "\""));
     }
 
     @Test
     public void testDeserialize() {
         // Verify valid params
         String taskParamsSerialized =
-            "{\"snapshotId\" : \""+snapshotId+"\"," +
-            "\"pageNumber\" : "+pageNumber+"," +
-            " \"pageSize\" : "+pageSize+"," +
-            " \"prefix\" : \""+prefix+"\"}";
+            "{\"snapshotId\" : \"" + snapshotId + "\"," +
+            "\"pageNumber\" : " + pageNumber + "," +
+            " \"pageSize\" : " + pageSize + "," +
+            " \"prefix\" : \"" + prefix + "\"}";
 
         GetSnapshotContentsTaskParameters taskParams =
             GetSnapshotContentsTaskParameters.deserialize(taskParamsSerialized);
@@ -65,14 +65,16 @@ public class GetSnapshotContentsTaskParametersTest {
         try {
             GetSnapshotContentsTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
 
         // Verify that empty params throw
         try {
             GetSnapshotContentsTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
     }
 

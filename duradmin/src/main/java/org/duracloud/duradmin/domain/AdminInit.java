@@ -16,7 +16,6 @@ public class AdminInit {
     private String amaUrl;
     private boolean millDbEnabled;
 
-
     public String getAmaUrl() {
         return amaUrl;
     }
@@ -28,7 +27,7 @@ public class AdminInit {
     public void setMillDbEnabled(boolean millDbEnabled) {
         this.millDbEnabled = millDbEnabled;
     }
-    
+
     public boolean isMillDbEnabled() {
         return millDbEnabled;
     }

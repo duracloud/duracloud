@@ -7,6 +7,13 @@
  */
 package org.duracloud.chunk;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.regex.Pattern;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -21,16 +28,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.regex.Pattern;
-
 /**
  * @author Andrew Woods
- *         Date: Feb 4, 2010
+ * Date: Feb 4, 2010
  */
 public class FileChunkerTest {
 
@@ -151,7 +151,7 @@ public class FileChunkerTest {
     @Test
     public void testAddContent() throws Exception {
         long chunkSize = 1000;
-        long fileSize = chunkSize + chunkSize/2;
+        long fileSize = chunkSize + chunkSize / 2;
         String fileName = "add-content-test.txt";
 
         FileChunker chunker =
@@ -228,6 +228,7 @@ public class FileChunkerTest {
             doTestInputFilters(fileFilter, dirFilter, id, 0);
             Assert.fail("exception expected since no files found.");
         } catch (Exception e) {
+            // Expected exception
         }
 
     }
@@ -258,7 +259,7 @@ public class FileChunkerTest {
         String ext = ".txt";
         write(new File(srcDir, "file" + ext));
 
-        char[] dirSuffixes = new char[]{'a', 'b', 'c'};
+        char[] dirSuffixes = new char[] {'a', 'b', 'c'};
         for (char suffix0 : dirSuffixes) {
             File dir0 = new File(srcDir, "dir-0-" + suffix0);
             dir0.mkdir();

@@ -7,8 +7,12 @@
  */
 package org.duracloud.durastore.util;
 
-import static org.duracloud.storage.provider.StorageProvider.*;
-import static org.easymock.EasyMock.*;
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +40,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * @author Andrew Woods
- *         Date: 12/5/11
+ * Date: 12/5/11
  */
 public class ACLStorageProviderErrorTest {
 
@@ -53,9 +57,9 @@ public class ACLStorageProviderErrorTest {
     private int NUM_SPACES = 5;
 
     private SecurityContextUtil securityContextUtil = new SecurityContextUtil();
-    private AccountChangeNotifier notifier; 
+    private AccountChangeNotifier notifier;
     private DuraCloudRequestContextUtil contextUtil;
-    
+
     @Before
     public void setUp() throws Exception {
         mockProvider = createMockStorageProvider();
@@ -63,15 +67,14 @@ public class ACLStorageProviderErrorTest {
         contextUtil = createMock("DuraCloudRequestContextUtil", DuraCloudRequestContextUtil.class);
         notifier = createMock("AccountChangeNotifier", AccountChangeNotifier.class);
 
-        authorities = new GrantedAuthority[]{new SimpleGrantedAuthority(
-            "ROLE_USER")};
+        authorities = new GrantedAuthority[] {new SimpleGrantedAuthority("ROLE_USER")};
         groups = new ArrayList<String>();
         groups.add(group);
     }
 
     @After
     public void tearDown() throws Exception {
-        verify(mockProvider, context,contextUtil, notifier);
+        verify(mockProvider, context, contextUtil, notifier);
         SecurityContextHolder.clearContext();
     }
 
@@ -80,14 +83,13 @@ public class ACLStorageProviderErrorTest {
     }
 
     private StorageProvider createMockStorageProvider() {
-        mockProvider = createMock("StorageProvider",
-                                           StorageProvider.class);
+        mockProvider = createMock("StorageProvider", StorageProvider.class);
         expect(mockProvider.getSpaces())
-                .andReturn(allSpaces().iterator());
+            .andReturn(allSpaces().iterator());
 
         for (String space : allSpaces()) {
             expect(mockProvider.getSpaceACLs(space))
-                    .andReturn(aclMap());
+                .andReturn(aclMap());
         }
         return mockProvider;
     }
@@ -107,8 +109,7 @@ public class ACLStorageProviderErrorTest {
     }
 
     private void createMockSecurityContext() {
-        Authentication auth = createMock("Authentication",
-                                                  Authentication.class);
+        Authentication auth = createMock("Authentication", Authentication.class);
         DuracloudUserDetails userDetails = new DuracloudUserDetails(username,
                                                                     "password",
                                                                     "email",

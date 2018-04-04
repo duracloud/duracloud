@@ -1,8 +1,8 @@
 package org.duracloud.chunk.util;
 
 import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,7 +13,6 @@ import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.manifest.ChunksManifestBean;
 import org.duracloud.chunk.manifest.ChunksManifestBean.ManifestEntry;
 import org.duracloud.chunk.manifest.ChunksManifestBean.ManifestHeader;
-import org.duracloud.chunk.util.ChunksManifestVerifier;
 import org.duracloud.chunk.util.ChunksManifestVerifier.Results;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
@@ -59,10 +58,7 @@ public class ChunksManifestVerifierTest extends EasyMockSupport {
         ChunksManifestVerifier verifier =
             new ChunksManifestVerifier(contentStore);
         for (ManifestEntry entry : manifest.getEntries()) {
-            expectGetContentProps(spaceId,
-                                  entry,
-                                  entry.getByteSize(),
-                                  entry.getChunkMD5());
+            expectGetContentProps(spaceId, entry, entry.getByteSize(), entry.getChunkMD5());
         }
 
         replayAll();
@@ -76,10 +72,9 @@ public class ChunksManifestVerifierTest extends EasyMockSupport {
                                          ManifestEntry entry,
                                          long byteSize,
                                          String md5)
-                                             throws ContentStoreException {
-        expect(contentStore.getContentProperties(spaceId,
-                                                 entry.getChunkId())).andReturn(createProperties(byteSize,
-                                                                                                 md5));
+        throws ContentStoreException {
+        expect(contentStore.getContentProperties(spaceId, entry.getChunkId()))
+            .andReturn(createProperties(byteSize, md5));
     }
 
     protected void assertResultSizeIsEqual(Results results) {
@@ -89,9 +84,8 @@ public class ChunksManifestVerifierTest extends EasyMockSupport {
     @Test
     public void testFailureDueToChecksumMismatch()
         throws ContentStoreException {
-        ChunksManifestVerifier verifier =
-            new ChunksManifestVerifier(contentStore);
-        
+        ChunksManifestVerifier verifier = new ChunksManifestVerifier(contentStore);
+
         for (ManifestEntry entry : manifest.getEntries()) {
             expectGetContentProps(spaceId, entry, entry.getByteSize(), "badChecksum");
         }
@@ -102,16 +96,15 @@ public class ChunksManifestVerifierTest extends EasyMockSupport {
         assertTrue(!results.isSuccess());
         assertResultSizeIsEqual(results);
     }
-    
+
     @Test
     public void testFailureDueToSizeMismatch()
         throws ContentStoreException {
-        ChunksManifestVerifier verifier =
-            new ChunksManifestVerifier(contentStore);
-        
+        ChunksManifestVerifier verifier = new ChunksManifestVerifier(contentStore);
+
         for (ManifestEntry entry : manifest.getEntries()) {
             long byteSize = entry.getByteSize();
-            expectGetContentProps(spaceId, entry, byteSize+1, entry.getChunkMD5());
+            expectGetContentProps(spaceId, entry, byteSize + 1, entry.getChunkMD5());
         }
 
         replayAll();
@@ -120,16 +113,15 @@ public class ChunksManifestVerifierTest extends EasyMockSupport {
         assertTrue(!results.isSuccess());
         assertResultSizeIsEqual(results);
     }
-    
+
     @Test
     public void testFailureDueToMissingChunk()
         throws ContentStoreException {
-        ChunksManifestVerifier verifier =
-            new ChunksManifestVerifier(contentStore);
-        
+        ChunksManifestVerifier verifier = new ChunksManifestVerifier(contentStore);
+
         for (ManifestEntry entry : manifest.getEntries()) {
-            expect(contentStore.getContentProperties(spaceId,
-                                                     entry.getChunkId())).andThrow(new ContentStoreException("chunk not found!"));
+            expect(contentStore.getContentProperties(spaceId, entry.getChunkId()))
+                .andThrow(new ContentStoreException("chunk not found!"));
         }
 
         replayAll();
@@ -139,9 +131,7 @@ public class ChunksManifestVerifierTest extends EasyMockSupport {
         assertResultSizeIsEqual(results);
     }
 
-
-    private Map<String, String> createProperties(long byteSize,
-                                                 String chunkMD5) {
+    private Map<String, String> createProperties(long byteSize, String chunkMD5) {
         Map<String, String> props = new HashMap<>();
         props.put(ContentStore.CONTENT_CHECKSUM, chunkMD5);
         props.put(ContentStore.CONTENT_SIZE, String.valueOf(byteSize));

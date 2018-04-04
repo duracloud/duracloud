@@ -7,6 +7,11 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.InputStream;
+
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.dto.SnapshotStatus;
@@ -18,14 +23,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.InputStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 /**
  * @author Bill Branan
- *         Date: 7/29/14
+ * Date: 7/29/14
  */
 public class GetSnapshotTaskRunnerTest {
 
@@ -41,8 +41,7 @@ public class GetSnapshotTaskRunnerTest {
     @Before
     public void setup() {
         restHelper = EasyMock.createMock("RestHttpHelper", RestHttpHelper.class);
-        taskRunner = new GetSnapshotTaskRunner(bridgeHost, bridgePort,
-                                                     bridgeUser, bridgePass);
+        taskRunner = new GetSnapshotTaskRunner(bridgeHost, bridgePort, bridgeUser, bridgePass);
     }
 
     private void replayMocks() {
@@ -50,7 +49,7 @@ public class GetSnapshotTaskRunnerTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         EasyMock.verify(restHelper);
     }
 
@@ -59,7 +58,7 @@ public class GetSnapshotTaskRunnerTest {
         replayMocks();
 
         String snapshotUrl = taskRunner.buildBridgeURL(snapshotId);
-        String expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
+        String expectedUrl = "http://" + bridgeHost + ":" + bridgePort +
                              "/bridge/snapshot/" + snapshotId;
         assertEquals(expectedUrl, snapshotUrl);
     }
@@ -74,7 +73,7 @@ public class GetSnapshotTaskRunnerTest {
             new GetSnapshotBridgeResult();
         bridgeResult.setDescription(description);
         bridgeResult.setStatus(status);
-        
+
         InputStream resultStream =
             IOUtil.writeStringToStream(bridgeResult.serialize());
 
@@ -108,7 +107,8 @@ public class GetSnapshotTaskRunnerTest {
         try {
             taskRunner.callBridge(restHelper, bridgeURL);
             fail("Exception expected on 500 response");
-        } catch(TaskException e) {
+        } catch (TaskException e) {
+            // Expected exception
         }
     }
 

@@ -12,16 +12,15 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.error.ContentStoreException;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class SnapshotTaskClientManager {
     private ContentStoreManager contentStoreManager;
+
     public SnapshotTaskClientManager(ContentStoreManager contentStoreManager) {
         this.contentStoreManager = contentStoreManager;
     }
-    
+
     public SnapshotTaskClient get(String storeId) throws ContentStoreException {
         ContentStore contentStore = contentStoreManager.getContentStore(storeId);
         return new SnapshotTaskClientImpl(contentStore);

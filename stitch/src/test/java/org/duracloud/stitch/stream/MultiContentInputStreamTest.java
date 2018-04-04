@@ -7,6 +7,13 @@
  */
 package org.duracloud.stitch.stream;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.io.IOUtils;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.domain.Content;
@@ -17,16 +24,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Andrew Woods
- *         Date: 9/9/11
+ * Date: 9/9/11
  */
 public class MultiContentInputStreamTest {
 
@@ -36,7 +36,7 @@ public class MultiContentInputStreamTest {
     private List<ContentItem> contentItems;
 
     private List<InputStream> streams;
-    
+
     private MultiContentInputStreamListener listener;
 
     @Before
@@ -44,7 +44,7 @@ public class MultiContentInputStreamTest {
         dataSource = EasyMock.createMock("DataSource", DataSource.class);
         listener = EasyMock.createMock("MultiContentInputStreamListener", MultiContentInputStreamListener.class);
         contentItems = new ArrayList<ContentItem>();
-        
+
         streams = new ArrayList<InputStream>();
     }
 
@@ -58,7 +58,7 @@ public class MultiContentInputStreamTest {
     }
 
     private void replayMocks() {
-        EasyMock.replay(dataSource,listener);
+        EasyMock.replay(dataSource, listener);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class MultiContentInputStreamTest {
         Assert.assertEquals(text, out.toString());
         out.close();
     }
-    
+
     @Test
     public void testReadWithListener() throws Exception {
         String text = createReadMocks();

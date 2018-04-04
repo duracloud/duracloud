@@ -97,8 +97,8 @@ public class StorageAccountManager {
         if (!isInitialized()) {
             String error =
                 "DuraStore's StorageAccountManager must be initialized " +
-                    "with an XML file containing storage account information " +
-                    "before any further requests can be fulfilled.";
+                "with an XML file containing storage account information " +
+                "before any further requests can be fulfilled.";
             throw new StorageException(error);
         }
     }

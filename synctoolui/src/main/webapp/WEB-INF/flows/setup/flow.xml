@@ -1,54 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <flow xmlns="http://www.springframework.org/schema/webflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/webflow
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
         http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
 
   <view-state id="welcome" view="/setup/welcome">
-    <transition on="next" to="chooseMode" />
+    <transition on="next" to="chooseMode"/>
   </view-state>
-  
-    <view-state id="chooseMode" view="/setup/mode"
-    model="modeForm">
+
+  <view-state id="chooseMode" view="/setup/mode"
+              model="modeForm">
     <on-entry>
-      <set name="flowScope.modeForm" value="modeForm" />
+      <set name="flowScope.modeForm" value="modeForm"/>
     </on-entry>
-    <transition on="next" to="enterDuracloudCredentials" />
-    <transition on="cancel" to="end" validate="false" />
+    <transition on="next" to="enterDuracloudCredentials"/>
+    <transition on="cancel" to="end" validate="false"/>
   </view-state>
-  
+
 
   <view-state id="enterDuracloudCredentials" view="/setup/credentials"
-    model="duracloudCredentialsForm">
+              model="duracloudCredentialsForm">
     <on-entry>
-      <set name="flowScope.duracloudCredentialsForm" value="duracloudCredentialsForm" />
+      <set name="flowScope.duracloudCredentialsForm" value="duracloudCredentialsForm"/>
     </on-entry>
-    <transition on="next" to="isSpaceAvailable" />
-    <transition on="cancel" to="end" validate="false" />
+    <transition on="next" to="isSpaceAvailable"/>
+    <transition on="cancel" to="end" validate="false"/>
   </view-state>
 
   <decision-state id="isSpaceAvailable">
     <on-entry>
-  <evaluate expression="contentStoreFactory.create(flowScope.duracloudCredentialsForm)"
-    result="requestScope.contentStore" />
-      <evaluate expression="spacesFilter.filter(contentStore.getSpaces())" result="flowScope.spaces" />
+      <evaluate expression="contentStoreFactory.create(flowScope.duracloudCredentialsForm)"
+                result="requestScope.contentStore"/>
+      <evaluate expression="spacesFilter.filter(contentStore.getSpaces())" result="flowScope.spaces"/>
     </on-entry>
-    <if test="flowScope.spaces.size() > 0" then="selectSpace" else="noSpaceAvailableError" />
+    <if test="flowScope.spaces.size() > 0" then="selectSpace" else="noSpaceAvailableError"/>
   </decision-state>
 
   <view-state id="noSpaceAvailableError" view="/setup/no-space-error">
-    <transition on="cancel" to="end"  validate="false"/>
+    <transition on="cancel" to="end" validate="false"/>
   </view-state>
 
   <view-state id="selectSpace" view="/setup/space" model="spaceForm">
     <on-entry>
-      <set name="flowScope.spaceForm" value="spaceForm" />
+      <set name="flowScope.spaceForm" value="spaceForm"/>
       <!-- the credentials form is associated with the space form because the space
       form needs the credentials to perform a check the writability of the space.
        -->
       <evaluate expression="spaceForm.setCredentialsForm(flowScope.duracloudCredentialsForm)"/>
     </on-entry>
-    <transition on="previous" to="duracloudCredentialsForm" />
-    <transition on="next" to="isNoDirectoryConfigured" />
+    <transition on="previous" to="duracloudCredentialsForm"/>
+    <transition on="next" to="isNoDirectoryConfigured"/>
     <transition on="cancel" to="end" validate="false"/>
   </view-state>
 
@@ -56,62 +56,62 @@
     <on-entry>
       <set name="flowScope.directoryConfigs" value="directoryConfigs"></set>
     </on-entry>
-    <if test="flowScope.directoryConfigs.size() > 0" then="directoryConfigsList" else="configureDirectory" />
+    <if test="flowScope.directoryConfigs.size() > 0" then="directoryConfigsList" else="configureDirectory"/>
   </decision-state>
 
 
   <view-state id="configureDirectory" view="/setup/directory"
-    model="directoryConfigForm">
+              model="directoryConfigForm">
     <on-entry>
-      <set name="flowScope.directoryConfigForm" value="directoryConfigForm" />
+      <set name="flowScope.directoryConfigForm" value="directoryConfigForm"/>
     </on-entry>
-    <transition on="add" to="addDirectoryConfig" />
-    <transition on="cancel" to="directoryConfigsList" />
+    <transition on="add" to="addDirectoryConfig"/>
+    <transition on="cancel" to="directoryConfigsList"/>
   </view-state>
 
   <action-state id="addDirectoryConfig">
-    <evaluate expression="addDirectoryConfigAction.execute(flowScope.directoryConfigForm, flowScope.directoryConfigs)" />
-    <transition to="directoryConfigsList" />
+    <evaluate expression="addDirectoryConfigAction.execute(flowScope.directoryConfigForm, flowScope.directoryConfigs)"/>
+    <transition to="directoryConfigsList"/>
   </action-state>
 
   <view-state id="directoryConfigsList" view="/setup/directories">
-    <transition on="add" to="configureDirectory" />
-    <transition on="previous" to="selectSpace" />
-    <transition on="next" to="configureOptions" />
-    <transition on="cancel" to="end" />
+    <transition on="add" to="configureDirectory"/>
+    <transition on="previous" to="selectSpace"/>
+    <transition on="next" to="configureOptions"/>
+    <transition on="cancel" to="end"/>
   </view-state>
 
   <view-state id="configureOptions" view="/setup/options" model="advancedForm">
     <on-entry>
       <set name="flowScope.advancedForm" value="advancedForm"/>
     </on-entry>
-  
-    <transition on="previous" to="directoryConfigsList" />
-    <transition on="next" to="saveSetup" />
-    <transition on="cancel" to="end" />
+
+    <transition on="previous" to="directoryConfigsList"/>
+    <transition on="next" to="saveSetup"/>
+    <transition on="cancel" to="end"/>
   </view-state>
 
   <action-state id="saveSetup">
     <evaluate
-      expression="saveSetupAction.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm, flowScope.directoryConfigs,  flowScope.advancedForm, flowScope.modeForm)" />
-    <transition to="finish" />
+      expression="saveSetupAction.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm, flowScope.directoryConfigs,  flowScope.advancedForm, flowScope.modeForm)"/>
+    <transition to="finish"/>
   </action-state>
 
   <view-state id="finish" view="/setup/finish">
-    <transition on="startNow" to="startSync" />
-    <transition on="startLater" to="status" />
+    <transition on="startNow" to="startSync"/>
+    <transition on="startLater" to="status"/>
   </view-state>
 
   <action-state id="startSync">
-    <evaluate expression="startSyncAction" />
-    <transition to="status" />
+    <evaluate expression="startSyncAction"/>
+    <transition to="status"/>
   </action-state>
 
   <end-state id="status">
-    <output name="message" value="flowScope.message" />
+    <output name="message" value="flowScope.message"/>
   </end-state>
 
   <end-state id="end">
-    <output name="message" value="flowScope.message" />
+    <output name="message" value="flowScope.message"/>
   </end-state>
 </flow>

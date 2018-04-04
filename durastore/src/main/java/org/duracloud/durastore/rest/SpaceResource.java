@@ -7,24 +7,24 @@
  */
 package org.duracloud.durastore.rest;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.common.model.AclType;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
-import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.IdUtil;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides interaction with spaces
@@ -49,9 +49,8 @@ public class SpaceResource {
      * @param storeID
      * @return XML listing of spaces
      */
-    public String getSpaces(String storeID)
-    throws ResourceException {
-        log.debug("Enter");
+    public String getSpaces(String storeID) throws ResourceException {
+
         Element spacesElem = new Element("spaces");
 
         try {
@@ -59,7 +58,7 @@ public class SpaceResource {
                 storageProviderFactory.getStorageProvider(storeID);
 
             Iterator<String> spaces = storage.getSpaces();
-            while(spaces.hasNext()) {
+            while (spaces.hasNext()) {
                 String spaceID = spaces.next();
                 Element spaceElem = new Element("space");
                 spaceElem.setAttribute("id", spaceID);
@@ -83,22 +82,15 @@ public class SpaceResource {
      * @param storeID
      * @return Map of space properties
      */
-    public Map<String, String> getSpaceProperties(String spaceID,
-                                                  String storeID)
-    throws ResourceException {
+    public Map<String, String> getSpaceProperties(String spaceID, String storeID) throws ResourceException {
         try {
-            StorageProvider storage =
-                storageProviderFactory.getStorageProvider(storeID);
+            StorageProvider storage = storageProviderFactory.getStorageProvider(storeID);
             return storage.getSpaceProperties(spaceID);
         } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("retrieve space properties for",
-                                                spaceID,
-                                                e);
+            throw new ResourceNotFoundException("retrieve space properties for", spaceID, e);
         } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(storeID);
-            throw new ResourceException("retrieve space properties for",
-                                        spaceID,
-                                        e);
+            throw new ResourceException("retrieve space properties for", spaceID, e);
         }
     }
 
@@ -109,17 +101,12 @@ public class SpaceResource {
      * @param storeID
      * @return Map of space ACLs
      */
-    public Map<String, AclType> getSpaceACLs(String spaceID, String storeID)
-        throws ResourceException {
+    public Map<String, AclType> getSpaceACLs(String spaceID, String storeID) throws ResourceException {
         try {
-            StorageProvider storage = storageProviderFactory.getStorageProvider(
-                storeID);
+            StorageProvider storage = storageProviderFactory.getStorageProvider(storeID);
             return storage.getSpaceACLs(spaceID);
-
         } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("retrieve space ACLs for",
-                                                spaceID,
-                                                e);
+            throw new ResourceNotFoundException("retrieve space ACLs for", spaceID, e);
         } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("retrieve space ACLs for", spaceID, e);
@@ -140,30 +127,26 @@ public class SpaceResource {
                                    String storeID,
                                    String prefix,
                                    long maxResults,
-                                   String marker)
-    throws ResourceException {
+                                   String marker) throws ResourceException {
         Element spaceElem = new Element("space");
         spaceElem.setAttribute("id", spaceID);
 
         try {
-            StorageProvider storage =
-                storageProviderFactory.getStorageProvider(storeID);
+            StorageProvider storage = storageProviderFactory.getStorageProvider(storeID);
 
             List<String> contents = storage.getSpaceContentsChunked(spaceID,
                                                                     prefix,
                                                                     maxResults,
                                                                     marker);
-            if(contents != null) {
-                for(String contentItem : contents) {
+            if (contents != null) {
+                for (String contentItem : contents) {
                     Element contentElem = new Element("item");
                     contentElem.setText(contentItem);
                     spaceElem.addContent(contentElem);
                 }
             }
         } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("build space XML for",
-                                                spaceID,
-                                                e);
+            throw new ResourceNotFoundException("build space XML for", spaceID, e);
         } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("build space XML for", spaceID, e);
@@ -180,15 +163,12 @@ public class SpaceResource {
      * @param spaceID
      * @param storeID
      */
-    public void addSpace(String spaceID,
-                         Map<String, AclType> userACLs,
-                         String storeID)
-    throws ResourceException, InvalidIdException {
+    public void addSpace(String spaceID, Map<String, AclType> userACLs, String storeID)
+        throws ResourceException, InvalidIdException {
         IdUtil.validateSpaceId(spaceID);
 
         try {
-            StorageProvider storage =
-                storageProviderFactory.getStorageProvider(storeID);
+            StorageProvider storage = storageProviderFactory.getStorageProvider(storeID);
             storage.createSpace(spaceID);
 
             waitForSpaceCreation(storage, spaceID);
@@ -249,9 +229,7 @@ public class SpaceResource {
             }
 
         } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("update space ACLs for",
-                                                spaceID,
-                                                e);
+            throw new ResourceNotFoundException("update space ACLs for", spaceID, e);
         } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("update space ACLs for", spaceID, e);
@@ -264,11 +242,9 @@ public class SpaceResource {
      * @param spaceID
      * @param storeID
      */
-    public void deleteSpace(String spaceID, String storeID)
-    throws ResourceException {
+    public void deleteSpace(String spaceID, String storeID) throws ResourceException {
         try {
-            StorageProvider storage =
-                storageProviderFactory.getStorageProvider(storeID);
+            StorageProvider storage = storageProviderFactory.getStorageProvider(storeID);
             storage.deleteSpace(spaceID);
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("delete space", spaceID, e);

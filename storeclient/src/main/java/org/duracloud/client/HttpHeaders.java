@@ -20,5 +20,5 @@ public interface HttpHeaders {
     public static final String LAST_MODIFIED = "Last-Modified";
     public static final String BIT_INTEGRITY_REPORT_RESULT = "Bit-Integrity-Report-Result";
     public static final String BIT_INTEGRITY_REPORT_COMPLETION_DATE = "Bit-Integrity-Report-Completion-Date";
-    
+
 }

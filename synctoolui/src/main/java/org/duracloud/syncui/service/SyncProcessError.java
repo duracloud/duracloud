@@ -10,13 +10,12 @@ package org.duracloud.syncui.service;
 import java.util.Date;
 
 /**
- * 
  * @author Daniel Bernstein
  */
 public class SyncProcessError {
     private Date time;
 
-    private String detail; 
+    private String detail;
     private String descriptionMessageKey;
 
     private String suggestedResolutionMessgeKey;
@@ -33,12 +32,12 @@ public class SyncProcessError {
         return suggestedResolutionMessgeKey;
     }
 
-    public SyncProcessError(String detail){
-        this(detail, null,null);
+    public SyncProcessError(String detail) {
+        this(detail, null, null);
     }
 
     public SyncProcessError(
-        String detail, 
+        String detail,
         String descriptionMessageKey, String suggestedResolutionMessgeKey) {
         super();
         this.detail = detail;
@@ -46,8 +45,8 @@ public class SyncProcessError {
         this.descriptionMessageKey = descriptionMessageKey;
         this.suggestedResolutionMessgeKey = suggestedResolutionMessgeKey;
     }
-    
-    public String getDetail(){
+
+    public String getDetail() {
         return this.detail;
     }
 

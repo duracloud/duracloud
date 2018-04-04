@@ -19,7 +19,7 @@ import org.duracloud.snapshot.error.SnapshotDataException;
  * Note: The task result currently mirrors the bridge result
  *
  * @author Bill Branan
- *         Date: 1/30/14
+ * Date: 1/30/14
  */
 public class CreateSnapshotTaskResult extends CreateSnapshotBridgeResult {
 
@@ -33,7 +33,7 @@ public class CreateSnapshotTaskResult extends CreateSnapshotBridgeResult {
             new JaxbJsonSerializer<>(CreateSnapshotTaskResult.class);
         try {
             return serializer.deserialize(taskResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task result due to: " + e.getMessage());
         }

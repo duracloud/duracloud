@@ -9,9 +9,13 @@ package org.duracloud.snapshot;
 
 /**
  * @author Bill Branan
- *         Date: 8/8/14
+ * Date: 8/8/14
  */
 public class SnapshotConstants {
+
+    private SnapshotConstants() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     public static final String CREATE_SNAPSHOT_TASK_NAME = "create-snapshot";
     public static final String COMPLETE_SNAPSHOT_CANCEL_TASK_NAME = "complete-cancel-snapshot";
@@ -31,7 +35,7 @@ public class SnapshotConstants {
     public static final int DEFAULT_CONTENT_PAGE_NUMBER = 0;
     public static final int MIN_CONTENT_PAGE_SIZE = 1;
     public static final int MAX_CONTENT_PAGE_SIZE = 1000;
-    
+
     public static final int DEFAULT_HISTORY_PAGE_NUMBER = 0;
     public static final int MIN_HISTORY_PAGE_SIZE = 1;
     public static final int MAX_HISTORY_PAGE_SIZE = 1000;

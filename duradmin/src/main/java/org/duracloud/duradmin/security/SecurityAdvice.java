@@ -23,7 +23,7 @@ import org.springframework.aop.MethodBeforeAdvice;
  * Otherwise, it logs the object out.
  *
  * @author Andrew Woods
- *         Date: Mar 28, 2010
+ * Date: Mar 28, 2010
  */
 public class SecurityAdvice implements MethodBeforeAdvice {
 

@@ -84,22 +84,22 @@ public class RetrievalWorker implements Runnable {
         retrieveFile();
     }
 
-    public Map<String,String> retrieveFile() {
+    public Map<String, String> retrieveFile() {
         return retrieveFile(null);
     }
-    
-    public Map<String,String> retrieveFile(RetrievalListener listener) {
+
+    public Map<String, String> retrieveFile(RetrievalListener listener) {
         attempts++;
         File localFile = getLocalFile();
-        Map<String,String> props = null;
+        Map<String, String> props = null;
         try {
-            if(localFile.exists()) { // File already exists
+            if (localFile.exists()) { // File already exists
                 props = getContentProperties();
-                if(checksumsMatch(localFile,
-                                  props.get(ContentStore.CONTENT_CHECKSUM))) {
+                if (checksumsMatch(localFile,
+                                   props.get(ContentStore.CONTENT_CHECKSUM))) {
                     noChangeNeeded(localFile.getAbsolutePath());
                 } else { // Different file in DuraStore
-                    if(overwrite) {
+                    if (overwrite) {
                         deleteFile(localFile);
                     } else {
                         renameFile(localFile);
@@ -109,18 +109,18 @@ public class RetrievalWorker implements Runnable {
                 }
             } else { // File does not exist
                 File parentDir = localFile.getParentFile();
-                if(!parentDir.exists()) {
+                if (!parentDir.exists()) {
                     parentDir.mkdirs();
                     parentDir.setWritable(true);
                 }
                 props = retrieveToFile(localFile, listener);
                 succeed(localFile.getAbsolutePath());
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             logger.error("Exception retrieving remote file " +
                          contentItem.getContentId() + " as local file " +
                          localFile.getAbsolutePath() + ": " + e.getMessage(), e);
-            if(attempts < MAX_ATTEMPTS) {
+            if (attempts < MAX_ATTEMPTS) {
                 props = retrieveFile();
             } else {
                 fail(e.getMessage());
@@ -133,14 +133,14 @@ public class RetrievalWorker implements Runnable {
      * Gets the local storage file for the content item
      */
     public File getLocalFile() {
-        if(this.localFile == null) {
+        if (this.localFile == null) {
             ChunkUtil util = new ChunkUtil();
             String contentId = contentItem.getContentId();
             if (util.isChunkManifest(contentId)) {
                 contentId = util.preChunkedContentId(contentId);
             }
 
-            if(createSpaceDir) {
+            if (createSpaceDir) {
                 File spaceDir = new File(contentDir, contentItem.getSpaceId());
                 logger.debug("spaceDir.absolutePath={}", spaceDir.getAbsolutePath());
                 this.localFile = new File(spaceDir, contentId);
@@ -148,9 +148,9 @@ public class RetrievalWorker implements Runnable {
                 this.localFile = new File(contentDir, contentId);
             }
         }
-        
+
         logger.debug("localFile.absolutePath={}", this.localFile.getAbsolutePath());
-        
+
         return this.localFile;
     }
 
@@ -162,9 +162,9 @@ public class RetrievalWorker implements Runnable {
      * Checks to see if the checksums of the local file and remote file match
      */
     protected boolean checksumsMatch(File localFile, String remoteChecksum)
-            throws IOException {
-        if(remoteChecksum == null || "".equals(remoteChecksum)) {
-            if(contentStream != null) {
+        throws IOException {
+        if (remoteChecksum == null || "".equals(remoteChecksum)) {
+            if (contentStream != null) {
                 remoteChecksum = contentStream.getChecksum();
             } else {
                 remoteChecksum = source.getSourceChecksum(contentItem);
@@ -189,7 +189,7 @@ public class RetrievalWorker implements Runnable {
         File origFile = new File(localFile.getAbsolutePath());
         File copiedFile = new File(localFile.getParent(),
                                    localFile.getName() + COPY);
-        for(int i=2; copiedFile.exists(); i++) {
+        for (int i = 2; copiedFile.exists(); i++) {
             copiedFile = new File(localFile.getParent(),
                                   localFile.getName() + COPY + "-" + i);
         }
@@ -204,9 +204,9 @@ public class RetrievalWorker implements Runnable {
         localFile.delete();
     }
 
-    protected Map<String,String> getContentProperties() {
-        Map<String,String> properties = null;
-        if(contentStream != null) {
+    protected Map<String, String> getContentProperties() {
+        Map<String, String> properties = null;
+        if (contentStream != null) {
             properties = contentStream.getProperties();
         } else {
             properties = source.getSourceProperties(contentItem);
@@ -216,13 +216,14 @@ public class RetrievalWorker implements Runnable {
 
     /**
      * Transfers the remote file stream to the local file
-     * @returns the checksum of the File upon successful retrieval.  Successful
-     * retrieval means the checksum of the local file and remote file match,
-     * otherwise an IOException is thrown.
+     *
      * @param localFile
      * @param listener
      * @return
      * @throws IOException
+     * @returns the checksum of the File upon successful retrieval.  Successful
+     * retrieval means the checksum of the local file and remote file match,
+     * otherwise an IOException is thrown.
      */
     protected Map<String, String> retrieveToFile(File localFile, RetrievalListener listener) throws IOException {
 
@@ -233,24 +234,24 @@ public class RetrievalWorker implements Runnable {
             OutputStream outStream = new FileOutputStream(localFile);
         ) {
             IOUtils.copyLarge(inStream, outStream);
-        } catch(IOException e) {
+        } catch (IOException e) {
             try {
                 deleteFile(localFile);
-            } catch(IOException ioe) {
+            } catch (IOException ioe) {
                 logger.error("Exception deleting local file " +
                              localFile.getAbsolutePath() + " due to: " + ioe.getMessage());
             }
             throw e;
         }
 
-        if(! checksumsMatch(localFile, contentStream.getChecksum())) {
+        if (!checksumsMatch(localFile, contentStream.getChecksum())) {
             deleteFile(localFile);
             throw new IOException("Calculated checksum value for retrieved " +
                                   "file does not match properties checksum.");
         }
 
         // Set time stamps
-        if(applyTimestamps) {
+        if (applyTimestamps) {
             applyTimestamps(contentStream, localFile);
         }
         return contentStream.getProperties();
@@ -275,7 +276,7 @@ public class RetrievalWorker implements Runnable {
         // If any time value is null, that value is left unchanged
         try {
             fileAttributeView.setTimes(lastModTime, lastAccessTime, createTime);
-        } catch(IOException e) {
+        } catch (IOException e) {
             logger.error("Error setting timestamps for local file " +
                          localFile.getAbsolutePath() + ": " + e.getMessage(),
                          e);
@@ -287,16 +288,16 @@ public class RetrievalWorker implements Runnable {
      */
     private FileTime convertDateToFileTime(String strDate) {
         FileTime time = null;
-        if(null != strDate) {
+        if (null != strDate) {
             Date date = null;
             try {
                 date = DateUtil.convertToDate(strDate,
                                               DateUtil.DateFormat.LONG_FORMAT);
-            } catch(ParseException e) {
+            } catch (ParseException e) {
                 date = null;
             }
 
-            if(null != date) {
+            if (null != date) {
                 time = FileTime.fromMillis(date.getTime());
             }
         }
@@ -304,7 +305,7 @@ public class RetrievalWorker implements Runnable {
     }
 
     protected void noChangeNeeded(String localFilePath) {
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Local file " + localFilePath +
                          " matches remote file " + contentItem.toString() +
                          " no update needed");
@@ -313,7 +314,7 @@ public class RetrievalWorker implements Runnable {
     }
 
     protected void succeed(String localFilePath) {
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Successfully retrieved " + contentItem.toString() +
                          " to local file " + localFilePath);
         }

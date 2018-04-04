@@ -22,7 +22,7 @@ import org.junit.Assert;
 
 /**
  * @author Andrew Woods
- *         Date: Aug 31, 2010
+ * Date: Aug 31, 2010
  */
 public class RestExceptionsTestSupport {
 
@@ -75,14 +75,15 @@ public class RestExceptionsTestSupport {
         EasyMock.expectLastCall().once();
         return reader;
     }
+
     protected SpaceResource createSpaceResource() throws ResourceException {
         SpaceResource resource = EasyMock.createMock("SpaceResource",
                                                      SpaceResource.class);
         EasyMock.expect(resource.getSpaces(null)).andThrow(
             createRuntimeException()).anyTimes();
         EasyMock.expect(resource.getSpaceContents(null, null, null, -1, null))
-            .andThrow(createRuntimeException())
-            .anyTimes();
+                .andThrow(createRuntimeException())
+                .anyTimes();
         EasyMock.expect(resource.getSpaceProperties(null, null)).andThrow(
             createRuntimeException()).anyTimes();
         resource.deleteSpace(null, null);
@@ -128,10 +129,10 @@ public class RestExceptionsTestSupport {
     }
 
     public DuraCloudRequestContextUtil createDuracloudRequestContextUtil() {
-        DuraCloudRequestContextUtil util = EasyMock.createMock("DuraCloudRequestContextUtil", DuraCloudRequestContextUtil.class);
+        DuraCloudRequestContextUtil util =
+            EasyMock.createMock("DuraCloudRequestContextUtil", DuraCloudRequestContextUtil.class);
         EasyMock.replay(util);
         return util;
     }
-
 
 }

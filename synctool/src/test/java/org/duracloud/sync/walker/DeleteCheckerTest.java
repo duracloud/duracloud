@@ -7,22 +7,17 @@
  */
 package org.duracloud.sync.walker;
 
-import org.apache.commons.io.FileUtils;
-import org.duracloud.sync.SyncTestBase;
-import org.duracloud.sync.endpoint.SyncEndpoint;
-import org.duracloud.sync.mgmt.ChangedFile;
-import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
+import org.apache.commons.io.FileUtils;
+import org.duracloud.sync.SyncTestBase;
+import org.duracloud.sync.endpoint.SyncEndpoint;
+import org.easymock.EasyMock;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author: Bill Branan

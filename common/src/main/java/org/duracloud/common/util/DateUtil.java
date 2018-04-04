@@ -13,12 +13,16 @@ import java.util.Date;
 
 public class DateUtil {
 
+    private DateUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     public enum DateFormat {
-        LONG_FORMAT ("yyyy-MM-dd'T'HH:mm:ss.sss"),
-        DEFAULT_FORMAT ("yyyy-MM-dd'T'HH:mm:ss"),
-        MID_FORMAT ("yyyy-MM-dd'T'HH:mm"),
-        SHORT_FORMAT ("yyyy-MM-dd"),
-        YEAR_MONTH_FORMAT ("yyyy-MM"),
+        LONG_FORMAT("yyyy-MM-dd'T'HH:mm:ss.sss"),
+        DEFAULT_FORMAT("yyyy-MM-dd'T'HH:mm:ss"),
+        MID_FORMAT("yyyy-MM-dd'T'HH:mm"),
+        SHORT_FORMAT("yyyy-MM-dd"),
+        YEAR_MONTH_FORMAT("yyyy-MM"),
         VERBOSE_FORMAT("EEE, d MMM yyyy HH:mm:ss z"),
         PLAIN_FORMAT("yyyy-MM-dd-HH-mm-ss");
 
@@ -38,7 +42,7 @@ public class DateUtil {
         throws ParseException {
         SimpleDateFormat dateFormat = format.format;
 
-        synchronized(dateFormat){
+        synchronized (dateFormat) {
             return dateFormat.parse(text);
         }
     }
@@ -47,7 +51,7 @@ public class DateUtil {
         return convertToDate(text, DateFormat.DEFAULT_FORMAT);
     }
 
-    public  static String now() {
+    public static String now() {
         long now = System.currentTimeMillis();
         return convertToString(now, DateFormat.DEFAULT_FORMAT);
     }

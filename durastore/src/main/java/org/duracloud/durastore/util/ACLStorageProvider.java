@@ -20,7 +20,6 @@ import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.sns.AccountChangeNotifier;
-import org.duracloud.common.util.AccountIdUtil;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -36,7 +35,7 @@ import org.springframework.security.core.GrantedAuthority;
  * access-type (opened/closed) is performed in this class.
  *
  * @author Andrew Woods
- *         Date: 11/22/11
+ * Date: 11/22/11
  */
 public class ACLStorageProvider implements StorageProvider {
 
@@ -50,11 +49,11 @@ public class ACLStorageProvider implements StorageProvider {
     private boolean loaded;
 
     private Thread cacheLoaderThread = null;
-    
+
     private AccountChangeNotifier notifier;
-    
+
     private DuraCloudRequestContextUtil requestContextUtil;
-    
+
     public ACLStorageProvider(StorageProvider targetProvider,
                               AccountChangeNotifier notifier,
                               DuraCloudRequestContextUtil requestContextUtil) {
@@ -65,8 +64,8 @@ public class ACLStorageProvider implements StorageProvider {
     }
 
     public ACLStorageProvider(StorageProvider targetProvider,
-                              SecurityContextUtil securityContextUtil, 
-                              AccountChangeNotifier notifier, 
+                              SecurityContextUtil securityContextUtil,
+                              AccountChangeNotifier notifier,
                               DuraCloudRequestContextUtil requestContextUtil) {
         assert targetProvider != null;
         assert securityContextUtil != null;
@@ -83,12 +82,12 @@ public class ACLStorageProvider implements StorageProvider {
     }
 
     private void ensureCacheLoaderThreadIsRunning() {
-        if(this.cacheLoaderThread == null || !this.cacheLoaderThread.isAlive()){
-            log.info("cacheLoaderThread was not running. Starting it up..."); 
+        if (this.cacheLoaderThread == null || !this.cacheLoaderThread.isAlive()) {
+            log.info("cacheLoaderThread was not running. Starting it up...");
             this.cacheLoaderThread = new Thread(new CacheLoader());
             this.cacheLoaderThread.start();
-            log.info("cacheLoaderThread has been started"); 
-        }else{
+            log.info("cacheLoaderThread has been started");
+        } else {
             log.debug("cacheLoaderThread is already running.");
         }
     }
@@ -120,7 +119,7 @@ public class ACLStorageProvider implements StorageProvider {
     private void waitForCache() {
 
         while (!loaded) {
-            
+
             ensureCacheLoaderThreadIsRunning();
 
             log.debug("waiting: {}", targetProvider.getClass().getName());
@@ -156,7 +155,7 @@ public class ACLStorageProvider implements StorageProvider {
         List<String> spaces = new ArrayList<String>();
         for (String space : spaceACLMap.keySet()) {
             Map<String, AclType> acls = spaceACLMap.get(space);
-             if (userHasAccess(user, acls) && !spaces.contains(space)) {
+            if (userHasAccess(user, acls) && !spaces.contains(space)) {
                 spaces.add(space);
             }
         }
@@ -311,7 +310,7 @@ public class ACLStorageProvider implements StorageProvider {
             // update cache
             this.spaceACLMap.put(spaceId, spaceACLs);
         }
-        
+
         sendCacheChangedNotification();
 
     }

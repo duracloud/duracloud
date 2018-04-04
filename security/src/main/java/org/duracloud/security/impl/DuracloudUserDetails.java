@@ -7,7 +7,6 @@
  */
 package org.duracloud.security.impl;
 
-
 import java.util.Collection;
 import java.util.List;
 
@@ -17,7 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * @author Andrew Woods
- *         Date: 11/11/11
+ * Date: 11/11/11
  */
 public class DuracloudUserDetails extends User implements UserDetails {
 
@@ -58,7 +57,7 @@ public class DuracloudUserDetails extends User implements UserDetails {
 
     @Override
     public void eraseCredentials() {
-        //The credentials are getting erased despite my using the  
+        //The credentials are getting erased despite my using the
         //erase-credentials="false" in security-config.xml
         //overriding prevents the erasure from occurring.
         //--db

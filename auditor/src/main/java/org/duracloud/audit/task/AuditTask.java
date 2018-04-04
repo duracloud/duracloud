@@ -7,22 +7,22 @@
  */
 package org.duracloud.audit.task;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.common.queue.task.Task;
 import org.duracloud.common.queue.task.TypedTask;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * A Task which will be used to capture an action taken on a
  * DuraCloud content item.
  *
  * @author Bill Branan
- *         Date: 3/14/14
+ * Date: 3/14/14
  */
 public class AuditTask extends TypedTask {
 
@@ -46,7 +46,9 @@ public class AuditTask extends TypedTask {
         GET_SPACES, GET_SPACE_CONTENTS, GET_SPACE_CONTENTS_CHUNKED,
         GET_SPACE_PROPERTIES, GET_SPACE_ACLS, GET_CONTENT,
         GET_CONTENT_PROPERTIES
-    };
+    }
+
+    ;
 
     private String action;
     private String userId;
@@ -54,7 +56,7 @@ public class AuditTask extends TypedTask {
     private String contentChecksum;
     private String contentMimetype;
     private String contentSize;
-    private Map<String,String> contentProperties;
+    private Map<String, String> contentProperties;
     private String spaceACLs;
     private String storeType;
     private String sourceSpaceId;
@@ -110,11 +112,11 @@ public class AuditTask extends TypedTask {
         this.contentSize = contentSize;
     }
 
-    public Map<String,String> getContentProperties() {
+    public Map<String, String> getContentProperties() {
         return contentProperties;
     }
 
-    public void setContentProperties(Map<String,String> contentProperties) {
+    public void setContentProperties(Map<String, String> contentProperties) {
         this.contentProperties = contentProperties;
     }
 
@@ -189,8 +191,8 @@ public class AuditTask extends TypedTask {
         return task;
     }
 
-    protected static Map<String,String> deserializeContentProperties(String json) {
-        if(StringUtils.isNotBlank(json)){
+    protected static Map<String, String> deserializeContentProperties(String json) {
+        if (StringUtils.isNotBlank(json)) {
             try {
                 return getPropsSerializer().deserialize(json);
             } catch (IOException e) {
@@ -200,8 +202,8 @@ public class AuditTask extends TypedTask {
         return null;
     }
 
-    protected static String serializeContentProperties(Map<String,String> props) {
-        if(props != null){
+    protected static String serializeContentProperties(Map<String, String> props) {
+        if (props != null) {
             try {
                 return getPropsSerializer().serialize(props);
             } catch (IOException e) {
@@ -217,7 +219,7 @@ public class AuditTask extends TypedTask {
      *       compiler happy.
      */
     private static JaxbJsonSerializer<Map<String, String>> getPropsSerializer() {
-        return new JaxbJsonSerializer<>((Class<Map<String, String>>)(Object)
+        return new JaxbJsonSerializer<>((Class<Map<String, String>>) (Object)
             new HashMap<String, String>().getClass());
     }
 

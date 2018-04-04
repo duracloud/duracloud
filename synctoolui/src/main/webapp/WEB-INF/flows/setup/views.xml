@@ -4,11 +4,10 @@
   "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
 <tiles-definitions>
   <definition name="wizard-panel" template="/WEB-INF/jsp/template/wizard-panel.jsp">
-    <put-attribute name="panelTitle" cascade="true" />
-    <put-attribute name="panelMessage" cascade="true" />
-    <put-attribute name="panelContent" cascade="true" />
+    <put-attribute name="panelTitle" cascade="true"/>
+    <put-attribute name="panelMessage" cascade="true"/>
+    <put-attribute name="panelContent" cascade="true"/>
   </definition>
-
 
 
   <definition name="setup-wizard" extends="app-base">
@@ -16,21 +15,22 @@
     </put-attribute>
     <put-attribute name="content" cascade="true">
       <definition extends="wizard-panel">
-        <put-attribute name="panelTitle" cascade="true" />
-        <put-attribute name="panelMessage" cascade="true" />
-        <put-attribute name="panelContent" cascade="true" />
+        <put-attribute name="panelTitle" cascade="true"/>
+        <put-attribute name="panelMessage" cascade="true"/>
+        <put-attribute name="panelContent" cascade="true"/>
       </definition>
     </put-attribute>
   </definition>
 
-  <definition name="/setup/welcome" template="/WEB-INF/jsp/setup/welcome.jsp" />
-  <definition name="/setup/mode" template="/WEB-INF/jsp/setup/mode.jsp" />
-  <definition name="/setup/credentials" template="/WEB-INF/jsp/setup/credentials.jsp" />
-  <definition name="/setup/space" template="/WEB-INF/jsp/setup/space.jsp" />
-  <definition name="/setup/directory" template="/WEB-INF/jsp/setup/directory.jsp" />
-  <definition name="/setup/directories" template="/WEB-INF/jsp/setup/directories.jsp" />
-  <definition name="/setup/options" template="/WEB-INF/jsp/setup/options.jsp" />
-  <definition name="/setup/finish" template="/WEB-INF/jsp/setup/finish.jsp" />
-  <definition name="/setup/no-space-error"  extends="/setup/no-space-error" template="/WEB-INF/jsp/setup/no-space-available.jsp" />
+  <definition name="/setup/welcome" template="/WEB-INF/jsp/setup/welcome.jsp"/>
+  <definition name="/setup/mode" template="/WEB-INF/jsp/setup/mode.jsp"/>
+  <definition name="/setup/credentials" template="/WEB-INF/jsp/setup/credentials.jsp"/>
+  <definition name="/setup/space" template="/WEB-INF/jsp/setup/space.jsp"/>
+  <definition name="/setup/directory" template="/WEB-INF/jsp/setup/directory.jsp"/>
+  <definition name="/setup/directories" template="/WEB-INF/jsp/setup/directories.jsp"/>
+  <definition name="/setup/options" template="/WEB-INF/jsp/setup/options.jsp"/>
+  <definition name="/setup/finish" template="/WEB-INF/jsp/setup/finish.jsp"/>
+  <definition name="/setup/no-space-error" extends="/setup/no-space-error"
+              template="/WEB-INF/jsp/setup/no-space-available.jsp"/>
 
 </tiles-definitions>

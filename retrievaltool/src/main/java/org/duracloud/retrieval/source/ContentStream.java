@@ -7,10 +7,10 @@
  */
 package org.duracloud.retrieval.source;
 
-import org.duracloud.client.ContentStore;
-
 import java.io.InputStream;
 import java.util.Map;
+
+import org.duracloud.client.ContentStore;
 
 /**
  * @author: Bill Branan

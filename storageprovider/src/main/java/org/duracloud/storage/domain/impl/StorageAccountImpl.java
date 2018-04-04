@@ -7,11 +7,11 @@
  */
 package org.duracloud.storage.domain.impl;
 
-import org.duracloud.storage.domain.StorageAccount;
-import org.duracloud.storage.domain.StorageProviderType;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.domain.StorageProviderType;
 
 /**
  * Contains the information necessary to access a storage
@@ -124,7 +124,7 @@ public class StorageAccountImpl implements StorageAccount {
     }
 
     @Override
-    public Map<String,String> getOptions() {
+    public Map<String, String> getOptions() {
         return options;
     }
 
@@ -197,7 +197,7 @@ public class StorageAccountImpl implements StorageAccount {
         sb.append(", password:" + password);
         sb.append(", type:" + type);
         sb.append(", isPrimary:" + isPrimary);
-        sb.append(", props:"+ options);
+        sb.append(", props:" + options);
         sb.append("]");
         return sb.toString();
     }

@@ -7,7 +7,11 @@
  */
 package org.duracloud.integration.client;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -18,11 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import junit.framework.Assert;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.common.util.ChecksumUtil.Algorithm;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
@@ -36,8 +40,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import junit.framework.Assert;
 
 /**
  * Runtime test of DuraCloud java client.
@@ -75,7 +77,7 @@ public class TestContentStore extends ClientTestBase {
 
     @Before
     public void setUp() throws Exception {
-        if(!spaceExists(spaceId)) {
+        if (!spaceExists(spaceId)) {
             // Create space
             createSpaceFromStore(spaceId);
         }
@@ -83,10 +85,10 @@ public class TestContentStore extends ClientTestBase {
 
     @After
     public void tearDown() throws Exception {
-        for(String spaceId : spaces) {
-            if(spaceExists(spaceId)) {
+        for (String spaceId : spaces) {
+            if (spaceExists(spaceId)) {
                 Iterator<String> contents = store.getSpaceContents(spaceId);
-                while(contents.hasNext()) {
+                while (contents.hasNext()) {
                     store.deleteContent(spaceId, contents.next());
                 }
             }
@@ -96,10 +98,10 @@ public class TestContentStore extends ClientTestBase {
     @AfterClass
     public static void afterClass() throws Exception {
         // Make sure the space is deleted
-        for(String spaceId : spaces) {
-            if(spaceExists(spaceId)) {
+        for (String spaceId : spaces) {
+            if (spaceExists(spaceId)) {
                 store.deleteSpace(spaceId);
-                log.info("Removed Space " + spaceId);                
+                log.info("Removed Space " + spaceId);
             }
 
             int maxLoops = 10;
@@ -122,11 +124,11 @@ public class TestContentStore extends ClientTestBase {
         Iterator<ContentStore> contentStores =
             contentStoreMap.values().iterator();
         boolean primaryInList = false;
-        while(contentStores.hasNext()) {
+        while (contentStores.hasNext()) {
             ContentStore store = contentStores.next();
             assertNotNull(store.getStoreId());
             assertNotNull(store.getStorageProviderType());
-            if(store.getStoreId().equals(primaryStore.getStoreId())) {
+            if (store.getStoreId().equals(primaryStore.getStoreId())) {
                 primaryInList = true;
                 assertEquals(store.getStorageProviderType(),
                              primaryStore.getStorageProviderType());
@@ -159,7 +161,7 @@ public class TestContentStore extends ClientTestBase {
                        "test-space-test-space-test-spac"); // Too long
         invalidIds.add("127.0.0.1");   // Formatted as an IP address
 
-        for(String id : invalidIds) {
+        for (String id : invalidIds) {
             checkInvalidSpaceId(id);
         }
 
@@ -178,7 +180,7 @@ public class TestContentStore extends ClientTestBase {
             createSpaceFromStore(id);
             fail("Exception expected attempting to add " +
                  "a space with an invalid id: " + id);
-        } catch(InvalidIdException e) {
+        } catch (InvalidIdException e) {
             assertNotNull(e);
         }
     }
@@ -190,7 +192,7 @@ public class TestContentStore extends ClientTestBase {
     private void createSpaceFromStore(String spaceId)
         throws Exception {
         boolean spaceExists = spaceExists(spaceId);
-        if(!spaceExists) {
+        if (!spaceExists) {
             store.createSpace(spaceId);
             log.info("Created Space " + spaceId);
 
@@ -203,7 +205,7 @@ public class TestContentStore extends ClientTestBase {
             }
         }
 
-        if(!spaceExists) {
+        if (!spaceExists) {
             fail("Attempt to create space " + spaceId + " failed.");
         }
 
@@ -253,19 +255,22 @@ public class TestContentStore extends ClientTestBase {
         try {
             store.deleteSpace(invalidSpaceId);
             fail("Exception expected on deleteSpace(invalidSpaceId)");
-        } catch(NotFoundException expected) {
+        } catch (NotFoundException expected) {
+            // Expected exception
         }
 
         try {
             store.getSpaceProperties(invalidSpaceId);
             fail("Exception expected on getSpace(invalidSpaceId)");
-        } catch(NotFoundException expected) {
+        } catch (NotFoundException expected) {
+            // Expected exception
         }
 
         try {
             store.getSpaceProperties(invalidSpaceId);
             fail("Exception expected on getSpaceProperties(invalidSpaceId)");
-        } catch(NotFoundException expected) {
+        } catch (NotFoundException expected) {
+            // Expected exception
         }
 
         try {
@@ -276,35 +281,40 @@ public class TestContentStore extends ClientTestBase {
             store.addContent(invalidSpaceId, contentId, contentStream,
                              content.length(), contentMimeType, null, emptyMap);
             fail("Exception expected on addContent(invalidSpaceId, ...)");
-        } catch(NotFoundException expected) {
+        } catch (NotFoundException expected) {
+            // Expected exception
         }
 
         try {
             String contentId = "test-content";
             store.getContent(invalidSpaceId, contentId);
             fail("Exception expected on getContent(invalidSpaceId, ...)");
-        } catch(NotFoundException expected) {
+        } catch (NotFoundException expected) {
+            // Expected exception
         }
 
         try {
             String contentId = "test-content";
             store.deleteContent(invalidSpaceId, contentId);
             fail("Exception expected on deleteContent(invalidSpaceId, ...)");
-        } catch(NotFoundException expected) {
+        } catch (NotFoundException expected) {
+            // Expected exception
         }
 
         try {
             String contentId = "test-content";
             store.getContentProperties(invalidSpaceId, contentId);
             fail("Exception expected on getContentProperties(invalidSpaceId, ...)");
-        } catch(NotFoundException expected) {
+        } catch (NotFoundException expected) {
+            // Expected exception
         }
 
         try {
             String contentId = "test-content";
             store.setContentProperties(invalidSpaceId, contentId, emptyMap);
             fail("Exception expected on setContentProperties(invalidSpaceId, ...)");
-        } catch(NotFoundException expected) {
+        } catch (NotFoundException expected) {
+            // Expected exception
         }
     }
 
@@ -326,7 +336,7 @@ public class TestContentStore extends ClientTestBase {
         // Get all content
         Iterator<String> contentIds = store.getSpaceContents(spaceId);
         int count = 0;
-        while(contentIds.hasNext()) {
+        while (contentIds.hasNext()) {
             String contentId = contentIds.next();
             assertTrue(contentId.equals(c1) ||
                        contentId.equals(c2) ||
@@ -338,7 +348,7 @@ public class TestContentStore extends ClientTestBase {
         // Get content with prefix
         contentIds = store.getSpaceContents(spaceId, "test");
         count = 0;
-        while(contentIds.hasNext()) {
+        while (contentIds.hasNext()) {
             String contentId = contentIds.next();
             assertTrue(contentId.equals(c1) ||
                        contentId.equals(c2));
@@ -350,7 +360,7 @@ public class TestContentStore extends ClientTestBase {
         List<String> idList =
             store.getSpace(spaceId, null, 2, null).getContentIds();
         assertEquals(2, idList.size());
-        String lastItem = idList.get(idList.size()-1);
+        String lastItem = idList.get(idList.size() - 1);
         idList = store.getSpace(spaceId, null, 2, lastItem).getContentIds();
         assertEquals(1, idList.size());
     }
@@ -369,7 +379,7 @@ public class TestContentStore extends ClientTestBase {
 
         // Too long
         id = "test-content";
-        while(id.getBytes().length <= 1024) {
+        while (id.getBytes().length <= 1024) {
             id += "test-content";
         }
         testInvalidContentItem(id);
@@ -377,10 +387,10 @@ public class TestContentStore extends ClientTestBase {
         // Test valid content IDs
 
         // Test Special characters
-        char[] specialChars = {'~','`','!','@','$','^','&','*','(',')','_','-',
-                               '+','=','\'',':','.',',','<','>','"','[',']',
-                               '{','}','#','%',';','|',' ','/'};
-        for(char character : specialChars) {
+        char[] specialChars = {'~', '`', '!', '@', '$', '^', '&', '*', '(', ')', '_', '-',
+                               '+', '=', '\'', ':', '.', ',', '<', '>', '"', '[', ']',
+                               '{', '}', '#', '%', ';', '|', ' ', '/'};
+        for (char character : specialChars) {
             testCharacterInContentId(character);
         }
     }
@@ -403,7 +413,7 @@ public class TestContentStore extends ClientTestBase {
         String contentMimeType = "text/plain";
 
         String advChecksum = null;
-        if(checksumInAdvance) {
+        if (checksumInAdvance) {
             ChecksumUtil util = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
             advChecksum = util.generateChecksum(contentStream);
             contentStream.reset();
@@ -417,7 +427,7 @@ public class TestContentStore extends ClientTestBase {
                                            advChecksum,
                                            null);
 
-        if(checksumInAdvance) {
+        if (checksumInAdvance) {
             Assert.assertEquals(advChecksum, checksum);
         }
 
@@ -428,7 +438,7 @@ public class TestContentStore extends ClientTestBase {
         String contentId = "test-" + String.valueOf(character) + "-content";
         String checksum = addContentItem(contentId, true);
         assertNotNull(checksum);
-        
+
         Content content = store.getContent(spaceId, contentId);
         assertNotNull(content);
         assertEquals(contentId, content.getId());
@@ -471,7 +481,7 @@ public class TestContentStore extends ClientTestBase {
         assertEquals(metaValue, responseProperties.get(metaName));
         assertEquals(checksum,
                      responseProperties.get(ContentStore.CONTENT_CHECKSUM));
-        assertTrue( responseProperties.get(ContentStore.CONTENT_MIMETYPE).startsWith(contentMimeType));
+        assertTrue(responseProperties.get(ContentStore.CONTENT_MIMETYPE).startsWith(contentMimeType));
         assertEquals(String.valueOf(content.length()),
                      responseProperties.get(ContentStore.CONTENT_SIZE));
         assertNotNull(responseProperties.get(ContentStore.CONTENT_MODIFIED));
@@ -498,7 +508,7 @@ public class TestContentStore extends ClientTestBase {
         try {
             store.getContent(spaceId, contentId);
             fail("Exception should be thrown attempting to retrieve deleted content");
-        } catch(ContentStoreException cse) {
+        } catch (ContentStoreException cse) {
             assertNotNull(cse.getMessage());
         }
     }
@@ -515,25 +525,29 @@ public class TestContentStore extends ClientTestBase {
         try {
             store.deleteContent(spaceId, invalidContentId);
             fail("Exception expected on deleteContent(spaceId, invalidContentId)");
-        } catch(NotFoundException expected) {
+        } catch (NotFoundException expected) {
+            // Expected exception
         }
 
         try {
             store.getContent(spaceId, invalidContentId);
             fail("Exception expected on getContent(spaceId, invalidContentId)");
-        } catch(NotFoundException expected) {
+        } catch (NotFoundException expected) {
+            // Expected exception
         }
 
         try {
             store.getContentProperties(spaceId, invalidContentId);
             fail("Exception expected on getContentProperties(spaceId, invalidContentId)");
-        } catch(NotFoundException expected) {
+        } catch (NotFoundException expected) {
+            // Expected exception
         }
 
         try {
             store.setContentProperties(spaceId, invalidContentId, emptyMap);
             fail("Exception expected on setContentProperties(spaceId, invalidContentId, ...)");
-        } catch(NotFoundException expected) {
+        } catch (NotFoundException expected) {
+            // Expected exception
         }
     }
 
@@ -557,13 +571,11 @@ public class TestContentStore extends ClientTestBase {
         taskName = "invalid-task";
         taskParams = "invalid-task-params";
 
-        try {            
+        try {
             store.performTask(taskName, taskParams);
-        } catch(UnsupportedTaskException expected) {
+        } catch (UnsupportedTaskException expected) {
             assertNotNull(expected);
         }
     }
-
-    
 
 }

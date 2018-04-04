@@ -19,11 +19,11 @@ import org.slf4j.LoggerFactory;
  * This class formats content manifests as BagIt.
  *
  * @author Andrew Woods
- *         Date: 3/29/12
+ * Date: 3/29/12
  */
 public class BagitManifestFormatter extends ManifestFormatterBase {
     private static Pattern LINE_PATTERN = Pattern.compile("(\\w+)\\s+(.*)/(.*)");
-    
+
     private final Logger log =
         LoggerFactory.getLogger(BagitManifestFormatter.class);
 
@@ -38,8 +38,7 @@ public class BagitManifestFormatter extends ManifestFormatterBase {
     }
 
     @Override
-    protected String
-        formatLine(String contentChecksum, String spaceId, String contentId) {
+    protected String formatLine(String contentChecksum, String spaceId, String contentId) {
         StringBuilder line = new StringBuilder();
         line.append(contentChecksum);
         line.append("  ");
@@ -49,7 +48,7 @@ public class BagitManifestFormatter extends ManifestFormatterBase {
 
         return line.toString();
     }
-    
+
     @Override
     public ManifestItem parseLine(String line) throws ParseException {
         Matcher matcher = LINE_PATTERN.matcher(line);

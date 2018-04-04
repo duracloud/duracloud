@@ -7,7 +7,6 @@
  */
 package org.duracloud.common.util;
 
-
 import java.io.Console;
 import java.io.PrintWriter;
 import java.io.Reader;

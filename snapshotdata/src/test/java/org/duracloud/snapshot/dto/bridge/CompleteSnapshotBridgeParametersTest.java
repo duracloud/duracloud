@@ -7,17 +7,17 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import org.junit.Test;
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import org.junit.Test;
 
 /**
  * @author Bill Branan
- *         Date: 8/4/2015
+ * Date: 8/4/2015
  */
 public class CompleteSnapshotBridgeParametersTest {
 
@@ -33,7 +33,7 @@ public class CompleteSnapshotBridgeParametersTest {
         String cleanResult = result.replaceAll("\\s+", "");
 
         assertThat(cleanResult,
-                   containsString("\"alternateIds\":[\""+idOne+"\",\""+idTwo+"\"]"));
+                   containsString("\"alternateIds\":[\"" + idOne + "\",\"" + idTwo + "\"]"));
     }
 
 }

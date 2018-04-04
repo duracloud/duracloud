@@ -7,18 +7,14 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import java.io.IOException;
-
 import javax.xml.bind.annotation.XmlValue;
 
-import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.dto.RestoreStatus;
-import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
- * @author Daniel Bernstein 
- *         Date: 11/06/15
+ * @author Daniel Bernstein
+ * Date: 11/06/15
  */
 public class GenericRestoreBridgeResult extends BaseDTO {
 

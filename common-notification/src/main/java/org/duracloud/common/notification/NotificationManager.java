@@ -7,7 +7,6 @@
  */
 package org.duracloud.common.notification;
 
-
 import java.util.Collection;
 
 /**
@@ -30,16 +29,16 @@ public class NotificationManager {
      * Initializes notifiers using the provided configuration. It is expected
      * that there will be exactly one config for each notifier type.
      * - If there is more than one config for a given type, the last
-     *   configuration of that type in the list will win.
+     * configuration of that type in the list will win.
      * - If there is a type not represented in the config list, then all
-     *   notifiers of that type will remain uninitialized.
+     * notifiers of that type will remain uninitialized.
      *
      * @param notificationConfigs set of configuration for notifiers
      */
     public void initializeNotifiers(Collection<NotificationConfig> notificationConfigs) {
-        for(NotificationConfig config : notificationConfigs) {
-            for(Notifier notifier : notifiers) {
-                if(notifier.getNotificationType().name().equalsIgnoreCase(
+        for (NotificationConfig config : notificationConfigs) {
+            for (Notifier notifier : notifiers) {
+                if (notifier.getNotificationType().name().equalsIgnoreCase(
                     config.getType())) {
                     notifier.initialize(config);
                 }
@@ -50,17 +49,17 @@ public class NotificationManager {
     /**
      * Sends a notification through all configured notifiers of a given type.
      *
-     * @param type of notification to be sent
-     * @param subject of the notification
-     * @param message of the notification
+     * @param type         of notification to be sent
+     * @param subject      of the notification
+     * @param message      of the notification
      * @param destinations where notification is to be sent
      */
     public void sendNotification(NotificationType type,
                                  String subject,
                                  String message,
                                  String... destinations) {
-        for(Notifier notifier : notifiers) {
-            if(notifier.getNotificationType().equals(type)) {
+        for (Notifier notifier : notifiers) {
+            if (notifier.getNotificationType().equals(type)) {
                 notifier.notify(subject, message, destinations);
             }
         }
@@ -70,15 +69,15 @@ public class NotificationManager {
      * Sends a notification to system administrators through all configured
      * notifiers of a given type.
      *
-     * @param type of notification to be sent
+     * @param type    of notification to be sent
      * @param subject of the notification
      * @param message of the notification
      */
     public void sendAdminNotification(NotificationType type,
                                       String subject,
                                       String message) {
-        for(Notifier notifier : notifiers) {
-            if(notifier.getNotificationType().equals(type)) {
+        for (Notifier notifier : notifiers) {
+            if (notifier.getNotificationType().equals(type)) {
                 notifier.notifyAdmins(subject, message);
             }
         }

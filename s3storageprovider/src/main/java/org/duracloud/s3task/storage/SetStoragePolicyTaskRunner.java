@@ -7,19 +7,14 @@
  */
 package org.duracloud.s3task.storage;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import java.util.Arrays;
+
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StoragePolicy;
 import org.duracloud.s3storageprovider.dto.SetStoragePolicyTaskParameters;
-import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Task which sets a lifecycle bucket policy for DuraCloud spaces
@@ -55,8 +50,8 @@ public class SetStoragePolicyTaskRunner implements TaskRunner {
         int daysToTransition = taskParams.getDaysToTransition();
         StorageClass storageClass;
         try {
-             storageClass = StorageClass.fromValue(taskParams.getStorageClass());
-        } catch(IllegalArgumentException e) {
+            storageClass = StorageClass.fromValue(taskParams.getStorageClass());
+        } catch (IllegalArgumentException e) {
             throw new RuntimeException("Cannot set storage policy due to invalid " +
                                        "storage class. The valid storage class " +
                                        "options are: " +

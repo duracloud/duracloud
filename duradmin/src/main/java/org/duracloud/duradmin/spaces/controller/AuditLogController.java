@@ -8,8 +8,14 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
-import org.apache.http.HttpStatus;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.util.DateUtil.DateFormat;
@@ -24,16 +30,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 @Controller
 @RequestMapping("/audit")
@@ -49,9 +47,8 @@ public class AuditLogController {
     }
 
     @RequestMapping(value = "/{storeId}/{spaceId:.*}", method = RequestMethod.GET)
-    public String
-        get(@PathVariable("storeId") String storeId,
-            @PathVariable("spaceId") String spaceId, HttpServletResponse response) throws Exception {
+    public String get(@PathVariable("storeId") String storeId,
+                      @PathVariable("spaceId") String spaceId, HttpServletResponse response) throws Exception {
         try {
             ContentStore contentStore =
                 contentStoreManager.getContentStore(storeId);
@@ -72,7 +69,7 @@ public class AuditLogController {
             IOUtils.copy(is, response.getOutputStream());
         } catch (NotFoundException ex) {
             response.setStatus(HttpStatus.SC_NOT_FOUND);
-            
+
         } catch (ContentStoreException | IOException ex) {
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }

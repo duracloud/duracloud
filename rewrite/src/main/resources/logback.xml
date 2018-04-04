@@ -2,7 +2,7 @@
 
 <configuration debug="true" scan="true">
   <jmxConfigurator/>
-  <property name="LOG_FILENAME" value="${duracloud.home}/logs/duracloud-rewrite.log" />
+  <property name="LOG_FILENAME" value="${duracloud.home}/logs/duracloud-rewrite.log"/>
 
   <appender name="DURACLOUD" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->

@@ -7,6 +7,16 @@
  */
 package org.duracloud.retrieval;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.ApplicationConfig;
@@ -23,16 +33,6 @@ import org.duracloud.retrieval.source.RetrievalSource;
 import org.duracloud.retrieval.util.StoreClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Starting point for the Retrieval Tool. The purpose of this tool is to
@@ -75,6 +75,7 @@ public class RetrievalTool {
 
     /**
      * Sets the configuration of the retrieval tool.
+     *
      * @param retConfig to use for running the Retrieval Tool
      */
     protected void setRetrievalConfig(RetrievalToolConfig retConfig) {
@@ -86,7 +87,7 @@ public class RetrievalTool {
         retSource = getRetrievalSource(contentStore);
         outWriter = new CSVFileOutputWriter(retConfig.getWorkDir());
         boolean createSpaceDir = isCreateSpaceDir();
-        boolean applyTimestamps = retConfig.isApplyTimestamps() ;
+        boolean applyTimestamps = retConfig.isApplyTimestamps();
         retManager = new RetrievalManager(retSource,
                                           retConfig.getContentDir(),
                                           retConfig.getWorkDir(),
@@ -100,13 +101,13 @@ public class RetrievalTool {
     }
 
     private RetrievalSource getRetrievalSource(ContentStore contentStore) {
-        if(retSource == null) {
-            if(retConfig.getListFile() != null) {
+        if (retSource == null) {
+            if (retConfig.getListFile() != null) {
                 try {
                     List<String> specifiedIds = new ArrayList<String>();
                     BufferedReader br = new BufferedReader(new FileReader(retConfig.getListFile()));
                     String line = null;
-                    while((line=br.readLine()) != null) {
+                    while ((line = br.readLine()) != null) {
                         specifiedIds.add(line);
                     }
 
@@ -114,19 +115,19 @@ public class RetrievalTool {
                         contentStore,
                         retConfig.getSpaces(),  // this list should only contain 1 space ID, length 1
                         specifiedIds.iterator());
-                } catch(FileNotFoundException fnfe) {
+                } catch (FileNotFoundException fnfe) {
                     String error = "Error: file of content IDs specified using '-f' option does not exist.\n" +
                                    "Error Message: " + fnfe.getMessage();
                     throw new DuraCloudRuntimeException(error, fnfe);
-                } catch(IOException ioe) {
+                } catch (IOException ioe) {
                     String error = "Error: problem reading file of content IDs specified using '-f' option.\n" +
-                            "Error Message: " + ioe.getMessage();
+                                   "Error Message: " + ioe.getMessage();
                     throw new DuraCloudRuntimeException(error, ioe);
                 }
             } else {
                 retSource = new DuraStoreStitchingRetrievalSource(contentStore,
-                                retConfig.getSpaces(),
-                                retConfig.isAllSpaces());
+                                                                  retConfig.getSpaces(),
+                                                                  retConfig.isAllSpaces());
             }
         }
         return retSource;
@@ -134,7 +135,7 @@ public class RetrievalTool {
 
     private boolean isCreateSpaceDir() {
         boolean createDir = retConfig.isAllSpaces();
-        if(! createDir) {
+        if (!createDir) {
             createDir = retConfig.getSpaces().size() > 1;
         }
         return createDir;
@@ -145,8 +146,8 @@ public class RetrievalTool {
         statusManager.setVersion(version);
 
         int loops = 0;
-        while(!retManager.isComplete()) {
-            if(loops >= 60) { // Print status every 10 minutes
+        while (!retManager.isComplete()) {
+            if (loops >= 60) { // Print status every 10 minutes
                 System.out.println(statusManager.getPrintableStatus());
                 loops = 0;
             } else {
@@ -156,7 +157,7 @@ public class RetrievalTool {
         }
 
         logger.info("Shutting down the Retrieval Tool");
-        
+
         outWriter.close();
         executor.shutdown();
         System.out.println("Retrieval Tool processing complete, final status:");
@@ -167,15 +168,16 @@ public class RetrievalTool {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
+            // Exit sleep on interruption
         }
     }
 
     private void startSpaceListManager(ContentStore contentStore) {
         List<String> spaces;
-        if(retConfig.isAllSpaces()) {
+        if (retConfig.isAllSpaces()) {
             try {
                 spaces = contentStore.getSpaces();
-            } catch(ContentStoreException e) {
+            } catch (ContentStoreException e) {
                 String errorMsg = "Unable to get spaces list due to error: " +
                                   e.getMessage();
                 throw new DuraCloudRuntimeException(errorMsg, e);
@@ -190,7 +192,7 @@ public class RetrievalTool {
                                  retConfig.isOverwrite(),
                                  retConfig.getNumThreads());
         executor.execute(spaceListManager);
-        while(!spaceListManager.isComplete()) {
+        while (!spaceListManager.isComplete()) {
             sleep(1000);
         }
         executor.shutdown();
@@ -213,14 +215,14 @@ public class RetrievalTool {
                                           retConfig.getStoreId());
 
         executor = Executors.newFixedThreadPool(1);
-        if(retConfig.isListOnly()) {
+        if (retConfig.isListOnly()) {
             startSpaceListManager(contentStore);
         } else {
             startRetrievalManager(contentStore);
             System.out.println("... Startup Complete");
             System.out.println("The Retrieval Tool will exit when processing " +
-                           "is complete. Status will be printed every " +
-                           "10 minutes.\n");
+                               "is complete. Status will be printed every " +
+                               "10 minutes.\n");
             waitForExit();
         }
     }

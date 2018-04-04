@@ -7,15 +7,15 @@
  */
 package org.duracloud.sync.walker;
 
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+
 import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * @author: Bill Branan
@@ -33,12 +33,12 @@ public class DeleteChecker implements Runnable {
     private boolean complete = false;
     private boolean stopped = false;
     private String prefix;
-    
+
     /**
      * Creates a delete checker
      *
      * @param syncEndpoint the endpoint to which files are synced
-     * @param syncDirs the list of local source directories being synced
+     * @param syncDirs     the list of local source directories being synced
      */
     protected DeleteChecker(SyncEndpoint syncEndpoint,
                             String spaceId,
@@ -69,16 +69,16 @@ public class DeleteChecker implements Runnable {
 
         while (filesList.hasNext() && !stopped) {
             String contentId = filesList.next();
-            if(null != prefix) { // A prefix is being used
-                if(contentId.startsWith(prefix)) {
-                    if(!exists(contentId.substring(prefix.length()))) {
+            if (null != prefix) { // A prefix is being used
+                if (contentId.startsWith(prefix)) {
+                    if (!exists(contentId.substring(prefix.length()))) {
                         deleteContent(contentId);
                     }
                 } else { // Content Id does not start with prefix
                     deleteContent(contentId);
                 }
             } else { // A prefix is not being used
-                if(!exists(contentId)) {
+                if (!exists(contentId)) {
                     deleteContent(contentId);
                 }
             }
@@ -108,7 +108,7 @@ public class DeleteChecker implements Runnable {
                     return "success";
                 }
             });
-        } catch(Exception e) {
+        } catch (Exception e) {
             logger.error("Failed to delete content item: " + contentId +
                          " from space: " + spaceId + " due to: " +
                          e.getMessage());
@@ -118,7 +118,7 @@ public class DeleteChecker implements Runnable {
     public boolean checkComplete() {
         return complete;
     }
-    
+
     public void stop() {
         this.stopped = true;
     }

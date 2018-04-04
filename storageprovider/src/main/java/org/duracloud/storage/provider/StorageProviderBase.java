@@ -7,13 +7,7 @@
  */
 package org.duracloud.storage.provider;
 
-import org.duracloud.common.model.AclType;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.storage.error.NotFoundException;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.util.StorageProviderUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,7 +15,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
+import org.duracloud.common.model.AclType;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.util.StorageProviderUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author: Bill Branan
@@ -39,8 +38,11 @@ public abstract class StorageProviderBase implements StorageProvider {
     private StorageProvider wrappedStorageProvider;
 
     protected abstract boolean spaceExists(String spaceId);
+
     protected abstract void removeSpace(String spaceId);
+
     protected abstract Map<String, String> getAllSpaceProperties(String spaceId);
+
     protected abstract void doSetSpaceProperties(String spaceId,
                                                  Map<String, String> spaceProps);
 
@@ -67,10 +69,9 @@ public abstract class StorageProviderBase implements StorageProvider {
     /**
      * Sets the properties on this space. Maintains the current ACL settings.
      *
-     * @link setNewSpaceProperties(spaceId, spaceProperties, spaceACLs)
-     *
      * @param spaceId
      * @param spaceProperties
+     * @link setNewSpaceProperties(spaceId, spaceProperties, spaceACLs)
      */
     public void setNewSpaceProperties(String spaceId,
                                       Map<String, String> spaceProperties) {
@@ -111,7 +112,7 @@ public abstract class StorageProviderBase implements StorageProvider {
         if (!success) {
             throw new StorageException(
                 "Properties for space " + spaceId + " could not be created. " +
-                    "The space cannot be found.");
+                "The space cannot be found.");
         }
     }
 
@@ -141,29 +142,29 @@ public abstract class StorageProviderBase implements StorageProvider {
         Map<String, AclType> acls = new HashMap<String, AclType>();
 
         String readUserList = spaceProps.get(ACL_USER_READ);
-        if(null != readUserList) {
-            for(String userName : readUserList.split(ACL_DELIM)) {
+        if (null != readUserList) {
+            for (String userName : readUserList.split(ACL_DELIM)) {
                 acls.put(PROPERTIES_SPACE_ACL + userName, AclType.READ);
             }
         }
 
         String writeUserList = spaceProps.get(ACL_USER_WRITE);
-        if(null != writeUserList) {
-            for(String userName : writeUserList.split(ACL_DELIM)) {
+        if (null != writeUserList) {
+            for (String userName : writeUserList.split(ACL_DELIM)) {
                 acls.put(PROPERTIES_SPACE_ACL + userName, AclType.WRITE);
             }
         }
 
         String readGroupList = spaceProps.get(ACL_GROUP_READ);
-        if(null != readGroupList) {
-            for(String groupName : readGroupList.split(ACL_DELIM)) {
+        if (null != readGroupList) {
+            for (String groupName : readGroupList.split(ACL_DELIM)) {
                 acls.put(PROPERTIES_SPACE_ACL_GROUP + groupName, AclType.READ);
             }
         }
 
         String writeGroupList = spaceProps.get(ACL_GROUP_WRITE);
-        if(null != writeGroupList) {
-            for(String groupName : writeGroupList.split(ACL_DELIM)) {
+        if (null != writeGroupList) {
+            for (String groupName : writeGroupList.split(ACL_DELIM)) {
                 acls.put(PROPERTIES_SPACE_ACL_GROUP + groupName, AclType.WRITE);
             }
         }
@@ -212,20 +213,20 @@ public abstract class StorageProviderBase implements StorageProvider {
         if (null != spaceACLs) {
             for (String key : spaceACLs.keySet()) {
                 AclType acl = spaceACLs.get(key);
-                if(key.startsWith(PROPERTIES_SPACE_ACL_GROUP)) {
+                if (key.startsWith(PROPERTIES_SPACE_ACL_GROUP)) {
                     String groupName =
                         key.substring(PROPERTIES_SPACE_ACL_GROUP.length());
-                    if(acl.equals(AclType.READ)) {
+                    if (acl.equals(AclType.READ)) {
                         readGroupList.add(groupName);
-                    } else if(acl.equals(AclType.WRITE)) {
+                    } else if (acl.equals(AclType.WRITE)) {
                         writeGroupList.add(groupName);
                     }
                 } else if (key.startsWith(PROPERTIES_SPACE_ACL)) {
                     String userName =
                         key.substring(PROPERTIES_SPACE_ACL.length());
-                    if(acl.equals(AclType.READ)) {
+                    if (acl.equals(AclType.READ)) {
                         readUserList.add(userName);
-                    } else if(acl.equals(AclType.WRITE)) {
+                    } else if (acl.equals(AclType.WRITE)) {
                         writeUserList.add(userName);
                     }
                 }
@@ -244,9 +245,9 @@ public abstract class StorageProviderBase implements StorageProvider {
     private void includeACL(Map<String, String> packedAcls,
                             String acl,
                             Set<String> listEntries) {
-        if(!listEntries.isEmpty()) {
+        if (!listEntries.isEmpty()) {
             StringBuilder aclValues = new StringBuilder();
-            for(String aclValue : listEntries) {
+            for (String aclValue : listEntries) {
                 aclValues.append(aclValue).append(ACL_DELIM);
             }
             packedAcls.put(acl, aclValues.toString());
@@ -283,9 +284,7 @@ public abstract class StorageProviderBase implements StorageProvider {
         for (
             int loops = 0; !spaceExists(spaceId) && loops < maxLoops; loops++) {
             try {
-                log.debug(
-                    "Waiting for space " + spaceId + " to be available, loop " +
-                        loops);
+                log.debug("Waiting for space " + spaceId + " to be available, loop " + loops);
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 log.warn(e.getMessage(), e);
@@ -310,6 +309,7 @@ public abstract class StorageProviderBase implements StorageProvider {
 
     /**
      * This method is only intended to be used by tests!
+     *
      * @param spaceId
      */
     public void deleteSpaceSync(String spaceId) {
@@ -340,41 +340,41 @@ public abstract class StorageProviderBase implements StorageProvider {
             Iterator<String> contents = getSpaceContents(spaceId, null);
             int count = 0;
 
-            while(contents.hasNext() && count++ < 5) {
-                try{
-                    Thread.sleep((long)Math.pow(2,count) * 100);
-                } catch(InterruptedException e) {
+            while (contents.hasNext() && count++ < 5) {
+                try {
+                    Thread.sleep((long) Math.pow(2, count) * 100);
+                } catch (InterruptedException e) {
+                    // Return from sleep on interrupt
                 }
 
                 StorageProvider sp = StorageProviderBase.this;
-                if(wrappedStorageProvider != null){
+                if (wrappedStorageProvider != null) {
                     sp = wrappedStorageProvider;
                 }
 
-                while(contents.hasNext()) {
+                while (contents.hasNext()) {
                     String contentId = contents.next();
                     log.debug("deleteContent(" + spaceId + ", " +
                               contentId + ") - count=" + count);
 
                     try {
                         sp.deleteContent(spaceId, contentId);
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         log.error("Error deleting content " + contentId +
-                            " in space " + spaceId, e);
+                                  " in space " + spaceId, e);
                     }
                 }
                 contents = getSpaceContents(spaceId, null);
             }
 
-            if(contents.hasNext()) {
+            if (contents.hasNext()) {
                 log.debug("deleteSpaceContents(" + spaceId +
                           ") exceeded retries");
 
                 Map<String, String> allProps = getAllSpaceProperties(spaceId);
                 allProps.put("delete-error", "Unable to delete all contents");
                 doSetSpaceProperties(spaceId, allProps);
-            }
-            else {
+            } else {
                 log.debug("removeSpace(" + spaceId + ")");
                 removeSpace(spaceId);
             }
@@ -385,20 +385,20 @@ public abstract class StorageProviderBase implements StorageProvider {
     public SpaceDeleteWorker getSpaceDeleteWorker(String spaceId) {
         return new SpaceDeleteWorker(spaceId);
     }
-    
-    protected Map<String,String> removeCalculatedProperties (Map<String,String> properties){
+
+    protected Map<String, String> removeCalculatedProperties(Map<String, String> properties) {
         return StorageProviderUtil.removeCalculatedProperties(properties);
     }
-    
+
     /**
      * Sets an alternate storage provider that can be used for select operations.
-     * The motivation for adding this method came from a need to have the 
+     * The motivation for adding this method came from a need to have the
      * deleteSpace operation generate audit events for content items as they were deleted
-     * before the space itself was deleted. 
-     * 
+     * before the space itself was deleted.
+     *
      * @param wrappedStorageProvider
      */
-    public void setWrappedStorageProvider(StorageProvider wrappedStorageProvider){
+    public void setWrappedStorageProvider(StorageProvider wrappedStorageProvider) {
         this.wrappedStorageProvider = wrappedStorageProvider;
     }
 }

@@ -15,10 +15,9 @@ import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * @author Daniel Bernstein
- *         Date: 11/04/15
+ * Date: 11/04/15
  */
-public class RequestRestoreSnapshotParameters  extends RequestRestoreBridgeParameters {
-
+public class RequestRestoreSnapshotParameters extends RequestRestoreBridgeParameters {
 
     /**
      * Creates a serialized version of task parameters
@@ -30,7 +29,7 @@ public class RequestRestoreSnapshotParameters  extends RequestRestoreBridgeParam
             new JaxbJsonSerializer<>(RequestRestoreSnapshotParameters.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task parameters due to: " + e.getMessage());
         }
@@ -48,12 +47,12 @@ public class RequestRestoreSnapshotParameters  extends RequestRestoreBridgeParam
             RequestRestoreSnapshotParameters params =
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
-            if(null == params.getSnapshotId() || params.getSnapshotId().isEmpty()) {
+            if (null == params.getSnapshotId() || params.getSnapshotId().isEmpty()) {
                 throw new SnapshotDataException(
                     "Task parameter values may not be empty");
             }
             return params;
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to parse task parameters due to: " + e.getMessage());
         }

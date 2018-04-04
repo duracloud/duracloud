@@ -7,16 +7,16 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import org.duracloud.snapshot.dto.SnapshotStatus;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.duracloud.snapshot.dto.SnapshotStatus;
+import org.junit.Test;
+
 /**
- * @author Daniel Bernstein 
- *         Date: 08/07/15
+ * @author Daniel Bernstein
+ * Date: 08/07/15
  */
 public class RestartSnapshotBridgeResultTest {
 
@@ -30,15 +30,15 @@ public class RestartSnapshotBridgeResultTest {
         String result = params.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
 
-        assertThat(cleanResult, containsString("\"description\":\""+description+"\""));
-        assertThat(cleanResult, containsString("\"status\":\""+status.name()+"\""));
+        assertThat(cleanResult, containsString("\"description\":\"" + description + "\""));
+        assertThat(cleanResult, containsString("\"status\":\"" + status.name() + "\""));
     }
 
     @Test
     public void testDeserialize() {
         // Verify valid params
         String resultSerialized = "{\"description\" : \"description\"," +
-                                    "\"status\":\"" + SnapshotStatus.INITIALIZED +"\"}";
+                                  "\"status\":\"" + SnapshotStatus.INITIALIZED + "\"}";
 
         RestartSnapshotBridgeResult bridgeResult =
             RestartSnapshotBridgeResult.deserialize(resultSerialized);

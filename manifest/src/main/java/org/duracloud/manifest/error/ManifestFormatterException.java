@@ -11,7 +11,7 @@ import org.duracloud.common.error.DuraCloudRuntimeException;
 
 /**
  * @author Andrew Woods
- *         Date: 3/29/12
+ * Date: 3/29/12
  */
 public class ManifestFormatterException extends DuraCloudRuntimeException {
 

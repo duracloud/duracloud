@@ -7,6 +7,12 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.apache.http.HttpHeaders;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
@@ -25,19 +31,13 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 /**
  * Begins the process of restoring a snapshot by creating a landing space and
  * informing the snapshot bridge application that a restore action needs to be
  * performed.
  *
  * @author Bill Branan
- *         Date: 7/23/14
+ * Date: 7/23/14
  */
 public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
 
@@ -81,8 +81,8 @@ public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
                  "DuraCloud Host: {} DuraCloud Port: {} DuraCloud StoreID: {} " +
                  "DuraCloud Snapshot User: {} Bridge Host: {} Bridge Port: {} " +
                  "Bridge User: {}",
-                  dcHost, dcPort, dcStoreId, dcSnapshotUser,
-                  getBridgeAppHost(), getBridgeAppPort(), getBridgeAppUser());
+                 dcHost, dcPort, dcStoreId, dcSnapshotUser,
+                 getBridgeAppHost(), getBridgeAppPort(), getBridgeAppUser());
 
         // Get input params
         RestoreSnapshotTaskParameters taskParams =
@@ -91,7 +91,7 @@ public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
         SnapshotIdentifier snapshotIdentifier;
         try {
             snapshotIdentifier = SnapshotIdentifier.parseSnapshotId(snapshotId);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             throw new TaskException("Invalid Snapshot ID: " + snapshotId);
         }
 
@@ -115,7 +115,7 @@ public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
             callBridge(createRestHelper(), bridgeURL, bridgeBody);
         CreateRestoreBridgeResult bridgeResult =
             CreateRestoreBridgeResult.deserialize(callResult);
-        
+
         // Add restore ID to space properties
         addRestoreIdToSpaceProps(restoreSpaceId, bridgeResult.getRestoreId());
 
@@ -130,7 +130,6 @@ public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
         return taskResult.serialize();
     }
 
-
     /*
      * Determines if a restore of this snapshot is either already under way
      * or complete. This determination is based on the existance of a space
@@ -143,9 +142,9 @@ public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
      */
     protected void checkExistingRestore(SnapshotIdentifier snapshotIdentifier) {
         Iterator<String> currentSpaces = snapshotProvider.getSpaces();
-        while(currentSpaces.hasNext()) {
+        while (currentSpaces.hasNext()) {
             String spaceId = currentSpaces.next();
-            if(spaceId.equals(snapshotIdentifier.getRestoreSpaceId())) {
+            if (spaceId.equals(snapshotIdentifier.getRestoreSpaceId())) {
                 // This snapshot has already been restored
                 String error = "A request to restore snapshot with ID " +
                                snapshotIdentifier.getSnapshotId() +
@@ -171,7 +170,7 @@ public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
                     return spaceId;
                 }
             });
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new TaskException("Unable to initialize snapshot restore, " +
                                     "failed creating restore space due to: " +
                                     e.getMessage(), e);
@@ -197,7 +196,7 @@ public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
                     return spaceId;
                 }
             });
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new TaskException("Unable to initialize snapshot restore, " +
                                     "failed setting space permissions due to: " +
                                     e.getMessage(), e);
@@ -238,12 +237,12 @@ public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
             RestHttpHelper.HttpResponse response =
                 restHelper.put(snapshotURL, snapshotBody, headers);
             int statusCode = response.getStatusCode();
-            if(statusCode != 201) {
+            if (statusCode != 201) {
                 throw new RuntimeException("Unexpected response code: " +
                                            statusCode);
             }
             return response.getResponseBody();
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new TaskException("Exception encountered attempting to " +
                                     "initiate snapshot request. " +
                                     "Error reported: " + e.getMessage(), e);

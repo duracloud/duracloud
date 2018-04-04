@@ -7,18 +7,18 @@
  */
 package org.duracloud.chunk.manifest;
 
-import org.duracloud.chunk.stream.KnownLengthInputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+
 import org.duracloud.chunk.manifest.xml.ManifestDocumentBinding;
+import org.duracloud.chunk.stream.KnownLengthInputStream;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-
 /**
  * @author Andrew Woods
- *         Date: Feb 7, 2010
+ * Date: Feb 7, 2010
  */
 public class ChunksManifest extends ChunksManifestBean {
 
@@ -31,7 +31,6 @@ public class ChunksManifest extends ChunksManifestBean {
     public final static String chunkSuffix = ".dura-chunk-";
     public final static String manifestSuffix = ".dura-manifest";
     private static final int MAX_CHUNKS = 9999;
-
 
     public ChunksManifest(ChunksManifestBean bean) {
         this.setEntries(bean.getEntries());
@@ -59,8 +58,7 @@ public class ChunksManifest extends ChunksManifestBean {
         if (chunkIndex >= MAX_CHUNKS) {
             throw new DuraCloudRuntimeException("Max chunks: " + MAX_CHUNKS);
         }
-        return getHeader().getSourceContentId() + chunkSuffix +
-            nextChunkIndex();
+        return getHeader().getSourceContentId() + chunkSuffix + nextChunkIndex();
     }
 
     private String nextChunkIndex() {

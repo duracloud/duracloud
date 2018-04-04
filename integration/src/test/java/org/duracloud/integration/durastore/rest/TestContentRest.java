@@ -7,7 +7,10 @@
  */
 package org.duracloud.integration.durastore.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
@@ -92,7 +95,7 @@ public class TestContentRest extends BaseRestTester {
 
         // Too long
         id = "test-content";
-        while(id.getBytes().length <= 1024) {
+        while (id.getBytes().length <= 1024) {
             id += "test-content";
         }
         response = addContentItem(id);
@@ -101,10 +104,10 @@ public class TestContentRest extends BaseRestTester {
         // Test valid content IDs
 
         // Test Special characters
-        char[] specialChars = {'~','`','!','@','$','^','&','*','(',')','_','-',
-                               '+','=','\'',':','.',',','<','>','"','[',']',
-                               '{','}','#','%',';','|',' ','/'};
-        for(char character : specialChars) {
+        char[] specialChars = {'~', '`', '!', '@', '$', '^', '&', '*', '(', ')', '_', '-',
+                               '+', '=', '\'', ':', '.', ',', '<', '>', '"', '[', ']',
+                               '{', '}', '#', '%', ';', '|', ' ', '/'};
+        for (char character : specialChars) {
             testCharacterInContentId(character);
         }
     }
@@ -187,8 +190,8 @@ public class TestContentRest extends BaseRestTester {
         assertNotNull(contentModified);
 
         verifyProperties(response,
-                       RestTestHelper.PROPERTIES_NAME,
-                       RestTestHelper.PROPERTIES_VALUE);
+                         RestTestHelper.PROPERTIES_NAME,
+                         RestTestHelper.PROPERTIES_VALUE);
     }
 
     @Test
@@ -256,8 +259,8 @@ public class TestContentRest extends BaseRestTester {
     }
 
     private HttpResponse postPropertiesUpdate(String url,
-                                            String contentId,
-                                            Map<String, String> headers)
+                                              String contentId,
+                                              Map<String, String> headers)
         throws Exception {
         HttpResponse response = BaseRestTester.restHelper.post(url, null, headers);
         String responseText = checkResponse(response, HttpStatus.SC_OK);
@@ -271,32 +274,33 @@ public class TestContentRest extends BaseRestTester {
     private HttpResponse postInvalidPropertiesUpdate(String url,
                                                      String contentId,
                                                      Map<String, String> headers)
-          throws Exception {
+        throws Exception {
 
         return postInvalidPropertiesUpdate(url, contentId, headers, HttpStatus.SC_INTERNAL_SERVER_ERROR);
     }
+
     private HttpResponse postInvalidPropertiesUpdate(String url,
-                                                   String contentId,
-                                                   Map<String, String> headers,int status)
+                                                     String contentId,
+                                                     Map<String, String> headers, int status)
         throws Exception {
         HttpResponse response =
             BaseRestTester.restHelper.post(url, null, headers);
         String responseText =
-            checkResponse(response,status);
+            checkResponse(response, status);
         assertNotNull(responseText);
         return response;
     }
 
     private void verifyProperties(HttpResponse response,
-                                String name,
-                                String value) throws Exception {
+                                  String name,
+                                  String value) throws Exception {
         String properties = response.getResponseHeader(name).getValue();
         assertNotNull(properties);
         assertEquals(properties, value);
     }
 
     private void verifyNoProperties(HttpResponse response,
-                                  String name) throws Exception {
+                                    String name) throws Exception {
         assertNull(response.getResponseHeader(name));
     }
 
@@ -327,6 +331,6 @@ public class TestContentRest extends BaseRestTester {
         // Delete Content
         response = BaseRestTester.restHelper.delete(url);
         checkResponse(response, HttpStatus.SC_NOT_FOUND);
-    } 
+    }
 
 }

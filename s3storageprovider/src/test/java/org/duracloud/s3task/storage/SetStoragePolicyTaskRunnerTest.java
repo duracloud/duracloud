@@ -7,6 +7,8 @@
  */
 package org.duracloud.s3task.storage;
 
+import static org.junit.Assert.assertEquals;
+
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.SetStoragePolicyTaskParameters;
@@ -15,11 +17,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Bill Branan
- *         Date: 9/25/2015
+ * Date: 9/25/2015
  */
 public class SetStoragePolicyTaskRunnerTest {
 

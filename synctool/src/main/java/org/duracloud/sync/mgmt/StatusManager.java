@@ -7,13 +7,13 @@
  */
 package org.duracloud.sync.mgmt;
 
-import org.duracloud.common.util.DateUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.duracloud.common.util.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Singleton class which tracks the status of the sync queue
@@ -35,7 +35,7 @@ public class StatusManager {
     private static StatusManager instance;
 
     public static StatusManager getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new StatusManager();
         }
         return instance;
@@ -71,7 +71,7 @@ public class StatusManager {
     public synchronized void successfulCompletion(SyncSummary summary) {
         succeeded++;
         inWork--;
-        this.recentlyCompleted.add(0,summary);
+        this.recentlyCompleted.add(0, summary);
         while (this.recentlyCompleted.size() > 100) {
             this.recentlyCompleted.remove(this.recentlyCompleted.size() - 1);
         }
@@ -93,18 +93,18 @@ public class StatusManager {
     public synchronized List<SyncSummary> getFailed() {
         return failed;
     }
-    
-    public synchronized List<SyncSummary> getRecentlyCompleted(){
+
+    public synchronized List<SyncSummary> getRecentlyCompleted() {
         return new ArrayList<SyncSummary>(this.recentlyCompleted);
     }
 
     public void setVersion(String version) {
         this.version = version;
     }
-    
+
     public void clearFailed() {
         log.info("clearing failed list");
-        if(this.failed != null){
+        if (this.failed != null) {
             this.failed.clear();
         }
     }
@@ -125,8 +125,8 @@ public class StatusManager {
         status.append("Syncs In Process: " + getInWork() + "\n");
         status.append("Successful Syncs: " + getSucceeded() + "\n");
         status.append("Failed Syncs: " + getFailed().size() + "\n");
-        for(SyncSummary failedFile : getFailed()) {
-            status.append("  " + failedFile.getAbsolutePath() + "\n");    
+        for (SyncSummary failedFile : getFailed()) {
+            status.append("  " + failedFile.getAbsolutePath() + "\n");
         }
         status.append("-------------------------------------------\n");
         return status.toString();

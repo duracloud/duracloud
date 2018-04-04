@@ -17,7 +17,6 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
@@ -45,23 +44,27 @@ import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Provides utility methods for spaces.
- * 
+ *
  * @author Bill Branan
  */
 public class SpaceUtil {
-    
+
     private static Logger log = LoggerFactory.getLogger(SpaceUtil.class);
 
+    private SpaceUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     public static Space populateSpace(Space space,
-                                      org.duracloud.domain.Space cloudSpace, 
-                                      ContentStore contentStore, 
+                                      org.duracloud.domain.Space cloudSpace,
+                                      ContentStore contentStore,
                                       Authentication authentication) throws ContentStoreException {
         space.setSpaceId(cloudSpace.getId());
         space.setProperties(getSpaceProperties(cloudSpace.getProperties()));
         space.setStreamingEnabled(StringUtils.isNotBlank(space.getProperties().getStreamingHost()));
         space.setExtendedProperties(cloudSpace.getProperties());
         space.setContents(cloudSpace.getContentIds());
-        Map<String,AclType> spaceAcls = contentStore.getSpaceACLs(cloudSpace.getId());
+        Map<String, AclType> spaceAcls = contentStore.getSpaceACLs(cloudSpace.getId());
         space.setAcls(toAclList(spaceAcls));
 
         if (isAdmin(authentication)
@@ -70,12 +73,11 @@ public class SpaceUtil {
             space.setSnapshotInProgress(true);
         }
 
-        AclType callerAcl = resolveCallerAcl(space.getSpaceId(), 
-                                             contentStore, 
-                                             spaceAcls,  
+        AclType callerAcl = resolveCallerAcl(space.getSpaceId(),
+                                             contentStore,
+                                             spaceAcls,
                                              authentication,
                                              space.isSnapshotInProgress());
-        
 
         String aclName = null;
         if (null != callerAcl) {
@@ -84,7 +86,7 @@ public class SpaceUtil {
         space.setCallerAcl(aclName);
 
         space.setMillDbEnabled(DuradminConfig.isMillDbEnabled());
-        
+
         return space;
     }
 
@@ -99,7 +101,7 @@ public class SpaceUtil {
         spaceProperties.setSnapshotId(spaceProps.get(Constants.SNAPSHOT_ID_PROP));
 
         String restoreId = spaceProps.get(Constants.RESTORE_ID_PROP);
-        if(StringUtils.isNotBlank(restoreId)){
+        if (StringUtils.isNotBlank(restoreId)) {
             spaceProperties.setRestoreId(restoreId);
         }
 
@@ -107,26 +109,25 @@ public class SpaceUtil {
     }
 
     public static void populateContentItem(String duradminBaseURL,
-    									   ContentItem contentItem,
+                                           ContentItem contentItem,
                                            String spaceId,
                                            String contentId,
                                            ContentStore store,
                                            Authentication authentication)
-            throws ContentStoreException {
-    	contentItem.setSpaceId(spaceId);
-    	contentItem.setContentId(contentId);
-    	contentItem.setStoreId(store.getStoreId());
+        throws ContentStoreException {
+        contentItem.setSpaceId(spaceId);
+        contentItem.setContentId(contentId);
+        contentItem.setStoreId(store.getStoreId());
         Map<String, String> contentProperties =
-                store.getContentProperties(spaceId, contentId);
+            store.getContentProperties(spaceId, contentId);
         ContentProperties properties = populateContentProperties(contentProperties);
         contentItem.setProperties(properties);
         contentItem.setExtendedProperties(contentProperties);
         contentItem.setDurastoreURL(formatDurastoreURL(contentItem, store));
-        Map<String,AclType> acls = store.getSpaceACLs(spaceId);
+        Map<String, AclType> acls = store.getSpaceACLs(spaceId);
         contentItem.setAcls(toAclList(acls));
         AclType callerAcl = resolveCallerAcl(spaceId, store, acls, authentication);
 
-        
         String aclName = null;
         if (null != callerAcl) {
             aclName = callerAcl.name();
@@ -135,127 +136,124 @@ public class SpaceUtil {
         contentItem.setImageViewerBaseURL(null);
     }
 
-    private static String formatDurastoreURL(ContentItem contentItem,ContentStore store) {
-       	String pattern =  "{0}/{1}/{2}?storeID={3}";
+    private static String formatDurastoreURL(ContentItem contentItem, ContentStore store) {
+        String pattern = "{0}/{1}/{2}?storeID={3}";
         return MessageFormat.format(pattern,
-                                    // NOTE: The https --> http swap is required by the Djatoka
-                                    //       SimpleListResolver, see: http://sourceforge.net/apps/mediawiki/djatoka/index.php?title=Installation#Configure_a_Referent_Resolver
+                                    // NOTE: The https --> http swap is required by the Djatoka SimpleListResolver,
+                                    //       see: http://sourceforge.net/apps/mediawiki/djatoka/index.php?title=Installation#Configure_a_Referent_Resolver
                                     //       https is not supported.
                                     store.getBaseURL().replace("https", "http"),
                                     contentItem.getSpaceId(),
                                     EncodeUtil.urlEncode(contentItem.getContentId()),
                                     store.getStoreId());
-	}
+    }
 
     private static ContentProperties populateContentProperties(Map<String, String> contentProperties) {
         ContentProperties properties = new ContentProperties();
         properties
-                .setMimetype(contentProperties.remove(ContentStore.CONTENT_MIMETYPE));
+            .setMimetype(contentProperties.remove(ContentStore.CONTENT_MIMETYPE));
         properties.setSize(contentProperties.remove(ContentStore.CONTENT_SIZE));
         properties
-                .setChecksum(contentProperties.remove(ContentStore.CONTENT_CHECKSUM));
+            .setChecksum(contentProperties.remove(ContentStore.CONTENT_CHECKSUM));
         properties
-                .setModified(contentProperties.remove(ContentStore.CONTENT_MODIFIED));
+            .setModified(contentProperties.remove(ContentStore.CONTENT_MODIFIED));
         properties.setTags(TagUtil.parseTags(contentProperties.remove(TagUtil.TAGS)));
-       
+
         return properties;
     }
 
-    
-	public static void streamContent(ContentStore store, HttpServletResponse response, String spaceId, String contentId)
-			throws ContentStoreException, IOException {
-	        Content c = store.getContent(spaceId, contentId);
-	        Map<String,String> m = store.getContentProperties(spaceId, contentId);
-	        String mimetype = m.get(ContentStore.CONTENT_MIMETYPE);
-	        String contentLength = m.get(ContentStore.CONTENT_SIZE);
-	        try(InputStream is = c.getStream()){
-	            streamToResponse(is, response, mimetype, contentLength);
-	        }
-	}
+    public static void streamContent(ContentStore store, HttpServletResponse response, String spaceId, String contentId)
+        throws ContentStoreException, IOException {
+        Content c = store.getContent(spaceId, contentId);
+        Map<String, String> m = store.getContentProperties(spaceId, contentId);
+        String mimetype = m.get(ContentStore.CONTENT_MIMETYPE);
+        String contentLength = m.get(ContentStore.CONTENT_SIZE);
+        try (InputStream is = c.getStream()) {
+            streamToResponse(is, response, mimetype, contentLength);
+        }
+    }
 
     public static void streamToResponse(InputStream is,
                                         HttpServletResponse response,
                                         String mimetype,
                                         String contentLength)
-        throws ContentStoreException,
-            IOException {
-        
-       OutputStream outStream = response.getOutputStream();
+        throws ContentStoreException, IOException {
 
-       try{
+        OutputStream outStream = response.getOutputStream();
+
+        try {
             response.setContentType(mimetype);
 
-           if(contentLength != null){
-               response.setContentLengthLong(Long.parseLong(contentLength));
-           }
-           byte[] buf = new byte[1024];
-           int read = -1;
-           while((read = is.read(buf)) > 0){
-               outStream.write(buf, 0, read);
-           }
-           
-           response.flushBuffer();
-       }catch (Exception ex) {
-           if(ex.getCause() instanceof ContentStateException){
-               response.reset();
-               response.setStatus(HttpStatus.SC_CONFLICT);
-               String message =
-                   "The requested content item is currently in long-term storage" +
-                   " with limited retrieval capability. Please contact " +
-                   "DuraCloud support (https://wiki.duraspace.org/x/6gPNAQ) " +
-                   "for assistance in retrieving this content item.";
-               //It is necessary to pad the message in order to force Internet Explorer to 
-               //display the server sent text rather than display the browser default error message.
-               //If the message is less than 512 bytes, the browser will ignore the message.
-               //c.f. http://support.microsoft.com/kb/294807
-               message += StringUtils.repeat(" ", 512);
-               outStream.write(message.getBytes());
-           } else {
-               throw ex;
-           }
-       } finally {
-           try {
-               outStream.close();
-           }catch(Exception e){
-               log.warn("failed to close outputstream ( " + outStream + "): message=" + e.getMessage(),e);
-           }
-       }
-   }
-    public static AclType resolveCallerAcl(String spaceId,ContentStore store, Map<String,AclType> acls,
-                                           Authentication authentication) 
-                                               throws ContentStoreException {
+            if (contentLength != null) {
+                response.setContentLengthLong(Long.parseLong(contentLength));
+            }
+            byte[] buf = new byte[1024];
+            int read = -1;
+            while ((read = is.read(buf)) > 0) {
+                outStream.write(buf, 0, read);
+            }
+
+            response.flushBuffer();
+        } catch (Exception ex) {
+            if (ex.getCause() instanceof ContentStateException) {
+                response.reset();
+                response.setStatus(HttpStatus.SC_CONFLICT);
+                String message =
+                    "The requested content item is currently in long-term storage" +
+                    " with limited retrieval capability. Please contact " +
+                    "DuraCloud support (https://wiki.duraspace.org/x/6gPNAQ) " +
+                    "for assistance in retrieving this content item.";
+                //It is necessary to pad the message in order to force Internet Explorer to
+                //display the server sent text rather than display the browser default error message.
+                //If the message is less than 512 bytes, the browser will ignore the message.
+                //c.f. http://support.microsoft.com/kb/294807
+                message += StringUtils.repeat(" ", 512);
+                outStream.write(message.getBytes());
+            } else {
+                throw ex;
+            }
+        } finally {
+            try {
+                outStream.close();
+            } catch (Exception e) {
+                log.warn("failed to close outputstream ( " + outStream + "): message=" + e.getMessage(), e);
+            }
+        }
+    }
+
+    public static AclType resolveCallerAcl(String spaceId, ContentStore store, Map<String, AclType> acls,
+                                           Authentication authentication)
+        throws ContentStoreException {
         return resolveCallerAcl(spaceId, store, acls, authentication, null);
     }
 
-	
-	public static AclType resolveCallerAcl(String spaceId,ContentStore store, Map<String,AclType> acls,
-                                          Authentication authentication, Boolean snapshotInProgress)
+    public static AclType resolveCallerAcl(String spaceId, ContentStore store, Map<String, AclType> acls,
+                                           Authentication authentication, Boolean snapshotInProgress)
         throws ContentStoreException {
-	    //if a snapshot is in progress, read only
+        //if a snapshot is in progress, read only
         // check authorities
-        if(isRoot(authentication)){
+        if (isRoot(authentication)) {
             return AclType.WRITE;
         }
-        
-        if(snapshotInProgress == null){
+
+        if (snapshotInProgress == null) {
             snapshotInProgress = false;
-    	    if(isSnapshotProvider(store)){
-    	        snapshotInProgress = isSnapshotInProgress(store,spaceId);
-    	    }
+            if (isSnapshotProvider(store)) {
+                snapshotInProgress = isSnapshotInProgress(store, spaceId);
+            }
         }
 
-        if(spaceId.equals(Constants.SNAPSHOT_METADATA_SPACE)){
+        if (spaceId.equals(Constants.SNAPSHOT_METADATA_SPACE)) {
             return AclType.READ;
         }
 
-        
-        if(snapshotInProgress){
+        if (snapshotInProgress) {
             return AclType.READ;
         }
         // check authorities
-	    if(isAdmin(authentication)){
-	        return AclType.WRITE;
-	    }
+        if (isAdmin(authentication)) {
+            return AclType.WRITE;
+        }
 
         AclType callerAcl = null;
 
@@ -269,7 +267,7 @@ public class SpaceUtil {
             if (e.getKey().equals(details.getUsername())
                 || userGroups.contains(e.getKey())) {
                 callerAcl = value;
-                if(AclType.WRITE.equals(callerAcl)){
+                if (AclType.WRITE.equals(callerAcl)) {
                     break;
                 }
             }
@@ -290,7 +288,7 @@ public class SpaceUtil {
         return providerType.equals(StorageProviderType.DPN.name()) ||
                providerType.equals(StorageProviderType.CHRONOPOLIS.name());
     }
-	
+
     public static boolean isAdmin(Authentication authentication) {
         return hasRole(authentication, "ROLE_ADMIN");
     }
@@ -302,7 +300,7 @@ public class SpaceUtil {
     protected static boolean hasRole(Authentication authentication, String role) {
         Collection authorities = authentication.getAuthorities();
         for (Object a : authorities) {
-            if (((GrantedAuthority)a).getAuthority().equals(role)) {
+            if (((GrantedAuthority) a).getAuthority().equals(role)) {
                 return true;
             }
         }
@@ -316,7 +314,8 @@ public class SpaceUtil {
             for (Map.Entry<String, AclType> entry : spaceACLs.entrySet()) {
                 String key = entry.getKey();
                 AclType value = entry.getValue();
-                boolean read = false, write = false;
+                boolean read = false;
+                boolean write = false;
                 if (value.equals(AclType.READ)) {
                     read = true;
                 } else if (value.equals(AclType.WRITE)) {
@@ -332,32 +331,33 @@ public class SpaceUtil {
         return acls;
 
     }
-	
+
     private static final Comparator<Acl> ACL_COMPARATOR = new Comparator<Acl>() {
         private String groupPrefix = "group-";
+
         @Override
         public int compare(Acl o1, Acl o2) {
-            if(o1.name.equals(o2.name)){
+            if (o1.name.equals(o2.name)) {
                 return 0;
             }
-            
-            if(o1.isPublicGroup()){
+
+            if (o1.isPublicGroup()) {
                 return -1;
             }
 
-            if(o2.isPublicGroup()){
+            if (o2.isPublicGroup()) {
                 return 1;
             }
 
-            if(o1.name.startsWith(groupPrefix)){
+            if (o1.name.startsWith(groupPrefix)) {
                 return !o2.name.startsWith(groupPrefix) ? -1 : o1.name.compareToIgnoreCase(o2.name);
-            }else{
+            } else {
                 return o2.name.startsWith(groupPrefix) ? 1 : o1.name.compareToIgnoreCase(o2.name);
             }
         }
-        
+
     };
-    
+
     public static void sortAcls(List<Acl> acls) {
         Collections.sort(acls, ACL_COMPARATOR);
     }
@@ -370,6 +370,5 @@ public class SpaceUtil {
 
         return key;
     }
-
 
 }

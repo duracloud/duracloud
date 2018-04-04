@@ -7,7 +7,6 @@
  */
 package org.duracloud.common.util;
 
-
 public class TableSpec {
 
     private final int version = 0;

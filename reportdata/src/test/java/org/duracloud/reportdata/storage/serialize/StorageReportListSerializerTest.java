@@ -7,16 +7,16 @@
  */
 package org.duracloud.reportdata.storage.serialize;
 
-import org.duracloud.reportdata.storage.ReportTestHelper;
-import org.duracloud.reportdata.storage.StorageReportList;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.duracloud.reportdata.storage.ReportTestHelper;
+import org.duracloud.reportdata.storage.StorageReportList;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author: Bill Branan

@@ -7,18 +7,18 @@
  */
 package org.duracloud.snapshot.dto.task;
 
+import java.io.IOException;
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
-import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
-
 /**
  * @author Bill Branan
- *         Date: 1/30/14
+ * Date: 1/30/14
  */
-public class CreateSnapshotTaskParameters  extends BaseDTO {
+public class CreateSnapshotTaskParameters extends BaseDTO {
 
     /**
      * The ID of the space in which the content to snapshot resides
@@ -76,7 +76,7 @@ public class CreateSnapshotTaskParameters  extends BaseDTO {
             new JaxbJsonSerializer<>(CreateSnapshotTaskParameters.class);
         try {
             return serializer.serialize(this);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task parameters due to: " + e.getMessage());
         }
@@ -94,16 +94,16 @@ public class CreateSnapshotTaskParameters  extends BaseDTO {
             CreateSnapshotTaskParameters params =
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
-            if(null == params.getSpaceId() || params.getSpaceId().isEmpty() ||
-               null == params.getDescription() || params.getDescription().isEmpty() ||
-               null == params.getUserEmail() || params.getUserEmail().isEmpty()) {
+            if (null == params.getSpaceId() || params.getSpaceId().isEmpty() ||
+                null == params.getDescription() || params.getDescription().isEmpty() ||
+                null == params.getUserEmail() || params.getUserEmail().isEmpty()) {
                 throw new SnapshotDataException("Task parameter values may not be empty");
             }
             return params;
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to parse task parameters due to: " + e.getMessage());
         }
     }
-    
+
 }

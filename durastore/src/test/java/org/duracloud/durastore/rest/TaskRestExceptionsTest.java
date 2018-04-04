@@ -18,7 +18,7 @@ import org.junit.Test;
  * This class tests top-level error handling of TaskRest.
  *
  * @author Andrew Woods
- *         Date: Aug 31, 2010
+ * Date: Aug 31, 2010
  */
 public class TaskRestExceptionsTest {
 

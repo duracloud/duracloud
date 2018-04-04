@@ -7,6 +7,13 @@
  */
 package org.duracloud.sync.endpoint;
 
+import static junit.framework.Assert.assertNotNull;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Map;
+
 import org.apache.commons.io.FileUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.ChecksumUtil;
@@ -15,13 +22,6 @@ import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Map;
-
-import static junit.framework.Assert.assertNotNull;
 
 /**
  * @author: Bill Branan
@@ -41,15 +41,13 @@ public class DuraStoreSyncEndpointTest {
         spaceId = "spaceId";
         contentStore = EasyMock.createMock(ContentStore.class);
 
-        EasyMock
-            .expect(contentStore.getSpaceContents(EasyMock.isA(String.class)))
-            .andReturn(new ArrayList<String>().iterator())
-            .anyTimes();
-        
-        EasyMock
-        .expect(contentStore.getStoreId())
-        .andReturn("0")
-        .times(1);
+        EasyMock.expect(contentStore.getSpaceContents(EasyMock.isA(String.class)))
+                .andReturn(new ArrayList<String>().iterator())
+                .anyTimes();
+
+        EasyMock.expect(contentStore.getStoreId())
+                .andReturn("0")
+                .times(1);
 
         contentFile = File.createTempFile("content", "file.txt");
         contentFile.deleteOnExit();

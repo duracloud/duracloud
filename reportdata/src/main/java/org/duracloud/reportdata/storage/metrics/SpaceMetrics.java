@@ -7,8 +7,8 @@
  */
 package org.duracloud.reportdata.storage.metrics;
 
-import javax.xml.bind.annotation.XmlAttribute;
 import java.util.List;
+import javax.xml.bind.annotation.XmlAttribute;
 
 /**
  * Metrics data structure for spaces. Contains all of the metrics for a single

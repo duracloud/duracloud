@@ -7,12 +7,10 @@
  */
 package org.duracloud.storage.util;
 
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.storage.error.ChecksumMismatchException;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.duracloud.common.util.IOUtil.readStringFromStream;
+import static org.duracloud.common.util.SerializationUtil.deserializeMap;
+import static org.duracloud.common.util.SerializationUtil.serializeMap;
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -27,10 +25,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static org.duracloud.common.util.IOUtil.readStringFromStream;
-import static org.duracloud.common.util.SerializationUtil.deserializeMap;
-import static org.duracloud.common.util.SerializationUtil.serializeMap;
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
+import org.duracloud.common.util.DateUtil;
+import org.duracloud.storage.error.ChecksumMismatchException;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides utility methods for Storage Providers
@@ -38,8 +38,12 @@ import static org.duracloud.storage.error.StorageException.NO_RETRY;
  * @author Bill Branan
  */
 public class StorageProviderUtil {
-    
+
     private static Logger log = LoggerFactory.getLogger(StorageProviderUtil.class);
+
+    private StorageProviderUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     /**
      * Loads a stream containing properties and populates a map
@@ -50,20 +54,20 @@ public class StorageProviderUtil {
      * @throws StorageException
      */
     public static Map<String, String> loadProperties(InputStream is)
-    throws StorageException {
+        throws StorageException {
         Map<String, String> propertiesMap = null;
-        if(is != null) {
+        if (is != null) {
             try {
                 String properties = readStringFromStream(is);
                 propertiesMap = deserializeMap(properties);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 String err = "Could not read properties " +
                              " due to error: " + e.getMessage();
                 throw new StorageException(err, e);
             }
         }
 
-        if(propertiesMap == null) {
+        if (propertiesMap == null) {
             propertiesMap = new HashMap<String, String>();
         }
 
@@ -79,7 +83,7 @@ public class StorageProviderUtil {
      */
     public static ByteArrayInputStream storeProperties(
         Map<String, String> propertiesMap)
-    throws StorageException {
+        throws StorageException {
         // Pull out known computed values
         propertiesMap.remove(StorageProvider.PROPERTIES_SPACE_COUNT);
 
@@ -102,13 +106,13 @@ public class StorageProviderUtil {
      * Determines if the checksum for a particular piece of content
      * stored in a StorageProvider matches the expected checksum value.
      *
-     * @param provider The StorageProvider where the content was stored
-     * @param spaceId The Space in which the content was stored
+     * @param provider  The StorageProvider where the content was stored
+     * @param spaceId   The Space in which the content was stored
      * @param contentId The Id of the content
-     * @param checksum The content checksum, either provided or computed
-     * @returns the validated checksum value from the provider
+     * @param checksum  The content checksum, either provided or computed
      * @throws StorageException if the included checksum does not match
      *                          the storage provider generated checksum
+     * @returns the validated checksum value from the provider
      */
     public static String compareChecksum(StorageProvider provider,
                                          String spaceId,
@@ -117,7 +121,7 @@ public class StorageProviderUtil {
         throws StorageException {
         String providerChecksum =
             provider.getContentProperties(spaceId, contentId).
-            get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM);
+                get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM);
         return compareChecksum(providerChecksum, spaceId, contentId, checksum);
     }
 
@@ -125,24 +129,24 @@ public class StorageProviderUtil {
      * Determines if two checksum values are equal
      *
      * @param providerChecksum The checksum provided by the StorageProvider
-     * @param spaceId The Space in which the content was stored
-     * @param contentId The Id of the content
-     * @param checksum The content checksum, either provided or computed
-     * @returns the validated checksum value from the provider
+     * @param spaceId          The Space in which the content was stored
+     * @param contentId        The Id of the content
+     * @param checksum         The content checksum, either provided or computed
      * @throws ChecksumMismatchException if the included checksum does not match
      *                                   the storage provider generated checksum
+     * @returns the validated checksum value from the provider
      */
     public static String compareChecksum(String providerChecksum,
                                          String spaceId,
                                          String contentId,
                                          String checksum)
         throws ChecksumMismatchException {
-        if(!providerChecksum.equals(checksum)) {
+        if (!providerChecksum.equals(checksum)) {
             String err = "Content " + contentId + " was added to space " +
-                spaceId + " but the checksum, either provided or computed " +
-                "enroute, (" + checksum + ") does not match the checksum " +
-                "computed by the storage provider (" + providerChecksum +
-                "). This content should be retransmitted.";
+                         spaceId + " but the checksum, either provided or computed " +
+                         "enroute, (" + checksum + ") does not match the checksum " +
+                         "computed by the storage provider (" + providerChecksum +
+                         "). This content should be retransmitted.";
             log.warn(err);
             throw new ChecksumMismatchException(err, NO_RETRY);
         }
@@ -159,11 +163,11 @@ public class StorageProviderUtil {
      * @return
      */
     public static boolean contains(Iterator<String> iterator, String value) {
-        if(iterator == null || value == null) {
+        if (iterator == null || value == null) {
             return false;
         }
-        while(iterator.hasNext()) {
-            if(value.equals(iterator.next())) {
+        while (iterator.hasNext()) {
+            if (value.equals(iterator.next())) {
                 return true;
             }
         }
@@ -177,11 +181,11 @@ public class StorageProviderUtil {
      * @return
      */
     public static long count(Iterator<String> iterator) {
-        if(iterator == null) {
+        if (iterator == null) {
             return 0;
         }
         long count = 0;
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             ++count;
             iterator.next();
         }
@@ -197,69 +201,64 @@ public class StorageProviderUtil {
      */
     public static List<String> getList(Iterator<String> iterator) {
         List<String> contents = new ArrayList<String>();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             contents.add(iterator.next());
         }
         return contents;
     }
-    
+
     /**
      * Generates a map of all client-side default content properties to be
      * added with new content.
-     * 
+     *
      * @param absolutePath
      * @param creator
      * @return
      */
-    public static Map<String,String> createContentProperties(String absolutePath,
-                                                             String creator){
+    public static Map<String, String> createContentProperties(String absolutePath,
+                                                              String creator) {
 
         Map<String, String> props = new HashMap<String, String>();
-        if(creator != null && creator.trim().length() > 0){
+        if (creator != null && creator.trim().length() > 0) {
             props.put(StorageProvider.PROPERTIES_CONTENT_CREATOR, creator);
         }
 
         props.put(StorageProvider.PROPERTIES_CONTENT_FILE_PATH, absolutePath);
-        
-        try{
+
+        try {
             Path path = FileSystems.getDefault().getPath(absolutePath);
-            
+
             BasicFileAttributes bfa =
                 Files.readAttributes(path, BasicFileAttributes.class);
-            
+
             String creationDate =
                 DateUtil.convertToStringLong(bfa.creationTime().toMillis());
-            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_CREATED,
-                      creationDate);
+            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_CREATED, creationDate);
 
             String lastAccessed =
                 DateUtil.convertToStringLong(bfa.lastAccessTime().toMillis());
-            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_LAST_ACCESSED,
-                      lastAccessed);
+            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_LAST_ACCESSED, lastAccessed);
 
             String modified =
                 DateUtil.convertToStringLong(bfa.lastModifiedTime().toMillis());
-            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_MODIFIED,
-                      modified);
+            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_MODIFIED, modified);
 
-        }catch(IOException ex){
+        } catch (IOException ex) {
             log.error("Failed to read basic file attributes from "
-                             + absolutePath + ": " + ex.getMessage(), 
-                         ex);
-        }        
-        
-        return props; 
+                      + absolutePath + ": " + ex.getMessage(), ex);
+        }
+
+        return props;
     }
-    
+
     /**
      * Returns a new map with the calculated properties removed. If null, null
      * is returned.
-     * 
+     *
      * @param contentProperties
      * @return
      */
-    public static Map<String, String>
-        removeCalculatedProperties(Map<String, String> contentProperties) {
+    public static Map<String, String> removeCalculatedProperties(Map<String, String> contentProperties) {
         if (contentProperties != null) {
             contentProperties = new HashMap<>(contentProperties);
             // Remove calculated properties

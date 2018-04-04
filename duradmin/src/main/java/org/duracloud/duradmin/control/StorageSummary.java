@@ -8,9 +8,7 @@
 package org.duracloud.duradmin.control;
 
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 public class StorageSummary {
     protected final Long date;
@@ -25,15 +23,19 @@ public class StorageSummary {
         this.totalItems = totalItems;
         this.reportId = reportId;
     }
+
     public Long getDate() {
         return date;
     }
+
     public Long getTotalSize() {
         return totalSize;
     }
+
     public Long getTotalItems() {
         return totalItems;
     }
+
     public String getReportId() {
         return reportId;
     }

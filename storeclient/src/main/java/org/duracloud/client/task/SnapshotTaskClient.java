@@ -25,7 +25,7 @@ import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
  * These tasks are used to interact with snapshots and snapshot restorations.
  *
  * @author Bill Branan
- *         Date: 8/8/14
+ * Date: 8/8/14
  */
 public interface SnapshotTaskClient {
 
@@ -35,9 +35,9 @@ public interface SnapshotTaskClient {
      * the way, the space provided is also set to read-only so that changes cannot
      * be made to the content.
      *
-     * @param spaceId the ID of the space where the content to snapshot resides
+     * @param spaceId     the ID of the space where the content to snapshot resides
      * @param description of the snapshot
-     * @param userEmail address to inform when the snapshot is complete
+     * @param userEmail   address to inform when the snapshot is complete
      * @return results
      * @throws ContentStoreException on error
      */
@@ -96,8 +96,8 @@ public interface SnapshotTaskClient {
      *
      * @param snapshotId the ID of the snapshot to retrieve
      * @param pageNumber the page number of result set pages
-     * @param pageSize the maximum number of content items to include in the result set
-     * @param prefix an optional prefix used to find content items
+     * @param pageSize   the maximum number of content items to include in the result set
+     * @param prefix     an optional prefix used to find content items
      * @return list of content items
      * @throws ContentStoreException on error
      */
@@ -106,19 +106,19 @@ public interface SnapshotTaskClient {
                                                              int pageSize,
                                                              String prefix)
         throws ContentStoreException;
-    
+
     /**
      * Gets the list of history items that are contained in the snapshot.
      *
      * @param snapshotId the ID of the snapshot to retrieve
      * @param pageNumber the page number of result set pages
-     * @param pageSize the maximum number of content items to include in the result set
+     * @param pageSize   the maximum number of content items to include in the result set
      * @return list of history items
      * @throws ContentStoreException on error
      */
     public GetSnapshotHistoryTaskResult getSnapshotHistory(String snapshotId,
-                                                             int pageNumber,
-                                                             int pageSize)
+                                                           int pageNumber,
+                                                           int pageSize)
         throws ContentStoreException;
 
     /**
@@ -127,7 +127,7 @@ public interface SnapshotTaskClient {
      * performed.
      *
      * @param snapshotId the ID of the snapshot to restore
-     * @param userEmail address to inform when restoration is complete
+     * @param userEmail  address to inform when restoration is complete
      * @return results
      * @throws ContentStoreException on error
      */
@@ -139,18 +139,17 @@ public interface SnapshotTaskClient {
      * Sends a snapshot restore request to the DuraCloud Admin.
      *
      * @param snapshotId the ID of the snapshot to restore
-     * @param userEmail address to inform when restore starts and completes.
+     * @param userEmail  address to inform when restore starts and completes.
      * @return results
      * @throws ContentStoreException on error
      */
-    public RequestRestoreSnapshotTaskResult
-           requestRestoreSnapshot(String snapshotId, String userEmail)
-               throws ContentStoreException;
+    public RequestRestoreSnapshotTaskResult requestRestoreSnapshot(String snapshotId, String userEmail)
+        throws ContentStoreException;
 
     /**
      * Performs setup necessary to expire content which has been restored.
      *
-     * @param spaceId the ID of the space to which content was restored
+     * @param spaceId      the ID of the space to which content was restored
      * @param daysToExpire length of time before restored content expires (in days)
      * @return results
      * @throws ContentStoreException on error

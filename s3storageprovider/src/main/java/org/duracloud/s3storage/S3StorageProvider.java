@@ -7,8 +7,24 @@
  */
 package org.duracloud.s3storage;
 
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
+import static org.duracloud.storage.error.StorageException.RETRY;
+
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import com.amazonaws.AmazonClientException;
-import com.amazonaws.regions.Region;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.AccessControlList;
@@ -28,7 +44,6 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.duracloud.common.model.AclType;
@@ -46,23 +61,6 @@ import org.duracloud.storage.util.StorageProviderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
-import static org.duracloud.storage.error.StorageException.RETRY;
-
 /**
  * Provides content storage backed by Amazon's Simple Storage Service.
  *
@@ -77,10 +75,10 @@ public class S3StorageProvider extends StorageProviderBase {
         StorageClass.Standard;
 
     private static final String UTF_8 = StandardCharsets.UTF_8.name();
-    
+
     protected static final String HEADER_VALUE_PREFIX = UTF_8 + "''";
     protected static final String HEADER_KEY_SUFFIX = "*";
-    
+
     private String accessKeyId = null;
     protected AmazonS3Client s3Client = null;
 
@@ -137,10 +135,9 @@ public class S3StorageProvider extends StorageProviderBase {
     private List<Bucket> listAllBuckets() {
         try {
             return s3Client.listBuckets();
-        }
-        catch (AmazonClientException e) {
+        } catch (AmazonClientException e) {
             String err = "Could not retrieve list of S3 buckets due to error: "
-                    + e.getMessage();
+                         + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
     }
@@ -164,12 +161,12 @@ public class S3StorageProvider extends StorageProviderBase {
                                                 long maxResults,
                                                 String marker) {
         log.debug("getSpaceContentsChunked(" + spaceId + ", " + prefix + ", " +
-                                           maxResults + ", " + marker + ")");
+                  maxResults + ", " + marker + ")");
 
         // Will throw if bucket does not exist
         String bucketName = getBucketName(spaceId);
 
-        if(maxResults <= 0) {
+        if (maxResults <= 0) {
             maxResults = StorageProvider.DEFAULT_MAX_RESULTS;
         }
 
@@ -202,7 +199,7 @@ public class S3StorageProvider extends StorageProviderBase {
             return objectListing.getObjectSummaries();
         } catch (AmazonClientException e) {
             String err = "Could not get contents of S3 bucket " + bucketName
-                    + " due to error: " + e.getMessage();
+                         + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
     }
@@ -211,7 +208,7 @@ public class S3StorageProvider extends StorageProviderBase {
         try {
             getBucketName(spaceId);
             return true;
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             return false;
         }
     }
@@ -226,7 +223,7 @@ public class S3StorageProvider extends StorageProviderBase {
         Bucket bucket = createBucket(spaceId);
 
         Date created = bucket.getCreationDate();
-        if(created == null) {
+        if (created == null) {
             created = new Date();
         }
 
@@ -239,7 +236,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
         try {
             setNewSpaceProperties(spaceId, spaceProperties, spaceACLs);
-        } catch(StorageException e) {
+        } catch (StorageException e) {
             removeSpace(spaceId);
             String err = "Unable to create space due to: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
@@ -253,14 +250,14 @@ public class S3StorageProvider extends StorageProviderBase {
 
             // Apply lifecycle config to bucket
             StoragePolicy storagePolicy = getStoragePolicy();
-            if(null != storagePolicy) {
+            if (null != storagePolicy) {
                 setSpaceLifecycle(bucketName, storagePolicy.getBucketLifecycleConfig());
             }
 
             return bucket;
         } catch (AmazonClientException e) {
             String err = "Could not create S3 bucket with name " + bucketName
-                    + " due to error: " + e.getMessage();
+                         + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
     }
@@ -279,7 +276,7 @@ public class S3StorageProvider extends StorageProviderBase {
      * Sets a lifecycle policy on an S3 bucket based on the given configuration
      *
      * @param bucketName name of the bucket to update
-     * @param config bucket lifecycle configuration
+     * @param config     bucket lifecycle configuration
      */
     public void setSpaceLifecycle(String bucketName,
                                   BucketLifecycleConfiguration config) {
@@ -307,8 +304,8 @@ public class S3StorageProvider extends StorageProviderBase {
         return S3ProviderUtil.createNewBucketName(accessKeyId, spaceId);
     }
 
-     private String formattedDate(Date date) {
-         return DateUtil.convertToString(date.getTime());
+    private String formattedDate(Date date) {
+        return DateUtil.convertToString(date.getTime());
     }
 
     /**
@@ -322,7 +319,7 @@ public class S3StorageProvider extends StorageProviderBase {
             s3Client.deleteBucket(bucketName);
         } catch (AmazonClientException e) {
             String err = "Could not delete S3 bucket with name " + bucketName
-                    + " due to error: " + e.getMessage();
+                         + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
     }
@@ -340,8 +337,8 @@ public class S3StorageProvider extends StorageProviderBase {
         Map<String, String> spaceProperties = new HashMap<>();
         BucketTaggingConfiguration tagConfig =
             s3Client.getBucketTaggingConfiguration(bucketName);
-        if(null != tagConfig) {
-            for(TagSet tagSet : tagConfig.getAllTagSets()) {
+        if (null != tagConfig) {
+            for (TagSet tagSet : tagConfig.getAllTagSets()) {
                 spaceProperties.putAll(tagSet.getAllTags());
             }
         }
@@ -382,18 +379,18 @@ public class S3StorageProvider extends StorageProviderBase {
         } while (spaceContentChunk.size() > 0 && count < maxCount);
 
         String suffix = "";
-        if(count >= maxCount) {
+        if (count >= maxCount) {
             suffix = "+";
         }
         return String.valueOf(count) + suffix;
-    }    
+    }
 
     private String getBucketCreationDate(String bucketName) {
         Date created = null;
         try {
             List<Bucket> buckets = s3Client.listBuckets();
-            for(Bucket bucket : buckets) {
-                if(bucket.getName().equals(bucketName)) {
+            for (Bucket bucket : buckets) {
+                if (bucket.getName().equals(bucketName)) {
                     created = bucket.getCreationDate();
                 }
             }
@@ -404,7 +401,7 @@ public class S3StorageProvider extends StorageProviderBase {
         }
 
         String formattedDate = null;
-        if(created != null) {
+        if (created != null) {
             formattedDate = formattedDate(created);
         } else {
             formattedDate = "unknown";
@@ -425,16 +422,16 @@ public class S3StorageProvider extends StorageProviderBase {
         Map<String, String> originalProperties;
         try {
             originalProperties = getAllSpaceProperties(spaceId);
-        } catch(NotFoundException e) {
+        } catch (NotFoundException e) {
             // Likely adding a new space, so no existing properties yet.
             originalProperties = new HashMap<>();
         }
 
         // Set creation date
         String creationDate = originalProperties.get(PROPERTIES_SPACE_CREATED);
-        if(creationDate == null) {
+        if (creationDate == null) {
             creationDate = spaceProperties.get(PROPERTIES_SPACE_CREATED);
-            if(creationDate == null) {
+            if (creationDate == null) {
                 creationDate = getBucketCreationDate(bucketName);
             }
         }
@@ -456,9 +453,9 @@ public class S3StorageProvider extends StorageProviderBase {
     private Map<String, String> replaceInMapValues(Map<String, String> map,
                                                    String oldVal,
                                                    String newVal) {
-        for(String key : map.keySet()) {
+        for (String key : map.keySet()) {
             String value = map.get(key);
-            if(value.contains(oldVal)) {
+            if (value.contains(oldVal)) {
                 value = StringUtils.replace(value, oldVal, newVal);
                 map.put(key, value);
             }
@@ -476,8 +473,8 @@ public class S3StorageProvider extends StorageProviderBase {
                              long contentSize,
                              String contentChecksum,
                              InputStream content) {
-        log.debug("addContent("+ spaceId +", "+ contentId +", "+
-            contentMimeType +", "+ contentSize +", "+ contentChecksum +")");
+        log.debug("addContent(" + spaceId + ", " + contentId + ", " +
+                  contentMimeType + ", " + contentSize + ", " + contentChecksum + ")");
 
         // Will throw if bucket does not exist
         String bucketName = getBucketName(spaceId);
@@ -488,7 +485,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
         userProperties = removeCalculatedProperties(userProperties);
 
-        if(contentMimeType == null || contentMimeType.equals("")) {
+        if (contentMimeType == null || contentMimeType.equals("")) {
             contentMimeType = DEFAULT_MIMETYPE;
         }
 
@@ -497,20 +494,20 @@ public class S3StorageProvider extends StorageProviderBase {
         if (contentSize > 0) {
             objMetadata.setContentLength(contentSize);
         }
-        if(null != contentChecksum && !contentChecksum.isEmpty()) {
+        if (null != contentChecksum && !contentChecksum.isEmpty()) {
             String encodedChecksum =
                 ChecksumUtil.convertToBase64Encoding(contentChecksum);
             objMetadata.setContentMD5(encodedChecksum);
         }
 
-        if(userProperties != null) {
+        if (userProperties != null) {
             for (String key : userProperties.keySet()) {
                 String value = userProperties.get(key);
 
                 if (log.isDebugEnabled()) {
                     log.debug("[" + key + "|" + value + "]");
                 }
-                
+
                 objMetadata.addUserMetadata(getSpaceFree(encodeHeaderKey(key)), encodeHeaderValue(value));
             }
         }
@@ -533,7 +530,8 @@ public class S3StorageProvider extends StorageProviderBase {
                 String errorCode = s3Ex.getErrorCode();
                 Integer statusCode = s3Ex.getStatusCode();
                 String message =
-                    MessageFormat.format("exception putting object {0} into {1}: errorCode={2},  statusCode={3}, errorMessage={4}",
+                    MessageFormat.format("exception putting object {0} into {1}: errorCode={2}," +
+                                         "  statusCode={3}, errorMessage={4}",
                                          contentId,
                                          bucketName,
                                          errorCode,
@@ -541,17 +539,13 @@ public class S3StorageProvider extends StorageProviderBase {
                                          e.getMessage());
 
                 if (errorCode.equals("InvalidDigest") || errorCode.equals("BadDigest")) {
-                    log.error(message, e);                            
+                    log.error(message, e);
 
-                    String err =
-                        "Checksum mismatch detected attempting to add " + "content "
-                            + contentId
-                            + " to S3 bucket "
-                            + bucketName
-                            + ". Content was not added.";
+                    String err = "Checksum mismatch detected attempting to add " + "content " +
+                                 contentId + " to S3 bucket " + bucketName + ". Content was not added.";
                     throw new ChecksumMismatchException(err, e, NO_RETRY);
                 } else if (errorCode.equals("IncompleteBody")) {
-                    log.error(message, e);                            
+                    log.error(message, e);
                     throw new StorageException("The content body was incomplete for "
                                                + contentId
                                                + " to S3 bucket "
@@ -561,11 +555,11 @@ public class S3StorageProvider extends StorageProviderBase {
                                                NO_RETRY);
                 } else if (!statusCode.equals(HttpStatus.SC_SERVICE_UNAVAILABLE)
                            && !statusCode.equals(HttpStatus.SC_NOT_FOUND)) {
-                    log.error(message, e);                            
-                }else{
-                    log.warn(message, e);                            
+                    log.error(message, e);
+                } else {
+                    log.warn(message, e);
                 }
-            }else{
+            } else {
                 String err = MessageFormat.format("exception putting object {0} into {1}: {2}",
                                                   contentId,
                                                   bucketName,
@@ -575,7 +569,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
             // Check to see if file landed successfully in S3, despite the exception
             etag = doesContentExistWithExpectedChecksum(bucketName, contentId, contentChecksum);
-            if(null == etag) {
+            if (null == etag) {
                 String err = "Could not add content " + contentId +
                              " with type " + contentMimeType +
                              " and size " + contentSize +
@@ -602,10 +596,9 @@ public class S3StorageProvider extends StorageProviderBase {
      * the put to succeed while a subsequent GET may return results inconsistent
      * with the most recent state of S3.
      */
-    protected String
-              doesContentExistWithExpectedChecksum(String bucketName,
-                                                   String contentId,
-                                                   String expectedChecksum) {
+    protected String doesContentExistWithExpectedChecksum(String bucketName,
+                                                          String contentId,
+                                                          String expectedChecksum) {
         int maxAttempts = 20;
         int waitInSeconds = 2;
         int attempts = 0;
@@ -622,7 +615,7 @@ public class S3StorageProvider extends StorageProviderBase {
                                  bucketName,
                                  totalSecondsWaited);
                     }
-                    
+
                     etag = metadata.getETag();
 
                     if (expectedChecksum.equals(getETagValue(etag))) {
@@ -631,25 +624,27 @@ public class S3StorageProvider extends StorageProviderBase {
 
                 }
             } catch (AmazonClientException e) {
+                // Content item is not yet available
             }
 
             attempts++;
-            int waitNow = waitInSeconds*i;
+            int waitNow = waitInSeconds * i;
             wait(waitNow);
             totalSecondsWaited += waitNow;
         }
 
-        if(etag == null){
+        if (etag == null) {
             log.warn("contentId={} NOT found in bucket={} after waiting for {} seconds...",
                      contentId,
                      bucketName,
                      attempts * waitInSeconds);
-        }else{
-            log.warn("contentId={} in bucket={} does not have the expected checksum after waiting for {} seconds. S3 Checksum={} Expected Checksum={}",
+        } else {
+            log.warn("contentId={} in bucket={} does not have the expected checksum after waiting " +
+                     "for {} seconds. S3 Checksum={} Expected Checksum={}",
                      contentId,
                      bucketName,
                      attempts * waitInSeconds,
-                     getETagValue(etag), 
+                     getETagValue(etag),
                      expectedChecksum);
 
         }
@@ -660,7 +655,8 @@ public class S3StorageProvider extends StorageProviderBase {
     protected void wait(int seconds) {
         try {
             Thread.sleep(1000 * seconds);
-        } catch(InterruptedException e) {
+        } catch (InterruptedException e) {
+            // End sleep on interruption
         }
     }
 
@@ -670,10 +666,7 @@ public class S3StorageProvider extends StorageProviderBase {
                               String destSpaceId,
                               String destContentId) {
         log.debug("copyContent({}, {}, {}, {})",
-                  new Object[]{sourceSpaceId,
-                               sourceContentId,
-                               destSpaceId,
-                               destContentId});
+                  sourceSpaceId, sourceContentId, destSpaceId, destContentId);
 
         // Will throw if source bucket does not exist
         String sourceBucketName = getBucketName(sourceSpaceId);
@@ -699,7 +692,7 @@ public class S3StorageProvider extends StorageProviderBase {
     private CopyObjectResult doCopyObject(CopyObjectRequest request) {
         try {
             return s3Client.copyObject(request);
-            
+
         } catch (Exception e) {
             StringBuilder err = new StringBuilder("Error copying from: ");
             err.append(request.getSourceBucketName());
@@ -724,13 +717,12 @@ public class S3StorageProvider extends StorageProviderBase {
         String bucketName = getBucketName(spaceId);
 
         try {
-             S3Object contentItem = s3Client.getObject(bucketName, contentId);
+            S3Object contentItem = s3Client.getObject(bucketName, contentId);
             return contentItem.getObjectContent();
         } catch (AmazonClientException e) {
             throwIfContentNotExist(bucketName, contentId);
-            String err = "Could not retrieve content " + contentId
-                    + " in S3 bucket " + bucketName + " due to error: "
-                    + e.getMessage();
+            String err = "Could not retrieve content " + contentId + " in S3 bucket " +
+                         bucketName + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
     }
@@ -751,9 +743,8 @@ public class S3StorageProvider extends StorageProviderBase {
         try {
             s3Client.deleteObject(bucketName, contentId);
         } catch (AmazonClientException e) {
-            String err = "Could not delete content " + contentId
-                    + " from S3 bucket " + bucketName
-                    + " due to error: " + e.getMessage();
+            String err = "Could not delete content " + contentId + " from S3 bucket " +
+                         bucketName + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
     }
@@ -770,7 +761,7 @@ public class S3StorageProvider extends StorageProviderBase {
         String bucketName = getBucketName(spaceId);
 
         contentProperties = removeCalculatedProperties(contentProperties);
- 
+
         // Determine mimetype, from properties list or existing value
         String mimeType = contentProperties.remove(PROPERTIES_CONTENT_MIMETYPE);
         if (mimeType == null || mimeType.equals("")) {
@@ -803,7 +794,7 @@ public class S3StorageProvider extends StorageProviderBase {
     @Override
     protected Map<String, String> removeCalculatedProperties(Map<String, String> contentProperties) {
         contentProperties = super.removeCalculatedProperties(contentProperties);
-        if(contentProperties != null){
+        if (contentProperties != null) {
             contentProperties.remove(Headers.CONTENT_LENGTH);
             contentProperties.remove(Headers.CONTENT_TYPE);  // Content-Type is set on ObjectMetadata object
             contentProperties.remove(Headers.LAST_MODIFIED);
@@ -815,16 +806,16 @@ public class S3StorageProvider extends StorageProviderBase {
             contentProperties.remove(Headers.DATE.toLowerCase());
             contentProperties.remove(Headers.ETAG.toLowerCase());
         }
-        
+
         return contentProperties;
     }
 
     private void throwIfContentNotExist(String bucketName, String contentId) {
         try {
-             s3Client.getObjectMetadata(bucketName, contentId);
-        } catch(AmazonClientException e) {
+            s3Client.getObjectMetadata(bucketName, contentId);
+        } catch (AmazonClientException e) {
             String err = "Could not find content item with ID " + contentId +
-                " in S3 bucket " + bucketName + ". S3 error: " + e.getMessage();
+                         " in S3 bucket " + bucketName + ". S3 error: " + e.getMessage();
             throw new NotFoundException(err);
         }
     }
@@ -836,9 +827,8 @@ public class S3StorageProvider extends StorageProviderBase {
             return s3Client.getObjectMetadata(bucketName, contentId);
         } catch (AmazonClientException e) {
             throwIfContentNotExist(bucketName, contentId);
-            String err = "Could not get details for content " + contentId
-                    + " in S3 bucket " + bucketName + " due to error: "
-                    + e.getMessage();
+            String err = "Could not get details for content " + contentId + " in S3 bucket " +
+                         bucketName + " due to error: " + e.getMessage();
             throw new StorageException(err, e, retry);
         }
     }
@@ -859,9 +849,8 @@ public class S3StorageProvider extends StorageProviderBase {
             s3Client.setObjectAcl(bucketName, contentId, originalACL);
         } catch (AmazonClientException e) {
             throwIfContentNotExist(bucketName, contentId);
-            String err = "Could not update metadata for content "
-                    + contentId + " in S3 bucket " + bucketName
-                    + " due to error: " + e.getMessage();
+            String err = "Could not update metadata for content " + contentId + " in S3 bucket " +
+                         bucketName + " due to error: " + e.getMessage();
             throw new StorageException(err, e, NO_RETRY);
         }
     }
@@ -881,8 +870,8 @@ public class S3StorageProvider extends StorageProviderBase {
             getObjectDetails(bucketName, contentId, RETRY);
 
         if (objMetadata == null) {
-            String err = "No metadata is available for item " + contentId
-                    + " in S3 bucket " + bucketName;
+            String err = "No metadata is available for item " + contentId +
+                         " in S3 bucket " + bucketName;
             throw new StorageException(err, NO_RETRY);
         }
 
@@ -890,7 +879,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
         // Set the user properties
         Map<String, String> userProperties = objMetadata.getUserMetadata();
-        for(String metaName : userProperties.keySet()) {
+        for (String metaName : userProperties.keySet()) {
             String metaValue = userProperties.get(metaName);
             contentProperties.put(getWithSpace(decodeHeaderKey(metaName)), decodeHeaderValue(metaValue));
         }
@@ -955,15 +944,14 @@ public class S3StorageProvider extends StorageProviderBase {
         // The bucket name may use any access key ID as the prefix, so there is
         // no way to know the exact bucket name up front.
         List<Bucket> buckets = listAllBuckets();
-        for(Bucket bucket : buckets){
+        for (Bucket bucket : buckets) {
             String bucketName = bucket.getName();
-            spaceId = spaceId.replace(".",  "[.]");
-            if(bucketName.matches("[\\w]{20}[.]"+spaceId)) {
+            spaceId = spaceId.replace(".", "[.]");
+            if (bucketName.matches("[\\w]{20}[.]" + spaceId)) {
                 return bucketName;
             }
         }
-        throw new  NotFoundException("No S3 bucket found matching spaceID: " +
-                                     spaceId);
+        throw new NotFoundException("No S3 bucket found matching spaceID: " + spaceId);
     }
 
     /**
@@ -985,7 +973,7 @@ public class S3StorageProvider extends StorageProviderBase {
      *
      * @param bucketName name of the S3 bucket
      * @return true if the given S3 bucket name is named according to the
-     *         DuraCloud space naming conventions, false otherwise
+     * DuraCloud space naming conventions, false otherwise
      */
     protected boolean isSpace(String bucketName) {
         boolean isSpace = false;
@@ -1019,6 +1007,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
     /**
      * Ensures compliance with  https://tools.ietf.org/html/rfc5987#section-3.2.2
+     *
      * @param userMetaValue
      * @return
      */
@@ -1033,7 +1022,7 @@ public class S3StorageProvider extends StorageProviderBase {
     }
 
     static protected String decodeHeaderValue(String userMetaValue) {
-        if(userMetaValue.startsWith(HEADER_VALUE_PREFIX)){
+        if (userMetaValue.startsWith(HEADER_VALUE_PREFIX)) {
             try {
                 String encodedValue = URLDecoder.decode(userMetaValue.substring(HEADER_VALUE_PREFIX.length()), UTF_8);
                 return encodedValue;
@@ -1041,24 +1030,25 @@ public class S3StorageProvider extends StorageProviderBase {
                 //this should never happen
                 throw new RuntimeException(e);
             }
-        }else{
+        } else {
             return userMetaValue;
         }
     }
 
     /**
      * Ensures compliance with  https://tools.ietf.org/html/rfc5987#section-3.2.2
+     *
      * @param userMetaName
      * @return
      */
     static protected String encodeHeaderKey(String userMetaName) {
-        return userMetaName+HEADER_KEY_SUFFIX;
+        return userMetaName + HEADER_KEY_SUFFIX;
     }
 
     static protected String decodeHeaderKey(String userMetaName) {
-        if(userMetaName.endsWith(HEADER_KEY_SUFFIX)){
-            return userMetaName.substring(0, userMetaName.length()-1);
-        }else{
+        if (userMetaName.endsWith(HEADER_KEY_SUFFIX)) {
+            return userMetaName.substring(0, userMetaName.length() - 1);
+        } else {
             return userMetaName;
         }
     }

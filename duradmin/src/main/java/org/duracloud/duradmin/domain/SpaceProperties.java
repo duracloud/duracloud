@@ -12,11 +12,11 @@ import java.util.Set;
 
 /**
  * Stores space properties.
- * 
+ *
  * @author Bill Branan
  */
 public class SpaceProperties
-        implements Serializable {
+    implements Serializable {
 
     private String created;
 
@@ -25,15 +25,15 @@ public class SpaceProperties
     private String size;
 
     private int queryCount;
-    
+
     private String streamingHost;
 
     private String streamingType;
 
     private Set<String> tags;
-    
+
     private String restoreId;
-    
+
     private String snapshotId;
 
     public String getCreated() {

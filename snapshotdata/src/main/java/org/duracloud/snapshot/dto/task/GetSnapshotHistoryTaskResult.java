@@ -15,7 +15,7 @@ import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * @author Gad Krumholz
- *         Date: 6/24/15
+ * Date: 6/24/15
  */
 public class GetSnapshotHistoryTaskResult extends GetSnapshotHistoryBridgeResult {
 
@@ -29,7 +29,7 @@ public class GetSnapshotHistoryTaskResult extends GetSnapshotHistoryBridgeResult
             new JaxbJsonSerializer<>(GetSnapshotHistoryTaskResult.class);
         try {
             return serializer.deserialize(taskResult);
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task result due to: " + e.getMessage());
         }

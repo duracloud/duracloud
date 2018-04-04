@@ -7,6 +7,14 @@
  */
 package org.duracloud.storage.xml;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -20,19 +28,11 @@ import org.jdom.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 /**
  * This class (de)serializes durastore acct configuration between objects and xml.
  *
  * @author Andrew Woods
- *         Date: Apr 21, 2010
+ * Date: Apr 21, 2010
  */
 public class StorageAccountsDocumentBinding {
     private final Logger log = LoggerFactory.getLogger(
@@ -86,7 +86,7 @@ public class StorageAccountsDocumentBinding {
 
         } catch (Exception e) {
             String error = "Unable to build storage account information due " +
-                "to error: " + e.getMessage();
+                           "to error: " + e.getMessage();
             log.error(error);
             throw new StorageException(error, e);
         }
@@ -108,7 +108,7 @@ public class StorageAccountsDocumentBinding {
             Document doc = builder.build(xml);
             Element root = doc.getRootElement();
             return createStorageAccountsFrom(root);
-        } catch(Exception e) {
+        } catch (Exception e) {
             String error = "Could not build storage accounts from xml " +
                            "due to: " + e.getMessage();
             throw new DuraCloudRuntimeException(error, e);

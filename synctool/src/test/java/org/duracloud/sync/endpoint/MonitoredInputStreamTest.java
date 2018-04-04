@@ -7,14 +7,14 @@
  */
 package org.duracloud.sync.endpoint;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author: Bill Branan
@@ -45,7 +45,7 @@ public class MonitoredInputStreamTest {
         stream.read();
         assertEquals(1, stream.bytesRead);
 
-        for(int value = 0; value >= 0; ) { // Read the rest of the bytes
+        for (int value = 0; value >= 0; ) { // Read the rest of the bytes
             value = stream.read();
         }
 
@@ -57,7 +57,7 @@ public class MonitoredInputStreamTest {
         stream.read(new byte[5]);
         assertEquals(5, stream.bytesRead);
 
-        for(int bytesRead = 0; bytesRead >= 0; ) { // Read the rest of the bytes
+        for (int bytesRead = 0; bytesRead >= 0; ) { // Read the rest of the bytes
             bytesRead = stream.read(new byte[5]);
         }
 
@@ -69,7 +69,7 @@ public class MonitoredInputStreamTest {
         stream.read(new byte[8], 0, 8);
         assertEquals(8, stream.bytesRead);
 
-        for(int bytesRead = 0; bytesRead >= 0; ) { // Read the rest of the bytes
+        for (int bytesRead = 0; bytesRead >= 0; ) { // Read the rest of the bytes
             bytesRead = stream.read(new byte[8]);
         }
 

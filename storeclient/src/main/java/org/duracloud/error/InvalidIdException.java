@@ -23,9 +23,9 @@ public class InvalidIdException extends ContentStoreException {
     }
 
     public InvalidIdException(String task,
-                             String spaceId,
-                             String contentId,
-                             Exception e) {
+                              String spaceId,
+                              String contentId,
+                              Exception e) {
         super(task, spaceId, contentId, e);
     }
 

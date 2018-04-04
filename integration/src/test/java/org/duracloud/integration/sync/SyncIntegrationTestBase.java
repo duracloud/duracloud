@@ -7,7 +7,7 @@
  */
 package org.duracloud.integration.sync;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,10 +39,9 @@ public class SyncIntegrationTestBase {
     protected File tempDir;
     protected ChangedList changedList;
 
-
     protected File createTempDir(String dirName) {
         File tempDir = new File("target", dirName);
-        if(!tempDir.exists()) {
+        if (!tempDir.exists()) {
             tempDir.mkdir();
         }
         return tempDir;
@@ -53,7 +52,7 @@ public class SyncIntegrationTestBase {
 
         ContentStoreManager storeManager =
             new ContentStoreManagerImpl(getHost(), getPort(), getContext());
-        
+
         storeManager.login(getRootCredential());
 
         store = storeManager.getPrimaryContentStore();
@@ -62,12 +61,12 @@ public class SyncIntegrationTestBase {
         spaceId = "synctool-test-space-" + random;
     }
 
-    protected static String getHost(){
+    protected static String getHost() {
         return getTestEndPoint().getHost();
     }
 
-    protected static String getPort(){
-        return getTestEndPoint().getPort()+"";
+    protected static String getPort() {
+        return getTestEndPoint().getPort() + "";
     }
 
     private static TestEndPoint getTestEndPoint() {
@@ -78,10 +77,10 @@ public class SyncIntegrationTestBase {
         }
     }
 
-    protected static String getContext(){
+    protected static String getContext() {
         return "durastore";
     }
-    
+
     protected static Credential getRootCredential() throws Exception {
         SimpleCredential cred = new TestConfigUtil().getTestConfig().getRootCredential();
         return new Credential(cred.getUsername(), cred.getPassword());
@@ -91,7 +90,7 @@ public class SyncIntegrationTestBase {
     public static void afterClass() {
         try {
             store.deleteSpace(spaceId);
-        } catch(ContentStoreException e) {
+        } catch (ContentStoreException e) {
             System.err.println("Failed to delete space " + spaceId +
                                " after tests");
         }
@@ -107,10 +106,11 @@ public class SyncIntegrationTestBase {
 
     @After
     public void tearDown() throws Exception {
-        while(changedList.reserve() != null) {}
+        while (changedList.reserve() != null) {
+        }
         assertNull(changedList.reserve());
 
         FileUtils.deleteDirectory(tempDir);
-    }    
+    }
 
 }

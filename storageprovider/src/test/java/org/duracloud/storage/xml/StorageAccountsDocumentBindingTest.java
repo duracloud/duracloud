@@ -7,6 +7,12 @@
  */
 package org.duracloud.storage.xml;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -19,15 +25,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author Andrew Woods
- *         Date: 5/13/11
+ * Date: 5/13/11
  */
 public class StorageAccountsDocumentBindingTest {
 
@@ -159,14 +159,13 @@ public class StorageAccountsDocumentBindingTest {
         acctXml.append(isPrimary + "'>");
         acctXml.append("    <id>" + acct.getId() + "</id>");
 
-
         acctXml.append("    <storageProviderType>");
         acctXml.append(acct.getType().name() + "</storageProviderType>");
         if (null != cfKeyId) {
             acctXml.append("    <storageProviderOptions>");
             acctXml.append("      <option name='");
             acctXml.append(StorageAccount.OPTS.CF_KEY_ID.name());
-            acctXml.append("' value='"+cfKeyId+"' />");
+            acctXml.append("' value='" + cfKeyId + "' />");
             acctXml.append("    </storageProviderOptions>");
         }
         acctXml.append("    <storageProviderCredential>");

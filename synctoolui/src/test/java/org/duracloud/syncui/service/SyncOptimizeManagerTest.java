@@ -7,6 +7,12 @@
  */
 package org.duracloud.syncui.service;
 
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.isA;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 
 import org.duracloud.syncoptimize.SyncOptimizeDriver;
@@ -20,45 +26,41 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.*;
-import static org.easymock.EasyMock.*;
+
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 @RunWith(EasyMockRunner.class)
-public class SyncOptimizeManagerTest extends EasyMockSupport{
+public class SyncOptimizeManagerTest extends EasyMockSupport {
 
     @Mock
     private SyncConfigurationManager syncConfigurationManager;
 
     @Mock
     private SyncOptimizeDriver syncOptimizeDriver;
-    
+
     @Mock
     private DuracloudConfiguration duracloudConfig;
 
     @Mock
     private SyncOptimizeManagerResultCallBack callback;
-    
+
     private SyncOptimizeManager syncOptimizeManager;
-    
+
     private int threadCount = 10;
-    
+
     @Before
     public void setUp() throws Exception {
-        
-        
+
     }
-    
+
     @After
-    public void tearDown(){
+    public void tearDown() {
         verifyAll();
     }
-    
+
     @Test
-    public void testStart() throws Exception{
+    public void testStart() throws Exception {
         setupStart();
         setupDriver();
 
@@ -78,7 +80,7 @@ public class SyncOptimizeManagerTest extends EasyMockSupport{
     protected void setupStart() throws IOException {
         createTestSubject();
         setupDuracloudConfig();
-    }        
+    }
 
     protected void setupDriver() throws IOException {
         expect(this.syncOptimizeDriver.getOptimalThreads(isA(SyncOptimizeConfig.class))).andReturn(threadCount);
@@ -88,9 +90,8 @@ public class SyncOptimizeManagerTest extends EasyMockSupport{
         this.syncOptimizeManager = new SyncOptimizeManager(this.syncConfigurationManager, this.syncOptimizeDriver);
     }
 
-    
     @Test
-    public void testStartFailure() throws Exception{
+    public void testStartFailure() throws Exception {
         setupStart();
         expect(this.syncOptimizeDriver.getOptimalThreads(isA(SyncOptimizeConfig.class))).andThrow(new IOException());
         this.callback.onFailure(isA(IOException.class), isA(String.class));
@@ -100,7 +101,7 @@ public class SyncOptimizeManagerTest extends EasyMockSupport{
         Thread.sleep(500);
         assertFalse(this.syncOptimizeManager.isRunning());
         assertTrue(this.syncOptimizeManager.isFailed());
-        
+
     }
 
     protected void setupDuracloudConfig() {

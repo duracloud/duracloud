@@ -7,7 +7,8 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.InputStream;
 
@@ -25,7 +26,7 @@ import org.junit.Test;
 
 /**
  * @author Daniel Bernstein
- *         Date: 08/10/15
+ * Date: 08/10/15
  */
 public class RestartSnapshotTaskRunnerTest {
 
@@ -41,8 +42,7 @@ public class RestartSnapshotTaskRunnerTest {
     @Before
     public void setup() {
         restHelper = EasyMock.createMock("RestHttpHelper", RestHttpHelper.class);
-        taskRunner = new RestartSnapshotTaskRunner(bridgeHost, bridgePort,
-                                                     bridgeUser, bridgePass);
+        taskRunner = new RestartSnapshotTaskRunner(bridgeHost, bridgePort, bridgeUser, bridgePass);
     }
 
     private void replayMocks() {
@@ -50,7 +50,7 @@ public class RestartSnapshotTaskRunnerTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         EasyMock.verify(restHelper);
     }
 
@@ -59,7 +59,7 @@ public class RestartSnapshotTaskRunnerTest {
         replayMocks();
 
         String snapshotUrl = taskRunner.buildBridgeURL(snapshotId);
-        String expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
+        String expectedUrl = "http://" + bridgeHost + ":" + bridgePort +
                              "/bridge/snapshot/" + snapshotId + "/restart";
         assertEquals(expectedUrl, snapshotUrl);
     }
@@ -75,7 +75,7 @@ public class RestartSnapshotTaskRunnerTest {
             new RestartSnapshotBridgeResult();
         bridgeResult.setDescription(description);
         bridgeResult.setStatus(status);
-        
+
         InputStream resultStream =
             IOUtil.writeStringToStream(bridgeResult.serialize());
 
@@ -109,7 +109,8 @@ public class RestartSnapshotTaskRunnerTest {
         try {
             taskRunner.callBridge(restHelper, bridgeURL);
             fail("Exception expected on 500 response");
-        } catch(TaskException e) {
+        } catch (TaskException e) {
+            // Expected exception
         }
     }
 

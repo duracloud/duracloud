@@ -7,7 +7,8 @@
  */
 package org.duracloud.integration.client;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -18,21 +19,18 @@ import java.util.Random;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
-import org.duracloud.common.model.AclType;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.UnauthorizedException;
-import org.duracloud.storage.provider.StorageProvider;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  * @author Andrew Woods
- *         Date: Apr 20, 2010
+ * Date: Apr 20, 2010
  */
 public class TestAnonymousAccess extends ClientTestBase {
-
 
     private final static String spacePrefix = "test-store-anon-";
     private final static String contentPrefix = "test-content-";
@@ -41,10 +39,9 @@ public class TestAnonymousAccess extends ClientTestBase {
 
     private static ContentStore store;
 
-
     @BeforeClass
     public static void beforeClass() throws Exception {
-       
+
         ContentStoreManager storeManager = new ContentStoreManagerImpl(getHost(),
                                                                        getPort(),
                                                                        getContext());
@@ -53,7 +50,6 @@ public class TestAnonymousAccess extends ClientTestBase {
         createSpace(getSpaceUrl());
         createContent(getContentUrl());
     }
-
 
     @AfterClass
     public static void afterClass() throws Exception {

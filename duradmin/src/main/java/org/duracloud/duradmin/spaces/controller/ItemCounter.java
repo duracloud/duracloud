@@ -10,22 +10,20 @@ package org.duracloud.duradmin.spaces.controller;
 import org.duracloud.common.util.ExtendedCountListener;
 
 /**
- * 
- * @author danny
- *
+ * @author Daniel Bernstein
  */
 public class ItemCounter implements ExtendedCountListener {
-	private Long count = null;
+    private Long count = null;
     private Long intermediaryCount = null;
     private boolean countComplete = false;
-	
-	public Long getCount() {
-		return count;
-	}
 
-	public void setCount(long count) {
-		this.count = count;
-	}
+    public Long getCount() {
+        return count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
+    }
 
     public Long getIntermediaryCount() {
         return intermediaryCount;
@@ -42,5 +40,5 @@ public class ItemCounter implements ExtendedCountListener {
     public void setCountComplete() {
         countComplete = true;
     }
-	
+
 }

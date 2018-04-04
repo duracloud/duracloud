@@ -7,15 +7,14 @@
  */
 package org.duracloud.integration.durastore.storage;
 
-import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.common.util.ChecksumUtil.Algorithm;
-import org.duracloud.storage.error.NotFoundException;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.util.StorageProviderUtil;
-import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
+import static org.duracloud.storage.util.StorageProviderUtil.contains;
+import static org.duracloud.storage.util.StorageProviderUtil.count;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -26,14 +25,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
-import static org.duracloud.storage.util.StorageProviderUtil.contains;
-import static org.duracloud.storage.util.StorageProviderUtil.count;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.ChecksumUtil.Algorithm;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.util.StorageProviderUtil;
+import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is the functional test code across a StorageProvider.
@@ -41,7 +41,7 @@ import static org.junit.Assert.fail;
  * @author Andrew Woods
  */
 public class StorageProvidersTestCore
-        implements StorageProvidersTestInterface {
+    implements StorageProvidersTestInterface {
     protected final static Logger log = LoggerFactory.getLogger(
         StorageProvidersTestCore.class);
 
@@ -54,7 +54,7 @@ public class StorageProvidersTestCore
     private void sleep(long milliseconds) {
         try {
             Thread.sleep(milliseconds);
-        } catch(InterruptedException e) {
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -81,6 +81,7 @@ public class StorageProvidersTestCore
             spaceContents = provider.getSpaceContents(spaceIdInvalid, null);
             Assert.fail("Exception should be thrown if space does not exist.");
         } catch (Exception e) {
+            // Expected exception
         }
 
         // First content to add
@@ -105,9 +106,9 @@ public class StorageProvidersTestCore
     }
 
     public void testGetSpaceContentsChunked(StorageProvider provider,
-                                     String spaceId0,
-                                     String contentId0,
-                                     String contentId1) throws StorageException {
+                                            String spaceId0,
+                                            String contentId0,
+                                            String contentId1) throws StorageException {
         // TODO: EMC does not support chunked content listing yet
     }
 
@@ -128,29 +129,29 @@ public class StorageProvidersTestCore
         ByteArrayInputStream contentStream = new ByteArrayInputStream(data);
 
         String advChecksum = null;
-        if(checksumInAdvance) {
+        if (checksumInAdvance) {
             ChecksumUtil util = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
             advChecksum = util.generateChecksum(contentStream);
             contentStream.reset();
         }
 
         String checksum =
-                provider.addContent(spaceKey,
-                                    contentKey,
-                                    mime,
-                                    null,
-                                    data.length,
-                                    advChecksum,
-                                    contentStream);
-        if(checksumInAdvance) {
-           assertEquals(advChecksum, checksum);
+            provider.addContent(spaceKey,
+                                contentKey,
+                                mime,
+                                null,
+                                data.length,
+                                advChecksum,
+                                contentStream);
+        if (checksumInAdvance) {
+            assertEquals(advChecksum, checksum);
         }
 
         compareChecksum(provider, spaceKey, contentKey, checksum);
     }
 
     public void testCreateSpace(StorageProvider provider, String spaceId)
-            throws StorageException {
+        throws StorageException {
         provider.createSpace(spaceId);
 
         int maxLoops = 20;
@@ -172,7 +173,7 @@ public class StorageProvidersTestCore
             exists = false;
         }
 
-        if(exists) {
+        if (exists) {
             try {
                 Iterator<String> spaces = provider.getSpaces();
                 assertNotNull(spaces);
@@ -186,13 +187,13 @@ public class StorageProvidersTestCore
     }
 
     private void verifySpaceProperties(StorageProvider provider,
-                                            String spaceId)
+                                       String spaceId)
         throws StorageException {
         Map<String, String> properties = provider.getSpaceProperties(spaceId);
         assertNotNull(properties);
 
         String created =
-                properties.get(StorageProvider.PROPERTIES_SPACE_CREATED);
+            properties.get(StorageProvider.PROPERTIES_SPACE_CREATED);
         assertNotNull(created);
     }
 
@@ -206,11 +207,12 @@ public class StorageProvidersTestCore
             assertNotNull(spaces);
             assertFalse(contains(spaces, spaceId));
         } catch (Exception e) {
+            // Expected exception
         }
     }
 
     public void testGetSpaceProperties(StorageProvider provider, String spaceId0)
-            throws StorageException {
+        throws StorageException {
         Map<String, String> spaceMd = null;
         spaceMd = provider.getSpaceProperties(spaceId0);
         assertNotNull(spaceMd);
@@ -251,7 +253,7 @@ public class StorageProvidersTestCore
                                               String spaceId0,
                                               String contentId0,
                                               String contentId1)
-            throws Exception {
+        throws Exception {
         byte[] content0 = "hello,world.".getBytes();
 
         // First content to add
@@ -280,8 +282,8 @@ public class StorageProvidersTestCore
         // TODO: maybe turn this test on?
         System.err.println("==================");
         System.err.println("This test is not run because it "
-                + "uploads 16MB of data to the StorageProvider: "
-                + "StorageProvidersTestCore.testAddContentLarge()");
+                           + "uploads 16MB of data to the StorageProvider: "
+                           + "StorageProvidersTestCore.testAddContentLarge()");
         System.err.println("==================");
 
         if (false) {
@@ -326,6 +328,7 @@ public class StorageProvidersTestCore
             provider.deleteContent(spaceId0, contentId0);
             fail("Exception expected.");
         } catch (Exception e) {
+            // Expected exception
         }
 
         Iterator<String> spaceContents =
@@ -337,6 +340,7 @@ public class StorageProvidersTestCore
             provider.deleteContent(spaceId0, contentId0);
             fail("Exception expected.");
         } catch (Exception e) {
+            // Expected exception
         }
 
         // Add some content.
@@ -381,11 +385,11 @@ public class StorageProvidersTestCore
     }
 
     public void testSetContentProperties(StorageProvider provider,
-                                       String spaceId0,
-                                       String spaceId1,
-                                       String contentId0,
-                                       String contentId1)
-            throws StorageException {
+                                         String spaceId0,
+                                         String spaceId1,
+                                         String contentId0,
+                                         String contentId1)
+        throws StorageException {
 
         Map<String, String> contentProperties = new HashMap<String, String>();
         final String key0 = "key0";
@@ -399,7 +403,7 @@ public class StorageProvidersTestCore
 
         // Check initial state of properties.
         Map<String, String> initialMeta =
-                provider.getContentProperties(spaceId1, contentId0);
+            provider.getContentProperties(spaceId1, contentId0);
         assertNotNull(initialMeta);
         int initialSize = initialMeta.size();
         assertTrue(initialSize > 0);
@@ -409,7 +413,7 @@ public class StorageProvidersTestCore
         // Set and check.
         provider.setContentProperties(spaceId1, contentId0, contentProperties);
         Map<String, String> properties =
-                provider.getContentProperties(spaceId1, contentId0);
+            provider.getContentProperties(spaceId1, contentId0);
         assertNotNull(properties);
         assertEquals(initialSize + 1, properties.size());
 
@@ -436,18 +440,17 @@ public class StorageProvidersTestCore
 
         // Set MIME and check.
         contentProperties.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE,
-                            StorageProvider.DEFAULT_MIMETYPE);
+                              StorageProvider.DEFAULT_MIMETYPE);
         provider.setContentProperties(spaceId1, contentId0, contentProperties);
         properties = provider.getContentProperties(spaceId1, contentId0);
         assertNotNull(properties);
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
                      properties.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE));
 
-
         // Clear properties.
         provider.setContentProperties(spaceId1,
-                                    contentId0,
-                                    new HashMap<String, String>());
+                                      contentId0,
+                                      new HashMap<String, String>());
         properties = provider.getContentProperties(spaceId1, contentId0);
         assertNotNull(properties);
         assertEquals(initialSize, properties.size());
@@ -463,9 +466,9 @@ public class StorageProvidersTestCore
     }
 
     public void testGetContentProperties(StorageProvider provider,
-                                       String spaceId0,
-                                       String contentId0)
-            throws StorageException {
+                                         String spaceId0,
+                                         String contentId0)
+        throws StorageException {
         final String mimeKey = StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
         final String sizeKey = StorageProvider.PROPERTIES_CONTENT_SIZE;
         final String modifiedKey = StorageProvider.PROPERTIES_CONTENT_MODIFIED;
@@ -478,7 +481,7 @@ public class StorageProvidersTestCore
         addContent(provider, spaceId0, contentId0, mimeText, data);
 
         Map<String, String> properties =
-                provider.getContentProperties(spaceId0, contentId0);
+            provider.getContentProperties(spaceId0, contentId0);
         assertNotNull(properties);
         assertTrue(properties.containsKey(mimeKey));
         assertTrue(properties.containsKey(sizeKey));
@@ -492,8 +495,8 @@ public class StorageProvidersTestCore
 
         // Set and check again.
         provider.setContentProperties(spaceId0,
-                                    contentId0,
-                                    new HashMap<String, String>());
+                                      contentId0,
+                                      new HashMap<String, String>());
         properties = provider.getContentProperties(spaceId0, contentId0);
         assertNotNull(properties);
         assertTrue(properties.containsKey(mimeKey));
@@ -513,8 +516,8 @@ public class StorageProvidersTestCore
         properties = new HashMap<String, String>();
         properties.put(mimeKey, mimeXml);
         provider.setContentProperties(spaceId0,
-                                    contentId0,
-                                    properties);
+                                      contentId0,
+                                      properties);
         properties = provider.getContentProperties(spaceId0, contentId0);
         assertNotNull(properties);
 

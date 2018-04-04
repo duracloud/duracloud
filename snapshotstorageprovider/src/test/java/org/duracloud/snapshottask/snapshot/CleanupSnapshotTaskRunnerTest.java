@@ -7,8 +7,12 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
+import static org.easymock.EasyMock.capture;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.audit.task.AuditTask;
 import org.duracloud.audit.task.AuditTask.ActionType;
 import org.duracloud.common.queue.TaskQueue;
@@ -35,14 +41,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
-
 /**
  * @author Bill Branan
- *         Date: 8/14/14
+ * Date: 8/14/14
  */
-public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
+public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport {
 
     private StorageProvider snapshotProvider;
     private SnapshotStorageProvider unwrappedSnapshotProvider;
@@ -52,13 +55,14 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
     private String storeId = "store-id";
     private String account = "account-id";
     private ManifestStore manifestStore;
+
     @Before
     public void setup() {
         snapshotProvider = createMock("StorageProvider",
-                                               StorageProvider.class);
+                                      StorageProvider.class);
         unwrappedSnapshotProvider =
             createMock("SnapshotStorageProvider",
-                                SnapshotStorageProvider.class);
+                       SnapshotStorageProvider.class);
         s3Client = createMock("AmazonS3Client", AmazonS3Client.class);
         manifestStore = createMock("ManifestStore", ManifestStore.class);
         auditQueue = createMock("TaskQueue", TaskQueue.class);
@@ -71,9 +75,8 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
                                           storeId);
     }
 
-
     @After
-    public void tearDown(){
+    public void tearDown() {
         verifyAll();
     }
 
@@ -89,7 +92,7 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
         String bucketName = "bucket-name";
 
         expect(unwrappedSnapshotProvider.getBucketName(spaceId))
-                .andReturn(bucketName);
+            .andReturn(bucketName);
         Capture<BucketLifecycleConfiguration> lifecycleConfigCapture =
             new Capture<>();
         s3Client.setBucketLifecycleConfiguration(eq(bucketName),
@@ -98,16 +101,16 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
         expectLastCall().once();
 
         List<ManifestItem> manifestItems = new LinkedList<>();
-        for(int i = 0; i < 10; i++){
+        for (int i = 0; i < 10; i++) {
             ManifestItem item = new ManifestItem();
-            item.setContentId("content-id-"+i);
-            item.setContentSize(i+"");
-            item.setContentChecksum("content-checksum-"+i);
+            item.setContentId("content-id-" + i);
+            item.setContentSize(i + "");
+            item.setContentChecksum("content-checksum-" + i);
             manifestItems.add(item);
         }
-        
+
         Iterator<ManifestItem> it = manifestItems.iterator();
-        
+
         expect(manifestStore.getItems(account, storeId, spaceId)).andReturn(it);
 
         Capture<Set<Task>> taskCapture = new Capture<>();
@@ -122,10 +125,10 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
         expect(auth.getName()).andReturn(userId);
         SecurityContext context = createMock(SecurityContext.class);
         expect(context.getAuthentication()).andReturn(auth);
-        
+
         SecurityContextHolder.setContext(context);
         replayAll();
-        taskRunner.performTask("{\"spaceId\":\""+spaceId+"\"}");
+        taskRunner.performTask("{\"spaceId\":\"" + spaceId + "\"}");
         BucketLifecycleConfiguration lifecycleConfig =
             lifecycleConfigCapture.getValue();
         BucketLifecycleConfiguration.Rule rule =
@@ -136,13 +139,13 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
         Thread.sleep(500);
 
         Set<Task> tasks = taskCapture.getValue();
-        Map<String,Task> taskMapByContentId = new HashMap<>();
-        for(Task task : tasks){
+        Map<String, Task> taskMapByContentId = new HashMap<>();
+        for (Task task : tasks) {
             taskMapByContentId.put(task.getProperty(AuditTask.CONTENT_ID_PROP), task);
         }
         assertEquals(manifestItems.size(), taskMapByContentId.size());
-        
-        for(ManifestItem item : manifestItems){
+
+        for (ManifestItem item : manifestItems) {
             Task task = taskMapByContentId.get(item.getContentId());
             assertNotNull(task.getProperty(AuditTask.DATE_TIME_PROP));
             assertNotNull(task.getProperty(AuditTask.CONTENT_ID_PROP));
@@ -155,7 +158,7 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
             assertEquals(item.getContentSize(), task.getProperty(AuditTask.CONTENT_SIZE_PROP));
 
         }
-        
+
     }
 
 }

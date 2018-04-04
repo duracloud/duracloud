@@ -34,11 +34,11 @@ public class ChangedFile implements Serializable {
     public void incrementSyncAttempts() {
         syncAttempts++;
     }
-    
+
     /**
-     * Removes a previously reserved file from the ChangedList. 
+     * Removes a previously reserved file from the ChangedList.
      */
-    public void remove(){
+    public void remove() {
         ChangedList.getInstance().remove(this);
     }
 
@@ -46,7 +46,7 @@ public class ChangedFile implements Serializable {
      * Releases the reservation on the file (if still reserved)
      * and returns it to the list of unreserved ChangedFiles.
      */
-    public void unreserve(){
+    public void unreserve() {
         ChangedList.getInstance().unreserve(this);
     }
 

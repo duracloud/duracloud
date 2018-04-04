@@ -7,8 +7,10 @@
  */
 package org.duracloud.durastore.aop;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,10 +31,9 @@ import org.junit.runner.RunWith;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
 /**
- * 
  * @author Daniel Bernstein
- *
  */
 @RunWith(EasyMockRunner.class)
 public class StreamingAccessAdviceTest extends EasyMockSupport {
@@ -49,7 +50,7 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
 
     @Mock
     private Authentication auth;
-    
+
     @Mock
     private TaskProvider taskProvider;
 
@@ -64,16 +65,16 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
         verifyAll();
     }
 
-    private String[] getArgs(){
+    private String[] getArgs() {
         return getArgs(StorageTaskConstants.GET_URL_TASK_NAME);
     }
-    private String[] getArgs(String taskName){
+
+    private String[] getArgs(String taskName) {
         GetUrlTaskParameters parameters = new GetUrlTaskParameters();
         parameters.setSpaceId(spaceId);
         parameters.setContentId("content-id");
-        return new String[]{taskName, parameters.serialize()};
+        return new String[] {taskName, parameters.serialize()};
     }
-    
 
     @Test
     public void testSuccessUserAuthorizedGetUrl() throws Throwable {
@@ -85,7 +86,6 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
         testSuccessUserAuthorized(StorageTaskConstants.GET_SIGNED_URL_TASK_NAME);
     }
 
-
     @Test
     public void testSuccessNoMethodMatch() throws Throwable {
         replayAll();
@@ -93,7 +93,7 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
         advice = new StreamingAccessAdvice(helper);
 
         advice.before(null, getArgs("no-match-method"), taskProvider);
-        
+
     }
 
     @Test
@@ -109,7 +109,6 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
         expect(this.taskProvider.getStoreId()).andReturn(storeId);
     }
 
-    
     private void testSuccessUserAuthorized(String taskName) throws Throwable {
         setupSubject();
         expect(helper.hasReadAccess(isA(String.class),
@@ -149,8 +148,8 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
         replayAll();
         try {
             invokeAdvice();
-        }catch(UnauthorizedException ex){
-            assertTrue("expected failure",true);
+        } catch (UnauthorizedException ex) {
+            assertTrue("expected failure", true);
         }
     }
 
@@ -165,12 +164,12 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
         replayAll();
         try {
             invokeAdvice(StorageTaskConstants.GET_SIGNED_URL_TASK_NAME);
-        }catch(UnauthorizedException ex){
-            assertTrue("expected failure",true);
+        } catch (UnauthorizedException ex) {
+            assertTrue("expected failure", true);
         }
     }
 
-    private void setupSubject(){
+    private void setupSubject() {
         advice = new StreamingAccessAdvice(helper);
         expect(helper.getSpaceACLs(storeId, spaceId)).andReturn(acls);
         SecurityContextHolder.setContext(context);

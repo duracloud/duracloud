@@ -7,18 +7,22 @@
  */
 package org.duracloud.common.util;
 
-import org.springframework.util.StringUtils;
-
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.springframework.util.StringUtils;
 
 public class TagUtil {
 
     public static final String TAGS = "tags";
 
     protected static final String DELIMITER = "|";
+
+    private TagUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     /**
      * @param tag
@@ -73,15 +77,15 @@ public class TagUtil {
         return result;
     }
 
-	public static void remove(String[] tags, Map<String, String> properties) {
-		for(int i = 0; i < tags.length; i++){
-			removeTag(tags[i], properties);
-		}
-	}
+    public static void remove(String[] tags, Map<String, String> properties) {
+        for (int i = 0; i < tags.length; i++) {
+            removeTag(tags[i], properties);
+        }
+    }
 
-	public static void add(String[] tags,  Map<String, String> properties) {
-		for(int i = 0; i < tags.length; i++){
-			addTag(tags[i], properties);
-		}
-	}
+    public static void add(String[] tags, Map<String, String> properties) {
+        for (int i = 0; i < tags.length; i++) {
+            addTag(tags[i], properties);
+        }
+    }
 }

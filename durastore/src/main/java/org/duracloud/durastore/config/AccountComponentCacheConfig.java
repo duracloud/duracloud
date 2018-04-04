@@ -13,16 +13,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AccountComponentCacheConfig {
 
-    @Bean 
-    public String appName(){
+    @Bean
+    public String appName() {
         return "durastore";
     }
 
     @Bean
-    public List<AccountComponentCache<?>>
-           globalStores(UserDetailsServiceCache userDetailsServiceCache,
-                        StorageProviderFactoryCache storageProviderFactoryCache,
-                        TaskProviderFactoryCache taskProviderFactoryCache) {
+    public List<AccountComponentCache<?>> globalStores(UserDetailsServiceCache userDetailsServiceCache,
+                                                       StorageProviderFactoryCache storageProviderFactoryCache,
+                                                       TaskProviderFactoryCache taskProviderFactoryCache) {
         return Arrays.asList((AccountComponentCache<?>) userDetailsServiceCache,
                              (AccountComponentCache<?>) storageProviderFactoryCache,
                              (AccountComponentCache<?>) taskProviderFactoryCache);

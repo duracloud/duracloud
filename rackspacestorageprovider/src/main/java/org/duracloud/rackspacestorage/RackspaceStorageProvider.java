@@ -18,7 +18,7 @@ import org.jclouds.openstack.swift.SwiftClient;
  */
 public class RackspaceStorageProvider extends OpenStackStorageProvider {
 
-    private static final String authUrl= "https://auth.api.rackspacecloud.com/v1.0";
+    private static final String authUrl = "https://auth.api.rackspacecloud.com/v1.0";
 
     public RackspaceStorageProvider(String username,
                                     String apiAccessKey,

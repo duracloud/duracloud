@@ -9,7 +9,7 @@ package org.duracloud.common.error;
 
 /**
  * @author Andrew Woods
- *         Date: 4/20/11
+ * Date: 4/20/11
  */
 public class InvalidUsernameException extends DuraCloudRuntimeException {
     public InvalidUsernameException(String username) {

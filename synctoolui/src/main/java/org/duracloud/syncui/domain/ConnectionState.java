@@ -9,8 +9,8 @@ package org.duracloud.syncui.domain;
 
 /**
  * Describes the state of the internet connection of the sync ui.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 public enum ConnectionState {
     ONLINE,

@@ -10,17 +10,18 @@ package org.duracloud.security.impl;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
+
 /**
  * This class  creates a user details service bean according to the configuration
  * of account store and account id of the caller's request context.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 public class UserDetailsServiceFactoryBean
     extends AbstractFactoryBean<DuracloudUserDetailsService> {
     private DuraCloudRequestContextUtil accountIdUtil = new DuraCloudRequestContextUtil();
     private UserDetailsServiceCache userDetailsServiceCache;
-    
+
     @Override
     protected DuracloudUserDetailsService createInstance() throws Exception {
         return this.userDetailsServiceCache.get(accountIdUtil.getAccountId());

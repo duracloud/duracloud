@@ -8,17 +8,15 @@
 package org.duracloud.syncui.service;
 
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.syncui.domain.DuracloudConfiguration;
 import org.duracloud.syncui.AbstractTest;
+import org.duracloud.syncui.domain.DuracloudConfiguration;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 
  * @author Daniel Bernstein
- * 
  */
 public class ContentStoreManagerFactoryImplTest extends AbstractTest {
 

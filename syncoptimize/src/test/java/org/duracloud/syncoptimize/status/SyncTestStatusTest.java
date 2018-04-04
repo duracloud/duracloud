@@ -7,17 +7,17 @@
  */
 package org.duracloud.syncoptimize.status;
 
-import org.junit.Test;
-
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
+import org.junit.Test;
+
 /**
  * @author Bill Branan
- *         Date: 5/23/14
+ * Date: 5/23/14
  */
 public class SyncTestStatusTest {
 

@@ -16,7 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.duracloud.client.ContentStore;
@@ -39,7 +38,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * 
  * @author Daniel Bernstein Date: Nov 17, 2011
  */
 @Controller
@@ -51,13 +49,12 @@ public class SpaceAclController {
     private ContentStoreManager contentStoreManager;
     private DuracloudUserDetailsService userDetailsService;
 
-    @Autowired(required=true)
-    public SpaceAclController(@Qualifier("contentStoreManager") ContentStoreManager contentStoreManager, 
+    @Autowired(required = true)
+    public SpaceAclController(@Qualifier("contentStoreManager") ContentStoreManager contentStoreManager,
                               @Qualifier("userDetailsSvc") DuracloudUserDetailsService userDetailsService) {
         this.contentStoreManager = contentStoreManager;
         this.userDetailsService = userDetailsService;
     }
-
 
     @RequestMapping(value = "/spaces/acls", method = RequestMethod.POST)
     public ModelAndView postSpaceAcls(HttpServletRequest request,
@@ -70,7 +67,7 @@ public class SpaceAclController {
 
         if ("add".equals(action)) {
             //overlay the new acls on top of the old.
-            Map<String, AclType> currentAcls = getSpaceACLs(storeId,spaceId);
+            Map<String, AclType> currentAcls = getSpaceACLs(storeId, spaceId);
             currentAcls.putAll(acls);
             acls = currentAcls;
         }
@@ -86,38 +83,37 @@ public class SpaceAclController {
         return this.contentStoreManager.getContentStore(storeId);
     }
 
-   
     @RequestMapping(value = "/spaces/acls", method = RequestMethod.GET)
     public ModelAndView getSpaceAcls(@RequestParam String spaceId,
                                      @RequestParam String storeId)
         throws Exception {
 
-        Map<String,AclType> acls = getSpaceACLs(storeId, spaceId);
+        Map<String, AclType> acls = getSpaceACLs(storeId, spaceId);
         return createModel(SpaceUtil.toAclList(acls));
     }
 
-    private Map<String, AclType> getSpaceACLs(String storeId, String spaceId) throws Exception{
+    private Map<String, AclType> getSpaceACLs(String storeId, String spaceId) throws Exception {
         return getContentStore(storeId).getSpaceACLs(spaceId);
     }
 
-    private void setSpaceACLs(String storeId, String spaceId, Map<String,AclType> spaceACLs) throws Exception{
+    private void setSpaceACLs(String storeId, String spaceId, Map<String, AclType> spaceACLs) throws Exception {
         getContentStore(storeId).setSpaceACLs(spaceId, spaceACLs);
     }
 
     private Map<String, AclType> buildAclMap(HttpServletRequest request) {
         Map<String, AclType> acls = new HashMap<String, AclType>();
-        
+
         String[] read = request.getParameterValues("read");
-        if(read != null){
-            for(String name : read){
+        if (read != null) {
+            for (String name : read) {
                 acls.put(name, AclType.READ);
             }
         }
-        
+
         String[] write = request.getParameterValues("write");
 
-        if(write != null){
-            for(String name : write){
+        if (write != null) {
+            for (String name : write) {
                 acls.put(name, AclType.WRITE);
             }
         }
@@ -125,25 +121,23 @@ public class SpaceAclController {
         return acls;
     }
 
-
     @RequestMapping(value = "/spaces/acls/unassignedAcls", method = RequestMethod.GET)
-    public ModelAndView
-        getNewUserAcls(@RequestParam String spaceId,
-                       @RequestParam String storeId) throws Exception {
-        
-        Map<String,AclType> currentAcls = getSpaceACLs(storeId, spaceId);
+    public ModelAndView getNewUserAcls(@RequestParam String spaceId,
+                                       @RequestParam String storeId) throws Exception {
+
+        Map<String, AclType> currentAcls = getSpaceACLs(storeId, spaceId);
         List<Acl> list = new LinkedList<Acl>();
 
-        List<SecurityUserBean>  users = getUsers();
+        List<SecurityUserBean> users = getUsers();
 
         //add groups not already in the current acls
-        List<String>  groups = getGroups(users);
+        List<String> groups = getGroups(users);
 
         //add the public pseudo group
         groups.add(Acl.PUBLIC_GROUP);
-        
+
         for (String group : groups) {
-            if(!currentAcls.containsKey(group)){
+            if (!currentAcls.containsKey(group)) {
                 list.add(new Acl(group, SpaceUtil.formatAclDisplayName(group), false, false));
             }
         }
@@ -151,13 +145,13 @@ public class SpaceAclController {
         //add users not already in the current acls
         for (SecurityUserBean user : users) {
             String username = user.getUsername();
-            if(!currentAcls.containsKey(username) && !isRootOrAdmin(user)){
+            if (!currentAcls.containsKey(username) && !isRootOrAdmin(user)) {
                 list.add(new Acl(username, username, false, false));
             }
         }
 
         SpaceUtil.sortAcls(list);
-        
+
         return createModel(list);
     }
 
@@ -166,15 +160,14 @@ public class SpaceAclController {
         return (auths.contains("ROLE_ADMIN") || auths.contains("ROLE_ROOT"));
     }
 
-
     private List<SecurityUserBean> getUsers() {
-       return userDetailsService.getUsers();
+        return userDetailsService.getUsers();
     }
 
     private List<String> getGroups(Collection<SecurityUserBean> users) {
         Set<String> groups = new HashSet<String>();
-        for(SecurityUserBean user : users){
-            for(String group : user.getGroups()){
+        for (SecurityUserBean user : users) {
+            for (String group : user.getGroups()) {
                 groups.add(group);
             }
         }

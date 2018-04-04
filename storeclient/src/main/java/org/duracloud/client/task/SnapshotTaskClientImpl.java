@@ -36,7 +36,7 @@ import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
  * a ContentStore.
  *
  * @author Bill Branan
- *         Date: 8/8/14
+ * Date: 8/8/14
  */
 public class SnapshotTaskClientImpl implements SnapshotTaskClient {
 
@@ -62,7 +62,7 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
 
         String taskResult =
             contentStore.performTaskWithNoRetries(SnapshotConstants.CREATE_SNAPSHOT_TASK_NAME,
-                                     taskParams.serialize());
+                                                  taskParams.serialize());
 
         return CreateSnapshotTaskResult.deserialize(taskResult);
     }
@@ -145,25 +145,25 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
         taskParams.setPageSize(pageSize);
         taskParams.setPrefix(prefix);
 
-        String taskResult = 
+        String taskResult =
             contentStore.performTask(SnapshotConstants.GET_SNAPSHOT_CONTENTS_TASK_NAME,
                                      taskParams.serialize());
 
         return GetSnapshotContentsTaskResult.deserialize(taskResult);
     }
-    
+
     @Override
     public GetSnapshotHistoryTaskResult getSnapshotHistory(String snapshotId,
                                                            int pageNumber,
                                                            int pageSize)
         throws ContentStoreException {
         GetSnapshotHistoryTaskParameters taskParams =
-                new GetSnapshotHistoryTaskParameters();
+            new GetSnapshotHistoryTaskParameters();
         taskParams.setSnapshotId(snapshotId);
         taskParams.setPageNumber(pageNumber);
         taskParams.setPageSize(pageSize);
 
-        String taskResult = 
+        String taskResult =
             contentStore.performTask(SnapshotConstants.GET_SNAPSHOT_HISTORY_TASK_NAME,
                                      taskParams.serialize());
 
@@ -184,17 +184,17 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
 
         String taskResult =
             contentStore.performTaskWithNoRetries(SnapshotConstants.RESTORE_SNAPSHOT_TASK_NAME,
-                                     taskParams.serialize());
+                                                  taskParams.serialize());
 
         return RestoreSnapshotTaskResult.deserialize(taskResult);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public RequestRestoreSnapshotTaskResult requestRestoreSnapshot(String snapshotId,
-                                                     String userEmail)
+                                                                   String userEmail)
         throws ContentStoreException {
         RestoreSnapshotTaskParameters taskParams =
             new RestoreSnapshotTaskParameters();

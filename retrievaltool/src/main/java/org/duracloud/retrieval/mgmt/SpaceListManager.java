@@ -7,16 +7,16 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import org.duracloud.client.ContentStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import org.duracloud.client.ContentStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The SpaceListManager manages the creation of files containing DuraCloud space content IDs
@@ -59,9 +59,9 @@ public class SpaceListManager implements Runnable {
     }
 
     public void run() {
-        while(!complete) {
-            for(String spaceName: spaces) {
-                while(!retrieveSpaceList(spaceName)) {
+        while (!complete) {
+            for (String spaceName : spaces) {
+                while (!retrieveSpaceList(spaceName)) {
                     sleep(1000);
                 }
             }
@@ -73,6 +73,7 @@ public class SpaceListManager implements Runnable {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
+            // Exit sleep on interruption
         }
     }
 
@@ -84,7 +85,7 @@ public class SpaceListManager implements Runnable {
                                                          overwrite);
             workerPool.execute(worker);
             return true;
-        } catch(RejectedExecutionException e) {
+        } catch (RejectedExecutionException e) {
             return false;
         }
     }
@@ -99,7 +100,8 @@ public class SpaceListManager implements Runnable {
 
         try {
             workerPool.awaitTermination(30, TimeUnit.MINUTES);
-        } catch(InterruptedException e) {          
+        } catch (InterruptedException e) {
+            // Exit wait on interruption
         }
 
         complete = true;

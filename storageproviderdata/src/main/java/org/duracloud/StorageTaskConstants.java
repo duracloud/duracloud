@@ -8,14 +8,18 @@
 package org.duracloud;
 
 /**
- * Created by bill on 3/6/2015.
+ * @author: Bill Branan
+ * Date: 3/6/2015
  */
 public class StorageTaskConstants {
+
+    private StorageTaskConstants() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
 
     //Base
     public static final String TASK_BASE_PATH = "/task";
 
-    
     // Streaming
     public static final String ENABLE_STREAMING_TASK_NAME = "enable-streaming";
     public static final String DISABLE_STREAMING_TASK_NAME = "disable-streaming";

@@ -9,7 +9,7 @@ package org.duracloud.common.util;
 
 /**
  * @author Andrew Woods
- *         Date: Aug 10, 2010
+ * Date: Aug 10, 2010
  */
 public interface CountListener {
     public void setCount(long count);

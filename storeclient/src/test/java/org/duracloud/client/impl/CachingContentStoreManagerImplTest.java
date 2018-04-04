@@ -19,7 +19,7 @@ import org.junit.Test;
 
 /**
  * @author Andrew Woods
- *         Date: Dec 1, 2010
+ * Date: Dec 1, 2010
  */
 public class CachingContentStoreManagerImplTest {
 
@@ -38,8 +38,8 @@ public class CachingContentStoreManagerImplTest {
         restHttpHelper = EasyMock.createMock("RestHttpHelper",
                                              RestHttpHelper.class);
         EasyMock.expect(restHttpHelper.get(EasyMock.isA(String.class)))
-            .andReturn(createHttpResponse())
-            .times(1);
+                .andReturn(createHttpResponse())
+                .times(1);
 
         EasyMock.replay(restHttpHelper);
         return restHttpHelper;

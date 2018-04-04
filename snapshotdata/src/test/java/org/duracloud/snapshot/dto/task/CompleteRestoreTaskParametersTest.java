@@ -7,15 +7,17 @@
  */
 package org.duracloud.snapshot.dto.task;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.junit.matchers.JUnitMatchers.containsString;
+
 import org.duracloud.snapshot.error.SnapshotDataException;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
-
 /**
  * @author Bill Branan
- *         Date: 7/29/15
+ * Date: 7/29/15
  */
 public class CompleteRestoreTaskParametersTest {
 
@@ -31,15 +33,15 @@ public class CompleteRestoreTaskParametersTest {
 
         String result = taskParams.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"spaceId\":\""+ spaceId +"\""));
-        assertThat(cleanResult, containsString("\"daysToExpire\":"+ daysToExpire +""));
+        assertThat(cleanResult, containsString("\"spaceId\":\"" + spaceId + "\""));
+        assertThat(cleanResult, containsString("\"daysToExpire\":" + daysToExpire + ""));
     }
 
     @Test
     public void testDeserialize() {
         // Verify valid params
         String taskParamsSerialized = "{\"spaceId\" : \"test-space\", " +
-                                       "\"daysToExpire\" : 20}";
+                                      "\"daysToExpire\" : 20}";
 
         CompleteRestoreTaskParameters taskParams =
             CompleteRestoreTaskParameters.deserialize(taskParamsSerialized);
@@ -53,7 +55,8 @@ public class CompleteRestoreTaskParametersTest {
         try {
             CompleteRestoreTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
 
         // Verify that empty params throw
@@ -62,14 +65,16 @@ public class CompleteRestoreTaskParametersTest {
         try {
             CompleteRestoreTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
 
         // Verify that empty params throw
         try {
             CompleteRestoreTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
-        } catch(SnapshotDataException e) {
+        } catch (SnapshotDataException e) {
+            // Expected exception
         }
     }
 

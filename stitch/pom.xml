@@ -1,19 +1,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>stitch</artifactId>
-  <version>4.4.4</version>
+  <version>4.4.5</version>
   <name>Content Stitching</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>4.4.4</version>
+    <version>4.4.5</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  
+
   <properties>
     <!-- see maven-shade-plugin in root pom.xml -->
     <mainClass>org.duracloud.stitch.FileStitcherDriver</mainClass>
@@ -27,7 +27,7 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>xmlbeans-maven-plugin</artifactId>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -77,6 +77,6 @@
       <artifactId>xmlbeans-xpath</artifactId>
       <scope>test</scope>
     </dependency>
-    
+
   </dependencies>
 </project>

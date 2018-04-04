@@ -7,8 +7,9 @@
  */
 package org.duracloud.s3storage;
 
-import org.junit.Test;
 import static junit.framework.Assert.assertEquals;
+
+import org.junit.Test;
 
 /**
  * @author: Bill Branan

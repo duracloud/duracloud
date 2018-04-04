@@ -57,7 +57,7 @@ public class ScrollableListTest {
 
         scrollableList.previous();
         assertEquals("list-value-20", scrollableList.getResultList().get(0));
-        
+
         assertEquals(true, scrollableList.isPreviousAvailable());
         scrollableList.previous();
         assertEquals("list-value-10", scrollableList.getResultList().get(0));
@@ -97,8 +97,7 @@ public class ScrollableListTest {
 
     }
 
-    private class MockScrollableList
-            extends ScrollableList<String> {
+    private class MockScrollableList extends ScrollableList<String> {
 
         @Override
         protected List<String> getData(String currentMarker) throws DataRetrievalException {
@@ -114,8 +113,7 @@ public class ScrollableListTest {
                 if (index == list.size() - 1) {
                     return new LinkedList<String>();
                 } else {
-                    return list.subList(index + 1, Math.min(index + 1
-                            + maxResults, list.size()));
+                    return list.subList(index + 1, Math.min(index + 1 + maxResults, list.size()));
                 }
             } else {
                 return list.subList(0, Math.min(maxResults, list.size()));

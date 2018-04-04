@@ -17,7 +17,7 @@ import org.junit.Test;
 
 /**
  * @author Andrew Woods
- *         Date: 3/29/12
+ * Date: 3/29/12
  */
 public class BagitManifestFormatterTest {
 
@@ -69,7 +69,7 @@ public class BagitManifestFormatterTest {
         Assert.assertEquals(contentId, item.getContentId());
         Assert.assertEquals(spaceId, item.getSpaceId());
     }
-    
+
     @Test
     public void testParseLineFailure() {
         String line = "invalid line";

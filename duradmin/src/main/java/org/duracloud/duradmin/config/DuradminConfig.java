@@ -16,11 +16,10 @@ import org.duracloud.duradmin.domain.AdminInit;
 /**
  * This class provides configuration properties associated with the duracloud
  * duradmin.
- * 
+ *
  * @author awoods
  */
-public class DuradminConfig
-        extends ApplicationConfig {
+public class DuradminConfig extends ApplicationConfig {
 
     private static AdminInit config = null;
 
@@ -28,12 +27,10 @@ public class DuradminConfig
 
     private static String configFileName;
 
-
-
     private static boolean initialized = false;
 
     public static DuraCloudRequestContextUtil contextUtil = new DuraCloudRequestContextUtil();
-    
+
     private static Properties getProps() {
         return ApplicationConfig.getPropsFromResource(getConfigFileName());
     }
@@ -53,7 +50,6 @@ public class DuradminConfig
     public static Boolean isPropsMillDbEnabled() {
         return Boolean.valueOf(getProps().getProperty("millDbEnabled", "true"));
     }
-
 
     public static void setConfigFileName(String name) {
         configFileName = name;
@@ -80,7 +76,7 @@ public class DuradminConfig
     }
 
     public static String getDuraStorePort() {
-        return contextUtil.getPort()+"";
+        return contextUtil.getPort() + "";
     }
 
     public static String getDuraStoreContext() {
@@ -97,9 +93,9 @@ public class DuradminConfig
         checkInitialized();
         return config.getAmaUrl();
     }
-    
+
     private static void checkInitialized() {
-        if(config == null) {
+        if (config == null) {
             initFromProperties();
         }
     }

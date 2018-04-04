@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Map;
@@ -78,14 +77,12 @@ public class RestHttpHelper {
 
     private enum Method {
         GET() {
-
             @Override
             public HttpRequestBase getMethod(String url, HttpEntity entity) {
                 return new HttpGet(url);
             }
         },
         POST() {
-
             @Override
             public HttpRequestBase getMethod(String url, HttpEntity entity) {
                 HttpPost postMethod = new HttpPost(url);
@@ -96,7 +93,6 @@ public class RestHttpHelper {
             }
         },
         PUT() {
-
             @Override
             public HttpRequestBase getMethod(String url, HttpEntity entity) {
                 HttpPut putMethod = new HttpPut(url);
@@ -107,7 +103,6 @@ public class RestHttpHelper {
             }
         },
         MULTPART() {
-
             @Override
             public HttpRequestBase getMethod(String url, HttpEntity entity) {
                 HttpPost postMethod = new HttpPost(url);
@@ -118,14 +113,12 @@ public class RestHttpHelper {
             }
         },
         HEAD() {
-
             @Override
             public HttpRequestBase getMethod(String url, HttpEntity entity) {
                 return new HttpHead(url);
             }
         },
         DELETE() {
-
             @Override
             public HttpRequestBase getMethod(String url, HttpEntity entity) {
                 return new HttpDelete(url);
@@ -133,7 +126,7 @@ public class RestHttpHelper {
         };
 
         abstract public HttpRequestBase getMethod(String url, HttpEntity entity);
-    };
+    }
 
     public HttpResponse get(String url) throws Exception {
         return executeRequest(url, Method.GET, null, null);
@@ -169,7 +162,7 @@ public class RestHttpHelper {
                              long contentLength,
                              Map<String, String> headers) throws Exception {
         HttpEntity requestEntity =
-                buildInputStreamEntity(requestContent, mimeType, contentLength);
+            buildInputStreamEntity(requestContent, mimeType, contentLength);
         return executeRequest(url, Method.POST, requestEntity, headers);
     }
 
@@ -195,39 +188,39 @@ public class RestHttpHelper {
                             long contentLength,
                             Map<String, String> headers) throws Exception {
         HttpEntity requestEntity =
-                buildInputStreamEntity(requestContent, mimeType, contentLength);
+            buildInputStreamEntity(requestContent, mimeType, contentLength);
         return executeRequest(url, Method.PUT, requestEntity, headers);
     }
 
     public HttpResponse multipartFilePost(String url, File file)
-            throws Exception {
+        throws Exception {
         ContentType contentType = ContentType.MULTIPART_FORM_DATA;
         HttpEntity reqEntity =
             MultipartEntityBuilder.create()
-                .addBinaryBody(file.getName(), file, contentType, file.getName()).build();
+                                  .addBinaryBody(file.getName(), file, contentType, file.getName()).build();
         return multipartPost(url, reqEntity);
     }
 
     public HttpResponse multipartFileStreamPost(String url,
                                                 String fileName,
                                                 InputStream stream)
-            throws Exception {
+        throws Exception {
         ContentType contentType = ContentType.MULTIPART_FORM_DATA;
         HttpEntity reqEntity =
             MultipartEntityBuilder.create()
-                .addBinaryBody(fileName, stream, contentType, fileName).build();
+                                  .addBinaryBody(fileName, stream, contentType, fileName).build();
         return multipartPost(url, reqEntity);
     }
 
     public HttpResponse multipartPost(String url, HttpEntity reqEntity)
-            throws Exception {
+        throws Exception {
         Map<String, String> headers = null;
         return executeRequest(url, Method.MULTPART, reqEntity, headers);
     }
 
     private InputStreamEntity buildInputStreamEntity(String requestContent,
                                                      String mimeType)
-            throws Exception {
+        throws Exception {
         if (requestContent == null) {
             return null;
         }
@@ -240,7 +233,7 @@ public class RestHttpHelper {
     private InputStreamEntity buildInputStreamEntity(InputStream streamContent,
                                                      String mimeType,
                                                      long contentLength)
-            throws Exception {
+        throws Exception {
         if (streamContent == null) {
             return null;
         }
@@ -251,7 +244,7 @@ public class RestHttpHelper {
 
     private ContentType buildContentType(String mimeType) {
         ContentType contentType;
-        if(null == mimeType) {
+        if (null == mimeType) {
             contentType = ContentType.TEXT_XML;
         } else {
             contentType = ContentType.create(mimeType, StandardCharsets.UTF_8);
@@ -263,7 +256,7 @@ public class RestHttpHelper {
                                         Method method,
                                         HttpEntity requestEntity,
                                         Map<String, String> headers)
-            throws IOException {
+        throws IOException {
         if (url == null || url.length() == 0) {
             throw new IllegalArgumentException("URL must be a non-empty value");
         }
@@ -298,7 +291,7 @@ public class RestHttpHelper {
 
             response = httpClient.execute(httpRequest, localContext);
         } else {
-            CloseableHttpClient httpClient = buildClient(HttpClients.custom(),method);
+            CloseableHttpClient httpClient = buildClient(HttpClients.custom(), method);
             response = httpClient.execute(httpRequest);
         }
 

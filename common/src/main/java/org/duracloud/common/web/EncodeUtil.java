@@ -19,10 +19,15 @@ public class EncodeUtil {
 
     public static final String ENCODING = "UTF-8";
 
+    private EncodeUtil() {
+        // Ensures no instances are made of this class, as there are only static members.
+    }
+
     /**
      * Encodes characters within a string to allow them to be used within a URL.
      * Note that the entire URL should not be passed to this method as it will
      * encode characters like ':' and '/'.
+     *
      * @param toEncode String to encode
      * @return encoded string
      */
@@ -30,7 +35,7 @@ public class EncodeUtil {
         String encoded;
         try {
             encoded = URLEncoder.encode(toEncode, ENCODING);
-        } catch(UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
         // URLEncoder encodes spaces as '+', convert to hex encoding
@@ -45,7 +50,7 @@ public class EncodeUtil {
     public static String urlDecode(String toDecode) {
         try {
             return URLDecoder.decode(toDecode, ENCODING);
-        } catch(UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }

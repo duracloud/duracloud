@@ -14,23 +14,23 @@ import java.util.Iterator;
  * of the total count upon reaching the iteration end.
  *
  * @author Bill Branan
- *         Date: Jan 18, 2011
+ * Date: Jan 18, 2011
  */
 public class ExtendedIteratorCounterThread implements Runnable {
 
     @SuppressWarnings("unchecked")
-	private Iterator itr;
+    private Iterator itr;
     private ExtendedCountListener listener;
 
     @SuppressWarnings("unchecked")
-	public ExtendedIteratorCounterThread(Iterator itr, ExtendedCountListener listener) {
+    public ExtendedIteratorCounterThread(Iterator itr, ExtendedCountListener listener) {
         this.itr = itr;
         this.listener = listener;
     }
 
     @Override
     public void run() {
-        if(null != listener) {
+        if (null != listener) {
             long count = 0;
             while (itr != null && itr.hasNext()) {
                 listener.setIntermediaryCount(++count);

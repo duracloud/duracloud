@@ -13,14 +13,14 @@ import java.util.List;
  * Configuration data used to initialize DuraStore
  *
  * @author Bill Branan
- *         Date: 3/18/14
+ * Date: 3/18/14
  */
 public class DuraStoreInitConfig {
 
     private AuditConfig auditConfig;
     private List<StorageAccount> storageAccounts;
     private DatabaseConfig millDbConfig;
-    
+
     public AuditConfig getAuditConfig() {
         return auditConfig;
     }
@@ -36,7 +36,7 @@ public class DuraStoreInitConfig {
     public void setStorageAccounts(List<StorageAccount> storageAccounts) {
         this.storageAccounts = storageAccounts;
     }
-    
+
     public DatabaseConfig getMillDbConfig() {
         return millDbConfig;
     }

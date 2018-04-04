@@ -7,23 +7,8 @@
  */
 package org.duracloud.chunk.writer;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.duracloud.chunk.ChunkableContent;
 import static org.duracloud.chunk.writer.AddContentResult.State;
-import org.duracloud.chunk.error.NotFoundException;
-import org.duracloud.chunk.manifest.ChunksManifest;
-import org.duracloud.chunk.manifest.ChunksManifestBean;
-import org.duracloud.chunk.stream.ChunkInputStream;
-import org.duracloud.chunk.stream.KnownLengthInputStream;
-import org.duracloud.common.util.ChecksumUtil;
 import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,9 +20,25 @@ import java.security.DigestInputStream;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.duracloud.chunk.ChunkableContent;
+import org.duracloud.chunk.error.NotFoundException;
+import org.duracloud.chunk.manifest.ChunksManifest;
+import org.duracloud.chunk.manifest.ChunksManifestBean;
+import org.duracloud.chunk.stream.ChunkInputStream;
+import org.duracloud.chunk.stream.KnownLengthInputStream;
+import org.duracloud.common.util.ChecksumUtil;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * @author Andrew Woods
- *         Date: Feb 5, 2010
+ * Date: Feb 5, 2010
  */
 public class FilesystemContentWriterTest {
 
@@ -71,7 +72,7 @@ public class FilesystemContentWriterTest {
 
         File destSpace = new File(destDir, "spaceId-0");
         String spaceId = destSpace.getPath();
-        String sep =  File.separator;
+        String sep = File.separator;
         // a/b/c/contentId or a\b\c\contentId
         String contentId = "a" + sep + "b" + sep + "c" + sep + "contentId";
 

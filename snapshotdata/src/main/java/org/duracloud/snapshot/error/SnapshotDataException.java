@@ -11,7 +11,7 @@ import org.duracloud.common.error.DuraCloudRuntimeException;
 
 /**
  * @author Bill Branan
- *         Date: 7/28/14
+ * Date: 7/28/14
  */
 public class SnapshotDataException extends DuraCloudRuntimeException {
 

@@ -7,6 +7,8 @@
  */
 package org.duracloud.common.queue.noop;
 
+import java.util.Set;
+
 import org.duracloud.common.queue.TaskException;
 import org.duracloud.common.queue.TaskNotFoundException;
 import org.duracloud.common.queue.TaskQueue;
@@ -15,15 +17,13 @@ import org.duracloud.common.queue.task.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
-
 /**
  * Implementation of TaskQueue which performs no work. This is intended to be
  * used when the need for a fully functional TaskQueue implemenation is
  * deemed unnecessary.
  *
  * @author Bill Branan
- *         Date: 3/18/14
+ * Date: 3/18/14
  */
 public class NoopTaskQueue implements TaskQueue {
 
@@ -38,7 +38,7 @@ public class NoopTaskQueue implements TaskQueue {
     public String getName() {
         return "noop";
     }
-    
+
     @Override
     public void put(Task task) {
     }
@@ -69,7 +69,7 @@ public class NoopTaskQueue implements TaskQueue {
     public Integer size() {
         return new Integer(0);
     }
-    
+
     @Override
     public Integer sizeIncludingInvisibleAndDelayed() {
         return size();
@@ -80,8 +80,9 @@ public class NoopTaskQueue implements TaskQueue {
     }
 
     @Override
-    public void deleteTasks(Set<Task> tasks) throws TaskException {}
-    
+    public void deleteTasks(Set<Task> tasks) throws TaskException {
+    }
+
     @Override
     public Set<Task> take(int maxTasks) throws TimeoutException {
         throw new TimeoutException("not implemented");

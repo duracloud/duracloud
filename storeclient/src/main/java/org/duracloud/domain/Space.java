@@ -53,7 +53,7 @@ public class Space {
     /**
      * <p>Adds an item to the space properties map</p>
      *
-     * @param name properties key
+     * @param name  properties key
      * @param value properties value
      */
     public void addProperties(String name, String value) {
@@ -88,9 +88,9 @@ public class Space {
      */
     public boolean equals(Space space) {
         boolean equals = false;
-        if(getId().equals(space.getId()) &&
-           getProperties().equals(space.getProperties()) &&
-           getContentIds().equals(space.getContentIds())) {
+        if (getId().equals(space.getId()) &&
+            getProperties().equals(space.getProperties()) &&
+            getContentIds().equals(space.getContentIds())) {
             equals = true;
         }
         return equals;

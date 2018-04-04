@@ -28,14 +28,14 @@ public class SyncBackupManager {
         LoggerFactory.getLogger(SyncBackupManager.class);
 
     private ChangedListBackupManager backupManager;
-    
+
     private ExecutorService execPool;
 
     public SyncBackupManager(File backupDir, long frequency, List<File> contentDirs) {
         logger.info("Starting Sync Backup Manager");
         backupManager = new ChangedListBackupManager(ChangedList.getInstance(),
                                                      backupDir,
-                                                     frequency, 
+                                                     frequency,
                                                      contentDirs);
 
         // Create thread pool for backupManager
@@ -46,10 +46,10 @@ public class SyncBackupManager {
         return backupManager.loadBackup();
     }
 
-    public boolean hasBackups(){
+    public boolean hasBackups() {
         return this.backupManager.hasBackups();
     }
-    
+
     public void startupBackups() {
         execPool.execute(backupManager);
     }
@@ -59,8 +59,8 @@ public class SyncBackupManager {
         backupManager.endBackup();
         execPool.shutdown();
     }
-    
-    public void clearBackups(){
+
+    public void clearBackups() {
         backupManager.clear();
     }
 }

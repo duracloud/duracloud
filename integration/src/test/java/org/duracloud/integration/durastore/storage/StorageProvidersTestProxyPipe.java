@@ -7,18 +7,17 @@
  */
 package org.duracloud.integration.durastore.storage;
 
+import java.io.IOException;
+
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
-
-import java.io.IOException;
 
 /**
  * This class applies a list of proxies the the TestStorageProviders suite.
  *
  * @author Andrew Woods
  */
-public class StorageProvidersTestProxyPipe
-        implements StorageProvidersTestInterface {
+public class StorageProvidersTestProxyPipe implements StorageProvidersTestInterface {
 
     private final StorageProvidersTestInterface proxy;
 
@@ -56,7 +55,7 @@ public class StorageProvidersTestProxyPipe
                                               String spaceId0,
                                               String contentId0,
                                               String contentId1)
-            throws Exception {
+        throws Exception {
         proxy.testAddAndGetContentOverwrite(provider,
                                             spaceId0,
                                             contentId0,
@@ -71,7 +70,7 @@ public class StorageProvidersTestProxyPipe
     }
 
     public void testCreateSpace(StorageProvider provider, String spaceId)
-            throws StorageException {
+        throws StorageException {
         proxy.testCreateSpace(provider, spaceId);
     }
 
@@ -90,7 +89,7 @@ public class StorageProvidersTestProxyPipe
     public void testGetContentProperties(StorageProvider provider,
                                          String spaceId0,
                                          String contentId0)
-            throws StorageException {
+        throws StorageException {
         proxy.testGetContentProperties(provider, spaceId0, contentId0);
     }
 
@@ -102,7 +101,7 @@ public class StorageProvidersTestProxyPipe
     }
 
     public void testGetSpaceProperties(StorageProvider provider, String spaceId0)
-            throws StorageException {
+        throws StorageException {
         proxy.testGetSpaceProperties(provider, spaceId0);
     }
 
@@ -117,7 +116,7 @@ public class StorageProvidersTestProxyPipe
                                          String spaceId1,
                                          String contentId0,
                                          String contentId1)
-            throws StorageException {
+        throws StorageException {
         proxy.testSetContentProperties(provider,
                                        spaceId0,
                                        spaceId1,

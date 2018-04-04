@@ -15,7 +15,7 @@ import org.duracloud.stitch.error.InvalidManifestException;
  * This interface defines the contract of a FileStitcher.
  *
  * @author Andrew Woods
- *         Date: 9/3/11
+ * Date: 9/3/11
  */
 public interface FileStitcher {
 
@@ -37,6 +37,7 @@ public interface FileStitcher {
 
     public Content getContentFromManifest(String spaceId, String contentId, FileStitcherListener listener)
         throws InvalidManifestException;
+
     /**
      * This method returns the deserialized ChunksManifest object found in the
      * arg spaceId with the arg manifestId.

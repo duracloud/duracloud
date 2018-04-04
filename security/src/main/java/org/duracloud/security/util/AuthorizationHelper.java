@@ -22,11 +22,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+
 /**
- * A helper class that performs common Authorization related functions shared by different 
+ * A helper class that performs common Authorization related functions shared by different
  * system layers.
- * @author Daniel Bernstein
  *
+ * @author Daniel Bernstein
  */
 public class AuthorizationHelper {
     private final Logger log =
@@ -37,7 +38,7 @@ public class AuthorizationHelper {
     public AuthorizationHelper(StorageProviderFactory storageProviderFactory) {
         this.storageProviderFactory = storageProviderFactory;
     }
-    
+
     public List<String> getUserGroups(Authentication auth) {
         DuracloudUserDetails userDetails = getUserDetails(auth);
         return userDetails.getGroups();
@@ -60,18 +61,18 @@ public class AuthorizationHelper {
     }
 
     public boolean groupsHaveReadAccess(List<String> userGroups,
-                                           Map<String, AclType> acls) {
+                                        Map<String, AclType> acls) {
         return groupsHaveAccess(userGroups, acls, true);
     }
 
     public boolean groupsHaveWriteAccess(List<String> userGroups,
-                                            Map<String, AclType> acls) {
+                                         Map<String, AclType> acls) {
         return groupsHaveAccess(userGroups, acls, false);
     }
 
     public boolean groupsHaveAccess(List<String> userGroups,
-                                     Map<String, AclType> acls,
-                                     boolean isRead) {
+                                    Map<String, AclType> acls,
+                                    boolean isRead) {
         if (null != userGroups) {
             for (String group : userGroups) {
                 if (isRead && hasReadAccess(group, acls)) {
@@ -113,18 +114,18 @@ public class AuthorizationHelper {
         }
         return false;
     }
-    
+
     public boolean hasRole(Authentication auth, String role) {
         Collection<GrantedAuthority> authorities = getAuthorities(auth);
         return hasRole(role, authorities);
     }
-    
-    public boolean hasAdmin(Authentication auth){
+
+    public boolean hasAdmin(Authentication auth) {
         return hasRole(auth, "ROLE_ADMIN");
     }
 
     public boolean hasRole(String role,
-                              Collection<GrantedAuthority> authorities) {
+                           Collection<GrantedAuthority> authorities) {
         for (GrantedAuthority authority : authorities) {
             if (role.equals(authority.getAuthority())) {
                 return true;
@@ -132,9 +133,9 @@ public class AuthorizationHelper {
         }
         return false;
     }
-    
+
     public Map<String, AclType> getSpaceACLs(String storeId,
-                                                String spaceId) {
+                                             String spaceId) {
 
         Map<String, AclType> emptyACLs = new HashMap<String, AclType>();
         if (null == spaceId) {

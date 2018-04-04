@@ -25,12 +25,12 @@ public class SnapshotSummary extends BaseDTO {
     @XmlValue
     private String sourceStoreId;
 
-    
     @XmlValue
     private SnapshotStatus status;
-    
-    public SnapshotSummary() {}
-    
+
+    public SnapshotSummary() {
+    }
+
     public SnapshotSummary(String snapshotId,
                            SnapshotStatus status,
                            String description,
@@ -42,7 +42,7 @@ public class SnapshotSummary extends BaseDTO {
         this.status = status;
         this.sourceStoreId = sourceStoreId;
         this.sourceSpaceId = sourceSpaceId;
-    } 
+    }
 
     public String getSnapshotId() {
         return snapshotId;

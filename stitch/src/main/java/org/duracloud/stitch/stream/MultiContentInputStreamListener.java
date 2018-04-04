@@ -8,17 +8,16 @@
 package org.duracloud.stitch.stream;
 
 /**
- * A listener class that receives notification from a <code>MultiContentInputStream</code> as 
+ * A listener class that receives notification from a <code>MultiContentInputStream</code> as
  * each underlying content item is read.
-
- * @author dbernstein
  *
+ * @author dbernstein
  */
 public interface MultiContentInputStreamListener {
-    
+
     /**
      * Called when a contentId has been completely read from the stream.
-     * 
+     *
      * @param contentId The contentId for the file that was just read.
      */
     void contentIdRead(String contentId);

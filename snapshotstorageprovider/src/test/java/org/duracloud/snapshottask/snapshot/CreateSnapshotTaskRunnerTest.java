@@ -7,15 +7,29 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.matchers.JUnitMatchers.containsString;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
-import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.error.ServerConflictException;
@@ -27,24 +41,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.containsString;
-
-
 /**
  * @author Bill Branan
- *         Date: 1/29/14
+ * Date: 1/29/14
  */
 public class CreateSnapshotTaskRunnerTest {
 
@@ -63,6 +62,7 @@ public class CreateSnapshotTaskRunnerTest {
     private String bridgeUser = "bridge-user";
     private String bridgePass = "bridge-pass";
     private String bridgeMemberId = "bridge-member-id";
+
     @Before
     public void setup() {
         snapshotProvider = EasyMock.createMock("StorageProvider",
@@ -75,7 +75,7 @@ public class CreateSnapshotTaskRunnerTest {
             new CreateSnapshotTaskRunner(snapshotProvider, unwrappedSnapshotProvider,
                                          dcHost, dcPort, dcStoreId, dcAccountName,
                                          dcSnapshotUser, bridgeHost,
-                                         bridgePort, bridgeUser, bridgePass,bridgeMemberId);
+                                         bridgePort, bridgeUser, bridgePass, bridgeMemberId);
     }
 
     private void replayMocks() {
@@ -100,7 +100,7 @@ public class CreateSnapshotTaskRunnerTest {
         String snapshotId = "snapshot-id";
 
         String snapshotUrl = taskRunner.buildSnapshotURL(snapshotId);
-        String expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
+        String expectedUrl = "http://" + bridgeHost + ":" + bridgePort +
                              "/bridge/snapshot/" + snapshotId;
         assertEquals(expectedUrl, snapshotUrl);
     }
@@ -121,13 +121,13 @@ public class CreateSnapshotTaskRunnerTest {
         String result = taskRunner.buildSnapshotBody(taskParams);
         String cleanResult = result.replaceAll("\\s+", "");
 
-        assertThat(cleanResult, containsString("\"host\":\""+dcHost+"\""));
-        assertThat(cleanResult, containsString("\"port\":\""+dcPort+"\""));
-        assertThat(cleanResult, containsString("\"storeId\":\""+dcStoreId+"\""));
-        assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId+"\""));
-        assertThat(cleanResult, containsString("\"description\":\""+description+"\""));
-        assertThat(cleanResult, containsString("\"userEmail\":\""+userEmail+"\""));
-        assertThat(cleanResult, containsString("\"memberId\":\""+bridgeMemberId+"\""));
+        assertThat(cleanResult, containsString("\"host\":\"" + dcHost + "\""));
+        assertThat(cleanResult, containsString("\"port\":\"" + dcPort + "\""));
+        assertThat(cleanResult, containsString("\"storeId\":\"" + dcStoreId + "\""));
+        assertThat(cleanResult, containsString("\"spaceId\":\"" + spaceId + "\""));
+        assertThat(cleanResult, containsString("\"description\":\"" + description + "\""));
+        assertThat(cleanResult, containsString("\"userEmail\":\"" + userEmail + "\""));
+        assertThat(cleanResult, containsString("\"memberId\":\"" + bridgeMemberId + "\""));
 
     }
 
@@ -216,12 +216,12 @@ public class CreateSnapshotTaskRunnerTest {
 
         EasyMock.expect(
             snapshotProvider.addContent(EasyMock.eq(spaceId),
-                                     EasyMock.eq(Constants.SNAPSHOT_PROPS_FILENAME),
-                                     EasyMock.eq("text/x-java-properties"),
-                                     EasyMock.<Map<String, String>>isNull(),
-                                     EasyMock.eq((long)props.length()),
-                                     EasyMock.<String>anyObject(),
-                                     EasyMock.<InputStream>anyObject()))
+                                        EasyMock.eq(Constants.SNAPSHOT_PROPS_FILENAME),
+                                        EasyMock.eq("text/x-java-properties"),
+                                        EasyMock.<Map<String, String>>isNull(),
+                                        EasyMock.eq((long) props.length()),
+                                        EasyMock.<String>anyObject(),
+                                        EasyMock.<InputStream>anyObject()))
                 .andReturn("success!");
         replayMocks();
 
@@ -276,7 +276,8 @@ public class CreateSnapshotTaskRunnerTest {
         try {
             taskRunner.callBridge(restHelper, snapshotURL, snapshotBody);
             fail("Exception expected on 500 response");
-        } catch(RuntimeException e) {
+        } catch (RuntimeException e) {
+            // Expected exception
         }
     }
 
@@ -291,21 +292,21 @@ public class CreateSnapshotTaskRunnerTest {
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
         EasyMock.expect(restHelper.put(snapshotURL, snapshotBody, headers))
-            .andReturn(response);
+                .andReturn(response);
 
         replayMocks();
 
         try {
             taskRunner.callBridge(restHelper, snapshotURL, snapshotBody);
             fail("Exception expected on 409 response");
-        } catch(ServerConflictException e) {
+        } catch (ServerConflictException e) {
             assertEquals(errorMessage, e.getMessage());
         }
     }
 
     @Test
     public void testPerformSnapshotPropertiesAlreadyExists() throws Exception {
-        String spaceId= "space-id";
+        String spaceId = "space-id";
         CreateSnapshotTaskParameters params = new CreateSnapshotTaskParameters();
         params.setDescription("desc");
         params.setSpaceId(spaceId);
@@ -313,7 +314,7 @@ public class CreateSnapshotTaskRunnerTest {
         String snapshotId = "snapshot-001";
         Properties props = new Properties();
         props.put(Constants.SNAPSHOT_ID_PROP, snapshotId);
-        
+
         EasyMock.expect(this.snapshotProvider.getContent(spaceId,
                                                          Constants.SNAPSHOT_PROPS_FILENAME))
                 .andReturn(new ByteArrayInputStream((Constants.SNAPSHOT_ID_PROP + "=" + snapshotId).getBytes()));
@@ -321,7 +322,7 @@ public class CreateSnapshotTaskRunnerTest {
         try {
             taskRunner.performTask(params.serialize());
             fail("Exception expected on 500 response");
-        } catch(StorageStateException e) {
+        } catch (StorageStateException e) {
             assertTrue(e.getMessage().contains(snapshotId));
         }
     }
