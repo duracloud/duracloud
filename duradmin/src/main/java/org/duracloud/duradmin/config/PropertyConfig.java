@@ -21,13 +21,10 @@ import org.springframework.core.annotation.Order;
 @PropertySource("${duracloud.config.file}") //this references the system property.
 public class PropertyConfig {
 
-    private PropertyConfig() {
-        // Ensures no instances are made of this class, as there are only static members.
-    }
-
     @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
+    public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
         PropertySourcesPlaceholderConfigurer p = new PropertySourcesPlaceholderConfigurer();
         return p;
     }
+
 }
