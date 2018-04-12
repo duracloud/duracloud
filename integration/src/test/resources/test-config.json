@@ -6,20 +6,6 @@
                 "username": "",
                 "password": ""
             }
-        },
-        {
-            "type": "RACKSPACE",
-            "credential": {
-                "username": "",
-                "password": ""
-            }
-        },
-        {
-            "type": "SDSC",
-            "credential": {
-                "username": "",
-                "password": ""
-            }
         }
     ],
     "queueName": "",

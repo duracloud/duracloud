@@ -66,7 +66,7 @@ public class StorageAccountsDocumentBindingTest {
         Assert.assertEquals(2, accts.size());
         for (StorageAccount acct : accts) {
             if (acct.getType() != StorageProviderType.AMAZON_S3 &&
-                acct.getType() != StorageProviderType.RACKSPACE) {
+                acct.getType() != StorageProviderType.AMAZON_GLACIER) {
                 Assert.fail("Invalid StorageProviderType: " + acct.getType());
             }
             verifyAccount(acct);
@@ -104,7 +104,7 @@ public class StorageAccountsDocumentBindingTest {
     @Test
     public void testCreateDocumentFrom() throws Exception {
         StorageAccount acct0 = createAccount(StorageProviderType.AMAZON_S3);
-        StorageAccount acct1 = createAccount(StorageProviderType.RACKSPACE);
+        StorageAccount acct1 = createAccount(StorageProviderType.AMAZON_GLACIER);
 
         List<StorageAccount> accts = new ArrayList<StorageAccount>();
         accts.add(acct0);
@@ -124,7 +124,7 @@ public class StorageAccountsDocumentBindingTest {
     }
 
     private InputStream createXml() throws Exception {
-        StringBuilder acct0 = createAccountXml(createAccount(StorageProviderType.RACKSPACE));
+        StringBuilder acct0 = createAccountXml(createAccount(StorageProviderType.AMAZON_GLACIER));
         StringBuilder acct1 = createAccountXml(createAccount(StorageProviderType.AMAZON_S3));
 
         StringBuilder accts = new StringBuilder();

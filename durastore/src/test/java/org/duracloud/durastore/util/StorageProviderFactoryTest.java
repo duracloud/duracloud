@@ -74,7 +74,7 @@ public class StorageProviderFactoryTest {
         acct1 = new StorageAccountImpl(acctId1, "u", "p",
                                        StorageProviderType.AMAZON_S3);
         acct2 = new StorageAccountImpl(acctId2, "u", "p",
-                                       StorageProviderType.RACKSPACE);
+                                       StorageProviderType.AMAZON_GLACIER);
 
         storageAccountIds = new ArrayList<>();
         storageAccountIds.add(acctId1);

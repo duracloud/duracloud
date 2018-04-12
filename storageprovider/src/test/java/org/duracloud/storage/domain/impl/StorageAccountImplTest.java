@@ -26,7 +26,7 @@ public class StorageAccountImplTest {
         String id = "id";
         String username = "username";
         String password = "password";
-        StorageProviderType type = StorageProviderType.RACKSPACE;
+        StorageProviderType type = StorageProviderType.AMAZON_S3;
         acct = new StorageAccountImpl(id, username, password, type);
     }
 
