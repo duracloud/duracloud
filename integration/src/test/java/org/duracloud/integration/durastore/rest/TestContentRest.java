@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
@@ -67,8 +68,16 @@ public class TestContentRest extends BaseRestTester {
     public void tearDown() throws Exception {
         // Delete space
         HttpResponse response = RestTestHelper.deleteSpace(BaseRestTester.spaceId);
-        String responseText = checkResponse(response, HttpStatus.SC_OK);
+
+        // Check response
+        assertNotNull(response);
+        String responseText = response.getResponseBody();
         assertNotNull(responseText);
+        int statusCode = response.getStatusCode();
+        if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_NOT_FOUND) {
+            fail("Space delete should result in a 200 or 404 response (if the space " +
+                 "has already been removed), response code received: " + statusCode);
+        }
     }
 
     private String removeParams(String contentId) {
