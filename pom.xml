@@ -70,9 +70,6 @@
     <module>storageproviderdata</module>
     <module>s3storageprovider</module>
     <module>glacierstorageprovider</module>
-    <module>openstackstorageprovider</module>
-    <module>sdscstorageprovider</module>
-    <module>rackspacestorageprovider</module>
     <module>irodsstorageprovider</module>
     <module>snapshotdata</module>
     <module>snapshotstorageprovider</module>
@@ -245,7 +242,6 @@
     <org.springframework.webflow.version>2.4.2.RELEASE</org.springframework.webflow.version>
     <hibernate.version>5.1.0.Final</hibernate.version>
     <aws.sdk.version>1.11.155</aws.sdk.version>
-    <jclouds.version>1.8.0</jclouds.version>
     <jersey.version>2.5.1</jersey.version>
     <jackson.version>2.7.4</jackson.version>
     <tiles.version>2.2.2</tiles.version>
@@ -1487,36 +1483,6 @@
         <groupId>org.apache.xmlbeans</groupId>
         <artifactId>xmlbeans-xpath</artifactId>
         <version>2.3.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.jclouds</groupId>
-        <artifactId>jclouds-core</artifactId>
-        <version>${jclouds.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>jsr311-api</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.jclouds.api</groupId>
-        <artifactId>swift</artifactId>
-        <version>${jclouds.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.jclouds</groupId>
-        <artifactId>jclouds-blobstore</artifactId>
-        <version>${jclouds.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.jclouds.driver</groupId>
-        <artifactId>jclouds-enterprise</artifactId>
-        <version>${jclouds.version}</version>
       </dependency>
 
       <dependency>

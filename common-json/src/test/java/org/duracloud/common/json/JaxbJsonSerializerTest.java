@@ -33,12 +33,6 @@ public class JaxbJsonSerializerTest {
         sb.append("      \"username\" : \"amazon-user\",");
         sb.append("      \"password\" : \"amazon-pass\"");
         sb.append("    }");
-        sb.append("  }, {");
-        sb.append("    \"type\" : \"RACKSPACE\",");
-        sb.append("    \"credential\" : {");
-        sb.append("      \"username\" : \"rack-user\",");
-        sb.append("      \"password\" : \"rack-pass\"");
-        sb.append("    }");
         sb.append("  } ],");
         sb.append("  \"queueName\": \"queue-name\",");
         sb.append("  \"testEndPoint\" : { ");
@@ -70,11 +64,9 @@ public class JaxbJsonSerializerTest {
         TestConfig desCreds = serializer.deserialize(jsonTestConfig);
         List<StorageProviderCredential> credList =
             desCreds.getProviderCredentials();
-        Assert.assertEquals(2, credList.size());
+        Assert.assertEquals(1, credList.size());
         Assert.assertEquals("amazon-user",
                             credList.get(0).getCredential().getUsername());
-        Assert.assertEquals("rack-user",
-                            credList.get(1).getCredential().getUsername());
         Assert.assertEquals("queue-name", desCreds.getQueueName());
     }
 
@@ -87,13 +79,8 @@ public class JaxbJsonSerializerTest {
             StorageProviderCredential.ProviderType.AMAZON_S3,
             new SimpleCredential("amazon-user", "amazon-pass"));
 
-        StorageProviderCredential rackCred = new StorageProviderCredential(
-            StorageProviderCredential.ProviderType.RACKSPACE,
-            new SimpleCredential("rack-user", "rack-pass"));
-
         TestConfig testConfig = new TestConfig();
         testConfig.addProviderCredential(s3Cred);
-        testConfig.addProviderCredential(rackCred);
         testConfig.setQueueName("queue-name");
         testConfig.setTestEndPoint(new TestEndPoint());
         testConfig.setAdminCredential(new SimpleCredential("testuser", "password"));
