@@ -13,6 +13,8 @@ package org.duracloud.common.rest;
  */
 public interface HttpHeaders extends javax.ws.rs.core.HttpHeaders {
 
+    public static final String ACCEPT_RANGES = "Accept-Ranges";
+    public static final String ACCEPT_RANGES_BYTES = "bytes";
     public static final String AGE = "Age";
     public static final String CONNECTION = "Connection";
     public static final String CONTENT_DISPOSITION = "Content-Disposition";

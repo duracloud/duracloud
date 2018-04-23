@@ -127,8 +127,8 @@ public class BrokeredStorageProviderTest {
         directProvider.setContent(content);
         targetProvider.setContent(content);
 
-        InputStream content0 = directProvider.getContent(spaceId, contentId);
-        InputStream content1 = broker.getContent(spaceId, contentId);
+        InputStream content0 = directProvider.getContent(spaceId, contentId).getContentStream();
+        InputStream content1 = broker.getContent(spaceId, contentId).getContentStream();
 
         verify(content0, content1);
     }

@@ -7,7 +7,6 @@
  */
 package org.duracloud.glacierstorage;
 
-import java.io.InputStream;
 import java.util.Map;
 
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -15,6 +14,7 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StoragePolicy;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.error.StorageStateException;
@@ -79,11 +79,11 @@ public class GlacierStorageProvider extends S3StorageProvider {
      * {@inheritDoc}
      */
     @Override
-    public InputStream getContent(String spaceId, String contentId) {
+    public RetrievedContent getContent(String spaceId, String contentId, String range) {
         log.debug("getContent(" + spaceId + ", " + contentId + ")");
 
         try {
-            return super.getContent(spaceId, contentId);
+            return super.getContent(spaceId, contentId, range);
         } catch (StorageException e) {
             checkStorageState(e);
             throw e;

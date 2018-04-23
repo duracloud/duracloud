@@ -239,11 +239,11 @@ public class StorageProvidersTestCore
         addContent(provider, spaceId0, contentId2, mimeXml, content1, true);
 
         // Verify content on retrieval.
-        InputStream is0 = provider.getContent(spaceId0, contentId1);
+        InputStream is0 = provider.getContent(spaceId0, contentId1).getContentStream();
         assertNotNull(is0);
         assertEquals(new String(content0), getData(is0));
 
-        InputStream is1 = provider.getContent(spaceId0, contentId2);
+        InputStream is1 = provider.getContent(spaceId0, contentId2).getContentStream();
         assertNotNull(is1);
         assertEquals(new String(content1), getData(is1));
 
@@ -264,13 +264,13 @@ public class StorageProvidersTestCore
         addContent(provider, spaceId0, contentId1, mimeXml, content1);
 
         // Verify content on retrieval.
-        InputStream is0 = provider.getContent(spaceId0, contentId0);
+        InputStream is0 = provider.getContent(spaceId0, contentId0).getContentStream();
         assertNotNull(is0);
         assertEquals(new String(content0), getData(is0));
 
         // Overwrite existing content
         addContent(provider, spaceId0, contentId0, mimeXml, content1);
-        InputStream is1 = provider.getContent(spaceId0, contentId0);
+        InputStream is1 = provider.getContent(spaceId0, contentId0).getContentStream();
         assertNotNull(is1);
         assertEquals(new String(content1), getData(is1));
     }
@@ -298,7 +298,7 @@ public class StorageProvidersTestCore
             addContent(provider, spaceId0, contentId1, mimeText, content0);
 
             // Verify content on retrieval.
-            InputStream is0 = provider.getContent(spaceId0, contentId1);
+            InputStream is0 = provider.getContent(spaceId0, contentId1).getContentStream();
             assertNotNull(is0);
             assertEquals(new String(content0), getData(is0));
         }

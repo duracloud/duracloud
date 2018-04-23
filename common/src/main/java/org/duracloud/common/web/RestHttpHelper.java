@@ -132,6 +132,11 @@ public class RestHttpHelper {
         return executeRequest(url, Method.GET, null, null);
     }
 
+    public HttpResponse get(String url,
+                            Map<String, String> headers) throws Exception {
+        return executeRequest(url, Method.GET, null, headers);
+    }
+
     public HttpResponse head(String url) throws Exception {
         return executeRequest(url, Method.HEAD, null, null);
     }

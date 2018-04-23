@@ -11,7 +11,9 @@ import java.io.InputStream;
 import java.util.Map;
 
 import org.duracloud.durastore.error.ResourceException;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.error.InvalidIdException;
+import org.duracloud.storage.error.InvalidRequestException;
 
 /**
  * @author Andrew Woods
@@ -19,8 +21,11 @@ import org.duracloud.storage.error.InvalidIdException;
  */
 public interface ContentResource {
 
-    InputStream getContent(String spaceID, String contentID, String storeID)
-        throws ResourceException;
+    RetrievedContent getContent(String spaceID,
+                                String contentID,
+                                String storeID,
+                                String range)
+        throws InvalidRequestException, ResourceException;
 
     Map<String, String> getContentProperties(String spaceID,
                                              String contentID,

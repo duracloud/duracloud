@@ -22,6 +22,7 @@ import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.sns.AccountChangeNotifier;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.impl.DuracloudUserDetails;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -348,8 +349,13 @@ public class ACLStorageProvider implements StorageProvider {
     }
 
     @Override
-    public InputStream getContent(String spaceId, String contentId) {
+    public RetrievedContent getContent(String spaceId, String contentId) {
         return targetProvider.getContent(spaceId, contentId);
+    }
+
+    @Override
+    public RetrievedContent getContent(String spaceId, String contentId, String range) {
+        return targetProvider.getContent(spaceId, contentId, range);
     }
 
     @Override

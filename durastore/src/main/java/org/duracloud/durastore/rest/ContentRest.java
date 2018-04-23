@@ -32,6 +32,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.io.input.AutoCloseInputStream;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.duracloud.audit.logger.ClientInfoLogger;
 import org.duracloud.common.constant.Constants;
@@ -42,6 +43,7 @@ import org.duracloud.durastore.error.ResourceChecksumException;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.durastore.error.ResourceStateException;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.error.InvalidRequestException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -80,7 +82,8 @@ public class ContentRest extends BaseRest {
     public Response getContent(@PathParam("spaceID") String spaceID,
                                @PathParam("contentID") String contentID,
                                @QueryParam("storeID") String storeID,
-                               @QueryParam("attachment") boolean attachment) {
+                               @QueryParam("attachment") boolean attachment,
+                               @HeaderParam(RANGE_HEADER) String range) {
         StringBuilder msg = new StringBuilder("getting content(");
         msg.append(spaceID);
         msg.append(", ");
@@ -89,11 +92,16 @@ public class ContentRest extends BaseRest {
         msg.append(storeID);
         msg.append(", ");
         msg.append(attachment);
+        msg.append(", ");
+        msg.append(range);
         msg.append(")");
 
         try {
             log.debug(msg.toString());
-            return doGetContent(spaceID, contentID, storeID, attachment);
+            return doGetContent(spaceID, contentID, storeID, attachment, range);
+
+        } catch (InvalidRequestException e) {
+            return responseBad(msg.toString(), e, BAD_REQUEST);
 
         } catch (ResourceNotFoundException e) {
             return responseNotFound(msg.toString(), e, NOT_FOUND);
@@ -112,19 +120,23 @@ public class ContentRest extends BaseRest {
     private Response doGetContent(String spaceID,
                                   String contentID,
                                   String storeID,
-                                  boolean attachment) throws ResourceException {
-        Map<String, String> properties =
-            contentResource.getContentProperties(spaceID, contentID, storeID);
-        InputStream content =
-            new AutoCloseInputStream(contentResource.getContent(spaceID, contentID, storeID));
+                                  boolean attachment,
+                                  String range) throws InvalidRequestException, ResourceException {
+        RetrievedContent retrievedContent = contentResource.getContent(spaceID, contentID, storeID, range);
+        InputStream content = new AutoCloseInputStream(retrievedContent.getContentStream());
 
-        ResponseBuilder responseBuilder = Response.ok(content);
+        ResponseBuilder responseBuilder;
+        if (StringUtils.isNotEmpty(range)) {
+            responseBuilder = Response.status(HttpStatus.SC_PARTIAL_CONTENT).entity(content);
+        } else {
+            responseBuilder = Response.ok(content);
+        }
 
         if (attachment) {
             addContentDispositionHeader(responseBuilder, contentID);
         }
         return addContentPropertiesToResponse(responseBuilder,
-                                              properties);
+                                              retrievedContent.getContentProperties());
     }
 
     private void addContentDispositionHeader(ResponseBuilder responseBuilder,
@@ -181,6 +193,10 @@ public class ContentRest extends BaseRest {
     protected Response addContentPropertiesToResponse(ResponseBuilder response,
                                                       Map<String, String> properties) {
         if (properties != null) {
+            // Set Accept-Ranges header
+            properties.remove(HttpHeaders.ACCEPT_RANGES);
+            response.header(HttpHeaders.ACCEPT_RANGES, HttpHeaders.ACCEPT_RANGES_BYTES);
+
             // Set Content-Type header
             String contentMimetype = // content-mimetype header
                 properties.remove(StorageProvider.PROPERTIES_CONTENT_MIMETYPE);
@@ -248,7 +264,8 @@ public class ContentRest extends BaseRest {
                 if (propertiesName.equals(HttpHeaders.DATE) ||
                     propertiesName.equals(HttpHeaders.CONNECTION)) {
                     // Ignore this value
-                } else if (propertiesName.equals(HttpHeaders.AGE) ||
+                } else if (propertiesName.equals(HttpHeaders.ACCEPT_RANGES) ||
+                           propertiesName.equals(HttpHeaders.AGE) ||
                            propertiesName.equals(HttpHeaders.CACHE_CONTROL) ||
                            propertiesName.equals(HttpHeaders.CONTENT_ENCODING) ||
                            propertiesName.equals(HttpHeaders.CONTENT_LANGUAGE) ||
@@ -373,8 +390,8 @@ public class ContentRest extends BaseRest {
     public Response putContent(@PathParam("spaceID") String spaceID,
                                @PathParam("contentID") String contentID,
                                @QueryParam("storeID") String storeID,
-                               @HeaderParam(BaseRest.COPY_SOURCE_HEADER) String copySource,
-                               @HeaderParam(BaseRest.COPY_SOURCE_STORE_HEADER) String sourceStoreID) {
+                               @HeaderParam(COPY_SOURCE_HEADER) String copySource,
+                               @HeaderParam(COPY_SOURCE_STORE_HEADER) String sourceStoreID) {
         if (null != copySource) {
             return copyContent(spaceID, contentID, storeID, sourceStoreID, copySource);
 

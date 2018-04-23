@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.duracloud.durastore.error.ResourceException;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
@@ -158,17 +159,17 @@ public class ContentResourceImplTest {
             }
         };
 
-        EasyMock.expect(storageProvider.getContent(srcSpaceId, srcContentId))
-                .andReturn(is);
-
         Map<String, String> map = new HashMap<String, String>();
         map.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, "12345");
         map.put(StorageProvider.PROPERTIES_CONTENT_SIZE, "1000");
         map.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE, "text/plain");
 
-        EasyMock.expect(storageProvider.getContentProperties(srcSpaceId,
-                                                             srcContentId))
-                .andReturn(map);
+        RetrievedContent content = new RetrievedContent();
+        content.setContentStream(is);
+        content.setContentProperties(map);
+
+        EasyMock.expect(storageProvider.getContent(srcSpaceId, srcContentId))
+                .andReturn(content);
 
         EasyMock.expect(storageProviderFactory.getStorageProvider(destStoreId))
                 .andReturn(destStorageProvider);

@@ -135,7 +135,8 @@ public class AuditLogReaderImpl implements AuditLogReader {
         IOException {
 
         try (BufferedReader reader =
-                 new BufferedReader(new InputStreamReader(storageProvider.getContent(auditSpaceId, contentId)))) {
+                 new BufferedReader(new InputStreamReader(
+                     storageProvider.getContent(auditSpaceId, contentId).getContentStream()))) {
             if (count > 0) {
                 // skip header if not hte first file
                 reader.readLine();
