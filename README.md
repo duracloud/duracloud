@@ -5,6 +5,8 @@
 [DuraCloud Documentation](https://wiki.duraspace.org/display/DURACLOUD) | [DuraCloud Downloads](https://wiki.duraspace.org/display/DURACLOUD/DuraCloud+Downloads) | [DuraCloud Releases](https://github.com/duracloud/duracloud/releases) | [DuraCloud REST API](https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+REST+API)
 
 ## Table of Contents
+
+[![Join the chat at https://gitter.im/duracloud/duracloud](https://badges.gitter.im/duracloud/duracloud.svg)](https://gitter.im/duracloud/duracloud?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 * [Why DuraCloud?](#why-duracloud)
 * [What is DuraCloud?](#what-is-duracloud)
 * [Roadmap](#roadmap)
