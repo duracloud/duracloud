@@ -6,15 +6,25 @@
 
 [![DuraCloud Gitter](https://badges.gitter.im/duracloud/duracloud.svg)](https://gitter.im/duracloud/duracloud?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+:boom: [Are you here for the Global Sprint? Start here!](MOZSPRINT.md) :boom: 
+
 ## Table of Contents
-* [Why DuraCloud?](#why-duracloud)
+
 * [What is DuraCloud?](#what-is-duracloud)
+* [Why DuraCloud?](#why-duracloud)
+* [History](#history)
 * [Roadmap](#roadmap)
 * [Documentation](#documentation)
 * [Overview](#overview)
 * [Code of Conduct](#code-of-conduct)
 * [Contribute](#contribute)
 * [License](#license)
+
+## What is DuraCloud?
+
+DuraCloud is a suite of open source software applications used together to manage files stored in a variety of third-party storage systems. DuraCloud connects to storage in commercial cloud systems, academic storage systems, and national preservation networks, providing consistent interfaces through which content can be managed. DuraCloud also handles the duplication of content across providers and performs bit-level integrity checking to verify that stored content remains unchanged.
+
+We invite anyone interested in digital preservation, especially preservation for the common good, to help us maintain, improve, and deploy DuraCloud to prevent the loss of culturally relevant digital content. 
 
 ## Why DuraCloud?
 
@@ -36,11 +46,9 @@ DuraCloud was created to take on these concerns, allowing you to use world-class
 4. The amount you pay for DuraCloud is negotiated up-front with the DuraCloud host; there are no hidden fees, and pricing is intentionally designed to remove as many cost variables as possible. If you would prefer to host DuraCloud yourself, you may do so at any time; all of the code is open source and all documentation is freely available.
 5. DuraCloud integrates with multiple storage providers, providing you the option to change the providers in which your content is stored at any time. Your DuraCloud host will also be happy to help with this transition. In all cases, the way you interact with DuraCloud will not change; even as you transition from one storage provider to another, the way you view and access the content will always remain consistent.
 
-## What is DuraCloud?
+## History
 
-DuraCloud is a suite of open source software applications used together to manage files stored in a variety of third-party storage systems. DuraCloud connects to storage in commercial cloud systems, academic storage systems, and national preservation networks, providing consistent interfaces through which content can be managed. DuraCloud also handles the duplication of content across providers and performs bit-level integrity checking to verify that stored content remains unchanged.
-
-DuraCloud was created by [DuraSpace](http://duraspace.org/), a non-profit organization, with initial funding provided by the Gordon and Betty Moore Foundation, the Andrew W. Mellon Foundation, and the [Library of Congress](https://www.loc.gov/item/prn-09-140/library-of-congress-and-duracloud-launch-pilot-program/2009-07-14/). DuraCloud was built to provide a hosted preservation storage solution as a service for those charged with managing digital content, but who do not have the tools to ensure that content is preserved. We invite anyone interested in digital preservation, especially preservation for the common good, to help us maintain, improve, and deploy DuraCloud to prevent the loss of culturally relevant digital content. 
+DuraCloud was created by [DuraSpace](http://duraspace.org/), a non-profit organization, with initial funding provided by the Gordon and Betty Moore Foundation, the Andrew W. Mellon Foundation, and the [Library of Congress](https://www.loc.gov/item/prn-09-140/library-of-congress-and-duracloud-launch-pilot-program/2009-07-14/). DuraCloud was built to provide a hosted preservation storage solution as a service for those charged with managing digital content, but who do not have the tools to ensure that content is preserved.
 
 ## Roadmap
 
