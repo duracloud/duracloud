@@ -1,5 +1,7 @@
 **First of all, thanks for your interest in contributing to the DuraCloud project!** :tada:
 
+:boom: [Are you here for the Global Sprint? Click here to get started!](MOZSPRINT.md) :boom: 
+
 There are many ways to contribute, first look for a section which describes you, then dive in.
 
 * [I'm a Java developer](#im-a-java-developer)
