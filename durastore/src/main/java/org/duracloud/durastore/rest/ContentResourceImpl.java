@@ -14,8 +14,10 @@ import org.duracloud.durastore.error.ResourceChecksumException;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.durastore.error.ResourceStateException;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.InvalidIdException;
+import org.duracloud.storage.error.InvalidRequestException;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageStateException;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
@@ -49,14 +51,15 @@ public class ContentResourceImpl implements ContentResource {
      * @return InputStream which can be used to read content.
      */
     @Override
-    public InputStream getContent(String spaceID,
-                                  String contentID,
-                                  String storeID)
-        throws ResourceException {
+    public RetrievedContent getContent(String spaceID,
+                                       String contentID,
+                                       String storeID,
+                                       String range)
+        throws InvalidRequestException, ResourceException {
         try {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
-            return storage.getContent(spaceID, contentID);
+            return storage.getContent(spaceID, contentID, range);
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("get content",
                                                 spaceID,
@@ -67,6 +70,9 @@ public class ContentResourceImpl implements ContentResource {
                                              spaceID,
                                              contentID,
                                              e);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidRequestException(e.getMessage());
+
         } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("get content", spaceID, contentID, e);
@@ -267,11 +273,11 @@ public class ContentResourceImpl implements ContentResource {
                                                       String destSpaceID,
                                                       String destContentID,
                                                       String destStoreID) throws ResourceException {
-        try (InputStream inputStream =
-                 srcStorage.getContent(srcSpaceID, srcContentID)) {
+        RetrievedContent retrievedContent = srcStorage.getContent(srcSpaceID, srcContentID);
 
-            Map<String, String> properties =
-                srcStorage.getContentProperties(srcSpaceID, srcContentID);
+        try (InputStream inputStream = retrievedContent.getContentStream()) {
+
+            Map<String, String> properties = retrievedContent.getContentProperties();
 
             Long contentSize = null;
 

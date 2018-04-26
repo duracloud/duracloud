@@ -128,7 +128,7 @@ public class BitIntegrityReportRest extends BaseRest {
             if (headOnly) {
                 responseBuilder = Response.ok();
             } else {
-                InputStream is = provider.getContent(reportSpaceId, reportContentId);
+                InputStream is = provider.getContent(reportSpaceId, reportContentId).getContentStream();
                 responseBuilder = Response.ok(is);
             }
 

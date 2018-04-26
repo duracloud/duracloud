@@ -32,6 +32,7 @@ import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.error.ServerConflictException;
 import org.duracloud.storage.error.StorageStateException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -315,9 +316,12 @@ public class CreateSnapshotTaskRunnerTest {
         Properties props = new Properties();
         props.put(Constants.SNAPSHOT_ID_PROP, snapshotId);
 
+        RetrievedContent content = new RetrievedContent();
+        content.setContentStream(new ByteArrayInputStream(
+            (Constants.SNAPSHOT_ID_PROP + "=" + snapshotId).getBytes()));
         EasyMock.expect(this.snapshotProvider.getContent(spaceId,
                                                          Constants.SNAPSHOT_PROPS_FILENAME))
-                .andReturn(new ByteArrayInputStream((Constants.SNAPSHOT_ID_PROP + "=" + snapshotId).getBytes()));
+                .andReturn(content);
         replayMocks();
         try {
             taskRunner.performTask(params.serialize());

@@ -61,6 +61,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     private long maxResults = 1;
     private String marker = "marker";
     private String contentId = "content-id";
+    private String range = "bytes=0-10";
     private String user = "user";
     private String contentMimeType = "content-mime";
     private long contentSize = 0;
@@ -173,6 +174,22 @@ public class AuditStorageProviderTest extends EasyMockSupport {
             verifyTask(logCapture.getValue(),
                        AuditTask.ActionType.GET_CONTENT.name());
         assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
+    }
+
+    @Test
+    public void testGetContentRange() throws Exception {
+        Capture<Task> logCapture = mockReadLogCall();
+
+        EasyMock.expect(targetProvider.getContent(spaceId, contentId, range))
+                .andReturn(null);
+        replayAll();
+        provider.getContent(spaceId, contentId, range);
+
+        Map<String, String> taskProps =
+            verifyTask(logCapture.getValue(),
+                       AuditTask.ActionType.GET_CONTENT.name());
+        assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
+        assertEquals(range, taskProps.get(AuditTask.CONTENT_RANGE_PROP));
     }
 
     @Test

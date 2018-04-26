@@ -56,6 +56,8 @@ public abstract class BaseRest {
     public static final String COPY_SOURCE_STORE_HEADER =
         HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE_STORE;
 
+    public static final String RANGE_HEADER = org.apache.http.HttpHeaders.RANGE;
+
     public static final String APP_NAME = "DuraStore";
 
     /**

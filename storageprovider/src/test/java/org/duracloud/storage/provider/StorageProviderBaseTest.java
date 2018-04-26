@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.easymock.Capture;
@@ -493,8 +494,12 @@ public class StorageProviderBaseTest {
             mock.throwIfSpaceNotExist(spaceId);
         }
 
-        public InputStream getContent(String spaceId, String contentId) {
+        public RetrievedContent getContent(String spaceId, String contentId) {
             return mock.getContent(spaceId, contentId);
+        }
+
+        public RetrievedContent getContent(String spaceId, String contentId, String range) {
+            return mock.getContent(spaceId, contentId, range);
         }
 
         public Iterator<String> getSpaceContents(String spaceId,

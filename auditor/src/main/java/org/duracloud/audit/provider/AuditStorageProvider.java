@@ -20,6 +20,7 @@ import org.duracloud.common.model.AclType;
 import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.common.queue.task.Task;
 import org.duracloud.common.util.UserUtil;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 
@@ -107,7 +108,8 @@ public class AuditStorageProvider implements StorageProvider {
      */
     private void submitReadTask(String action,
                                 String spaceId,
-                                String contentId) {
+                                String contentId,
+                                String range) {
         AuditTask task = new AuditTask();
         task.setAction(action);
         task.setUserId(getUserId());
@@ -117,6 +119,7 @@ public class AuditStorageProvider implements StorageProvider {
         task.setStoreType(storeType);
         task.setSpaceId(spaceId);
         task.setContentId(contentId);
+        task.setContentRange(range);
 
         readLogger.log(task.writeTask());
     }
@@ -142,7 +145,7 @@ public class AuditStorageProvider implements StorageProvider {
         Iterator<String> spaces = target.getSpaces();
 
         String action = AuditTask.ActionType.GET_SPACES.name();
-        submitReadTask(action, AuditTask.NA, AuditTask.NA);
+        submitReadTask(action, AuditTask.NA, AuditTask.NA, AuditTask.NA);
         return spaces;
     }
 
@@ -152,7 +155,7 @@ public class AuditStorageProvider implements StorageProvider {
             target.getSpaceContents(spaceId, prefix);
 
         String action = AuditTask.ActionType.GET_SPACE_CONTENTS.name();
-        submitReadTask(action, spaceId, AuditTask.NA);
+        submitReadTask(action, spaceId, AuditTask.NA, AuditTask.NA);
         return spaceContents;
     }
 
@@ -163,7 +166,7 @@ public class AuditStorageProvider implements StorageProvider {
             target.getSpaceContentsChunked(spaceId, prefix, maxResults, marker);
 
         String action = AuditTask.ActionType.GET_SPACE_CONTENTS_CHUNKED.name();
-        submitReadTask(action, spaceId, AuditTask.NA);
+        submitReadTask(action, spaceId, AuditTask.NA, AuditTask.NA);
         return spaceContents;
     }
 
@@ -172,7 +175,7 @@ public class AuditStorageProvider implements StorageProvider {
         Map<String, String> spaceProps = target.getSpaceProperties(spaceId);
 
         String action = AuditTask.ActionType.GET_SPACE_PROPERTIES.name();
-        submitReadTask(action, spaceId, AuditTask.NA);
+        submitReadTask(action, spaceId, AuditTask.NA, AuditTask.NA);
         return spaceProps;
     }
 
@@ -181,17 +184,26 @@ public class AuditStorageProvider implements StorageProvider {
         Map<String, AclType> spaceAcls = target.getSpaceACLs(spaceId);
 
         String action = AuditTask.ActionType.GET_SPACE_ACLS.name();
-        submitReadTask(action, spaceId, AuditTask.NA);
+        submitReadTask(action, spaceId, AuditTask.NA, AuditTask.NA);
         return spaceAcls;
     }
 
     @Override
-    public InputStream getContent(String spaceId, String contentId) {
-        InputStream content = target.getContent(spaceId, contentId);
+    public RetrievedContent getContent(String spaceId, String contentId) {
+        RetrievedContent retrievedContent = target.getContent(spaceId, contentId);
 
         String action = AuditTask.ActionType.GET_CONTENT.name();
-        submitReadTask(action, spaceId, contentId);
-        return content;
+        submitReadTask(action, spaceId, contentId, AuditTask.NA);
+        return retrievedContent;
+    }
+
+    @Override
+    public RetrievedContent getContent(String spaceId, String contentId, String range) {
+        RetrievedContent retrievedContent = target.getContent(spaceId, contentId, range);
+
+        String action = AuditTask.ActionType.GET_CONTENT.name();
+        submitReadTask(action, spaceId, contentId, range);
+        return retrievedContent;
     }
 
     @Override
@@ -201,7 +213,7 @@ public class AuditStorageProvider implements StorageProvider {
             target.getContentProperties(spaceId, contentId);
 
         String action = AuditTask.ActionType.GET_CONTENT_PROPERTIES.name();
-        submitReadTask(action, spaceId, contentId);
+        submitReadTask(action, spaceId, contentId, AuditTask.NA);
         return contentProps;
     }
 

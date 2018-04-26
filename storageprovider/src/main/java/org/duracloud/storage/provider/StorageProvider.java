@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
@@ -215,13 +216,31 @@ public interface StorageProvider {
      *
      * @param spaceId   - ID of the space
      * @param contentId - ID of the content in the space
-     * @return the content stream
+     * @return object containing metadata and the content stream
      * @throws NotFoundException if space with ID spaceId does not exist or the
      *                           content item with ID contentId does not exist
      * @throws StorageException  if errors occur
      */
-    public InputStream getContent(String spaceId,
-                                  String contentId);
+    public RetrievedContent getContent(String spaceId,
+                                       String contentId);
+
+    /**
+     * Gets a range of bytes from a content item in a space.
+     *
+     * @param spaceId   - ID of the space
+     * @param contentId - ID of the content in the space
+     * @param range     - Range of bytes to retrieve, as defined in:
+     *                  https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35,
+     *                  only one range is supported per request
+     * @return object containing metadata and the specified bytes of the content stream
+     * @throws NotFoundException        if space with ID spaceId does not exist or the
+     *                                  content item with ID contentId does not exist
+     * @throws IllegalArgumentException if format of the range parameter is invalid
+     * @throws StorageException         if errors occur
+     */
+    public RetrievedContent getContent(String spaceId,
+                                       String contentId,
+                                       String range);
 
     /**
      * Removes content from a space.

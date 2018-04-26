@@ -9,6 +9,8 @@ package org.duracloud.s3storage;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
@@ -31,11 +33,13 @@ import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
+import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
@@ -61,7 +65,9 @@ public class S3StorageProviderTest {
 
     // Must be 20 char alphanum (and lowercase, to match bucket naming pattern)
     private static final String accessKey = "abcdefghijklmnopqrst";
+    private static final String secretKey = "secretKey";
     private static final String spaceId = "space-id";
+    private static final String contentId = "content-id";
 
     private static final String content = "hello-world";
     private static final String hexChecksum = "2095312189753de6ad47dfe20cbe97ec";
@@ -80,8 +86,56 @@ public class S3StorageProviderTest {
 
     @Test
     public void testGetStorageProviderType() {
-        S3StorageProvider provider = new S3StorageProvider(accessKey, "secretKey");
+        S3StorageProvider provider = new S3StorageProvider(accessKey, secretKey);
         assertEquals(StorageProviderType.AMAZON_S3, provider.getStorageProviderType());
+    }
+
+    @Test
+    public void testGetContent() {
+        GetObjectRequest objectRequest = setupTestGetContent(null);
+
+        assertNotNull(objectRequest);
+        assertTrue(objectRequest.getBucketName().contains(spaceId));
+        assertEquals(contentId, objectRequest.getS3ObjectId().getKey());
+        assertNull(objectRequest.getCustomRequestHeaders());
+    }
+
+    @Test
+    public void testGetContentRange() {
+        String range = "bytes=1-10";
+        GetObjectRequest objectRequest = setupTestGetContent(range);
+
+        assertNotNull(objectRequest);
+        assertTrue(objectRequest.getBucketName().contains(spaceId));
+        assertEquals(contentId, objectRequest.getS3ObjectId().getKey());
+
+        long[] requestRange = objectRequest.getRange();
+        assertEquals(1, requestRange[0]);
+        assertEquals(10, requestRange[1]);
+    }
+
+    private GetObjectRequest setupTestGetContent(String range) {
+        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        S3StorageProvider provider = new S3StorageProvider(s3Client, accessKey, null);
+
+        String bucketName = accessKey + "." + spaceId;
+        Bucket bucket = EasyMock.createMock(Bucket.class);
+        EasyMock.expect(this.s3Client.listBuckets()).andReturn(Arrays.asList(bucket));
+        EasyMock.expect(bucket.getName()).andReturn(bucketName);
+
+        Capture<GetObjectRequest> getObjectRequestCapture = EasyMock.newCapture();
+        EasyMock.expect(s3Client.getObject(EasyMock.capture(getObjectRequestCapture)))
+                .andReturn(new S3Object());
+
+        EasyMock.replay(s3Client, bucket);
+
+        if (null == range) {
+            provider.getContent(spaceId, contentId);
+        } else {
+            provider.getContent(spaceId, contentId, range);
+        }
+
+        return getObjectRequestCapture.getValue();
     }
 
     @Test

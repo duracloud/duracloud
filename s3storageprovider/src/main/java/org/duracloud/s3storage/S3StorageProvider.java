@@ -35,6 +35,7 @@ import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -50,7 +51,9 @@ import org.duracloud.common.model.AclType;
 import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
+import org.duracloud.storage.domain.ContentByteRange;
 import org.duracloud.storage.domain.ContentIterator;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.NotFoundException;
@@ -710,15 +713,43 @@ public class S3StorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public InputStream getContent(String spaceId, String contentId) {
-        log.debug("getContent(" + spaceId + ", " + contentId + ")");
+    public RetrievedContent getContent(String spaceId, String contentId) {
+        return getContent(spaceId, contentId, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public RetrievedContent getContent(String spaceId, String contentId, String range) {
+        log.debug("getContent(" + spaceId + ", " + contentId + ", " + range + ")");
 
         // Will throw if bucket does not exist
         String bucketName = getBucketName(spaceId);
 
         try {
-            S3Object contentItem = s3Client.getObject(bucketName, contentId);
-            return contentItem.getObjectContent();
+            GetObjectRequest getRequest = new GetObjectRequest(bucketName, contentId);
+            if (StringUtils.isNotEmpty(range)) {
+                ContentByteRange byteRange = new ContentByteRange(range);
+                if (null == byteRange.getRangeStart()) {
+                    // While this should be a valid setting, it is not currently
+                    // supported due to a limitation of the AWS S3 client
+                    // see: https://github.com/aws/aws-sdk-java/issues/1551
+                    throw new IllegalArgumentException(byteRange.getUsage(range));
+                } else if (null == byteRange.getRangeEnd()) {
+                    getRequest.setRange(byteRange.getRangeStart());
+                } else {
+                    getRequest.setRange(byteRange.getRangeStart(),
+                                        byteRange.getRangeEnd());
+                }
+            }
+
+            S3Object contentItem = s3Client.getObject(getRequest);
+
+            RetrievedContent retrievedContent = new RetrievedContent();
+            retrievedContent.setContentStream(contentItem.getObjectContent());
+            retrievedContent.setContentProperties(prepContentProperties(contentItem.getObjectMetadata()));
+
+            return retrievedContent;
         } catch (AmazonClientException e) {
             throwIfContentNotExist(bucketName, contentId);
             String err = "Could not retrieve content " + contentId + " in S3 bucket " +
@@ -875,6 +906,10 @@ public class S3StorageProvider extends StorageProviderBase {
             throw new StorageException(err, NO_RETRY);
         }
 
+        return prepContentProperties(objMetadata);
+    }
+
+    private Map<String, String> prepContentProperties(ObjectMetadata objMetadata) {
         Map<String, String> contentProperties = new HashMap<>();
 
         // Set the user properties
@@ -882,6 +917,15 @@ public class S3StorageProvider extends StorageProviderBase {
         for (String metaName : userProperties.keySet()) {
             String metaValue = userProperties.get(metaName);
             contentProperties.put(getWithSpace(decodeHeaderKey(metaName)), decodeHeaderValue(metaValue));
+        }
+
+        // Set the response metadata
+        Map<String, Object> responseMeta = objMetadata.getRawMetadata();
+        for (String metaName : responseMeta.keySet()) {
+            Object metaValue = responseMeta.get(metaName);
+            if (metaValue instanceof String) {
+                contentProperties.put(metaName, (String) metaValue);
+            }
         }
 
         // Set MIMETYPE

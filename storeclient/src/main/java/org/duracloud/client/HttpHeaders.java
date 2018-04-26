@@ -18,6 +18,9 @@ public interface HttpHeaders {
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String ETAG = "ETag";
     public static final String LAST_MODIFIED = "Last-Modified";
+    public static final String RANGE = org.apache.http.HttpHeaders.RANGE;
+    public static final String CONTENT_RANGE = org.apache.http.HttpHeaders.CONTENT_RANGE;
+    public static final String ACCEPT_RANGES = org.apache.http.HttpHeaders.ACCEPT_RANGES;
     public static final String BIT_INTEGRITY_REPORT_RESULT = "Bit-Integrity-Report-Result";
     public static final String BIT_INTEGRITY_REPORT_COMPLETION_DATE = "Bit-Integrity-Report-Completion-Date";
 
