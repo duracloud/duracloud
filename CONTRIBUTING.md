@@ -1,8 +1,12 @@
 **First of all, thanks for your interest in contributing to the DuraCloud project!** :tada:
 
-:boom: [Are you here for the Global Sprint? Click here to get started!](MOZSPRINT.md) :boom: 
+## Getting Started
 
-There are many ways to contribute, first look for a section which describes you, then dive in.
+1. If you are new to DuraCloud, welcome :wave: you'll want to start by checking out the [README](README.md), which will give you an introduction to the project.
+2. [Introduce yourself](https://github.com/duracloud/duracloud/issues/58), let us know who you are and how you'd like to get involved.
+3. [Review the issues](https://github.com/duracloud/duracloud/issues) to find a place to jump in and help. If you have questions, leave a comment on the issue and we'll follow up. Look for issues with the `good first issue` label to start your journey.
+
+Still not sure where to start? Consider which of these best describes you, then click to read further:
 
 * [I'm a Java developer](#im-a-java-developer)
 * [I'm a DuraCloud user](#im-a-duracloud-user)
@@ -16,7 +20,7 @@ Awesome! You can use your skills to help us develop new features for DuraCloud, 
 
 Before you can start making code changes, you will need to get DuraCloud deployed. Take a look first at the [deployment docs](https://wiki.duraspace.org/display/DURACLOUDDOC/Building+DuraCloud+from+Source), then ask on the [mailing list](https://groups.google.com/group/duracloud-users) if you run into trouble or have questions. If you would prefer to deploy in AWS, the [production deployment documentation](https://github.com/duracloud/deployment-docs) will provide guidance.
 
-We welcome suggestions or recommendations that will make this documentation better or make the deployment simpler. We know there is work to be done there, so your assistance is appreciated.
+We welcome suggestions or recommendations that will make this documentation better or make the deployment simpler. [We know there is work to be done there](https://jira.duraspace.org/browse/DURACLOUD-1180), so your assistance is appreciated.
 
 Once you have DuraCloud running, you can contribute in two ways:
 
@@ -37,14 +41,15 @@ When writing a ticket, make sure to include:
 
 Ready to start diving into code?
 
-1. Look for a [JIRA ticket](https://jira.duraspace.org/projects/DURACLOUD) which interests you, or create a new one.
-2. [Fork the code repository](https://help.github.com/articles/fork-a-repo/) in Github. There are several repos for DuraCloud, the primary one is: https://github.com/duracloud/duracloud
-3. Make your changes, do fantastic things, just make sure:
+1. Start by looking for a ticket with the `good-first-issue` label, [like those found here](https://jira.duraspace.org/issues/?filter=14417). These are selected specifically as a good starting point for those new to the project.
+    * If you'd like to see the full list of issues, [that can be found here](https://jira.duraspace.org/projects/DURACLOUD)
+3. [Fork the code repository](https://help.github.com/articles/fork-a-repo/) in Github. There are several repos for DuraCloud, the primary one is: https://github.com/duracloud/duracloud
+4. Make your changes, do fantastic things, just make sure:
     * Your changes work
     * Unit tests are included which exercise your changes
     * The build passes
     * You are following the [code style guidelines](https://github.com/duraspace/codestyle)
-4. Commit to a branch on your fork, and [submit a pull request](https://help.github.com/articles/about-pull-requests/). The pull request should be against the **develop** branch of the DuraCloud repository (not master).
+5. Commit to a branch on your fork, and [submit a pull request](https://help.github.com/articles/about-pull-requests/). The pull request should be against the **develop** branch of the DuraCloud repository (not master).
 
 
 ## I'm a DuraCloud user
