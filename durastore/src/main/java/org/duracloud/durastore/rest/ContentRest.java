@@ -42,6 +42,7 @@ import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.durastore.error.ResourceChecksumException;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
+import org.duracloud.durastore.error.ResourcePropertiesInvalidException;
 import org.duracloud.durastore.error.ResourceStateException;
 import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.error.InvalidIdException;
@@ -327,10 +328,10 @@ public class ContentRest extends BaseRest {
 
         } catch (ResourceNotFoundException e) {
             return responseNotFound(msg.toString(), e, NOT_FOUND);
-
+        } catch (ResourcePropertiesInvalidException e) {
+            return responseBad(e.getMessage(), BAD_REQUEST);
         } catch (ResourceStateException e) {
             return responseBad(msg.toString(), e, CONFLICT);
-
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
 
@@ -342,7 +343,7 @@ public class ContentRest extends BaseRest {
     private Response doUpdateContentProperties(String spaceID,
                                                String contentID,
                                                String storeID)
-        throws ResourceException {
+        throws ResourceException, ResourcePropertiesInvalidException {
         MultivaluedMap<String, String> rHeaders =
             headers.getRequestHeaders();
 
@@ -421,6 +422,9 @@ public class ContentRest extends BaseRest {
 
         } catch (InvalidIdException e) {
             return responseBad(msg.toString(), e, BAD_REQUEST);
+
+        } catch (ResourcePropertiesInvalidException e) {
+            return responseBad(msg.toString(), BAD_REQUEST);
 
         } catch (ResourceNotFoundException e) {
             return responseNotFound(msg.toString(), e, NOT_FOUND);
