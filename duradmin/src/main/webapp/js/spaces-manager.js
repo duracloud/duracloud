@@ -56,6 +56,11 @@ $(function() {
     $.validator.addMethod("reserved", function(value, element) {
       return !(/^(init|stores|spaces|security|task|acl)$/.test(value));
     }, "A Space ID cannot be a reserved name");
+
+    $.validator.addMethod("isusascii", function(value, element) {
+      return /^[\x00-\x7F]*$/.test(value);
+    }, "Non US-ASCII chars are not allowed.");
+
     // end validator definitions
   })();
 

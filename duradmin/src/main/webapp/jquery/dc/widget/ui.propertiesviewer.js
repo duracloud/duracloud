@@ -11,14 +11,17 @@ $.widget("ui.propertiesviewer",
 				var that = this;
 				
 				//initialize table
-				var table =  $("table", this.element);
-				if(table.size() == 0){
-					table = $(document.createElement("table"));
-					this.getContent().prepend(table);	
+				var form = $("form", this.element);
+
+				if(form.children().length == 0){
+					form = $(document.createElement("form"));
+					var table = $(document.createElement("table"));
+					form.append(table);
+					this.getContent().prepend(form);
 					
 					if(!this.options.readOnly){
     					var addControlsRow = this._createControlsRow();
-    
+
     					var disableControls = function(){
     						$("input, button", that.element).attr("disabled", "disabled");
     						$(".dc-expando-status", addControlsRow).addClass("dc-busy");
@@ -36,7 +39,7 @@ $.widget("ui.propertiesviewer",
     					};
     					
     					var triggerAdd = function(){
-    						if(that._isValid()){
+    						if(that._isValid() && form.valid()){
         					    disableControls();
         						that.element
         						    .trigger(
@@ -51,7 +54,6 @@ $.widget("ui.propertiesviewer",
         						        }
         						    );
                             }
-    
     					};
     										  
     					//attach listeners
@@ -67,9 +69,22 @@ $.widget("ui.propertiesviewer",
 					this.getContent().prepend("<div id='empty-viewer-message'></div>");   
 
 				}
-				
-				this._initializeDataContainer();
-			}, 
+
+				form.validate({
+					rules : {
+						name : {
+							isusascii: true,
+						},
+						value : {
+							isusascii: true,
+						}
+					},
+					messages : {
+
+					}
+				});
+
+            },
 			
 			_setEmptyMessage: function(message){
 			  if(this.options.readOnly){
@@ -99,10 +114,7 @@ $.widget("ui.propertiesviewer",
 				
 				this._setEmptyMessage(data.length > 0 ? '' : this.options.emptyViewerMessage);
 			},
-			
-			_initializeDataContainer: function(){
-				
-			},
+
 			
 			_addSuccess: function(context){
 				var v = context._getValue();
@@ -151,13 +163,13 @@ $.widget("ui.propertiesviewer",
 				controls.append(
 					$(document.createElement("td"))
 						.addClass("name")
-						.html("<div><input type='text' placeholder='[name]' class='name-txt' size='15'/></div>")
+						.html("<div><input name='name' type='text' placeholder='[name]' class='name-txt' size='15'/></div>")
 				);
 
 				controls.append(
 						$(document.createElement("td"))
 							.addClass("value")
-							.html("<div><input type='text' placeholder='[value]' class='value-txt' size='20'/><input type='button' value='+'/><div class='dc-expando-status'></div></div>")
+							.html("<div><input name='value' type='text' placeholder='[value]' class='value-txt' size='20'/><input type='button' value='+'/><div class='dc-expando-status'></div></div>")
 					);
 				
 				return controls;
