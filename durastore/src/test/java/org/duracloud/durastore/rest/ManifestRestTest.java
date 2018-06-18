@@ -19,12 +19,14 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.constant.ManifestFormat;
@@ -35,7 +37,6 @@ import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
-import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.easymock.IAnswer;
 import org.easymock.IExpectationSetters;
@@ -113,10 +114,13 @@ public class ManifestRestTest extends EasyMockSupport {
 
         expect(storageProviderFactory.getStorageProvider()).andReturn(provider);
 
+        Map<String, String> props = new HashMap<>();
+        props.put(HttpHeaders.CONTENT_ENCODING, "gzip");
+
         expect(provider.addContent(isA(String.class),
                                    isA(String.class),
                                    eq(ManifestFormat.TSV.getMimeType()),
-                                   EasyMock.<Map<String, String>>isNull(),
+                                   eq(props),
                                    anyLong(),
                                    isA(String.class),
                                    isA(InputStream.class)))

@@ -11,6 +11,7 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static org.apache.http.HttpHeaders.CONTENT_ENCODING;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -347,35 +348,40 @@ public class ContentRest extends BaseRest {
             headers.getRequestHeaders();
 
         // Set mimetype in properties if it was provided
-        String contentMimeType = null;
-        if (rHeaders.containsKey(CONTENT_MIMETYPE_HEADER)) {
-            contentMimeType = rHeaders.getFirst(CONTENT_MIMETYPE_HEADER);
-        }
-        if (contentMimeType == null && rHeaders.containsKey(HttpHeaders.CONTENT_TYPE)) {
+        String contentMimeType = rHeaders.getFirst(CONTENT_MIMETYPE_HEADER);
+
+        if (contentMimeType == null) {
             contentMimeType = rHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
         }
+
+        // Set Content-Encoding in properties if it was provided
+        String contentEncoding = getContentEncoding(rHeaders);
 
         contentResource.updateContentProperties(spaceID,
                                                 contentID,
                                                 contentMimeType,
-                                                getProperties(contentMimeType),
+                                                getProperties(contentMimeType, contentEncoding),
                                                 storeID);
         String responseText = "Content " + contentID + " updated successfully";
         return Response.ok(responseText, TEXT_PLAIN).build();
     }
 
-    private Map<String, String> getProperties(String contentMimeType)
+    private Map<String, String> getProperties(String contentMimeType, String contentEncoding)
         throws ResourceException {
         Map<String, String> userProperties =
             getUserProperties(CONTENT_MIMETYPE_HEADER);
 
-        if (contentMimeType != null && !contentMimeType.equals("")) {
+        if (StringUtils.isNotBlank(contentMimeType)) {
             if (validMimetype(contentMimeType)) {
                 userProperties.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE,
                                    contentMimeType);
             } else {
                 throw new ResourceException("Invalid Mimetype");
             }
+        }
+
+        if (StringUtils.isNotBlank(contentEncoding)) {
+            userProperties.put(CONTENT_ENCODING, contentEncoding);
         }
 
         return userProperties;
@@ -439,26 +445,25 @@ public class ContentRest extends BaseRest {
     private Response doAddContent(String spaceID, String contentID, String storeID) throws Exception {
 
         RestUtil.RequestContent content = restUtil.getRequestContent(request, headers);
-        String checksum = null;
         MultivaluedMap<String, String> rHeaders = headers.getRequestHeaders();
 
         logClientInfo(rHeaders);
 
-        if (rHeaders.containsKey(HttpHeaders.CONTENT_MD5)) {
-            checksum = rHeaders.getFirst(HttpHeaders.CONTENT_MD5);
-        }
+        String checksum = rHeaders.getFirst(HttpHeaders.CONTENT_MD5);
+
+        String contentEncoding = getContentEncoding(rHeaders);
 
         if (content != null) {
             checksum = contentResource.addContent(spaceID,
                                                   contentID,
                                                   content.getContentStream(),
                                                   content.getMimeType(),
-                                                  getProperties(content.getMimeType()),
+                                                  getProperties(content.getMimeType(), contentEncoding),
                                                   content.getSize(),
                                                   checksum,
                                                   storeID);
             URI location = uriInfo.getRequestUri();
-            Map<String, String> properties = new HashMap<String, String>();
+            Map<String, String> properties = new HashMap<>();
             properties.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, checksum);
             return addContentPropertiesToResponse(Response.created(location),
                                                   properties);
@@ -468,6 +473,10 @@ public class ContentRest extends BaseRest {
             log.error(error);
             return Response.status(HttpStatus.SC_BAD_REQUEST).entity(error).build();
         }
+    }
+
+    private String getContentEncoding(MultivaluedMap<String, String> rHeaders) {
+        return rHeaders.getFirst(CONTENT_ENCODING);
     }
 
     private void logClientInfo(MultivaluedMap<String, String> rHeaders) {
