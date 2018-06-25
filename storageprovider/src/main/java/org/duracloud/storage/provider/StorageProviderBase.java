@@ -9,7 +9,6 @@ package org.duracloud.storage.provider;
 
 import static org.duracloud.storage.error.StorageException.NO_RETRY;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -186,18 +185,6 @@ public abstract class StorageProviderBase implements StorageProvider {
 
         // save
         doSetSpaceProperties(spaceId, newProps);
-    }
-
-    @Override
-    public void setContentProperties(String spaceId, String contentId, Map<String, String> contentProperties) {
-
-    }
-
-    @Override
-    public String addContent(String spaceId, String contentId, String contentMimeType,
-                             Map<String, String> userProperties, long contentSize, String contentChecksum,
-                             InputStream content) {
-        return null;
     }
 
     /*

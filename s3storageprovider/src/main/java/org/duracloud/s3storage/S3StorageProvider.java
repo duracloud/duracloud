@@ -467,11 +467,6 @@ public class S3StorageProvider extends StorageProviderBase {
         return map;
     }
 
-    @Override
-    public void setNewSpaceProperties(String spaceId, Map<String, String> spaceProperties) {
-        super.setNewSpaceProperties(spaceId, spaceProperties);
-    }
-
     /**
      * {@inheritDoc}
      */
