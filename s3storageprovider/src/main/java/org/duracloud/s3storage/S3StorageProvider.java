@@ -7,6 +7,7 @@
  */
 package org.duracloud.s3storage;
 
+import static org.apache.http.HttpHeaders.CONTENT_ENCODING;
 import static org.duracloud.storage.error.StorageException.NO_RETRY;
 import static org.duracloud.storage.error.StorageException.RETRY;
 
@@ -486,6 +487,8 @@ public class S3StorageProvider extends StorageProviderBase {
         ChecksumInputStream wrappedContent =
             new ChecksumInputStream(content, contentChecksum);
 
+        String contentEncoding = removeContentEncoding(userProperties);
+
         userProperties = removeCalculatedProperties(userProperties);
 
         if (contentMimeType == null || contentMimeType.equals("")) {
@@ -501,6 +504,10 @@ public class S3StorageProvider extends StorageProviderBase {
             String encodedChecksum =
                 ChecksumUtil.convertToBase64Encoding(contentChecksum);
             objMetadata.setContentMD5(encodedChecksum);
+        }
+
+        if (contentEncoding != null) {
+            objMetadata.setContentEncoding(contentEncoding);
         }
 
         if (userProperties != null) {
@@ -590,6 +597,14 @@ public class S3StorageProvider extends StorageProviderBase {
                                             contentId,
                                             checksum);
         return providerChecksum;
+    }
+
+    private String removeContentEncoding(Map<String, String> properties) {
+        if (properties != null) {
+            return properties.remove(CONTENT_ENCODING);
+        }
+
+        return null;
     }
 
     /*
@@ -791,6 +806,8 @@ public class S3StorageProvider extends StorageProviderBase {
         // Will throw if bucket does not exist
         String bucketName = getBucketName(spaceId);
 
+        String contentEncoding = removeContentEncoding(contentProperties);
+
         contentProperties = removeCalculatedProperties(contentProperties);
 
         // Determine mimetype, from properties list or existing value
@@ -817,6 +834,11 @@ public class S3StorageProvider extends StorageProviderBase {
         // Set Content-Type
         if (mimeType != null && !mimeType.equals("")) {
             objMetadata.setContentType(mimeType);
+        }
+
+        // Set Content-Encoding
+        if (contentEncoding != null && !contentEncoding.equals("")) {
+            objMetadata.setContentEncoding(contentEncoding);
         }
 
         updateObjectProperties(bucketName, contentId, objMetadata);
@@ -909,6 +931,11 @@ public class S3StorageProvider extends StorageProviderBase {
         return prepContentProperties(objMetadata);
     }
 
+    @Override
+    public Map<String, String> getSpaceProperties(String spaceId) {
+        return super.getSpaceProperties(spaceId);
+    }
+
     private Map<String, String> prepContentProperties(ObjectMetadata objMetadata) {
         Map<String, String> contentProperties = new HashMap<>();
 
@@ -933,6 +960,12 @@ public class S3StorageProvider extends StorageProviderBase {
         if (contentType != null) {
             contentProperties.put(PROPERTIES_CONTENT_MIMETYPE, contentType);
             contentProperties.put(Headers.CONTENT_TYPE, contentType);
+        }
+
+        // Set CONTENT_ENCODING
+        String encoding = objMetadata.getContentEncoding();
+        if (encoding != null) {
+            contentProperties.put(Headers.CONTENT_ENCODING, encoding);
         }
 
         // Set SIZE
