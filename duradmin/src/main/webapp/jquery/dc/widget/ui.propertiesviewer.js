@@ -163,7 +163,7 @@ $.widget("ui.propertiesviewer",
 				controls.append(
 					$(document.createElement("td"))
 						.addClass("name")
-						.html("<div><input name='name' type='text' placeholder='[name]' class='name-txt' size='15'/></div>")
+						.html("<div><input name='name' type='text' placeholder='[name]' class='name-txt' size='20'/></div>")
 				);
 
 				controls.append(
