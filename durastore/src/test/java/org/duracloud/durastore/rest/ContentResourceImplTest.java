@@ -7,12 +7,16 @@
  */
 package org.duracloud.durastore.rest;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.duracloud.durastore.error.ResourceException;
+import org.duracloud.durastore.error.ResourcePropertiesInvalidException;
 import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
@@ -185,7 +189,7 @@ public class ContentResourceImplTest {
     }
 
     @Test
-    public void testDuracloud757() throws ResourceException, InvalidIdException {
+    public void testDuracloud757() throws ResourceException, InvalidIdException, ResourcePropertiesInvalidException {
 
         EasyMock.expect(storageProviderFactory.getStorageProvider(EasyMock.isA(String.class)))
                 .andReturn(storageProvider);
@@ -237,11 +241,72 @@ public class ContentResourceImplTest {
                                         storeId);
 
         Map<String, String> p = userProps.getValue();
-        Assert.assertTrue(p.containsKey(customPropName));
+        assertTrue(p.containsKey(customPropName));
         Assert.assertEquals(customPropValue, p.get(customPropName));
         Assert.assertEquals(mimetype, finalMimeType.getValue());
         Assert.assertFalse(p.containsKey(StorageProvider.PROPERTIES_CONTENT_CHECKSUM));
         Assert.assertFalse(p.containsKey(StorageProvider.PROPERTIES_CONTENT_SIZE));
+    }
+
+    @Test
+    public void testNonAsciiPropertyNameOnAdd() throws ResourceException, InvalidIdException {
+        testNonAsciiPropertiesOnAdd("无常", "value");
+    }
+
+    @Test
+    public void testNonAsciiPropertyValueOnAdd() throws ResourceException, InvalidIdException {
+        testNonAsciiPropertiesOnAdd("name", "无常");
+    }
+
+    public void testNonAsciiPropertiesOnAdd(String name, String value) throws ResourceException, InvalidIdException {
+        InputStream is = createEmptyInputStream();
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(name, value);
+        replayMocks();
+        this.contentResource = new ContentResourceImpl(storageProviderFactory);
+
+        try {
+            this.contentResource.addContent("testSpace",
+                                            "testContent",
+                                            is,
+                                            "application/pdf",
+                                            props,
+                                            1001,
+                                            "1234",
+                                            "1");
+            fail("Invalid property expected");
+        } catch (ResourcePropertiesInvalidException ex) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    public void testNonAsciiPropertyNameOnUpdate() throws ResourceException, InvalidIdException {
+        testNonAsciiPropertiesOnUpdate("无常", "value");
+    }
+
+    @Test
+    public void testNonAsciiPropertyValueOnUpdate() throws ResourceException, InvalidIdException {
+        testNonAsciiPropertiesOnUpdate("name", "无常");
+    }
+
+    public void testNonAsciiPropertiesOnUpdate(String name, String value) throws ResourceException, InvalidIdException {
+        InputStream is = createEmptyInputStream();
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(name, value);
+        replayMocks();
+        this.contentResource = new ContentResourceImpl(storageProviderFactory);
+
+        try {
+            this.contentResource.updateContentProperties("testSpace",
+                                                         "testContent",
+                                                         "application/pdf",
+                                                         props,
+                                                         "1");
+            fail("Invalid property expected");
+        } catch (ResourcePropertiesInvalidException ex) {
+            assertTrue(true);
+        }
     }
 
     protected InputStream createEmptyInputStream() {

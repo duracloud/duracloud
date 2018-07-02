@@ -869,6 +869,9 @@ span.label,
 	padding:5px;
  }
 
+.detail-pane label.error {
+	padding:0px;
+ }
 
  .health-check {
  	padding:5px;
