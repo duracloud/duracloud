@@ -117,11 +117,11 @@ public class RetrievalTool {
                         specifiedIds.iterator());
                 } catch (FileNotFoundException fnfe) {
                     String error = "Error: file of content IDs specified using '-f' option does not exist.\n" +
-                        "Error Message: " + fnfe.getMessage();
+                                   "Error Message: " + fnfe.getMessage();
                     throw new DuraCloudRuntimeException(error, fnfe);
                 } catch (IOException ioe) {
                     String error = "Error: problem reading file of content IDs specified using '-f' option.\n" +
-                        "Error Message: " + ioe.getMessage();
+                                   "Error Message: " + ioe.getMessage();
                     throw new DuraCloudRuntimeException(error, ioe);
                 }
             } else {
@@ -179,7 +179,7 @@ public class RetrievalTool {
                 spaces = contentStore.getSpaces();
             } catch (ContentStoreException e) {
                 String errorMsg = "Unable to get spaces list due to error: " +
-                    e.getMessage();
+                                  e.getMessage();
                 throw new DuraCloudRuntimeException(errorMsg, e);
             }
         } else {
@@ -201,7 +201,7 @@ public class RetrievalTool {
     public void runRetrievalTool() {
         logger.info("Starting Retrieval Tool version " + version);
         logger.info("Running Retrieval Tool with configuration: " +
-                        retConfig.getPrintableConfig());
+                    retConfig.getPrintableConfig());
         System.out.print("\nStarting up the Retrieval Tool ...");
         System.out.println(retConfig.getPrintableConfig());
 
@@ -223,19 +223,19 @@ public class RetrievalTool {
                 startRetrievalManager(contentStore);
                 System.out.println("... Startup Complete");
                 System.out.println("The Retrieval Tool will exit when processing " +
-                                       "is complete. Status will be printed every " +
-                                       "10 minutes.\n");
+                                   "is complete. Status will be printed every " +
+                                   "10 minutes.\n");
                 waitForExit();
             }
 
         } catch (Exception ex) {
-            final  String message = ex.getMessage();
+            final String message = ex.getMessage();
             if (message != null && message.contains(" 401 ")) {
                 System.out.println("Your username/password combination is invalid.  " +
-                                       "Please check your credentials and try again. ");
+                                   "Please check your credentials and try again. ");
             } else {
                 System.out.println("The retrievaltool failed to start successfully due to the following error: \n" +
-                                       ex.getMessage());
+                                   ex.getMessage());
 
             }
             System.exit(-1);

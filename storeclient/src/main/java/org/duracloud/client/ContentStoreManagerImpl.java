@@ -199,12 +199,12 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
                     return storageAccountManager;
                 } else {
                     throw new StorageException(error +
-                                                   "Response content was null");
+                                               "Response content was null");
                 }
             } else {
                 error += "Response code was " + response.getStatusCode() +
-                    ", expected value was " + HttpStatus.SC_OK +
-                    ". Response Body: " + response.getResponseBody();
+                         ", expected value was " + HttpStatus.SC_OK +
+                         ". Response Body: " + response.getResponseBody();
                 throw new StorageException(error);
             }
         } catch (Exception e) {
