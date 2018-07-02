@@ -38,7 +38,7 @@ public class StoreClientUtil {
             }
         } catch (ContentStoreException e) {
             throw new RuntimeException("Could not create connection to " +
-                                       "DuraStore due to " + e.getMessage(), e);
+                                           "DuraStore due to " + e.getMessage(), e);
         }
 
         return contentStore;

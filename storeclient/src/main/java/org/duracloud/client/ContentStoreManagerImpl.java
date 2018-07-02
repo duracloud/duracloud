@@ -128,6 +128,9 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
         throws ContentStoreException {
         StorageAccountManager acctManager = getStorageAccounts();
         StorageAccount acct = acctManager.getStorageAccount(storeID);
+        if (acct == null) {
+            throw new ContentStoreException("Content store with id = '" + storeID + "' not found.");
+        }
         return newContentStoreImpl(acct, maxRetries);
     }
 
@@ -196,12 +199,12 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
                     return storageAccountManager;
                 } else {
                     throw new StorageException(error +
-                                               "Response content was null");
+                                                   "Response content was null");
                 }
             } else {
                 error += "Response code was " + response.getStatusCode() +
-                         ", expected value was " + HttpStatus.SC_OK +
-                         ". Response Body: " + response.getResponseBody();
+                    ", expected value was " + HttpStatus.SC_OK +
+                    ". Response Body: " + response.getResponseBody();
                 throw new StorageException(error);
             }
         } catch (Exception e) {
