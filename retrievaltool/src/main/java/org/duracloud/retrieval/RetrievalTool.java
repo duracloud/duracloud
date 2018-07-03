@@ -206,25 +206,39 @@ public class RetrievalTool {
         System.out.println(retConfig.getPrintableConfig());
 
         StoreClientUtil clientUtil = new StoreClientUtil();
-        ContentStore contentStore =
-            clientUtil.createContentStore(retConfig.getHost(),
-                                          retConfig.getPort(),
-                                          retConfig.getContext(),
-                                          retConfig.getUsername(),
-                                          retConfig.getPassword(),
-                                          retConfig.getStoreId());
 
-        executor = Executors.newFixedThreadPool(1);
-        if (retConfig.isListOnly()) {
-            startSpaceListManager(contentStore);
-        } else {
-            startRetrievalManager(contentStore);
-            System.out.println("... Startup Complete");
-            System.out.println("The Retrieval Tool will exit when processing " +
-                               "is complete. Status will be printed every " +
-                               "10 minutes.\n");
-            waitForExit();
+        try {
+            ContentStore contentStore =
+                clientUtil.createContentStore(retConfig.getHost(),
+                                              retConfig.getPort(),
+                                              retConfig.getContext(),
+                                              retConfig.getUsername(),
+                                              retConfig.getPassword(),
+                                              retConfig.getStoreId());
+
+            executor = Executors.newFixedThreadPool(1);
+            if (retConfig.isListOnly()) {
+                startSpaceListManager(contentStore);
+            } else {
+                startRetrievalManager(contentStore);
+                System.out.println("... Startup Complete");
+                System.out.println("The Retrieval Tool will exit when processing " +
+                                   "is complete. Status will be printed every " +
+                                   "10 minutes.\n");
+                waitForExit();
+            }
+
+        } catch (Exception ex) {
+            final String message = ex.getMessage();
+            if (message != null && message.contains(" 401 ")) {
+                System.out.println("Your username/password combination is invalid.  " +
+                                   "Please check your credentials and try again. ");
+            } else {
+                System.out.println("The retrievaltool failed to start successfully due to the following error: \n" +
+                                   ex.getMessage());
+
+            }
+            System.exit(-1);
         }
     }
-
 }

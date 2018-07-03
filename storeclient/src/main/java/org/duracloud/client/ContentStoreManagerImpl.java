@@ -128,6 +128,9 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
         throws ContentStoreException {
         StorageAccountManager acctManager = getStorageAccounts();
         StorageAccount acct = acctManager.getStorageAccount(storeID);
+        if (acct == null) {
+            throw new ContentStoreException("Content store with id = '" + storeID + "' not found.");
+        }
         return newContentStoreImpl(acct, maxRetries);
     }
 
