@@ -95,7 +95,6 @@ public class CreateSnapshotTaskParameters extends BaseDTO {
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
             if (null == params.getSpaceId() || params.getSpaceId().isEmpty() ||
-                null == params.getDescription() || params.getDescription().isEmpty() ||
                 null == params.getUserEmail() || params.getUserEmail().isEmpty()) {
                 throw new SnapshotDataException("Task parameter values may not be empty");
             }
