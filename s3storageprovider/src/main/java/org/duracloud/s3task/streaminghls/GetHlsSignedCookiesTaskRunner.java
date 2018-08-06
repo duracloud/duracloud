@@ -69,7 +69,6 @@ public class GetHlsSignedCookiesTaskRunner extends BaseHlsTaskRunner {
             GetSignedCookieTaskParameters.deserialize(taskParameters);
 
         String spaceId = taskParams.getSpaceId();
-        String contentId = taskParams.getContentId();
         String ipAddress = taskParams.getIpAddress();
         int minutesToExpire = taskParams.getMinutesToExpire();
         if (minutesToExpire <= 0) {
@@ -77,8 +76,7 @@ public class GetHlsSignedCookiesTaskRunner extends BaseHlsTaskRunner {
         }
 
         log.info("Performing " + TASK_NAME + " task with parameters: spaceId=" + spaceId +
-                 ", contentId=" + contentId + ", minutesToExpire=" + minutesToExpire +
-                 ", ipAddress=" + ipAddress);
+                 ", minutesToExpire=" + minutesToExpire + ", ipAddress=" + ipAddress);
 
         // Will throw if bucket does not exist
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
