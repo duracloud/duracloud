@@ -33,6 +33,8 @@ public class Space implements Serializable {
 
     private boolean streamingEnabled = false;
 
+    private boolean hlsEnabled = false;
+
     private String action;
 
     @NotBlank
@@ -138,6 +140,21 @@ public class Space implements Serializable {
 
     public void setAcls(List<Acl> acls) {
         this.acls = acls;
+    }
+
+    /**
+     * Indicates whether or not HTTP Live Streaming is enabled.
+     * @return boolean value
+     */
+    public boolean isHlsEnabled() {
+        return hlsEnabled;
+    }
+
+    /**
+     * sets  HTTP Live Streaming enabled flag
+     */
+    public void setHlsEnabled(boolean hlsEnabled) {
+        this.hlsEnabled = hlsEnabled;
     }
 
     public boolean isStreamingEnabled() {

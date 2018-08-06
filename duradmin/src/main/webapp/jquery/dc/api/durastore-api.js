@@ -84,13 +84,26 @@ var dc;
 
     dc.store.UpdateSpaceStreaming = function(storeId, spaceId, /*bool*/enable){
         var jqxhr = dc.ajax2({
-            url: "/duradmin/spaces/mediastreamer?storeId="+storeId+"&spaceId="
+            url: "/duradmin/spaces/mediastreamer/rtmp?storeId="+storeId+"&spaceId="
                             + encodeURIComponent(spaceId) 
                             + "&enable=" + enable,
             type: "post",
             cache: false,
         }).fail(function(){
             dc.displayErrorDialog(jqxhr);  
+        });
+        return jqxhr;
+    };
+
+    dc.store.UpdateSpaceHlsStreaming = function(storeId, spaceId, /*bool*/enable){
+        var jqxhr = dc.ajax2({
+            url: "/duradmin/spaces/mediastreamer/hls?storeId="+storeId+"&spaceId="
+            + encodeURIComponent(spaceId)
+            + "&enable=" + enable,
+            type: "post",
+            cache: false,
+        }).fail(function(){
+            dc.displayErrorDialog(jqxhr);
         });
         return jqxhr;
     };
@@ -307,7 +320,7 @@ var dc;
 	};
 
     /**
-     * Retrieves a streaming URL for a given content item in a given space.
+     * Retrieves an RTMP streaming URL for a given content item in a given space.
      * The URL will be either signed or unsigned, depending on the streaming type.
      */
     dc.store.GetStreamingUrl = function(contentItem, streamingType, callback){
@@ -320,6 +333,27 @@ var dc;
             cache: false,
             success: function(data){
                 callback.success(data.streamingUrl);
+            },
+            failure: function(data){
+                callback.failure(data);
+            }
+        },callback);
+    };
+
+    /**
+     * Retrieves an HLS streaming URL for a given content item in a given space.
+     * The URL will be either open or secure, depending on the streaming type.
+     */
+    dc.store.GetHlsUrl = function(contentItem, hlsStreamingType, callback){
+        return dc.ajax({
+            url: "/duradmin/spaces/content/hls-url",
+            data: "storeId="+contentItem.storeId+
+            "&spaceId="+encodeURIComponent(contentItem.spaceId)+
+            "&contentId="+encodeURIComponent(contentItem.contentId)+
+            "&hlsStreamingType="+hlsStreamingType,
+            cache: false,
+            success: function(data){
+                callback.success(data);
             },
             failure: function(data){
                 callback.failure(data);

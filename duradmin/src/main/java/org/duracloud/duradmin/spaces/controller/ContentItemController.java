@@ -122,6 +122,36 @@ public class ContentItemController {
         }
     }
 
+    @RequestMapping(value = "hls-url", method = RequestMethod.GET)
+    public ModelAndView getHlsUrl(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           ContentItem contentItem,
+                                           BindingResult result) throws Exception {
+        try {
+            String streamingType = request.getParameter("hlsStreamingType");
+            S3TaskClient taskClient = getTaskClient(contentItem);
+            String urlToStream;
+            if ("SECURE".equals(streamingType)) {
+                urlToStream =
+                    taskClient.getHlsUrl(contentItem.getSpaceId(),
+                                            contentItem.getContentId()).getStreamUrl();
+            } else {
+                urlToStream =
+                    taskClient.getHlsUrl(contentItem.getSpaceId(),
+                                      contentItem.getContentId())
+                              .getStreamUrl();
+            }
+
+            Map<String, String> responseMap = new HashMap<>();
+            responseMap.put("streamingUrl", urlToStream);
+            return new ModelAndView("jsonView", "streamingInfo", responseMap);
+        } catch (ContentStoreException ex) {
+            ex.printStackTrace();
+            response.setStatus(HttpStatus.SC_NOT_FOUND);
+            return new ModelAndView("jsonView", "streamingInfo", null);
+        }
+    }
+
     @RequestMapping(value = "/update-properties", method = RequestMethod.POST)
     public ModelAndView updateContentProperties(HttpServletRequest request,
                                                 @RequestParam String method,
