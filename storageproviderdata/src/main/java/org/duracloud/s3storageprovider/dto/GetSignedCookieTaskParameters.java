@@ -32,12 +32,6 @@ public class GetSignedCookieTaskParameters extends GetUrlTaskParameters {
     private String spaceId;
 
     /**
-     * The ID of the content item which is to be streamed
-     */
-    @XmlValue
-    private String contentId;
-
-    /**
      * Ending date and time (in Unix epoch format to the millisecond)
      * for when URL expires
      */
@@ -60,14 +54,6 @@ public class GetSignedCookieTaskParameters extends GetUrlTaskParameters {
 
     public void setSpaceId(String spaceId) {
         this.spaceId = spaceId;
-    }
-
-    public String getContentId() {
-        return contentId;
-    }
-
-    public void setContentId(String contentId) {
-        this.contentId = contentId;
     }
 
     public int getMinutesToExpire() {
@@ -117,9 +103,6 @@ public class GetSignedCookieTaskParameters extends GetUrlTaskParameters {
             if (null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
                 throw new TaskDataException(
                     "Task parameter 'spaceId' may not be empty");
-            } else if (null == params.getContentId() || params.getContentId().isEmpty()) {
-                throw new TaskDataException(
-                    "Task parameter 'contentId' may not be empty");
             }
 
             return params;

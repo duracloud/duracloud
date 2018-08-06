@@ -16,6 +16,7 @@ import com.amazonaws.services.cloudfront.model.AllowedMethods;
 import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentity;
 import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentityConfig;
 import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentitySummary;
+import com.amazonaws.services.cloudfront.model.CookiePreference;
 import com.amazonaws.services.cloudfront.model.CreateCloudFrontOriginAccessIdentityRequest;
 import com.amazonaws.services.cloudfront.model.CreateDistributionRequest;
 import com.amazonaws.services.cloudfront.model.DefaultCacheBehavior;
@@ -25,6 +26,7 @@ import com.amazonaws.services.cloudfront.model.DistributionSummary;
 import com.amazonaws.services.cloudfront.model.ForwardedValues;
 import com.amazonaws.services.cloudfront.model.GetCloudFrontOriginAccessIdentityRequest;
 import com.amazonaws.services.cloudfront.model.Headers;
+import com.amazonaws.services.cloudfront.model.ItemSelection;
 import com.amazonaws.services.cloudfront.model.ListCloudFrontOriginAccessIdentitiesRequest;
 import com.amazonaws.services.cloudfront.model.Method;
 import com.amazonaws.services.cloudfront.model.Origin;
@@ -115,11 +117,12 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
             }
             domainName = existingDist.getDomainName();
         } else { // No existing distribution, need to create one
-            S3OriginConfig origin = new S3OriginConfig()
+            S3OriginConfig s3OriginConfig = new S3OriginConfig()
                 .withOriginAccessIdentity(S3_ORIGIN_OAI_PREFIX + oaIdentityId);
-            Origins origins = new Origins().withItems(
-                new Origin().withDomainName(bucketName + S3_ORIGIN_SUFFIX)
-                            .withS3OriginConfig(origin));
+            Origin s3Origin = new Origin().withDomainName(bucketName + S3_ORIGIN_SUFFIX)
+                                          .withS3OriginConfig(s3OriginConfig)
+                                          .withId("S3-" + bucketName);
+            Origins origins = new Origins().withItems(s3Origin).withQuantity(1);
 
             // Only include trusted signers on secure distributions
             TrustedSigners signers = new TrustedSigners();
@@ -139,12 +142,20 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
             // Forwarding headers to support CORS, see:
             // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/header-caching.html#header-caching-web-cors
             defaultCacheBehavior.setAllowedMethods(
-                new AllowedMethods().withItems(Method.GET, Method.HEAD, Method.OPTIONS));
+                new AllowedMethods().withItems(Method.GET, Method.HEAD, Method.OPTIONS)
+                                    .withQuantity(3));
             defaultCacheBehavior.setForwardedValues(
-                new ForwardedValues().withHeaders(
-                    new Headers().withItems("Origin",
-                                            "Access-Control-Request-Headers",
-                                            "Access-Control-Request-Method")));
+                new ForwardedValues()
+                    .withQueryString(false)
+                    .withCookies(new CookiePreference().withForward(ItemSelection.None))
+                    .withHeaders(new Headers().withItems("Origin",
+                                                         "Access-Control-Request-Headers",
+                                                         "Access-Control-Request-Method")
+                                              .withQuantity(3)));
+
+            // Setting other cache behaviors required by the client
+            defaultCacheBehavior.setMinTTL(0l);
+            defaultCacheBehavior.setTargetOriginId(s3Origin.getId());
 
             Distribution dist =
                 cfClient.createDistribution(
