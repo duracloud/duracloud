@@ -5,23 +5,25 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.s3task.streaming;
+package org.duracloud.s3task.streaminghls;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
-import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
+import com.amazonaws.services.cloudfront.CloudFrontCookieSigner;
+import com.amazonaws.services.cloudfront.model.DistributionSummary;
 import com.amazonaws.services.cloudfront.util.SignerUtils;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
-import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskParameters;
-import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
+import org.duracloud.s3storageprovider.dto.GetSignedCookieTaskParameters;
+import org.duracloud.s3storageprovider.dto.GetSignedCookieTaskResult;
 import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
@@ -29,27 +31,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 /**
- * Retrieves a signed URL for a media file that is streamed through
- * Amazon Cloudfront via a secure distribution
+ * Retrieves a set of signed cookies to allow access to content that is streamed through
+ * Amazon Cloudfront via a secure HLS distribution
  *
  * @author: Bill Branan
- * Date: 3/9/2015
+ * Date: Aug 6, 2018
  */
-public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner {
+public class GetHlsSignedCookiesTaskRunner extends BaseHlsTaskRunner {
 
     public static final int DEFAULT_MINUTES_TO_EXPIRE = 480;
 
-    private final Logger log =
-        LoggerFactory.getLogger(GetSignedUrlTaskRunner.class);
+    private final Logger log = LoggerFactory.getLogger(GetHlsSignedCookiesTaskRunner.class);
 
-    private static final String TASK_NAME =
-        StorageTaskConstants.GET_SIGNED_URL_TASK_NAME;
+    private static final String TASK_NAME = StorageTaskConstants.GET_SIGNED_COOKIES_TASK_NAME;
 
-    public GetSignedUrlTaskRunner(StorageProvider s3Provider,
-                                  S3StorageProvider unwrappedS3Provider,
-                                  AmazonCloudFrontClient cfClient,
-                                  String cfKeyId,
-                                  String cfKeyPath) {
+    public GetHlsSignedCookiesTaskRunner(StorageProvider s3Provider,
+                                         S3StorageProvider unwrappedS3Provider,
+                                         AmazonCloudFrontClient cfClient,
+                                         String cfKeyId,
+                                         String cfKeyPath) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
         this.cfClient = cfClient;
@@ -63,14 +63,13 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner {
         return TASK_NAME;
     }
 
-    // Build secure URL
+    // Create signed cookies
     public String performTask(String taskParameters) {
-        GetSignedUrlTaskParameters taskParams =
-            GetSignedUrlTaskParameters.deserialize(taskParameters);
+        GetSignedCookieTaskParameters taskParams =
+            GetSignedCookieTaskParameters.deserialize(taskParameters);
 
         String spaceId = taskParams.getSpaceId();
         String contentId = taskParams.getContentId();
-        String resourcePrefix = taskParams.getResourcePrefix();
         String ipAddress = taskParams.getIpAddress();
         int minutesToExpire = taskParams.getMinutesToExpire();
         if (minutesToExpire <= 0) {
@@ -78,19 +77,18 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner {
         }
 
         log.info("Performing " + TASK_NAME + " task with parameters: spaceId=" + spaceId +
-                 ", contentId=" + contentId + ", resourcePrefix=" + resourcePrefix +
-                 ", minutesToExpire=" + minutesToExpire + ", ipAddress=" + ipAddress);
+                 ", contentId=" + contentId + ", minutesToExpire=" + minutesToExpire +
+                 ", ipAddress=" + ipAddress);
 
         // Will throw if bucket does not exist
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
-        GetSignedUrlTaskResult taskResult = new GetSignedUrlTaskResult();
+        GetSignedCookieTaskResult taskResult = new GetSignedCookieTaskResult();
 
         // Ensure that streaming service is on
         checkThatStreamingServiceIsEnabled(spaceId, TASK_NAME);
 
         // Retrieve the existing distribution for the given space
-        StreamingDistributionSummary existingDist =
-            getExistingDistribution(bucketName);
+        DistributionSummary existingDist = getExistingDistribution(bucketName);
         if (null == existingDist) {
             throw new UnsupportedTaskException(TASK_NAME,
                                                "The " + TASK_NAME + " task can only be used after a space " +
@@ -100,41 +98,33 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner {
         }
         String domainName = existingDist.getDomainName();
 
-        // Verify that this is a secure distribution
-        if (existingDist.getTrustedSigners().getItems().isEmpty()) {
-            throw new UnsupportedTaskException(TASK_NAME,
-                                               "The " + TASK_NAME + " task cannot be used to request a " +
-                                               "stream from an open distribution. Use " +
-                                               StorageTaskConstants.GET_URL_TASK_NAME + " instead.");
-        }
-
-        // Make sure resourcePrefix is a valid string
-        if (null == resourcePrefix) {
-            resourcePrefix = "";
-        }
-
         // Define expiration date/time
         Calendar expireCalendar = Calendar.getInstance();
         expireCalendar.add(Calendar.MINUTE, minutesToExpire);
 
         try {
-
             File cfKeyPathFile = getCfKeyPathFile(this.cfKeyPath);
-            String signedUrl =
-                CloudFrontUrlSigner.getSignedURLWithCustomPolicy(
-                    SignerUtils.Protocol.rtmp,
+
+            // Generate signed cookies
+            CloudFrontCookieSigner.CookiesForCustomPolicy cookies =
+                CloudFrontCookieSigner.getCookiesForCustomPolicy(
+                    SignerUtils.Protocol.https,
                     domainName,
                     cfKeyPathFile,
-                    contentId,
+                    null,
                     cfKeyId,
                     expireCalendar.getTime(),
                     null,
                     ipAddress);
-            taskResult.setSignedUrl("rtmp://" + domainName + "/cfx/st/" +
-                                    resourcePrefix + signedUrl);
+
+            Map<String, String> signedCookies = new HashMap<>();
+            signedCookies.put(cookies.getPolicy().getKey(), cookies.getPolicy().getValue());
+            signedCookies.put(cookies.getSignature().getKey(), cookies.getSignature().getValue());
+            signedCookies.put(cookies.getKeyPairId().getKey(), cookies.getKeyPairId().getValue());
+            taskResult.setSignedCookies(signedCookies);
         } catch (InvalidKeySpecException | IOException e) {
-            throw new RuntimeException("Error encountered attempting to sign URL for" +
-                                       " task " + TASK_NAME + ": " + e.getMessage(), e);
+            throw new RuntimeException("Error encountered attempting to create signed cookies in task " +
+                                       TASK_NAME + ": " + e.getMessage(), e);
         }
 
         String toReturn = taskResult.serialize();
@@ -158,4 +148,5 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner {
             return new File(this.cfKeyPath);
         }
     }
+
 }

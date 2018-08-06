@@ -45,16 +45,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Creates a CloudFront Web Distribution to support Http Live Streaming (HLS) of content
+ * in a space. The content is expected to already be in a format supported by HLS.
+ *
  * @author: Bill Branan
  * Date: Aug 3, 2018
  */
 public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
 
-    private final Logger log =
-        LoggerFactory.getLogger(EnableHlsTaskRunner.class);
+    private final Logger log = LoggerFactory.getLogger(EnableHlsTaskRunner.class);
 
-    private static final String TASK_NAME =
-        StorageTaskConstants.ENABLE_HLS_TASK_NAME;
+    private static final String TASK_NAME = StorageTaskConstants.ENABLE_HLS_TASK_NAME;
 
     public EnableHlsTaskRunner(StorageProvider s3Provider,
                                S3StorageProvider unwrappedS3Provider,
@@ -172,7 +173,7 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
                        secure ? STREAMING_TYPE.SECURE.name() : STREAMING_TYPE.OPEN.name());
         unwrappedS3Provider.setNewSpaceProperties(spaceId, spaceProps);
 
-        taskResult.setResult("Enable HLS Task completed successfully");
+        taskResult.setResult(TASK_NAME + " task completed successfully");
 
         // Return results
         taskResult.setStreamingHost(domainName);

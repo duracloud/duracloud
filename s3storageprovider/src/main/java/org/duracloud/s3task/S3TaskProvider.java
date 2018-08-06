@@ -16,6 +16,11 @@ import org.duracloud.s3task.streaming.DisableStreamingTaskRunner;
 import org.duracloud.s3task.streaming.EnableStreamingTaskRunner;
 import org.duracloud.s3task.streaming.GetSignedUrlTaskRunner;
 import org.duracloud.s3task.streaming.GetUrlTaskRunner;
+import org.duracloud.s3task.streaminghls.DeleteHlsTaskRunner;
+import org.duracloud.s3task.streaminghls.DisableHlsTaskRunner;
+import org.duracloud.s3task.streaminghls.EnableHlsTaskRunner;
+import org.duracloud.s3task.streaminghls.GetHlsSignedCookiesTaskRunner;
+import org.duracloud.s3task.streaminghls.GetUrlHlsTaskRunner;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProviderBase;
 import org.slf4j.LoggerFactory;
@@ -40,6 +45,10 @@ public class S3TaskProvider extends TaskProviderBase {
         log = LoggerFactory.getLogger(S3TaskProvider.class);
 
         taskList.add(new NoopTaskRunner());
+
+        taskList.add(new SetStoragePolicyTaskRunner(unwrappedS3Provider));
+
+        // RTMP Streaming
         taskList.add(new EnableStreamingTaskRunner(s3Provider,
                                                    unwrappedS3Provider,
                                                    s3Client,
@@ -61,7 +70,29 @@ public class S3TaskProvider extends TaskProviderBase {
                                                    unwrappedS3Provider,
                                                    s3Client,
                                                    cfClient));
-        taskList.add(new SetStoragePolicyTaskRunner(unwrappedS3Provider));
+
+        // HLS Streaming
+        taskList.add(new EnableHlsTaskRunner(s3Provider,
+                                             unwrappedS3Provider,
+                                             s3Client,
+                                             cfClient,
+                                             cfAccountId));
+        taskList.add(new GetUrlHlsTaskRunner(s3Provider,
+                                             unwrappedS3Provider,
+                                             cfClient));
+        taskList.add(new GetHlsSignedCookiesTaskRunner(s3Provider,
+                                                       unwrappedS3Provider,
+                                                       cfClient,
+                                                       cfKeyId,
+                                                       cfKeyPath));
+        taskList.add(new DisableHlsTaskRunner(s3Provider,
+                                              unwrappedS3Provider,
+                                              s3Client,
+                                              cfClient));
+        taskList.add(new DeleteHlsTaskRunner(s3Provider,
+                                             unwrappedS3Provider,
+                                             s3Client,
+                                             cfClient));
     }
 
 }
