@@ -61,7 +61,7 @@ public class GetUrlTaskRunner extends BaseStreamingTaskRunner {
         GetUrlTaskResult taskResult = new GetUrlTaskResult();
 
         // Ensure that streaming service is on
-        checkThatStreamingServiceIsEnabled(this.s3Provider, spaceId, TASK_NAME);
+        checkThatStreamingServiceIsEnabled(spaceId, TASK_NAME);
 
         // Retrieve the existing distribution for the given space
         StreamingDistributionSummary existingDist =

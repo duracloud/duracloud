@@ -174,9 +174,7 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
         }
     }
 
-    protected void checkThatStreamingServiceIsEnabled(StorageProvider s3Provider,
-                                                      String spaceId,
-                                                      String taskName) {
+    protected void checkThatStreamingServiceIsEnabled(String spaceId, String taskName) {
         // Verify that streaming is enabled
         Map<String, String> spaceProperties =
             s3Provider.getSpaceProperties(spaceId);

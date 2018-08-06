@@ -32,18 +32,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Provides shared capabilities to support HLS streaming
+ *
  * @author: Bill Branan
  * Date: Aug 3, 2018
  */
 public abstract class BaseHlsTaskRunner implements TaskRunner {
 
-    private final Logger log =
-        LoggerFactory.getLogger(BaseHlsTaskRunner.class);
+    private final Logger log = LoggerFactory.getLogger(BaseHlsTaskRunner.class);
 
-    public static final String HLS_STREAMING_HOST_PROP =
-        StorageProvider.PROPERTIES_HLS_STREAMING_HOST;
-    public static final String HLS_STREAMING_TYPE_PROP =
-        StorageProvider.PROPERTIES_HLS_STREAMING_TYPE;
+    public static final String HLS_STREAMING_HOST_PROP = StorageProvider.PROPERTIES_HLS_STREAMING_HOST;
+    public static final String HLS_STREAMING_TYPE_PROP = StorageProvider.PROPERTIES_HLS_STREAMING_TYPE;
 
     public enum STREAMING_TYPE { OPEN, SECURE }
 
@@ -64,13 +63,12 @@ public abstract class BaseHlsTaskRunner implements TaskRunner {
 
     public abstract String performTask(String taskParameters);
 
-    /*
+    /**
      * Returns the first streaming web distribution associated with a given bucket
      */
     protected DistributionSummary getExistingDistribution(String bucketName) {
 
-        List<DistributionSummary> dists =
-            getAllExistingWebDistributions(bucketName);
+        List<DistributionSummary> dists = getAllExistingWebDistributions(bucketName);
         if (dists.isEmpty()) {
             return null;
         } else {
@@ -78,8 +76,7 @@ public abstract class BaseHlsTaskRunner implements TaskRunner {
         }
     }
 
-    private boolean isDistFromBucket(String bucketName,
-                                     DistributionSummary distSummary) {
+    private boolean isDistFromBucket(String bucketName, DistributionSummary distSummary) {
         String bucketOrigin = bucketName + S3_ORIGIN_SUFFIX;
         for (Origin distOrigin : distSummary.getOrigins().getItems()) {
             if (bucketOrigin.equals(distOrigin.getDomainName())) {
@@ -89,7 +86,7 @@ public abstract class BaseHlsTaskRunner implements TaskRunner {
         return false;
     }
 
-    /*
+    /**
      * Determines if a streaming distribution already exists for a given bucket
      */
     protected List<DistributionSummary> getAllExistingWebDistributions(String bucketName) {
@@ -130,14 +127,13 @@ public abstract class BaseHlsTaskRunner implements TaskRunner {
         DistributionConfig distConfig = result.getDistributionConfig();
         distConfig.setEnabled(enabled);
 
-        cfClient.updateDistribution(
-            new UpdateDistributionRequest()
-                .withDistributionConfig(distConfig)
-                .withIfMatch(result.getETag())
-                .withId(distId));
+        cfClient.updateDistribution(new UpdateDistributionRequest()
+                                        .withDistributionConfig(distConfig)
+                                        .withIfMatch(result.getETag())
+                                        .withId(distId));
     }
 
-    /*
+    /**
      * Get a listing of items in a space
      */
     protected Iterator<String> getSpaceContents(String spaceId) {
@@ -145,8 +141,8 @@ public abstract class BaseHlsTaskRunner implements TaskRunner {
             try {
                 return s3Provider.getSpaceContents(spaceId, null);
             } catch (Exception e) {
-                log.warn("Exception encountered attempting to get contents " +
-                         "for space: " + spaceId + ", error message: " + e.getMessage());
+                log.warn("Exception encountered attempting to get contents for space: " +
+                         spaceId + ", error message: " + e.getMessage());
                 wait(i);
             }
         }
@@ -154,14 +150,14 @@ public abstract class BaseHlsTaskRunner implements TaskRunner {
                                             "get space contents for " + spaceId);
     }
 
-    /*
+    /**
      * Updates the space properties to no longer include the
      * streaming host value (if the value existed there in the first place)
      */
-    protected void removeStreamingHostFromSpaceProps(String spaceId) {
+    protected void removeHlsStreamingHostFromSpaceProps(String spaceId) {
         // Update bucket tags to remove streaming host
         Map<String, String> spaceProps = s3Provider.getSpaceProperties(spaceId);
-        if (spaceProps.containsKey(HLS_STREAMING_HOST_PROP)) {
+        if (spaceProps.containsKey(HLS_STREAMING_HOST_PROP) || spaceProps.containsKey(HLS_STREAMING_TYPE_PROP)) {
             spaceProps.remove(HLS_STREAMING_HOST_PROP);
             spaceProps.remove(HLS_STREAMING_TYPE_PROP);
             unwrappedS3Provider.setNewSpaceProperties(spaceId, spaceProps);
@@ -176,18 +172,21 @@ public abstract class BaseHlsTaskRunner implements TaskRunner {
         }
     }
 
-    protected void checkThatStreamingServiceIsEnabled(StorageProvider s3Provider,
-                                                      String spaceId,
-                                                      String taskName) {
+    /**
+     * Determines if a streaming distribution exists for a given space
+     *
+     * @throws UnsupportedTaskException if no distribution exists
+     */
+    protected void checkThatStreamingServiceIsEnabled(String spaceId, String taskName) {
         // Verify that streaming is enabled
         Map<String, String> spaceProperties = s3Provider.getSpaceProperties(spaceId);
         if (!spaceProperties.containsKey(HLS_STREAMING_HOST_PROP)) {
             throw new UnsupportedTaskException(
                 taskName,
                 "The " + taskName + " task can only be used after a space " +
-                "has been configured to enable streaming. Use " +
+                "has been configured to enable HLS streaming. Use " +
                 StorageTaskConstants.ENABLE_HLS_TASK_NAME +
-                " to enable streaming on this space.");
+                " to enable HLS streaming on this space.");
         }
     }
 
