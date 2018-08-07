@@ -95,6 +95,7 @@ public class GetHlsSignedCookiesTaskRunner extends BaseHlsTaskRunner {
                                                " to enable secure streaming on this space.");
         }
         String domainName = existingDist.getDomainName();
+        taskResult.setStreamingHost(domainName);
 
         // Define expiration date/time
         Calendar expireCalendar = Calendar.getInstance();
