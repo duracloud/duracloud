@@ -26,6 +26,9 @@ public class GetSignedCookieTaskResult {
     @XmlValue
     private Map<String, String> signedCookies;
 
+    @XmlValue
+    private String streamingHost;
+
     // Required by JAXB
     public GetSignedCookieTaskResult() {
     }
@@ -36,6 +39,14 @@ public class GetSignedCookieTaskResult {
 
     public void setSignedCookies(Map<String, String> signedCookies) {
         this.signedCookies = signedCookies;
+    }
+
+    public String getStreamingHost() {
+        return streamingHost;
+    }
+
+    public void setStreamingHost(String streamingHost) {
+        this.streamingHost = streamingHost;
     }
 
     /**
