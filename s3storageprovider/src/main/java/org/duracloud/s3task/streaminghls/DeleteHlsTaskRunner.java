@@ -66,6 +66,7 @@ public class DeleteHlsTaskRunner extends BaseHlsTaskRunner {
 
         removeHlsStreamingHostFromSpaceProps(spaceId);
         s3Client.deleteBucketPolicy(bucketName);
+        s3Client.deleteBucketCrossOriginConfiguration(bucketName);
 
         List<DistributionSummary> existingDists = getAllExistingWebDistributions(bucketName);
 
