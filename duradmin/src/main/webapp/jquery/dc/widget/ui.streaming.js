@@ -55,12 +55,14 @@
                 var panel = $.fn.create("div");
                 panel.empty();
 
-                var rtmpSwitchHolder = this._createSwitchHolder("rtmpSwitchHolder", "RTMP Streaming");
-                panel.append(rtmpSwitchHolder);
-                panel.append("<p>RTMP streaming tool tip here</p>")
+                var rtmpSwitchControl = $.fn.create("div").attr("id", "rtmpSwitchControl")
+                                            .append(this._createSwitchHolder("rtmpSwitchHolder", "RTMP Streaming"))
+                                            .append("<div><p>Enables Streaming using RTMP (Real-Time Messaging Protocol for this space.  </p></div>");
+                panel.append(rtmpSwitchControl);
+
                 // deploy/undeploy switch
                 // definition and bindings
-                $(".streaming-switch",rtmpSwitchHolder).onoffswitch({
+                $(".streaming-switch",rtmpSwitchControl).onoffswitch({
                     initialState : space.streamingEnabled ? "on" : "off",
                     onStateClass : "on left",
                     onIconClass : "checkbox",
@@ -69,27 +71,29 @@
                     onText : "On",
                     offText : "Off"
                 }).bind("turnOff", function(evt, future) {
-                    rtmpSwitchHolder.busy();
+                    rtmpSwitchControl.busy();
                     $.when(dc.store.UpdateSpaceStreaming(space.storeId, space.spaceId, false)).done(function() {
                         future.success();
                     }).always(function() {
-                        rtmpSwitchHolder.idle();
+                        rtmpSwitchControl.idle();
                     });
                 }).bind("turnOn", function(evt, future) {
-                    rtmpSwitchHolder.busy();
+                    rtmpSwitchControl.busy();
                     $.when(dc.store.UpdateSpaceStreaming(space.storeId, space.spaceId, true)).done(function() {
                         future.success();
                     }).always(function() {
-                        rtmpSwitchHolder.idle();
+                        rtmpSwitchControl.idle();
                     });
                 });
 
-                var hlsSwitchHolder = this._createSwitchHolder("hlsSwitchHolder", "HLS Streaming");
-                panel.append(hlsSwitchHolder);
-                panel.append("<p>HLS streaming tool tip here</p>")
+                var hlsSwitchControl = $.fn.create("div").attr("id", "hlsSwitchControl")
+                    .append(this._createSwitchHolder("hlsSwitchHolder", "HLS Streaming"))
+                    .append("<div><p>Enables HTTP Live Streaming (HLS) for this space. Note: in order for HLS to work" +
+                        " your content must be transcoded specifically for display in HLS compliant viewers. </p></div>");
+                panel.append(hlsSwitchControl);
 
 
-                $(".streaming-switch",hlsSwitchHolder).onoffswitch({
+                $(".streaming-switch",hlsSwitchControl).onoffswitch({
                     initialState : space.hlsEnabled ? "on" : "off",
                     onStateClass : "on left",
                     onIconClass : "checkbox",
@@ -98,18 +102,18 @@
                     onText : "On",
                     offText : "Off"
                 }).bind("turnOff", function(evt, future) {
-                    hlsSwitchHolder.busy();
+                    hlsSwitchControl.busy();
                     $.when(dc.store.UpdateSpaceHlsStreaming(space.storeId, space.spaceId, false)).done(function() {
                         future.success();
                     }).always(function() {
-                        hlsSwitchHolder.idle();
+                        hlsSwitchControl.idle();
                     });
                 }).bind("turnOn", function(evt, future) {
-                    hlsSwitchHolder.busy();
+                    hlsSwitchControl.busy();
                     $.when(dc.store.UpdateSpaceHlsStreaming(space.storeId, space.spaceId, true)).done(function() {
                         future.success();
                     }).always(function() {
-                        hlsSwitchHolder.idle();
+                        hlsSwitchControl.idle();
                     });
                 });
 
