@@ -30,6 +30,10 @@ public class SpaceProperties
 
     private String streamingType;
 
+    private String hlsStreamingHost;
+
+    private String hlsStreamingType;
+
     private Set<String> tags;
 
     private String restoreId;
@@ -91,6 +95,22 @@ public class SpaceProperties
 
     public void setStreamingType(String streamingType) {
         this.streamingType = streamingType;
+    }
+
+    public String getHlsStreamingHost() {
+        return hlsStreamingHost;
+    }
+
+    public void setHlsStreamingHost(String hlsStreamingHost) {
+        this.hlsStreamingHost = hlsStreamingHost;
+    }
+
+    public String getHlsStreamingType() {
+        return hlsStreamingType;
+    }
+
+    public void setHlsStreamingType(String hlsStreamingType) {
+        this.hlsStreamingType = hlsStreamingType;
     }
 
     public String getRestoreId() {

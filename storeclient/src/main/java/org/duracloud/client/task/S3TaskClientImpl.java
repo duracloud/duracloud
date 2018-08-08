@@ -16,6 +16,9 @@ import org.duracloud.s3storageprovider.dto.DisableStreamingTaskParameters;
 import org.duracloud.s3storageprovider.dto.DisableStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskParameters;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskResult;
+import org.duracloud.s3storageprovider.dto.GetHlsUrlTaskParameters;
+import org.duracloud.s3storageprovider.dto.GetSignedCookieTaskParameters;
+import org.duracloud.s3storageprovider.dto.GetSignedCookieTaskResult;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskParameters;
@@ -128,5 +131,74 @@ public class S3TaskClientImpl implements S3TaskClient {
         return GetSignedUrlTaskResult.deserialize(
             contentStore.performTask(StorageTaskConstants.GET_SIGNED_URL_TASK_NAME,
                                      taskParams.serialize()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public EnableStreamingTaskResult enableHlsStreaming(String spaceId, boolean secure)
+        throws ContentStoreException {
+        EnableStreamingTaskParameters taskParams = new EnableStreamingTaskParameters();
+        taskParams.setSpaceId(spaceId);
+        taskParams.setSecure(secure);
+
+        return EnableStreamingTaskResult.deserialize(
+            contentStore.performTask(StorageTaskConstants.ENABLE_HLS_TASK_NAME,
+                                     taskParams.serialize()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DisableStreamingTaskResult disableHlsStreaming(String spaceId)
+        throws ContentStoreException {
+        DisableStreamingTaskParameters taskParams = new DisableStreamingTaskParameters();
+        taskParams.setSpaceId(spaceId);
+
+        return DisableStreamingTaskResult.deserialize(
+            contentStore.performTask(StorageTaskConstants.DISABLE_HLS_TASK_NAME,
+                                     taskParams.serialize()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DeleteStreamingTaskResult deleteHlsStreaming(String spaceId)
+        throws ContentStoreException {
+        DeleteStreamingTaskParameters taskParams = new DeleteStreamingTaskParameters();
+        taskParams.setSpaceId(spaceId);
+
+        return DeleteStreamingTaskResult.deserialize(
+            contentStore.performTask(StorageTaskConstants.DELETE_HLS_TASK_NAME,
+                                     taskParams.serialize()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public GetUrlTaskResult getHlsUrl(String spaceId, String contentId) throws ContentStoreException {
+        final GetHlsUrlTaskParameters params = new GetHlsUrlTaskParameters();
+        params.setSpaceId(spaceId);
+        params.setContentId(contentId);
+        return GetUrlTaskResult.deserialize(
+            contentStore.performTask(StorageTaskConstants.GET_HLS_URL_TASK_NAME, params.serialize()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public GetSignedCookieTaskResult getSignedCookies(String spaceId, String ipAddress,
+                                                      int minutesToExpire) throws ContentStoreException {
+        final GetSignedCookieTaskParameters params = new GetSignedCookieTaskParameters();
+        params.setSpaceId(spaceId);
+        params.setIpAddress(ipAddress);
+        params.setMinutesToExpire(minutesToExpire);
+        return GetSignedCookieTaskResult.deserialize(
+            contentStore.performTask(StorageTaskConstants.GET_SIGNED_COOKIES_TASK_NAME, params.serialize()));
     }
 }

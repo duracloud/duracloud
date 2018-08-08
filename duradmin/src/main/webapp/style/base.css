@@ -1237,19 +1237,23 @@ table.dc-acls td:last-child {
 	margin-bottom: 10px;
 }
 
+#streaming-pane > p {
+	margin-bottom: 20px;
+}
+
 .streaming-switch-holder {
 	height:20px;
-	margin-left:15px;
 	display:inline-block;
 	white-space: nowrap;
+	margin-bottom: 20px;
 }
 .streaming-switch-holder label {
-	font-size: 0.6em;
+	font-size: 1.0em;
 }
 
 .streaming-switch {
 	display:inline-block;
-	font-size:0.7em"
+	font-size:0.7em;
 }
 
 .button-bar {
