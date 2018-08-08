@@ -41,8 +41,8 @@ public class MediaStreamingTaskController {
         this.contentStoreManager = contentStoreManager;
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ModelAndView post(@RequestParam(required = true) String storeId,
+    @RequestMapping(value = "rtmp", method = RequestMethod.POST)
+    public ModelAndView enableRtmpStreaming(@RequestParam(required = true) String storeId,
                              @RequestParam(required = true) String spaceId,
                              @RequestParam(required = true) boolean enable)
         throws Exception {
@@ -67,6 +67,42 @@ public class MediaStreamingTaskController {
             log.info("successfully "
                      + (enable ? "enabled" : "disabled")
                      + " the stream service for space (" + spaceId
+                     + ") on storage provider (" + storeId + ")");
+            ModelAndView mav =
+                new ModelAndView("jsonView", STREAMING_ENABLED_KEY, enable);
+            return mav;
+
+        } catch (Exception ex) {
+            throw new DuraCloudRuntimeException(ex);
+        }
+    }
+
+    @RequestMapping(value = "hls", method = RequestMethod.POST)
+    public ModelAndView enableHlsStreaming(@RequestParam(required = true) String storeId,
+                             @RequestParam(required = true) String spaceId,
+                             @RequestParam(required = true) boolean enable)
+        throws Exception {
+        try {
+            ContentStore store = this.contentStoreManager.getContentStore(storeId);
+            S3TaskClient taskClient = new S3TaskClientImpl(store);
+
+            if (enable) {
+                try {
+                    taskClient.enableHlsStreaming(spaceId, false);
+                } catch (ContentStoreException e) {
+                    log.warn("failed to enable streaming on space " + spaceId + ": due to " + e.getMessage(), e);
+                    log.info("attempting to enable secure hls streaming.");
+                    taskClient.enableStreaming(spaceId, true);
+                    log.info("successfully enabled secure hls streaming.");
+
+                }
+            } else {
+                taskClient.disableHlsStreaming(spaceId);
+            }
+
+            log.info("successfully "
+                     + (enable ? "enabled" : "disabled")
+                     + " the hls stream service for space (" + spaceId
                      + ") on storage provider (" + storeId + ")");
             ModelAndView mav =
                 new ModelAndView("jsonView", STREAMING_ENABLED_KEY, enable);

@@ -51,6 +51,9 @@
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.snapshot.js"></script>
     <script
       type="text/javascript"
+      src="${pageContext.request.contextPath}/jquery/dc/widget/ui.streaming.js"></script>
+    <script
+      type="text/javascript"
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.restore.js"></script>
     <script
       type="text/javascript"
@@ -291,13 +294,6 @@
                 <i class="pre download" title="download manifest"></i>Manifest
               </a>
  
-              <div class="streaming-switch-holder">
-                <div
-                  class="dc-busy"
-                  style="display: none"></div>
-                <label>Streaming:</label>
-                <div class="streaming-switch"></div>
-              </div>
             </div>
           </div>
           <div class="center"></div>

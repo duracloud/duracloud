@@ -51,9 +51,17 @@ public class MediaStreamingServiceControllerTest extends AbstractTestBase {
     }
 
     @Test
-    public void testPost() throws Exception {
+    public void testEnableRtmpStreaming() throws Exception {
         boolean enable = true;
-        ModelAndView mav = controller.post("testStore", "testSpace", enable);
+        ModelAndView mav = controller.enableRtmpStreaming("testStore", "testSpace", enable);
         Assert.assertEquals(enable, mav.getModelMap().get(MediaStreamingTaskController.STREAMING_ENABLED_KEY));
     }
+
+    @Test
+    public void testEnableHlsStreaming() throws Exception {
+        boolean enable = true;
+        ModelAndView mav = controller.enableHlsStreaming("testStore", "testSpace", enable);
+        Assert.assertEquals(enable, mav.getModelMap().get(MediaStreamingTaskController.STREAMING_ENABLED_KEY));
+    }
+
 }
