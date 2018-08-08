@@ -1241,6 +1241,14 @@ table.dc-acls td:last-child {
 	margin-bottom: 20px;
 }
 
+#rtmpSwitchControl {
+	border-bottom: 1px solid gray;
+	padding-bottom:10px;
+	margin-bottom:10px;
+	width:100%;
+	display: inline-block;
+}
+
 .streaming-switch-holder {
 	height:20px;
 	display:inline-block;
@@ -1248,7 +1256,7 @@ table.dc-acls td:last-child {
 	margin-bottom: 20px;
 }
 .streaming-switch-holder label {
-	font-size: 1.0em;
+	font-size: 1.25em;
 }
 
 .streaming-switch {

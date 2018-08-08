@@ -2363,7 +2363,7 @@ $(function() {
 
     _loadStreamingPane : function(space) {
       var viewerPane = $.fn.create("div").attr("id", "streamingPane").streaming({
-        open : false,
+        open : true,
         space : space
       });
       this._appendToCenter(viewerPane);
@@ -3095,14 +3095,22 @@ $(function() {
       }
 
       if (space.properties.streamingHost) {
-        spaceProps.push([ 'Streaming Host', space.properties.streamingHost ]);
+        spaceProps.push([ 'RTMP Streaming Host', space.properties.streamingHost ]);
       }
 
       if (space.properties.streamingType) {
-        spaceProps.push([ 'Streaming Type', space.properties.streamingType ]);
+        spaceProps.push([ 'RTMP Streaming Type', space.properties.streamingType ]);
       }
 
-      var bitIntegrityReport = space.bitIntegrityReportProperties;
+        if (space.properties.streamingHost) {
+            spaceProps.push([ 'HLS Streaming Host', space.properties.hlsStreamingHost ]);
+        }
+
+        if (space.properties.streamingType) {
+            spaceProps.push([ 'HLS Streaming Type', space.properties.hlsStreamingType ]);
+        }
+
+        var bitIntegrityReport = space.bitIntegrityReportProperties;
       if (bitIntegrityReport) {
         var completionDate = bitIntegrityReport.completionDate;
         var result = bitIntegrityReport.result.toString().toLowerCase();
@@ -4092,15 +4100,7 @@ $(function() {
           var hls = new Hls();
           hls.loadSource(avtag.src);
           hls.attachMedia(avtag);
-          // hls.on(Hls.Events.MANIFEST_PARSED,function() {
-          //     //avtag.play();
-          // });
       }
-      // else if (avtag.canPlayType('application/vnd.apple.mpegurl')) {
-      //     // avtag.addEventListener('canplay',function() {
-      //     //     //avtag.play();
-      //     // });
-      // }
     },
 
     _writeMediaTag : function(streamingUrl) {
