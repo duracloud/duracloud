@@ -110,7 +110,7 @@ public class GetHlsSignedCookiesTaskRunner extends BaseHlsTaskRunner {
                     SignerUtils.Protocol.https,
                     domainName,
                     cfKeyPathFile,
-                    null,
+                    "*",
                     cfKeyId,
                     expireCalendar.getTime(),
                     null,
