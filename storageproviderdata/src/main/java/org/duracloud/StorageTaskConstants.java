@@ -33,6 +33,7 @@ public class StorageTaskConstants {
     public static final String DELETE_HLS_TASK_NAME = "delete-hls";
     public static final String GET_HLS_URL_TASK_NAME = "get-url-hls";
     public static final String GET_SIGNED_COOKIES_TASK_NAME = "get-signed-cookies";
+    public static final String STORE_SIGNED_COOKIES_TASK_NAME = "store-signed-cookies";
 
     // Storage policy
     public static final String SET_STORAGE_POLICY_TASK_NAME = "set-storage-policy";
