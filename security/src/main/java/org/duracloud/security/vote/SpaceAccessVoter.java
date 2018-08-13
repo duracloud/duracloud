@@ -58,6 +58,7 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         return spaceId.equals("spaces")
                || spaceId.equals("stores")
                || spaceId.equals("acl")
+               || spaceId.equals("aux")
                || spaceId.equals("task");
 
     }
