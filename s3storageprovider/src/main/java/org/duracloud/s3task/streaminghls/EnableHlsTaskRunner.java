@@ -13,12 +13,15 @@ import java.util.Map;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.cloudfront.model.AllowedMethods;
+import com.amazonaws.services.cloudfront.model.CacheBehavior;
+import com.amazonaws.services.cloudfront.model.CacheBehaviors;
 import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentity;
 import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentityConfig;
 import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentitySummary;
 import com.amazonaws.services.cloudfront.model.CookiePreference;
 import com.amazonaws.services.cloudfront.model.CreateCloudFrontOriginAccessIdentityRequest;
 import com.amazonaws.services.cloudfront.model.CreateDistributionRequest;
+import com.amazonaws.services.cloudfront.model.CustomOriginConfig;
 import com.amazonaws.services.cloudfront.model.DefaultCacheBehavior;
 import com.amazonaws.services.cloudfront.model.Distribution;
 import com.amazonaws.services.cloudfront.model.DistributionConfig;
@@ -30,6 +33,7 @@ import com.amazonaws.services.cloudfront.model.ItemSelection;
 import com.amazonaws.services.cloudfront.model.ListCloudFrontOriginAccessIdentitiesRequest;
 import com.amazonaws.services.cloudfront.model.Method;
 import com.amazonaws.services.cloudfront.model.Origin;
+import com.amazonaws.services.cloudfront.model.OriginProtocolPolicy;
 import com.amazonaws.services.cloudfront.model.Origins;
 import com.amazonaws.services.cloudfront.model.S3OriginConfig;
 import com.amazonaws.services.cloudfront.model.TrustedSigners;
@@ -63,12 +67,14 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
                                S3StorageProvider unwrappedS3Provider,
                                AmazonS3Client s3Client,
                                AmazonCloudFrontClient cfClient,
-                               String cfAccountId) {
+                               String cfAccountId,
+                               String dcHost) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
         this.s3Client = s3Client;
         this.cfClient = cfClient;
         this.cfAccountId = cfAccountId;
+        this.dcHost = dcHost;
     }
 
     public String getName() {
@@ -117,12 +123,26 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
             }
             domainName = existingDist.getDomainName();
         } else { // No existing distribution, need to create one
+            // Create S3 Origin
             S3OriginConfig s3OriginConfig = new S3OriginConfig()
                 .withOriginAccessIdentity(S3_ORIGIN_OAI_PREFIX + oaIdentityId);
             Origin s3Origin = new Origin().withDomainName(bucketName + S3_ORIGIN_SUFFIX)
                                           .withS3OriginConfig(s3OriginConfig)
                                           .withId("S3-" + bucketName);
-            Origins origins = new Origins().withItems(s3Origin).withQuantity(1);
+
+            // Create Origin to allow signed cookies to be set through a CloudFront call
+            CustomOriginConfig cookiesOriginConfig = new CustomOriginConfig()
+                .withOriginProtocolPolicy(OriginProtocolPolicy.HttpsOnly)
+                .withHTTPPort(80)
+                .withHTTPSPort(443);
+            String getCookiesPath = "/durastore/aux";
+            String cookiesOriginId = "Custom origin - " + dcHost + getCookiesPath;
+            Origin cookiesOrigin = new Origin().withDomainName(dcHost)
+                                               .withOriginPath(getCookiesPath)
+                                               .withId(cookiesOriginId)
+                                               .withCustomOriginConfig(cookiesOriginConfig);
+
+            Origins origins = new Origins().withItems(s3Origin, cookiesOrigin).withQuantity(2);
 
             // Only include trusted signers on secure distributions
             TrustedSigners signers = new TrustedSigners();
@@ -157,6 +177,21 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
             defaultCacheBehavior.setMinTTL(0l);
             defaultCacheBehavior.setTargetOriginId(s3Origin.getId());
 
+            // Create behavior for cookies origin
+            CacheBehavior cookiesCacheBehavior = new CacheBehavior()
+                .withPathPattern("/cookies")
+                .withTargetOriginId(cookiesOriginId)
+                .withViewerProtocolPolicy(ViewerProtocolPolicy.RedirectToHttps)
+                .withAllowedMethods(new AllowedMethods().withItems(Method.GET, Method.HEAD).withQuantity(2))
+                .withForwardedValues(
+                    new ForwardedValues().withQueryString(true)
+                                         .withCookies(new CookiePreference().withForward(ItemSelection.All)))
+                .withTrustedSigners(new TrustedSigners().withEnabled(false).withQuantity(0))
+                .withMinTTL(0l);
+            CacheBehaviors cacheBehaviors =
+                new CacheBehaviors().withItems(cookiesCacheBehavior).withQuantity(1);
+
+            // Build distribution
             Distribution dist =
                 cfClient.createDistribution(
                     new CreateDistributionRequest(
@@ -165,7 +200,8 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
                             .withOrigins(origins)
                             .withEnabled(true)
                             .withComment("HLS streaming for space: " + spaceId)
-                            .withDefaultCacheBehavior(defaultCacheBehavior)))
+                            .withDefaultCacheBehavior(defaultCacheBehavior)
+                            .withCacheBehaviors(cacheBehaviors)))
                         .getDistribution();
             domainName = dist.getDomainName();
         }

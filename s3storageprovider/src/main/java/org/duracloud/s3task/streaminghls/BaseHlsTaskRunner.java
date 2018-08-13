@@ -58,6 +58,7 @@ public abstract class BaseHlsTaskRunner implements TaskRunner {
     protected String cfAccountId;
     protected String cfKeyId;
     protected String cfKeyPath;
+    protected String dcHost;
 
     public abstract String getName();
 
