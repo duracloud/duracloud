@@ -41,7 +41,8 @@ public class S3TaskProvider extends TaskProviderBase {
                           String cfAccountId,
                           String cfKeyId,
                           String cfKeyPath,
-                          String storeId) {
+                          String storeId,
+                          String dcHost) {
         super(storeId);
         log = LoggerFactory.getLogger(S3TaskProvider.class);
 
@@ -77,7 +78,8 @@ public class S3TaskProvider extends TaskProviderBase {
                                              unwrappedS3Provider,
                                              s3Client,
                                              cfClient,
-                                             cfAccountId));
+                                             cfAccountId,
+                                             dcHost));
         taskList.add(new GetUrlHlsTaskRunner(s3Provider,
                                              unwrappedS3Provider,
                                              cfClient));
