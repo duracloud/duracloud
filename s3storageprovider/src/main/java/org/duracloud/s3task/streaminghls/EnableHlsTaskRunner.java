@@ -130,20 +130,6 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
                                           .withS3OriginConfig(s3OriginConfig)
                                           .withId("S3-" + bucketName);
 
-            // Create Origin to allow signed cookies to be set through a CloudFront call
-            CustomOriginConfig cookiesOriginConfig = new CustomOriginConfig()
-                .withOriginProtocolPolicy(OriginProtocolPolicy.HttpsOnly)
-                .withHTTPPort(80)
-                .withHTTPSPort(443);
-            String getCookiesPath = "/durastore/aux";
-            String cookiesOriginId = "Custom origin - " + dcHost + getCookiesPath;
-            Origin cookiesOrigin = new Origin().withDomainName(dcHost)
-                                               .withOriginPath(getCookiesPath)
-                                               .withId(cookiesOriginId)
-                                               .withCustomOriginConfig(cookiesOriginConfig);
-
-            Origins origins = new Origins().withItems(s3Origin, cookiesOrigin).withQuantity(2);
-
             // Only include trusted signers on secure distributions
             TrustedSigners signers = new TrustedSigners();
             if (secure) {
@@ -177,32 +163,54 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
             defaultCacheBehavior.setMinTTL(0l);
             defaultCacheBehavior.setTargetOriginId(s3Origin.getId());
 
-            // Create behavior for cookies origin
-            CacheBehavior cookiesCacheBehavior = new CacheBehavior()
-                .withPathPattern("/cookies")
-                .withTargetOriginId(cookiesOriginId)
-                .withViewerProtocolPolicy(ViewerProtocolPolicy.RedirectToHttps)
-                .withAllowedMethods(new AllowedMethods().withItems(Method.GET, Method.HEAD).withQuantity(2))
-                .withForwardedValues(
-                    new ForwardedValues().withQueryString(true)
-                                         .withCookies(new CookiePreference().withForward(ItemSelection.All)))
-                .withTrustedSigners(new TrustedSigners().withEnabled(false).withQuantity(0))
-                .withMinTTL(0l);
-            CacheBehaviors cacheBehaviors =
-                new CacheBehaviors().withItems(cookiesCacheBehavior).withQuantity(1);
+            // Create origins list
+            Origins origins;
+            CacheBehaviors cacheBehaviors = new CacheBehaviors();
+
+            if (secure) {
+                // Create Origin to allow signed cookies to be set through a CloudFront call
+                CustomOriginConfig cookiesOriginConfig = new CustomOriginConfig()
+                    .withOriginProtocolPolicy(OriginProtocolPolicy.HttpsOnly)
+                    .withHTTPPort(80)
+                    .withHTTPSPort(443);
+                String getCookiesPath = "/durastore/aux";
+                String cookiesOriginId = "Custom origin - " + dcHost + getCookiesPath;
+                Origin cookiesOrigin = new Origin().withDomainName(dcHost)
+                                                   .withOriginPath(getCookiesPath)
+                                                   .withId(cookiesOriginId)
+                                                   .withCustomOriginConfig(cookiesOriginConfig);
+
+                origins = new Origins().withItems(s3Origin, cookiesOrigin).withQuantity(2);
+
+                // Create behavior for cookies origin
+                CookiePreference cookiePreference = new CookiePreference().withForward(ItemSelection.All);
+                CacheBehavior cookiesCacheBehavior = new CacheBehavior()
+                    .withPathPattern("/cookies")
+                    .withTargetOriginId(cookiesOriginId)
+                    .withViewerProtocolPolicy(ViewerProtocolPolicy.RedirectToHttps)
+                    .withAllowedMethods(new AllowedMethods().withItems(Method.GET, Method.HEAD).withQuantity(2))
+                    .withForwardedValues(new ForwardedValues().withQueryString(true).withCookies(cookiePreference))
+                    .withTrustedSigners(new TrustedSigners().withEnabled(false).withQuantity(0))
+                    .withMinTTL(0l);
+                cacheBehaviors = cacheBehaviors.withItems(cookiesCacheBehavior).withQuantity(1);
+            } else {
+                origins = new Origins().withItems(s3Origin).withQuantity(1);
+            }
 
             // Build distribution
-            Distribution dist =
-                cfClient.createDistribution(
-                    new CreateDistributionRequest(
-                        new DistributionConfig()
-                            .withCallerReference("" + System.currentTimeMillis())
-                            .withOrigins(origins)
-                            .withEnabled(true)
-                            .withComment("HLS streaming for space: " + spaceId)
-                            .withDefaultCacheBehavior(defaultCacheBehavior)
-                            .withCacheBehaviors(cacheBehaviors)))
-                        .getDistribution();
+            DistributionConfig distributionConfig = new DistributionConfig()
+                .withCallerReference("" + System.currentTimeMillis())
+                .withOrigins(origins)
+                .withEnabled(true)
+                .withComment("HLS streaming for space: " + spaceId)
+                .withDefaultCacheBehavior(defaultCacheBehavior);
+
+            if (secure) {
+                distributionConfig.setCacheBehaviors(cacheBehaviors);
+            }
+
+            Distribution dist = cfClient.createDistribution(
+                new CreateDistributionRequest(distributionConfig)).getDistribution();
             domainName = dist.getDomainName();
         }
 
