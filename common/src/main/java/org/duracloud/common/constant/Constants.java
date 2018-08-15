@@ -20,11 +20,11 @@ public class Constants {
         // Ensures no instances are made of this class, as there are only static members.
     }
 
-    public static final String HEADER_PREFIX = "x-dura-meta-";
-
     /**
      * An http header sent by the client that indicates the version of the client.
      */
+    public static final String HEADER_PREFIX = "x-dura-meta-";
+
     public static final String CLIENT_VERSION_HEADER = "x-dura-client-version";
 
     /**
@@ -71,5 +71,11 @@ public class Constants {
     public static final String SERVER_HOST = "org.duracloud.request.host";
 
     public static final String SERVER_PORT = "org.duracloud.request.port";
+
+    /**
+     * The name of the space used for storing transient token to signed cookie mappings.
+     */
+    public static final String HIDDEN_COOKIE_SPACE = "signedcookies";
+
 
 }
