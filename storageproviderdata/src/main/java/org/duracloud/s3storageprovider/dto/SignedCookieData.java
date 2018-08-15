@@ -18,7 +18,7 @@ import org.duracloud.error.TaskDataException;
  * @author Bill Branan
  * Date: Aug 6, 2018
  */
-public class StoreSignedCookieTaskParameters {
+public class SignedCookieData {
 
     /**
      * The policy statement which controls the access that a signed cookie grants to a user
@@ -33,7 +33,7 @@ public class StoreSignedCookieTaskParameters {
     private String redirectUrl;
 
     // Required by JAXB
-    public StoreSignedCookieTaskParameters() {
+    public SignedCookieData() {
     }
 
     public Map<String, String> getSignedCookies() {
@@ -66,8 +66,8 @@ public class StoreSignedCookieTaskParameters {
      * @return JSON formatted task parameter info
      */
     public String serialize() {
-        JaxbJsonSerializer<StoreSignedCookieTaskParameters> serializer =
-            new JaxbJsonSerializer<>(StoreSignedCookieTaskParameters.class);
+        JaxbJsonSerializer<SignedCookieData> serializer =
+            new JaxbJsonSerializer<>(SignedCookieData.class);
         try {
             return serializer.serialize(this);
         } catch (IOException e) {
@@ -81,9 +81,9 @@ public class StoreSignedCookieTaskParameters {
      *
      * @param taskParameters - JSON formatted set of properties
      */
-    public static StoreSignedCookieTaskParameters deserialize(String taskParameters) {
-        JaxbJsonSerializer<StoreSignedCookieTaskParameters> serializer =
-            new JaxbJsonSerializer<>(StoreSignedCookieTaskParameters.class);
+    public static SignedCookieData deserialize(String taskParameters) {
+        JaxbJsonSerializer<SignedCookieData> serializer =
+            new JaxbJsonSerializer<>(SignedCookieData.class);
         try {
             return serializer.deserialize(taskParameters);
         } catch (IOException e) {

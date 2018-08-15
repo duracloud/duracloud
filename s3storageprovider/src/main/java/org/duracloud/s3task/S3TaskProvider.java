@@ -19,9 +19,8 @@ import org.duracloud.s3task.streaming.GetUrlTaskRunner;
 import org.duracloud.s3task.streaminghls.DeleteHlsTaskRunner;
 import org.duracloud.s3task.streaminghls.DisableHlsTaskRunner;
 import org.duracloud.s3task.streaminghls.EnableHlsTaskRunner;
-import org.duracloud.s3task.streaminghls.GetHlsSignedCookiesTaskRunner;
+import org.duracloud.s3task.streaminghls.GetHlsSignedCookiesUrlTaskRunner;
 import org.duracloud.s3task.streaminghls.GetUrlHlsTaskRunner;
-import org.duracloud.s3task.streaminghls.StoreHlsSignedCookiesTaskRunner;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProviderBase;
 import org.slf4j.LoggerFactory;
@@ -83,11 +82,11 @@ public class S3TaskProvider extends TaskProviderBase {
         taskList.add(new GetUrlHlsTaskRunner(s3Provider,
                                              unwrappedS3Provider,
                                              cfClient));
-        taskList.add(new GetHlsSignedCookiesTaskRunner(s3Provider,
-                                                       unwrappedS3Provider,
-                                                       cfClient,
-                                                       cfKeyId,
-                                                       cfKeyPath));
+        taskList.add(new GetHlsSignedCookiesUrlTaskRunner(s3Provider,
+                                                          unwrappedS3Provider,
+                                                          cfClient,
+                                                          cfKeyId,
+                                                          cfKeyPath));
         taskList.add(new DisableHlsTaskRunner(s3Provider,
                                               unwrappedS3Provider,
                                               s3Client,
@@ -96,7 +95,6 @@ public class S3TaskProvider extends TaskProviderBase {
                                              unwrappedS3Provider,
                                              s3Client,
                                              cfClient));
-        taskList.add(new StoreHlsSignedCookiesTaskRunner());
     }
 
 }

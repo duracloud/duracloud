@@ -8,7 +8,6 @@
 package org.duracloud.s3storageprovider.dto;
 
 import java.io.IOException;
-import java.util.Map;
 import javax.xml.bind.annotation.XmlValue;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
@@ -18,35 +17,24 @@ import org.duracloud.error.TaskDataException;
  * @author Bill Branan
  * Date: Aug 6, 2018
  */
-public class GetSignedCookieTaskResult {
+public class GetSignedCookiesUrlTaskResult {
 
     /**
-     * The policy statement which controls the access that a signed cookie grants to a user
+     * The URL at which the signed cookies can be set
      */
     @XmlValue
-    private Map<String, String> signedCookies;
-
-    @XmlValue
-    private String streamingHost;
+    private String signedCookiesUrl;
 
     // Required by JAXB
-    public GetSignedCookieTaskResult() {
+    public GetSignedCookiesUrlTaskResult() {
     }
 
-    public Map<String, String> getSignedCookies() {
-        return signedCookies;
+    public String getSignedCookiesUrl() {
+        return signedCookiesUrl;
     }
 
-    public void setSignedCookies(Map<String, String> signedCookies) {
-        this.signedCookies = signedCookies;
-    }
-
-    public String getStreamingHost() {
-        return streamingHost;
-    }
-
-    public void setStreamingHost(String streamingHost) {
-        this.streamingHost = streamingHost;
+    public void setSignedCookiesUrl(String signedCookiesUrl) {
+        this.signedCookiesUrl = signedCookiesUrl;
     }
 
     /**
@@ -55,8 +43,8 @@ public class GetSignedCookieTaskResult {
      * @return JSON formatted task result info
      */
     public String serialize() {
-        JaxbJsonSerializer<GetSignedCookieTaskResult> serializer =
-            new JaxbJsonSerializer<>(GetSignedCookieTaskResult.class);
+        JaxbJsonSerializer<GetSignedCookiesUrlTaskResult> serializer =
+            new JaxbJsonSerializer<>(GetSignedCookiesUrlTaskResult.class);
         try {
             return serializer.serialize(this);
         } catch (IOException e) {
@@ -70,9 +58,9 @@ public class GetSignedCookieTaskResult {
      *
      * @param taskResult - JSON formatted set of properties
      */
-    public static GetSignedCookieTaskResult deserialize(String taskResult) {
-        JaxbJsonSerializer<GetSignedCookieTaskResult> serializer =
-            new JaxbJsonSerializer<>(GetSignedCookieTaskResult.class);
+    public static GetSignedCookiesUrlTaskResult deserialize(String taskResult) {
+        JaxbJsonSerializer<GetSignedCookiesUrlTaskResult> serializer =
+            new JaxbJsonSerializer<>(GetSignedCookiesUrlTaskResult.class);
         try {
             return serializer.deserialize(taskResult);
         } catch (IOException e) {
