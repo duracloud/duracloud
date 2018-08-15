@@ -7,6 +7,7 @@
  */
 package org.duracloud.s3task.streaminghls;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +89,7 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
 
         String spaceId = taskParams.getSpaceId();
         boolean secure = taskParams.isSecure();
+        List<String> allowedOrigins = taskParams.getAllowedOrigins();
 
         log.info("Performing " + TASK_NAME + " task on space " + spaceId +
                  ". Secure streaming set to " + secure);
@@ -218,7 +220,7 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
         setBucketAccessPolicy(bucketName, oaIdentityId);
 
         // Set CORS policy on bucket
-        setCorsPolicy(bucketName);
+        setCorsPolicy(bucketName, allowedOrigins, dcHost);
 
         // Update bucket tags to include streaming host
         Map<String, String> spaceProps =
@@ -299,14 +301,28 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
      * CloudFront (based on forwarding rules) to allow cross-region requests
      * to be made by JavaScript wanting to stream content from CloudFront
      */
-    private void setCorsPolicy(String bucketName) {
-        CORSRule corsRule = new CORSRule();
-        corsRule.setAllowedOrigins("*");
-        corsRule.setAllowedMethods(CORSRule.AllowedMethods.GET, CORSRule.AllowedMethods.HEAD);
-        corsRule.setMaxAgeSeconds(3000);
-        corsRule.setAllowedHeaders("*");
+    private void setCorsPolicy(String bucketName, List<String> allowedOrigins, String dcHost) {
+        // If list is null or empty, add a default value
+        if (null == allowedOrigins || allowedOrigins.isEmpty()) {
+            allowedOrigins = new ArrayList<>();
+            allowedOrigins.add("https://*");
+        } else { // If list is not empty, append DuraCloud host to allow streaming via DurAdmin
+            allowedOrigins.add("https://" + dcHost);
+        }
+
+        List<CORSRule> corsRules = new ArrayList<>();
+
+        for (String allowedOrigin : allowedOrigins) {
+            CORSRule corsRule = new CORSRule();
+            corsRule.setAllowedOrigins(allowedOrigin);
+            corsRule.setAllowedMethods(CORSRule.AllowedMethods.GET, CORSRule.AllowedMethods.HEAD);
+            corsRule.setMaxAgeSeconds(3000);
+            corsRule.setAllowedHeaders("*");
+            corsRules.add(corsRule);
+        }
+
         BucketCrossOriginConfiguration corsConfig =
-            new BucketCrossOriginConfiguration().withRules(corsRule);
+            new BucketCrossOriginConfiguration().withRules(corsRules);
 
         s3Client.setBucketCrossOriginConfiguration(bucketName, corsConfig);
     }
