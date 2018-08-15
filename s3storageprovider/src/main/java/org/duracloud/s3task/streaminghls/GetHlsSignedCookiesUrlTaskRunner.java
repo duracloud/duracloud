@@ -19,11 +19,13 @@ import com.amazonaws.services.cloudfront.CloudFrontCookieSigner;
 import com.amazonaws.services.cloudfront.model.DistributionSummary;
 import com.amazonaws.services.cloudfront.util.SignerUtils;
 import org.duracloud.StorageTaskConstants;
+import org.duracloud.common.data.StringDataStore;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
-import org.duracloud.s3storageprovider.dto.GetSignedCookieTaskParameters;
-import org.duracloud.s3storageprovider.dto.GetSignedCookieTaskResult;
+import org.duracloud.s3storageprovider.dto.GetSignedCookiesUrlTaskParameters;
+import org.duracloud.s3storageprovider.dto.GetSignedCookiesUrlTaskResult;
+import org.duracloud.s3storageprovider.dto.SignedCookieData;
 import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
@@ -31,25 +33,26 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 /**
- * Retrieves a set of signed cookies to allow access to content that is streamed through
- * Amazon Cloudfront via a secure HLS distribution
+ * Retrieves a URL which can be used to set signed cookies on the user's browser.
+ * These cookies allow access to content that is streamed through Amazon Cloudfront
+ * via a secure HLS distribution
  *
  * @author: Bill Branan
  * Date: Aug 6, 2018
  */
-public class GetHlsSignedCookiesTaskRunner extends BaseHlsTaskRunner {
+public class GetHlsSignedCookiesUrlTaskRunner extends BaseHlsTaskRunner {
 
     public static final int DEFAULT_MINUTES_TO_EXPIRE = 480;
 
-    private final Logger log = LoggerFactory.getLogger(GetHlsSignedCookiesTaskRunner.class);
+    private final Logger log = LoggerFactory.getLogger(GetHlsSignedCookiesUrlTaskRunner.class);
 
-    private static final String TASK_NAME = StorageTaskConstants.GET_SIGNED_COOKIES_TASK_NAME;
+    private static final String TASK_NAME = StorageTaskConstants.GET_SIGNED_COOKIES_URL_TASK_NAME;
 
-    public GetHlsSignedCookiesTaskRunner(StorageProvider s3Provider,
-                                         S3StorageProvider unwrappedS3Provider,
-                                         AmazonCloudFrontClient cfClient,
-                                         String cfKeyId,
-                                         String cfKeyPath) {
+    public GetHlsSignedCookiesUrlTaskRunner(StorageProvider s3Provider,
+                                            S3StorageProvider unwrappedS3Provider,
+                                            AmazonCloudFrontClient cfClient,
+                                            String cfKeyId,
+                                            String cfKeyPath) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
         this.cfClient = cfClient;
@@ -63,10 +66,10 @@ public class GetHlsSignedCookiesTaskRunner extends BaseHlsTaskRunner {
         return TASK_NAME;
     }
 
-    // Create signed cookies
+    // Create and store signed cookies
     public String performTask(String taskParameters) {
-        GetSignedCookieTaskParameters taskParams =
-            GetSignedCookieTaskParameters.deserialize(taskParameters);
+        GetSignedCookiesUrlTaskParameters taskParams =
+            GetSignedCookiesUrlTaskParameters.deserialize(taskParameters);
 
         String spaceId = taskParams.getSpaceId();
         String ipAddress = taskParams.getIpAddress();
@@ -74,13 +77,14 @@ public class GetHlsSignedCookiesTaskRunner extends BaseHlsTaskRunner {
         if (minutesToExpire <= 0) {
             minutesToExpire = DEFAULT_MINUTES_TO_EXPIRE;
         }
+        String redirectUrl = taskParams.getRedirectUrl();
 
         log.info("Performing " + TASK_NAME + " task with parameters: spaceId=" + spaceId +
-                 ", minutesToExpire=" + minutesToExpire + ", ipAddress=" + ipAddress);
+                 ", minutesToExpire=" + minutesToExpire + ", ipAddress=" + ipAddress +
+                 ", redirectUrl=" + redirectUrl);
 
         // Will throw if bucket does not exist
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
-        GetSignedCookieTaskResult taskResult = new GetSignedCookieTaskResult();
 
         // Ensure that streaming service is on
         checkThatStreamingServiceIsEnabled(spaceId, TASK_NAME);
@@ -95,12 +99,12 @@ public class GetHlsSignedCookiesTaskRunner extends BaseHlsTaskRunner {
                                                " to enable secure streaming on this space.");
         }
         String domainName = existingDist.getDomainName();
-        taskResult.setStreamingHost(domainName);
 
         // Define expiration date/time
         Calendar expireCalendar = Calendar.getInstance();
         expireCalendar.add(Calendar.MINUTE, minutesToExpire);
 
+        Map<String, String> signedCookies = new HashMap<>();
         try {
             File cfKeyPathFile = getCfKeyPathFile(this.cfKeyPath);
 
@@ -116,15 +120,18 @@ public class GetHlsSignedCookiesTaskRunner extends BaseHlsTaskRunner {
                     null,
                     ipAddress);
 
-            Map<String, String> signedCookies = new HashMap<>();
             signedCookies.put(cookies.getPolicy().getKey(), cookies.getPolicy().getValue());
             signedCookies.put(cookies.getSignature().getKey(), cookies.getSignature().getValue());
             signedCookies.put(cookies.getKeyPairId().getKey(), cookies.getKeyPairId().getValue());
-            taskResult.setSignedCookies(signedCookies);
         } catch (InvalidKeySpecException | IOException e) {
             throw new RuntimeException("Error encountered attempting to create signed cookies in task " +
                                        TASK_NAME + ": " + e.getMessage(), e);
         }
+
+        String token = storeCookies(signedCookies, domainName, redirectUrl);
+
+        GetSignedCookiesUrlTaskResult taskResult = new GetSignedCookiesUrlTaskResult();
+        taskResult.setSignedCookiesUrl("https://" + domainName + "/cookies?token=" + token);
 
         String toReturn = taskResult.serialize();
         log.info("Result of " + TASK_NAME + " task: " + toReturn);
@@ -146,6 +153,22 @@ public class GetHlsSignedCookiesTaskRunner extends BaseHlsTaskRunner {
         } else {
             return new File(this.cfKeyPath);
         }
+    }
+
+    /*
+     * Stores signed cookies data and returns a token which can be used
+     * to retrieve the data from the /aux/cookies DuraStore path
+     */
+    private String storeCookies(Map<String, String> signedCookies,
+                                String streamingHost,
+                                String redirectUrl) {
+        SignedCookieData signedCookieData = new SignedCookieData();
+        signedCookieData.setSignedCookies(signedCookies);
+        signedCookieData.setStreamingHost(streamingHost);
+        signedCookieData.setRedirectUrl(redirectUrl);
+
+        String cookiesData = signedCookieData.serialize();
+        return StringDataStore.getInstance().storeData(cookiesData);
     }
 
 }

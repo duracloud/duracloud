@@ -11,7 +11,7 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.s3storageprovider.dto.DeleteStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.DisableStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskResult;
-import org.duracloud.s3storageprovider.dto.GetSignedCookieTaskResult;
+import org.duracloud.s3storageprovider.dto.GetSignedCookiesUrlTaskResult;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskResult;
 
@@ -149,9 +149,12 @@ public interface S3TaskClient {
      * @return
      * @throws ContentStoreException
      */
-    public GetUrlTaskResult getHlsUrl(final String spaceId, final String contentId) throws ContentStoreException;
+    public GetUrlTaskResult getHlsUrl(String spaceId,
+                                      String contentId) throws ContentStoreException;
 
     /**
+     * Generates signed cookies and provides a URL at which those cookies can be
+     * set on the user's browser
      *
      * @param spaceId
      * @param ipAddress
@@ -159,7 +162,9 @@ public interface S3TaskClient {
      * @return
      * @throws ContentStoreException
      */
-    public GetSignedCookieTaskResult getSignedCookies(final String spaceId, final String ipAddress,
-                                                      final int minutesToExpire) throws ContentStoreException;
+    public GetSignedCookiesUrlTaskResult getSignedCookiesUrl(String spaceId,
+                                                             String ipAddress,
+                                                             int minutesToExpire,
+                                                             String redirectUrl) throws ContentStoreException;
 
 }

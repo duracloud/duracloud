@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 
 import org.duracloud.common.data.StringDataStore;
 import org.duracloud.common.rest.RestUtil;
-import org.duracloud.s3storageprovider.dto.StoreSignedCookieTaskParameters;
+import org.duracloud.s3storageprovider.dto.SignedCookieData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,13 +57,11 @@ public class AuxRest extends BaseRest {
                 return responseNotFound("Token not found");
             }
 
-            StoreSignedCookieTaskParameters cookieTaskParams =
-                StoreSignedCookieTaskParameters.deserialize(cookiesData);
-
-            String streamingHost = cookieTaskParams.getStreamingHost();
+            SignedCookieData cookieData = SignedCookieData.deserialize(cookiesData);
+            String streamingHost = cookieData.getStreamingHost();
 
             // Build set of cookies
-            Map<String, String> cookies = cookieTaskParams.getSignedCookies();
+            Map<String, String> cookies = cookieData.getSignedCookies();
             ArrayList<NewCookie> responseCookies = new ArrayList<>();
             for (String cookieKey : cookies.keySet()) {
                 responseCookies.add(new NewCookie(cookieKey,
@@ -76,7 +74,7 @@ public class AuxRest extends BaseRest {
             }
 
             // Build redirect HTML
-            String redirectUrl = cookieTaskParams.getRedirectUrl();
+            String redirectUrl = cookieData.getRedirectUrl();
             String html = "<html><head><meta http-equiv='refresh' content='0;URL=\"" +
                           redirectUrl + "\"' /></head></html>";
 
