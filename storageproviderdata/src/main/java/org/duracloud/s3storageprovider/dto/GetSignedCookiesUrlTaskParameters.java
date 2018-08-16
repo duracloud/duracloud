@@ -17,7 +17,7 @@ import org.duracloud.error.TaskDataException;
  * @author Bill Branan
  * Date: Aug 6, 2018
  */
-public class GetSignedCookiesUrlTaskParameters extends GetUrlTaskParameters {
+public class GetSignedCookiesUrlTaskParameters {
 
     /**
      * Can be used as the value of the minutesToExpire parameter
@@ -117,6 +117,9 @@ public class GetSignedCookiesUrlTaskParameters extends GetUrlTaskParameters {
             if (null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
                 throw new TaskDataException(
                     "Task parameter 'spaceId' may not be empty");
+            } else if (null == params.getRedirectUrl() || params.getRedirectUrl().isEmpty()) {
+                throw new TaskDataException(
+                    "Task parameter 'redirectUrl' may not be empty");
             }
 
             return params;
