@@ -8,6 +8,7 @@
 package org.duracloud.s3storage;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.storage.domain.RetrievedContent;
@@ -42,7 +43,7 @@ public class StringDataStore {
         try {
             String token = generateToken();
             ensureSpaceExists();
-            s3StorageProvider.addHiddenContent(this.hiddenSpaceName, token, "application/json",
+            s3StorageProvider.addHiddenContent(this.hiddenSpaceName, token, Constants.MEDIA_TYPE_APPLICATION_JSON,
                                                IOUtil.writeStringToStream(cookieData));
             return token;
         } catch (Exception e) {

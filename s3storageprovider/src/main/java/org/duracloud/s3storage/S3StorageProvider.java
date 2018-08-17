@@ -271,6 +271,14 @@ public class S3StorageProvider extends StorageProviderBase {
         return HIDDEN_SPACE_PREFIX + getNewBucketName(spaceId);
     }
 
+    /**
+     * Creates a "hidden" space.  This space will not be returned by the StorageProvider.getSpaces() method.
+     * It can be accessed using the getSpace* methods.  You must know the name of the space in order to
+     * access it.
+     * @param spaceId The spaceId
+     * @param expirationInDays The number of days before content in the space is automatically deleted.
+     * @return
+     */
     public String createHiddenSpace(String spaceId, int expirationInDays) {
         String bucketName = getHiddenBucketName(spaceId);
         try {
@@ -279,7 +287,7 @@ public class S3StorageProvider extends StorageProviderBase {
             // Apply lifecycle config to bucket
 
             BucketLifecycleConfiguration.Rule expiresRule = new BucketLifecycleConfiguration.Rule()
-                .withId("ExpireInSeconds")
+                .withId("ExpirationRule")
                 .withExpirationInDays(expirationInDays)
                 .withStatus(BucketLifecycleConfiguration.ENABLED);
 
@@ -511,7 +519,7 @@ public class S3StorageProvider extends StorageProviderBase {
                              String contentId,
                              String contentMimeType,
                              InputStream content) {
-        log.debug("addContent(" + spaceId + ", " + contentId + ", " +
+        log.debug("addHiddenContent(" + spaceId + ", " + contentId + ", " +
                   contentMimeType + ")");
 
         // Will throw if bucket does not exist

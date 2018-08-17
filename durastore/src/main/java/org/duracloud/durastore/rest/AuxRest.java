@@ -55,7 +55,9 @@ public class AuxRest extends BaseRest {
     }
 
     /**
-     * Provides a listing of all available storage provider accounts
+     * Adds new cookies to the response headers based on the provided token.  The response body
+     * contains an HTML based redirect pointing to the redirect URL passed to the /durastore/task/get-signed-cookies
+     * (GetHlsSingedCookiesUrlTaskRunner) endpoint.
      *
      * @return 200 response with XML file listing stores
      */
@@ -107,12 +109,6 @@ public class AuxRest extends BaseRest {
         }
         StorageAccount account = storageAccountManager.getPrimaryStorageAccount();
         StorageProviderType type = account.getType();
-        if (!type.equals(StorageProviderType.AMAZON_S3)) {
-            throw new DuraCloudRuntimeException(
-                "The type of primary storage provider on " + storageAccountManager.getAccountName() + " must be " +
-                StorageProviderType.AMAZON_S3);
-        }
-
         return new S3StorageProvider(account.getUsername(), account.getPassword(), account.getOptions());
     }
 
