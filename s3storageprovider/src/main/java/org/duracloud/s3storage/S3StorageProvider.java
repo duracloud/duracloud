@@ -509,16 +509,17 @@ public class S3StorageProvider extends StorageProviderBase {
 
     /**
      * Adds content to a hidden space.
-     * @param spaceId hidden spaceId
+     *
+     * @param spaceId         hidden spaceId
      * @param contentId
      * @param contentMimeType
      * @param content
      * @return
      */
     public String addHiddenContent(String spaceId,
-                             String contentId,
-                             String contentMimeType,
-                             InputStream content) {
+                                   String contentId,
+                                   String contentMimeType,
+                                   InputStream content) {
         log.debug("addHiddenContent(" + spaceId + ", " + contentId + ", " +
                   contentMimeType + ")");
 

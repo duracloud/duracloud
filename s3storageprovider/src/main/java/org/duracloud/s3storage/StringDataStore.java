@@ -57,7 +57,6 @@ public class StringDataStore {
         }
     }
 
-
     /**
      * Retrieves string data given its token.
      *
@@ -78,7 +77,7 @@ public class StringDataStore {
     }
 
     /*
-     * Generates a random 10 digit token value
+     * Generates a random 20 digit token value
      */
     private String generateToken() {
         return RandomStringUtils.randomAlphanumeric(20);
