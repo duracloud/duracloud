@@ -43,6 +43,7 @@ public class Constants {
      * Mime types
      */
     public static final String TEXT_TSV = "text/tab-separated-values";
+    public static final String MEDIA_TYPE_APPLICATION_JSON = "application/json";
 
     /**
      * Content ID used to define a space snapshot
@@ -77,6 +78,4 @@ public class Constants {
      */
     public static final String HIDDEN_COOKIE_SPACE = "signedcookies";
 
-
-    public static final String MEDIA_TYPE_APPLICATION_JSON = "application/json";
 }
