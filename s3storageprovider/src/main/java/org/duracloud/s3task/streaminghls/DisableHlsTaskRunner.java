@@ -57,14 +57,14 @@ public class DisableHlsTaskRunner extends BaseHlsTaskRunner {
 
         removeHlsStreamingHostFromSpaceProps(spaceId);
 
-        // Ensure that there is an existing distribution for the given space
+        // Ensure that there at least one existing distribution for the given space
         DistributionSummary existingDist = getExistingDistribution(bucketName);
 
+        // Remove the bucket policy, which gives CloudFront access to the space
         if (existingDist != null) {
             s3Client.deleteBucketPolicy(bucketName);
         } else {
-            throw new RuntimeException("No streaming distribution " +
-                                       "exists for space " + spaceId);
+            throw new RuntimeException("No streaming distribution exists for space " + spaceId);
         }
 
         taskResult.setResult(TASK_NAME + " task completed successfully");
