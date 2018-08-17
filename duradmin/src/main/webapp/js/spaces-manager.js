@@ -3094,23 +3094,7 @@ $(function() {
         spaceProps.push([ 'Size', space.properties.size ]);
       }
 
-      if (space.properties.streamingHost) {
-        spaceProps.push([ 'RTMP Streaming Host', space.properties.streamingHost ]);
-      }
-
-      if (space.properties.streamingType) {
-        spaceProps.push([ 'RTMP Streaming Type', space.properties.streamingType ]);
-      }
-
-        if (space.properties.streamingHost) {
-            spaceProps.push([ 'HLS Streaming Host', space.properties.hlsStreamingHost ]);
-        }
-
-        if (space.properties.streamingType) {
-            spaceProps.push([ 'HLS Streaming Type', space.properties.hlsStreamingType ]);
-        }
-
-        var bitIntegrityReport = space.bitIntegrityReportProperties;
+      var bitIntegrityReport = space.bitIntegrityReportProperties;
       if (bitIntegrityReport) {
         var completionDate = bitIntegrityReport.completionDate;
         var result = bitIntegrityReport.result.toString().toLowerCase();
