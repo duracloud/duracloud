@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.JsonFactory;
@@ -78,7 +79,7 @@ public class SnapshotController {
 
         ContentStore store = getContentStore(storeId);
         // check that a snapshot is not already being generated.
-        response.setHeader("Content-Type", "application/json");
+        response.setHeader("Content-Type", MediaType.APPLICATION_JSON);
 
         if (isSnapshotInProgress(store, spaceId)) {
             response.setStatus(HttpStatus.SC_METHOD_FAILURE);

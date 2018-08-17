@@ -19,10 +19,11 @@ import com.amazonaws.services.cloudfront.CloudFrontCookieSigner;
 import com.amazonaws.services.cloudfront.model.DistributionSummary;
 import com.amazonaws.services.cloudfront.util.SignerUtils;
 import org.duracloud.StorageTaskConstants;
-import org.duracloud.common.data.StringDataStore;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3storage.StringDataStore;
 import org.duracloud.s3storageprovider.dto.GetSignedCookiesUrlTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetSignedCookiesUrlTaskResult;
 import org.duracloud.s3storageprovider.dto.SignedCookieData;
@@ -48,6 +49,8 @@ public class GetHlsSignedCookiesUrlTaskRunner extends BaseHlsTaskRunner {
 
     private static final String TASK_NAME = StorageTaskConstants.GET_SIGNED_COOKIES_URL_TASK_NAME;
 
+    private StringDataStore signedCookieStore;
+
     public GetHlsSignedCookiesUrlTaskRunner(StorageProvider s3Provider,
                                             S3StorageProvider unwrappedS3Provider,
                                             AmazonCloudFrontClient cfClient,
@@ -55,6 +58,8 @@ public class GetHlsSignedCookiesUrlTaskRunner extends BaseHlsTaskRunner {
                                             String cfKeyPath) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
+
+        this.signedCookieStore = new StringDataStore(Constants.HIDDEN_COOKIE_SPACE, this.unwrappedS3Provider);
         this.cfClient = cfClient;
         // Certificate identifier, an active trusted signer for the distribution
         this.cfKeyId = cfKeyId;
@@ -168,7 +173,8 @@ public class GetHlsSignedCookiesUrlTaskRunner extends BaseHlsTaskRunner {
         signedCookieData.setRedirectUrl(redirectUrl);
 
         String cookiesData = signedCookieData.serialize();
-        return StringDataStore.getInstance().storeData(cookiesData);
+
+        return signedCookieStore.storeData(cookiesData);
     }
 
 }
