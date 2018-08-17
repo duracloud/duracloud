@@ -79,6 +79,7 @@ public class S3StorageProvider extends StorageProviderBase {
         StorageClass.Standard;
 
     private static final String UTF_8 = StandardCharsets.UTF_8.name();
+    private static final String HIDDEN_SPACE_PREFIX = "hidden-";
 
     protected static final String HEADER_VALUE_PREFIX = UTF_8 + "''";
     protected static final String HEADER_KEY_SUFFIX = "*";
@@ -265,6 +266,45 @@ public class S3StorageProvider extends StorageProviderBase {
             throw new StorageException(err, e, RETRY);
         }
     }
+
+    private String getHiddenBucketName(String spaceId) {
+        return HIDDEN_SPACE_PREFIX + getNewBucketName(spaceId);
+    }
+
+    /**
+     * Creates a "hidden" space.  This space will not be returned by the StorageProvider.getSpaces() method.
+     * It can be accessed using the getSpace* methods.  You must know the name of the space in order to
+     * access it.
+     * @param spaceId The spaceId
+     * @param expirationInDays The number of days before content in the space is automatically deleted.
+     * @return
+     */
+    public String createHiddenSpace(String spaceId, int expirationInDays) {
+        String bucketName = getHiddenBucketName(spaceId);
+        try {
+            Bucket bucket = s3Client.createBucket(bucketName);
+
+            // Apply lifecycle config to bucket
+
+            BucketLifecycleConfiguration.Rule expiresRule = new BucketLifecycleConfiguration.Rule()
+                .withId("ExpirationRule")
+                .withExpirationInDays(expirationInDays)
+                .withStatus(BucketLifecycleConfiguration.ENABLED);
+
+            // Add the rules to a new BucketLifecycleConfiguration.
+            BucketLifecycleConfiguration configuration = new BucketLifecycleConfiguration()
+                .withRules(expiresRule);
+
+            s3Client.setBucketLifecycleConfiguration(bucketName, configuration);
+
+            return spaceId;
+        } catch (AmazonClientException e) {
+            String err = "Could not create S3 bucket with name " + bucketName
+                         + " due to error: " + e.getMessage();
+            throw new StorageException(err, e, RETRY);
+        }
+    }
+
 
     /**
      * Defines the storage policy for the primary S3 provider.
@@ -465,6 +505,53 @@ public class S3StorageProvider extends StorageProviderBase {
             }
         }
         return map;
+    }
+
+    /**
+     * Adds content to a hidden space.
+     * @param spaceId hidden spaceId
+     * @param contentId
+     * @param contentMimeType
+     * @param content
+     * @return
+     */
+    public String addHiddenContent(String spaceId,
+                             String contentId,
+                             String contentMimeType,
+                             InputStream content) {
+        log.debug("addHiddenContent(" + spaceId + ", " + contentId + ", " +
+                  contentMimeType + ")");
+
+        // Will throw if bucket does not exist
+        String bucketName = getBucketName(spaceId);
+
+        // Wrap the content in order to be able to retrieve a checksum
+
+        if (contentMimeType == null || contentMimeType.equals("")) {
+            contentMimeType = DEFAULT_MIMETYPE;
+        }
+
+        ObjectMetadata objMetadata = new ObjectMetadata();
+        objMetadata.setContentType(contentMimeType);
+
+        PutObjectRequest putRequest = new PutObjectRequest(bucketName,
+                                                           contentId,
+                                                           content,
+                                                           objMetadata);
+        putRequest.setStorageClass(DEFAULT_STORAGE_CLASS);
+        putRequest.setCannedAcl(CannedAccessControlList.Private);
+
+        try {
+            PutObjectResult putResult = s3Client.putObject(putRequest);
+            return putResult.getETag();
+        } catch (AmazonClientException e) {
+            String err = "Could not add content " + contentId +
+                         " with type " + contentMimeType +
+                         " to S3 bucket " + bucketName + " due to error: " +
+                         e.getMessage();
+            throw new StorageException(err, e, NO_RETRY);
+        }
+
     }
 
     /**
@@ -1024,7 +1111,7 @@ public class S3StorageProvider extends StorageProviderBase {
         for (Bucket bucket : buckets) {
             String bucketName = bucket.getName();
             spaceId = spaceId.replace(".", "[.]");
-            if (bucketName.matches("[\\w]{20}[.]" + spaceId)) {
+            if (bucketName.matches("(" + HIDDEN_SPACE_PREFIX + ")?[\\w]{20}[.]" + spaceId)) {
                 return bucketName;
             }
         }
