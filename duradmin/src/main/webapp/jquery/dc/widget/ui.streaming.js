@@ -48,6 +48,18 @@
                 return streamingHolder;
             },
 
+            _refresh: function() {
+                var that = this;
+                dc.store.GetSpace2(that.options.space).success(function(data) {
+                    that.options.space = data.space;
+                    var contentPane = that.getContent();
+                    contentPane.empty();
+                    contentPane.append(that._createUI());
+                }).fail(function() {
+                    alert("Failed to retrieve space.");
+                });
+            },
+
 			_createUI: function () {
                 var that = this;
                 var space = that.options.space;
@@ -59,6 +71,20 @@
                                             .append(this._createSwitchHolder("rtmpSwitchHolder", "RTMP Streaming"))
                                             .append("<div><p>Enables Streaming using RTMP (Real-Time Messaging Protocol for this space.  </p></div>");
                 panel.append(rtmpSwitchControl);
+
+                var props = [];
+
+                if (space.properties.streamingHost) {
+                    props.push([ 'RTMP Host', space.properties.streamingHost ]);
+                }
+
+                if (space.properties.streamingType) {
+                    props.push([ 'RTMP Type', space.properties.streamingType ]);
+                }
+
+                if(props.length > 0){
+                    panel.append(dc.createTable(props));
+                }
 
                 // deploy/undeploy switch
                 // definition and bindings
@@ -76,6 +102,7 @@
                         future.success();
                     }).always(function() {
                         rtmpSwitchControl.idle();
+                        that._refresh();
                     });
                 }).bind("turnOn", function(evt, future) {
                     rtmpSwitchControl.busy();
@@ -83,6 +110,7 @@
                         future.success();
                     }).always(function() {
                         rtmpSwitchControl.idle();
+                        that._refresh();
                     });
                 });
 
@@ -107,6 +135,7 @@
                         future.success();
                     }).always(function() {
                         hlsSwitchControl.idle();
+                        that._refresh();
                     });
                 }).bind("turnOn", function(evt, future) {
                     hlsSwitchControl.busy();
@@ -114,9 +143,23 @@
                         future.success();
                     }).always(function() {
                         hlsSwitchControl.idle();
+                        that._refresh();
                     });
                 });
 
+                props = [];
+
+                if (space.properties.hlsStreamingHost) {
+                    props.push([ 'HLS Host', space.properties.hlsStreamingHost ]);
+                }
+
+                if (space.properties.hlsStreamingType) {
+                    props.push([ 'HLS Type', space.properties.hlsStreamingType ]);
+                }
+
+                if(props.length > 0){
+                    panel.append(dc.createTable(props));
+                }
 
                 return panel;
             }
