@@ -79,7 +79,7 @@ public class S3StorageProvider extends StorageProviderBase {
         StorageClass.Standard;
 
     private static final String UTF_8 = StandardCharsets.UTF_8.name();
-    private static final String HIDDEN_SPACE_PREFIX = "hidden-";
+    protected static final String HIDDEN_SPACE_PREFIX = "hidden-";
 
     protected static final String HEADER_VALUE_PREFIX = UTF_8 + "''";
     protected static final String HEADER_KEY_SUFFIX = "*";

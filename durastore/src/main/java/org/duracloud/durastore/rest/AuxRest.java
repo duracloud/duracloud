@@ -18,18 +18,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.common.rest.RestUtil;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StringDataStore;
+import org.duracloud.s3storage.StringDataStoreFactory;
 import org.duracloud.s3storageprovider.dto.SignedCookieData;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
-import org.duracloud.storage.domain.StorageProviderType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -42,16 +41,22 @@ import org.springframework.stereotype.Component;
 public class AuxRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(AuxRest.class);
 
-    private RestUtil restUtil;
-
-    private StringDataStore dataStore;
+    private StringDataStoreFactory stringDataStoreFactory;
 
     @Inject
     private StorageAccountManager storageAccountManager;
 
-    @Autowired
-    public AuxRest(RestUtil restUtil) {
-        this.restUtil = restUtil;
+    public AuxRest() {
+        this(new StringDataStoreFactory());
+    }
+
+    protected AuxRest(StringDataStoreFactory stringDataStoreFactory) {
+        this.stringDataStoreFactory = stringDataStoreFactory;
+    }
+
+    @VisibleForTesting
+    protected void setStorageAccountManager(StorageAccountManager storageAccountManager) {
+        this.storageAccountManager = storageAccountManager;
     }
 
     /**
@@ -67,7 +72,7 @@ public class AuxRest extends BaseRest {
         try {
             S3StorageProvider s3StorageProvider = getS3StorageProvider();
 
-            StringDataStore dataStore = new StringDataStore(Constants.HIDDEN_COOKIE_SPACE, s3StorageProvider);
+            StringDataStore dataStore = this.stringDataStoreFactory.create(Constants.HIDDEN_COOKIE_SPACE, s3StorageProvider);
             String cookiesData = dataStore.retrieveData(token);
 
             if (null == cookiesData) {
@@ -107,8 +112,8 @@ public class AuxRest extends BaseRest {
         if (!storageAccountManager.isInitialized()) {
             throw new DuraCloudRuntimeException("storageAccountManager is not initialized!!!");
         }
-        StorageAccount account = storageAccountManager.getPrimaryStorageAccount();
-        StorageProviderType type = account.getType();
+
+        final StorageAccount account = storageAccountManager.getPrimaryStorageAccount();
         return new S3StorageProvider(account.getUsername(), account.getPassword(), account.getOptions());
     }
 
