@@ -114,7 +114,7 @@ public class DeleteHlsTaskRunnerTest extends HlsTaskRunnerTestBase {
      * bucket and is deleted.
      */
     @Test
-    public void testPerformTaskSuccess() {
+    public void testPerformTaskSuccess() throws Exception {
         // Setup mocks
         EasyMock.expect(unwrappedS3Provider.getBucketName(EasyMock.isA(String.class)))
                 .andReturn(bucketName);
@@ -176,6 +176,8 @@ public class DeleteHlsTaskRunnerTest extends HlsTaskRunnerTestBase {
         Map<String, String> spaceProps = spacePropsCapture.getValue();
         assertFalse(spaceProps.containsKey(HLS_STREAMING_HOST_PROP));
         assertFalse(spaceProps.containsKey(HLS_STREAMING_TYPE_PROP));
+
+        Thread.sleep(2000); // Give time for delete thread to execute before mock verify
     }
 
 }
