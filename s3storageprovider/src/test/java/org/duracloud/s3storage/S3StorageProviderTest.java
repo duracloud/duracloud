@@ -7,6 +7,13 @@
  */
 package org.duracloud.s3storage;
 
+import static org.easymock.EasyMock.capture;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.newCapture;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -31,6 +38,7 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.CopyObjectResult;
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -40,9 +48,12 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
+import org.duracloud.common.util.IOUtil;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.NotFoundException;
@@ -80,8 +91,12 @@ public class S3StorageProviderTest {
         }
 
         if (null != s3Client) {
-            EasyMock.verify(s3Client);
+            verify(s3Client);
         }
+    }
+
+    private void setupS3Client() {
+        s3Client = createMock("AmazonS3Client", AmazonS3Client.class);
     }
 
     @Test
@@ -115,19 +130,19 @@ public class S3StorageProviderTest {
     }
 
     private GetObjectRequest setupTestGetContent(String range) {
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        setupS3Client();
         S3StorageProvider provider = new S3StorageProvider(s3Client, accessKey, null);
 
         String bucketName = accessKey + "." + spaceId;
-        Bucket bucket = EasyMock.createMock(Bucket.class);
-        EasyMock.expect(this.s3Client.listBuckets()).andReturn(Arrays.asList(bucket));
-        EasyMock.expect(bucket.getName()).andReturn(bucketName);
+        Bucket bucket = createMock(Bucket.class);
+        expect(this.s3Client.listBuckets()).andReturn(Arrays.asList(bucket));
+        expect(bucket.getName()).andReturn(bucketName);
 
-        Capture<GetObjectRequest> getObjectRequestCapture = EasyMock.newCapture();
-        EasyMock.expect(s3Client.getObject(EasyMock.capture(getObjectRequestCapture)))
+        Capture<GetObjectRequest> getObjectRequestCapture = newCapture();
+        expect(s3Client.getObject(capture(getObjectRequestCapture)))
                 .andReturn(new S3Object());
 
-        EasyMock.replay(s3Client, bucket);
+        replay(s3Client, bucket);
 
         if (null == range) {
             provider.getContent(spaceId, contentId);
@@ -275,27 +290,27 @@ public class S3StorageProviderTest {
     }
 
     private Capture<PutObjectRequest> createS3ClientAddContent(String checksum) {
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        setupS3Client();
         addListBucketsMock();
 
-        PutObjectResult result = EasyMock.createMock("PutObjectResult",
+        PutObjectResult result = createMock("PutObjectResult",
                                                      PutObjectResult.class);
-        EasyMock.expect(result.getETag()).andReturn(checksum);
-        EasyMock.replay(result);
+        expect(result.getETag()).andReturn(checksum);
+        replay(result);
 
         Capture<PutObjectRequest> capturedRequest = new Capture<>();
-        EasyMock.expect(s3Client.putObject(EasyMock.capture(capturedRequest)))
+        expect(s3Client.putObject(capture(capturedRequest)))
                 .andReturn(result);
 
-        EasyMock.replay(s3Client);
+        replay(s3Client);
         return capturedRequest;
     }
 
     private Capture<PutObjectRequest> createS3ClientAddContentWithClientError(String checksum) {
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        setupS3Client();
         addListBucketsMock();
 
-        PutObjectResult result = EasyMock.createMock("PutObjectResult",
+        PutObjectResult result = createMock("PutObjectResult",
                                                      PutObjectResult.class);
 
         AmazonS3Exception ex = new AmazonS3Exception("message");
@@ -303,48 +318,48 @@ public class S3StorageProviderTest {
         ex.setStatusCode(503);
         ex.setErrorMessage("message");
 
-        EasyMock.expect(result.getETag()).andThrow(ex);
-        EasyMock.replay(result);
+        expect(result.getETag()).andThrow(ex);
+        replay(result);
 
         ObjectMetadata objectMetadata =
-            EasyMock.createMock("ObjectMetadata", ObjectMetadata.class);
-        EasyMock.expect(objectMetadata.getETag()).andReturn("\"oldchecksum\"");
-        EasyMock.expect(objectMetadata.getETag())
+            createMock("ObjectMetadata", ObjectMetadata.class);
+        expect(objectMetadata.getETag()).andReturn("\"oldchecksum\"");
+        expect(objectMetadata.getETag())
                 .andReturn("\"" + checksum + "\"");
-        EasyMock.replay(objectMetadata);
+        replay(objectMetadata);
 
-        EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
+        expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
                                                    EasyMock.isA(String.class)))
                 .andThrow(new AmazonClientException("not found."));
 
-        EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
+        expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
                                                    EasyMock.isA(String.class)))
                 .andReturn(objectMetadata)
                 .times(2);
 
         Capture<PutObjectRequest> capturedRequest = new Capture<>();
-        EasyMock.expect(s3Client.putObject(EasyMock.capture(capturedRequest)))
+        expect(s3Client.putObject(capture(capturedRequest)))
                 .andReturn(result);
 
-        EasyMock.replay(s3Client);
+        replay(s3Client);
         return capturedRequest;
     }
 
     private Capture<PutObjectRequest> createS3ClientAddContentInvalidChecksum(
         String contentId) {
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        setupS3Client();
         addListBucketsMock();
 
-        PutObjectResult result = EasyMock.createMock("PutObjectResult",
+        PutObjectResult result = createMock("PutObjectResult",
                                                      PutObjectResult.class);
-        EasyMock.expect(result.getETag()).andReturn("invalid-checksum-value");
-        EasyMock.replay(result);
+        expect(result.getETag()).andReturn("invalid-checksum-value");
+        replay(result);
 
         Capture<PutObjectRequest> capturedRequest = new Capture<>();
-        EasyMock.expect(s3Client.putObject(EasyMock.capture(capturedRequest)))
+        expect(s3Client.putObject(capture(capturedRequest)))
                 .andReturn(result);
 
-        EasyMock.replay(s3Client);
+        replay(s3Client);
         return capturedRequest;
     }
 
@@ -357,7 +372,7 @@ public class S3StorageProviderTest {
         for (String sid : spaceIds) {
             buckets.add(new Bucket(accessKey + "." + sid));
         }
-        IExpectationSetters<List<Bucket>> expectationSetter = EasyMock.expect(s3Client.listBuckets())
+        IExpectationSetters<List<Bucket>> expectationSetter = expect(s3Client.listBuckets())
                                                                       .andReturn(buckets);
 
         if (times == null) {
@@ -417,31 +432,31 @@ public class S3StorageProviderTest {
     }
 
     private Capture<CopyObjectRequest> createS3ClientCopyContent(String checksum) {
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        setupS3Client();
 
         addListBucketsMock();
-        EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
+        expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
                                                    EasyMock.isA(String.class)))
                 .andReturn(null);
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.addUserMetadata(S3StorageProvider.encodeHeaderKey(StorageProvider.PROPERTIES_CONTENT_CHECKSUM),
                                        S3StorageProvider.encodeHeaderValue(checksum));
-        EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
+        expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
                                                    EasyMock.isA(String.class)))
                 .andReturn(objectMetadata);
 
-        CopyObjectResult result = EasyMock.createMock("CopyObjectResult",
+        CopyObjectResult result = createMock("CopyObjectResult",
                                                       CopyObjectResult.class);
-        EasyMock.expect(result.getETag()).andReturn(checksum);
-        EasyMock.replay(result);
+        expect(result.getETag()).andReturn(checksum);
+        replay(result);
 
         Capture<CopyObjectRequest> capturedRequest =
             new Capture<CopyObjectRequest>();
-        EasyMock.expect(s3Client.copyObject(EasyMock.capture(capturedRequest)))
+        expect(s3Client.copyObject(capture(capturedRequest)))
                 .andReturn(result);
 
-        EasyMock.replay(s3Client);
+        replay(s3Client);
         return capturedRequest;
     }
 
@@ -480,20 +495,20 @@ public class S3StorageProviderTest {
 
     @Test
     public void testDoesContentExist() {
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        setupS3Client();
 
-        EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
+        expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
                                                    EasyMock.isA(String.class)))
                 .andThrow(new AmazonClientException("message"));
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         String etag = "etag";
         objectMetadata.setHeader(Headers.ETAG, etag);
-        EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
+        expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
                                                    EasyMock.isA(String.class)))
                 .andReturn(objectMetadata);
 
-        EasyMock.replay(s3Client);
+        replay(s3Client);
 
         Map<String, String> options = new HashMap<String, String>();
         S3StorageProvider provider =
@@ -509,7 +524,7 @@ public class S3StorageProviderTest {
 
     @Test
     public void testGetSpaceContentsChunked() throws Exception {
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        setupS3Client();
         String prefix = null;
         long maxResults = 2;
         String marker = null;
@@ -517,9 +532,9 @@ public class S3StorageProviderTest {
         addListBucketsMock();
 
         ObjectListing objectListing =
-            EasyMock.createMock("ObjectListing", ObjectListing.class);
+            createMock("ObjectListing", ObjectListing.class);
         setUpListObjects(objectListing, 1);
-        EasyMock.replay(s3Client, objectListing);
+        replay(s3Client, objectListing);
 
         S3StorageProvider provider = getProvider();
         List<String> contentIds = provider.getSpaceContentsChunked(spaceId,
@@ -529,7 +544,7 @@ public class S3StorageProviderTest {
         Assert.assertNotNull(contentIds);
         Assert.assertEquals("item0", contentIds.get(0));
 
-        EasyMock.verify(s3Client, objectListing);
+        verify(s3Client, objectListing);
     }
 
     private void setUpListObjects(ObjectListing objectListing, int numItems) {
@@ -540,10 +555,10 @@ public class S3StorageProviderTest {
             objectSummaries.add(summary);
         }
 
-        EasyMock.expect(
+        expect(
             s3Client.listObjects(EasyMock.isA(ListObjectsRequest.class)))
                 .andReturn(objectListing);
-        EasyMock.expect(objectListing.getObjectSummaries())
+        expect(objectListing.getObjectSummaries())
                 .andReturn(objectSummaries);
     }
 
@@ -554,7 +569,7 @@ public class S3StorageProviderTest {
 
     @Test
     public void testGetAllSpaceProperties() throws Exception {
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        setupS3Client();
 
         addListBucketsMock();
 
@@ -563,16 +578,16 @@ public class S3StorageProviderTest {
         bucketTags.put("tag-two", "tagtwo+test.com");
         BucketTaggingConfiguration tagConfig =
             new BucketTaggingConfiguration().withTagSets(new TagSet(bucketTags));
-        EasyMock.expect(
+        expect(
             s3Client.getBucketTaggingConfiguration(EasyMock.isA(String.class)))
                 .andReturn(tagConfig);
 
         ObjectListing objectListing =
-            EasyMock.createMock("ObjectListing", ObjectListing.class);
+            createMock("ObjectListing", ObjectListing.class);
         setUpListObjects(objectListing, 1);
         setUpListObjects(objectListing, 0);
 
-        EasyMock.replay(s3Client, objectListing);
+        replay(s3Client, objectListing);
 
         S3StorageProvider provider = getProvider();
         Map<String, String> spaceProps = provider.getAllSpaceProperties(spaceId);
@@ -583,23 +598,23 @@ public class S3StorageProviderTest {
                             spaceProps.get(
                                 StorageProvider.PROPERTIES_SPACE_COUNT));
 
-        EasyMock.verify(s3Client, objectListing);
+        verify(s3Client, objectListing);
     }
 
     @Test
     public void testDoSetSpaceProperties() {
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        setupS3Client();
         String spaceId = "space-id";
 
         addListBucketsMock();
 
         // Add props as tags
-        EasyMock.expect(
+        expect(
             s3Client.getBucketTaggingConfiguration(EasyMock.isA(String.class)))
                 .andThrow(new NotFoundException(spaceId));
         Capture<BucketTaggingConfiguration> tagConfigCap = new Capture<>();
         s3Client.setBucketTaggingConfiguration(EasyMock.isA(String.class),
-                                               EasyMock.capture(tagConfigCap));
+                                               capture(tagConfigCap));
         EasyMock.expectLastCall().once();
 
         S3StorageProvider provider = getProvider();
@@ -610,7 +625,7 @@ public class S3StorageProviderTest {
         List<Bucket> buckets = new ArrayList<>();
         buckets.add(bucket);
 
-        EasyMock.replay(s3Client);
+        replay(s3Client);
 
         Map<String, String> spaceProps = new HashMap<>();
         spaceProps.put("one", "one-value");
@@ -628,7 +643,7 @@ public class S3StorageProviderTest {
         Assert.assertNotNull(
             props.get(StorageProvider.PROPERTIES_SPACE_CREATED));
 
-        EasyMock.verify(s3Client);
+        verify(s3Client);
     }
 
     /**
@@ -645,40 +660,40 @@ public class S3StorageProviderTest {
     }
 
     protected void testCreateSpace(String spaceId) {
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        setupS3Client();
         List<String> spaceIds = new LinkedList<>();
         spaceIds.add("space-id");
         addListBucketsMock(1, spaceIds);
         String bucketName = accessKey + "." + spaceId;
 
         S3StorageProvider provider = getProvider();
-        Bucket bucket = EasyMock.createMock(Bucket.class);
-        EasyMock.expect(bucket.getName()).andReturn(bucketName);
-        EasyMock.expect(bucket.getCreationDate()).andReturn(new Date());
-        EasyMock.expect(this.s3Client.createBucket(bucketName)).andReturn(bucket);
+        Bucket bucket = createMock(Bucket.class);
+        expect(bucket.getName()).andReturn(bucketName);
+        expect(bucket.getCreationDate()).andReturn(new Date());
+        expect(this.s3Client.createBucket(bucketName)).andReturn(bucket);
 
         s3Client.deleteBucketLifecycleConfiguration(bucketName);
         EasyMock.expectLastCall().once();
         Capture<BucketLifecycleConfiguration> lifecycleConfigCapture = new Capture<>();
-        s3Client.setBucketLifecycleConfiguration(EasyMock.eq(bucketName),
-                                                 EasyMock.capture(lifecycleConfigCapture));
+        s3Client.setBucketLifecycleConfiguration(eq(bucketName),
+                                                 capture(lifecycleConfigCapture));
         EasyMock.expectLastCall().once();
 
-        EasyMock.expect(this.s3Client.listBuckets()).andReturn(Arrays.asList(bucket));
+        expect(this.s3Client.listBuckets()).andReturn(Arrays.asList(bucket));
 
         List<String> spaceIds2 = new LinkedList<>(spaceIds);
         spaceIds2.add(spaceId);
         addListBucketsMock(2, spaceIds2);
-        EasyMock.expect(s3Client.getBucketTaggingConfiguration(bucketName))
+        expect(s3Client.getBucketTaggingConfiguration(bucketName))
                 .andReturn(new BucketTaggingConfiguration());
-        s3Client.setBucketTaggingConfiguration(EasyMock.eq(bucketName),
+        s3Client.setBucketTaggingConfiguration(eq(bucketName),
                                                EasyMock.isA(BucketTaggingConfiguration.class));
         EasyMock.expectLastCall().once();
 
-        EasyMock.expect(s3Client.listObjects(EasyMock.isA(ListObjectsRequest.class)))
+        expect(s3Client.listObjects(EasyMock.isA(ListObjectsRequest.class)))
                 .andReturn(new ObjectListing());
 
-        EasyMock.replay(s3Client, bucket);
+        replay(s3Client, bucket);
 
         provider.createSpace(spaceId);
 
@@ -688,7 +703,7 @@ public class S3StorageProviderTest {
         assertEquals(30, transition.getDays());
         assertEquals(StorageClass.StandardInfrequentAccess, transition.getStorageClass());
 
-        EasyMock.verify(s3Client, bucket);
+        verify(s3Client, bucket);
     }
 
     @Test
@@ -709,5 +724,91 @@ public class S3StorageProviderTest {
         Assert.assertEquals(value,
                             S3StorageProvider.decodeHeaderValue(encodedValue));
 
+    }
+
+    private String getBucketName(String hiddenSpace) {
+        return S3StorageProvider.HIDDEN_SPACE_PREFIX + accessKey + "." + hiddenSpace;
+    }
+
+    @Test
+    public void testCreateHiddenSpace() {
+        setupS3Client();
+        S3StorageProvider provider = getProvider();
+        String hiddenSpace = "my-hidden-space";
+        String bucketName = getBucketName(hiddenSpace);
+        Capture<BucketLifecycleConfiguration> blcConfig = newCapture();
+        Bucket bucket = createMock(Bucket.class);
+
+        expect(s3Client.createBucket(bucketName)).andReturn(bucket);
+        s3Client.setBucketLifecycleConfiguration(eq(bucketName), capture(blcConfig));
+        replay(s3Client);
+
+        String spaceId = provider.createHiddenSpace(hiddenSpace, 1);
+
+        assertEquals("returned spaceId is not correct", hiddenSpace, spaceId);
+        BucketLifecycleConfiguration config = blcConfig.getValue();
+        assertEquals("one rule is configured", 1, config.getRules().size());
+        BucketLifecycleConfiguration.Rule rule = config.getRules().get(0);
+        assertEquals("rule is enabled", BucketLifecycleConfiguration.ENABLED, rule.getStatus());
+        assertEquals("expires = 1", 1, rule.getExpirationInDays());
+    }
+
+    @Test
+    public void testAddHiddenContent() throws Exception {
+        setupS3Client();
+        S3StorageProvider provider = getProvider();
+        String hiddenSpace = "my-hidden-space";
+        String etag = "etag";
+        String bucketName = getBucketName(hiddenSpace);
+        Bucket bucket = createMock("ListedBucket", Bucket.class);
+        String data = "contents";
+        InputStream content = IOUtil.writeStringToStream(data);
+        String mimeType = "mime";
+        Capture<PutObjectRequest> requestCapture = newCapture();
+        PutObjectResult result = createMock("AddHiddenContentResult", PutObjectResult.class);
+
+        expect(result.getETag()).andReturn(etag);
+        expect(s3Client.putObject(capture(requestCapture))).andReturn(result);
+        expect(bucket.getName()).andReturn(bucketName);
+        expect(s3Client.listBuckets()).andReturn(Arrays.asList(bucket));
+        replay(s3Client, bucket, result);
+
+        String resultETag = provider.addHiddenContent(hiddenSpace, contentId, mimeType, content);
+
+        PutObjectRequest request = requestCapture.getValue();
+        assertEquals("etag must be returned", etag, resultETag);
+        assertEquals("unexpected bucket name", bucketName, request.getBucketName());
+        assertEquals("unexpected mimetype", mimeType, request.getMetadata().getContentType());
+        assertEquals("unexpected access control list", CannedAccessControlList.Private, request.getCannedAcl());
+        verify(result, bucket);
+    }
+
+    @Test
+    public void testGetHiddenContent() {
+        setupS3Client();
+        S3StorageProvider provider = getProvider();
+        String hiddenSpace = "my-hidden-space";
+        String bucketName = getBucketName(hiddenSpace);
+        Bucket bucket = createMock("ListedBucket", Bucket.class);
+        ObjectMetadata metadata = new ObjectMetadata();
+
+        expect(bucket.getName()).andReturn(bucketName);
+        expect(s3Client.listBuckets()).andReturn(Arrays.asList(bucket));
+
+        Capture<GetObjectRequest> requestCapture = newCapture();
+        S3Object result = createMock("HiddenObject", S3Object.class);
+        S3ObjectInputStream is = createMock("S3ObjectInputstream", S3ObjectInputStream.class);
+        expect(result.getObjectContent()).andReturn(is);
+        expect(result.getObjectMetadata()).andReturn(metadata);
+        expect(s3Client.getObject(capture(requestCapture))).andReturn(result);
+        replay(s3Client, bucket, result, is);
+
+        RetrievedContent retrievedContent = provider.getContent(hiddenSpace, contentId);
+        GetObjectRequest request = requestCapture.getValue();
+        assertEquals("bucket name does not match expectation", bucketName, request.getBucketName());
+        assertEquals("content id does not match expectation", contentId, request.getKey());
+
+        assertEquals("s3 object inputstream was not set on retrieved content", is, retrievedContent.getContentStream());
+        verify(result, bucket, result);
     }
 }
