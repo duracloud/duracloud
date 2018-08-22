@@ -18,7 +18,6 @@ import java.util.Map;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
-import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StringDataStore;
 import org.duracloud.s3storage.StringDataStoreFactory;
 import org.duracloud.s3storageprovider.dto.SignedCookieData;
@@ -55,16 +54,10 @@ public class AuxRestTest extends EasyMockSupport {
 
     @Before
     public void setup() {
-        expect(accountManager.isInitialized()).andReturn(true);
-        expect(accountManager.getPrimaryStorageAccount()).andReturn(account);
-        expect(account.getUsername()).andReturn("username");
-        expect(account.getPassword()).andReturn("password");
-        expect(account.getOptions()).andReturn(new HashMap<>());
-        expect(stringDataStoreFactory.create(isA(String.class), isA(S3StorageProvider.class))).andReturn(
+        expect(stringDataStoreFactory.create(isA(String.class))).andReturn(
             stringDataStore);
-
-        this.auxRest = new AuxRest(stringDataStoreFactory);
-        this.auxRest.setStorageAccountManager(accountManager);
+        this.auxRest = new AuxRest();
+        this.auxRest.setStringDataStoreFactory(stringDataStoreFactory);
     }
 
     @After

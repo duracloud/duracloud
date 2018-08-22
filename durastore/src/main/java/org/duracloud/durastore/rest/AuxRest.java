@@ -20,13 +20,9 @@ import javax.ws.rs.core.Response;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.duracloud.common.constant.Constants;
-import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StringDataStore;
 import org.duracloud.s3storage.StringDataStoreFactory;
 import org.duracloud.s3storageprovider.dto.SignedCookieData;
-import org.duracloud.storage.domain.StorageAccount;
-import org.duracloud.storage.domain.StorageAccountManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -41,22 +37,12 @@ import org.springframework.stereotype.Component;
 public class AuxRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(AuxRest.class);
 
+    @Inject
     private StringDataStoreFactory stringDataStoreFactory;
 
-    @Inject
-    private StorageAccountManager storageAccountManager;
-
-    public AuxRest() {
-        this(new StringDataStoreFactory());
-    }
-
-    protected AuxRest(StringDataStoreFactory stringDataStoreFactory) {
-        this.stringDataStoreFactory = stringDataStoreFactory;
-    }
-
     @VisibleForTesting
-    protected void setStorageAccountManager(StorageAccountManager storageAccountManager) {
-        this.storageAccountManager = storageAccountManager;
+    protected void setStringDataStoreFactory(StringDataStoreFactory stringDataStoreFactory) {
+        this.stringDataStoreFactory = stringDataStoreFactory;
     }
 
     /**
@@ -70,9 +56,7 @@ public class AuxRest extends BaseRest {
     @GET
     public Response getCookies(@QueryParam("token") String token) {
         try {
-            S3StorageProvider s3StorageProvider = getS3StorageProvider();
-
-            StringDataStore dataStore = this.stringDataStoreFactory.create(Constants.HIDDEN_COOKIE_SPACE, s3StorageProvider);
+            StringDataStore dataStore = this.stringDataStoreFactory.create(Constants.HIDDEN_COOKIE_SPACE);
             String cookiesData = dataStore.retrieveData(token);
 
             if (null == cookiesData) {
@@ -102,19 +86,8 @@ public class AuxRest extends BaseRest {
 
             return Response.ok(html, MediaType.TEXT_HTML_TYPE)
                            .cookie(responseCookies.toArray(new NewCookie[responseCookies.size()])).build();
-
         } catch (Exception e) {
             return responseBad(e);
         }
     }
-
-    private S3StorageProvider getS3StorageProvider() {
-        if (!storageAccountManager.isInitialized()) {
-            throw new DuraCloudRuntimeException("storageAccountManager is not initialized!!!");
-        }
-
-        final StorageAccount account = storageAccountManager.getPrimaryStorageAccount();
-        return new S3StorageProvider(account.getUsername(), account.getPassword(), account.getOptions());
-    }
-
 }
