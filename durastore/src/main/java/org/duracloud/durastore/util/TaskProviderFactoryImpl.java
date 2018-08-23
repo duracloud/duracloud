@@ -16,6 +16,7 @@ import org.duracloud.glaciertask.GlacierTaskProvider;
 import org.duracloud.mill.manifest.ManifestStore;
 import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3storage.StringDataStoreFactory;
 import org.duracloud.s3task.S3TaskProvider;
 import org.duracloud.snapshotstorage.ChronopolisStorageProvider;
 import org.duracloud.snapshotstorage.DpnStorageProvider;
@@ -84,6 +85,8 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                 S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
             AmazonCloudFrontClient cfClient =
                 S3ProviderUtil.getAmazonCloudFrontClient(username, password);
+            StringDataStoreFactory dataStoreFactory =
+                new StringDataStoreFactory(storageAccountManager);
             Map<String, String> opts = account.getOptions();
             String cfAccountId =
                 opts.get(StorageAccount.OPTS.CF_ACCOUNT_ID.name());
@@ -95,6 +98,7 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                                               unwrappedS3Provider,
                                               s3Client,
                                               cfClient,
+                                              dataStoreFactory,
                                               cfAccountId,
                                               cfKeyId,
                                               cfKeyPath,
