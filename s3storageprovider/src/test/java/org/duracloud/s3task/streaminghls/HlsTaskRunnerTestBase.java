@@ -45,6 +45,8 @@ public class HlsTaskRunnerTestBase {
 
     protected String cfKeyId = "cf-key-id";
     protected String cfKeyPath;
+    protected String cfAccountId = "test";
+    protected String dcHost = "test.duracloud.org";
 
     protected String spaceId = "space-id";
     protected String contentId = "content-id";
