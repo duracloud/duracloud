@@ -10,6 +10,7 @@ package org.duracloud.s3task;
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3storage.StringDataStoreFactory;
 import org.duracloud.s3task.storage.SetStoragePolicyTaskRunner;
 import org.duracloud.s3task.streaming.DeleteStreamingTaskRunner;
 import org.duracloud.s3task.streaming.DisableStreamingTaskRunner;
@@ -19,7 +20,7 @@ import org.duracloud.s3task.streaming.GetUrlTaskRunner;
 import org.duracloud.s3task.streaminghls.DeleteHlsTaskRunner;
 import org.duracloud.s3task.streaminghls.DisableHlsTaskRunner;
 import org.duracloud.s3task.streaminghls.EnableHlsTaskRunner;
-import org.duracloud.s3task.streaminghls.GetHlsSignedCookiesTaskRunner;
+import org.duracloud.s3task.streaminghls.GetHlsSignedCookiesUrlTaskRunner;
 import org.duracloud.s3task.streaminghls.GetUrlHlsTaskRunner;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProviderBase;
@@ -37,10 +38,12 @@ public class S3TaskProvider extends TaskProviderBase {
                           S3StorageProvider unwrappedS3Provider,
                           AmazonS3Client s3Client,
                           AmazonCloudFrontClient cfClient,
+                          StringDataStoreFactory dataStoreFactory,
                           String cfAccountId,
                           String cfKeyId,
                           String cfKeyPath,
-                          String storeId) {
+                          String storeId,
+                          String dcHost) {
         super(storeId);
         log = LoggerFactory.getLogger(S3TaskProvider.class);
 
@@ -76,15 +79,17 @@ public class S3TaskProvider extends TaskProviderBase {
                                              unwrappedS3Provider,
                                              s3Client,
                                              cfClient,
-                                             cfAccountId));
+                                             cfAccountId,
+                                             dcHost));
         taskList.add(new GetUrlHlsTaskRunner(s3Provider,
                                              unwrappedS3Provider,
                                              cfClient));
-        taskList.add(new GetHlsSignedCookiesTaskRunner(s3Provider,
-                                                       unwrappedS3Provider,
-                                                       cfClient,
-                                                       cfKeyId,
-                                                       cfKeyPath));
+        taskList.add(new GetHlsSignedCookiesUrlTaskRunner(s3Provider,
+                                                          unwrappedS3Provider,
+                                                          cfClient,
+                                                          dataStoreFactory,
+                                                          cfKeyId,
+                                                          cfKeyPath));
         taskList.add(new DisableHlsTaskRunner(s3Provider,
                                               unwrappedS3Provider,
                                               s3Client,

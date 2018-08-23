@@ -7,18 +7,22 @@
  */
 package org.duracloud.s3task.streaminghls;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.cloudfront.model.AllowedMethods;
+import com.amazonaws.services.cloudfront.model.CacheBehavior;
+import com.amazonaws.services.cloudfront.model.CacheBehaviors;
 import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentity;
 import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentityConfig;
 import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentitySummary;
 import com.amazonaws.services.cloudfront.model.CookiePreference;
 import com.amazonaws.services.cloudfront.model.CreateCloudFrontOriginAccessIdentityRequest;
 import com.amazonaws.services.cloudfront.model.CreateDistributionRequest;
+import com.amazonaws.services.cloudfront.model.CustomOriginConfig;
 import com.amazonaws.services.cloudfront.model.DefaultCacheBehavior;
 import com.amazonaws.services.cloudfront.model.Distribution;
 import com.amazonaws.services.cloudfront.model.DistributionConfig;
@@ -30,6 +34,7 @@ import com.amazonaws.services.cloudfront.model.ItemSelection;
 import com.amazonaws.services.cloudfront.model.ListCloudFrontOriginAccessIdentitiesRequest;
 import com.amazonaws.services.cloudfront.model.Method;
 import com.amazonaws.services.cloudfront.model.Origin;
+import com.amazonaws.services.cloudfront.model.OriginProtocolPolicy;
 import com.amazonaws.services.cloudfront.model.Origins;
 import com.amazonaws.services.cloudfront.model.S3OriginConfig;
 import com.amazonaws.services.cloudfront.model.TrustedSigners;
@@ -63,12 +68,14 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
                                S3StorageProvider unwrappedS3Provider,
                                AmazonS3Client s3Client,
                                AmazonCloudFrontClient cfClient,
-                               String cfAccountId) {
+                               String cfAccountId,
+                               String dcHost) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
         this.s3Client = s3Client;
         this.cfClient = cfClient;
         this.cfAccountId = cfAccountId;
+        this.dcHost = dcHost;
     }
 
     public String getName() {
@@ -82,6 +89,7 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
 
         String spaceId = taskParams.getSpaceId();
         boolean secure = taskParams.isSecure();
+        List<String> allowedOrigins = taskParams.getAllowedOrigins();
 
         log.info("Performing " + TASK_NAME + " task on space " + spaceId +
                  ". Secure streaming set to " + secure);
@@ -117,12 +125,12 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
             }
             domainName = existingDist.getDomainName();
         } else { // No existing distribution, need to create one
+            // Create S3 Origin
             S3OriginConfig s3OriginConfig = new S3OriginConfig()
                 .withOriginAccessIdentity(S3_ORIGIN_OAI_PREFIX + oaIdentityId);
             Origin s3Origin = new Origin().withDomainName(bucketName + S3_ORIGIN_SUFFIX)
                                           .withS3OriginConfig(s3OriginConfig)
                                           .withId("S3-" + bucketName);
-            Origins origins = new Origins().withItems(s3Origin).withQuantity(1);
 
             // Only include trusted signers on secure distributions
             TrustedSigners signers = new TrustedSigners();
@@ -157,16 +165,54 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
             defaultCacheBehavior.setMinTTL(0l);
             defaultCacheBehavior.setTargetOriginId(s3Origin.getId());
 
-            Distribution dist =
-                cfClient.createDistribution(
-                    new CreateDistributionRequest(
-                        new DistributionConfig()
-                            .withCallerReference("" + System.currentTimeMillis())
-                            .withOrigins(origins)
-                            .withEnabled(true)
-                            .withComment("HLS streaming for space: " + spaceId)
-                            .withDefaultCacheBehavior(defaultCacheBehavior)))
-                        .getDistribution();
+            // Create origins list
+            Origins origins;
+            CacheBehaviors cacheBehaviors = new CacheBehaviors();
+
+            if (secure) {
+                // Create Origin to allow signed cookies to be set through a CloudFront call
+                CustomOriginConfig cookiesOriginConfig = new CustomOriginConfig()
+                    .withOriginProtocolPolicy(OriginProtocolPolicy.HttpsOnly)
+                    .withHTTPPort(80)
+                    .withHTTPSPort(443);
+                String getCookiesPath = "/durastore/aux";
+                String cookiesOriginId = "Custom origin - " + dcHost + getCookiesPath;
+                Origin cookiesOrigin = new Origin().withDomainName(dcHost)
+                                                   .withOriginPath(getCookiesPath)
+                                                   .withId(cookiesOriginId)
+                                                   .withCustomOriginConfig(cookiesOriginConfig);
+
+                origins = new Origins().withItems(s3Origin, cookiesOrigin).withQuantity(2);
+
+                // Create behavior for cookies origin
+                CookiePreference cookiePreference = new CookiePreference().withForward(ItemSelection.All);
+                CacheBehavior cookiesCacheBehavior = new CacheBehavior()
+                    .withPathPattern("/cookies")
+                    .withTargetOriginId(cookiesOriginId)
+                    .withViewerProtocolPolicy(ViewerProtocolPolicy.RedirectToHttps)
+                    .withAllowedMethods(new AllowedMethods().withItems(Method.GET, Method.HEAD).withQuantity(2))
+                    .withForwardedValues(new ForwardedValues().withQueryString(true).withCookies(cookiePreference))
+                    .withTrustedSigners(new TrustedSigners().withEnabled(false).withQuantity(0))
+                    .withMinTTL(0l);
+                cacheBehaviors = cacheBehaviors.withItems(cookiesCacheBehavior).withQuantity(1);
+            } else {
+                origins = new Origins().withItems(s3Origin).withQuantity(1);
+            }
+
+            // Build distribution
+            DistributionConfig distributionConfig = new DistributionConfig()
+                .withCallerReference("" + System.currentTimeMillis())
+                .withOrigins(origins)
+                .withEnabled(true)
+                .withComment("HLS streaming for space: " + spaceId)
+                .withDefaultCacheBehavior(defaultCacheBehavior);
+
+            if (secure) {
+                distributionConfig.setCacheBehaviors(cacheBehaviors);
+            }
+
+            Distribution dist = cfClient.createDistribution(
+                new CreateDistributionRequest(distributionConfig)).getDistribution();
             domainName = dist.getDomainName();
         }
 
@@ -174,11 +220,10 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
         setBucketAccessPolicy(bucketName, oaIdentityId);
 
         // Set CORS policy on bucket
-        setCorsPolicy(bucketName);
+        setCorsPolicy(bucketName, allowedOrigins, dcHost);
 
         // Update bucket tags to include streaming host
-        Map<String, String> spaceProps =
-            s3Provider.getSpaceProperties(spaceId);
+        Map<String, String> spaceProps = s3Provider.getSpaceProperties(spaceId);
         spaceProps.put(HLS_STREAMING_HOST_PROP, domainName);
         spaceProps.put(HLS_STREAMING_TYPE_PROP,
                        secure ? STREAMING_TYPE.SECURE.name() : STREAMING_TYPE.OPEN.name());
@@ -255,14 +300,28 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
      * CloudFront (based on forwarding rules) to allow cross-region requests
      * to be made by JavaScript wanting to stream content from CloudFront
      */
-    private void setCorsPolicy(String bucketName) {
-        CORSRule corsRule = new CORSRule();
-        corsRule.setAllowedOrigins("*");
-        corsRule.setAllowedMethods(CORSRule.AllowedMethods.GET, CORSRule.AllowedMethods.HEAD);
-        corsRule.setMaxAgeSeconds(3000);
-        corsRule.setAllowedHeaders("*");
+    private void setCorsPolicy(String bucketName, List<String> allowedOrigins, String dcHost) {
+        // If list is null or empty, add a default value
+        if (null == allowedOrigins || allowedOrigins.isEmpty()) {
+            allowedOrigins = new ArrayList<>();
+            allowedOrigins.add("https://*");
+        } else { // If list is not empty, append DuraCloud host to allow streaming via DurAdmin
+            allowedOrigins.add("https://" + dcHost);
+        }
+
+        List<CORSRule> corsRules = new ArrayList<>();
+
+        for (String allowedOrigin : allowedOrigins) {
+            CORSRule corsRule = new CORSRule();
+            corsRule.setAllowedOrigins(allowedOrigin);
+            corsRule.setAllowedMethods(CORSRule.AllowedMethods.GET, CORSRule.AllowedMethods.HEAD);
+            corsRule.setMaxAgeSeconds(3000);
+            corsRule.setAllowedHeaders("*");
+            corsRules.add(corsRule);
+        }
+
         BucketCrossOriginConfiguration corsConfig =
-            new BucketCrossOriginConfiguration().withRules(corsRule);
+            new BucketCrossOriginConfiguration().withRules(corsRules);
 
         s3Client.setBucketCrossOriginConfiguration(bucketName, corsConfig);
     }

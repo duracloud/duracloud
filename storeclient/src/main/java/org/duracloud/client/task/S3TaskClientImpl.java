@@ -17,8 +17,8 @@ import org.duracloud.s3storageprovider.dto.DisableStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskParameters;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.GetHlsUrlTaskParameters;
-import org.duracloud.s3storageprovider.dto.GetSignedCookieTaskParameters;
-import org.duracloud.s3storageprovider.dto.GetSignedCookieTaskResult;
+import org.duracloud.s3storageprovider.dto.GetSignedCookiesUrlTaskParameters;
+import org.duracloud.s3storageprovider.dto.GetSignedCookiesUrlTaskResult;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskParameters;
@@ -192,13 +192,17 @@ public class S3TaskClientImpl implements S3TaskClient {
      * {@inheritDoc}
      */
     @Override
-    public GetSignedCookieTaskResult getSignedCookies(String spaceId, String ipAddress,
-                                                      int minutesToExpire) throws ContentStoreException {
-        final GetSignedCookieTaskParameters params = new GetSignedCookieTaskParameters();
+    public GetSignedCookiesUrlTaskResult getSignedCookiesUrl(String spaceId,
+                                                             String ipAddress,
+                                                             int minutesToExpire,
+                                                             String redirectUrl)
+        throws ContentStoreException {
+        final GetSignedCookiesUrlTaskParameters params = new GetSignedCookiesUrlTaskParameters();
         params.setSpaceId(spaceId);
         params.setIpAddress(ipAddress);
         params.setMinutesToExpire(minutesToExpire);
-        return GetSignedCookieTaskResult.deserialize(
-            contentStore.performTask(StorageTaskConstants.GET_SIGNED_COOKIES_TASK_NAME, params.serialize()));
+        params.setRedirectUrl(redirectUrl);
+        return GetSignedCookiesUrlTaskResult.deserialize(
+            contentStore.performTask(StorageTaskConstants.GET_SIGNED_COOKIES_URL_TASK_NAME, params.serialize()));
     }
 }

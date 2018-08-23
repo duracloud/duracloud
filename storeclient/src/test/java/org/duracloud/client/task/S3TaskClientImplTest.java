@@ -10,15 +10,12 @@ package org.duracloud.client.task;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.client.ContentStore;
 import org.duracloud.s3storageprovider.dto.DeleteStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.DisableStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskResult;
-import org.duracloud.s3storageprovider.dto.GetSignedCookieTaskResult;
+import org.duracloud.s3storageprovider.dto.GetSignedCookiesUrlTaskResult;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskResult;
 import org.easymock.EasyMock;
@@ -216,20 +213,21 @@ public class S3TaskClientImplTest {
     }
 
     @Test
-    public void testGetSignedCookies() throws Exception {
-        final String taskName = StorageTaskConstants.GET_SIGNED_COOKIES_TASK_NAME;
+    public void testGetSignedCookiesUrl() throws Exception {
+        final String taskName = StorageTaskConstants.GET_SIGNED_COOKIES_URL_TASK_NAME;
         final int minutesToExpiration = 10;
         final String ipAddress = "0.0.0.0";
+        final String redirectUrl = "https://redirect.url";
 
-        GetSignedCookieTaskResult preparedResult = new GetSignedCookieTaskResult();
-        Map<String, String> cookies = new HashMap<>();
-        cookies.put("key", "value");
-        preparedResult.setSignedCookies(cookies);
+        GetSignedCookiesUrlTaskResult preparedResult = new GetSignedCookiesUrlTaskResult();
+        String signedCookiesUrl = "https://signed-cookies.url";
+        preparedResult.setSignedCookiesUrl(signedCookiesUrl);
         setupMock(taskName, preparedResult.serialize());
         replayMocks();
 
-        GetSignedCookieTaskResult result = taskClient.getSignedCookies(spaceId, ipAddress, minutesToExpiration);
-        assertThat(cookies, equalTo(result.getSignedCookies()));
+        GetSignedCookiesUrlTaskResult result =
+            taskClient.getSignedCookiesUrl(spaceId, ipAddress, minutesToExpiration, redirectUrl);
+        assertThat(signedCookiesUrl, equalTo(result.getSignedCookiesUrl()));
     }
 
 }

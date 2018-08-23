@@ -43,6 +43,7 @@ public class Constants {
      * Mime types
      */
     public static final String TEXT_TSV = "text/tab-separated-values";
+    public static final String MEDIA_TYPE_APPLICATION_JSON = "application/json";
 
     /**
      * Content ID used to define a space snapshot
@@ -71,5 +72,10 @@ public class Constants {
     public static final String SERVER_HOST = "org.duracloud.request.host";
 
     public static final String SERVER_PORT = "org.duracloud.request.port";
+
+    /**
+     * The name of the space used for storing transient token to signed cookie mappings.
+     */
+    public static final String HIDDEN_COOKIE_SPACE = "signedcookies";
 
 }

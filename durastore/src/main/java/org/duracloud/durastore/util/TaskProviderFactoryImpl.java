@@ -16,6 +16,7 @@ import org.duracloud.glaciertask.GlacierTaskProvider;
 import org.duracloud.mill.manifest.ManifestStore;
 import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3storage.StringDataStoreFactory;
 import org.duracloud.s3task.S3TaskProvider;
 import org.duracloud.snapshotstorage.ChronopolisStorageProvider;
 import org.duracloud.snapshotstorage.DpnStorageProvider;
@@ -65,6 +66,11 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
             account = storageAccountManager.getPrimaryStorageAccount();
             storageAccountId = account.getId();
         }
+
+        String dcHost = storageAccountManager.getInstanceHost();
+        String dcPort = storageAccountManager.getInstancePort();
+        String dcAccountName = storageAccountManager.getAccountName();
+
         String username = account.getUsername();
         String password = account.getPassword();
         StorageProviderType type = account.getType();
@@ -79,6 +85,8 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                 S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
             AmazonCloudFrontClient cfClient =
                 S3ProviderUtil.getAmazonCloudFrontClient(username, password);
+            StringDataStoreFactory dataStoreFactory =
+                new StringDataStoreFactory(storageAccountManager);
             Map<String, String> opts = account.getOptions();
             String cfAccountId =
                 opts.get(StorageAccount.OPTS.CF_ACCOUNT_ID.name());
@@ -90,10 +98,12 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                                               unwrappedS3Provider,
                                               s3Client,
                                               cfClient,
+                                              dataStoreFactory,
                                               cfAccountId,
                                               cfKeyId,
                                               cfKeyPath,
-                                              storageAccountId);
+                                              storageAccountId,
+                                              dcHost);
         } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
             GlacierStorageProvider unwrappedGlacierProvider =
                 new GlacierStorageProvider(username, password, account.getOptions());
@@ -116,9 +126,6 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
             AmazonS3Client s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
 
-            String dcHost = storageAccountManager.getInstanceHost();
-            String dcPort = storageAccountManager.getInstancePort();
-            String dcAccountName = storageAccountManager.getAccountName();
             Map<String, String> opts = account.getOptions();
             String dcSnapshotUser =
                 opts.get(StorageAccount.OPTS.SNAPSHOT_USER.name());

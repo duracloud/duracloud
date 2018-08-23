@@ -17,7 +17,7 @@ import org.duracloud.error.TaskDataException;
  * @author Bill Branan
  * Date: Aug 6, 2018
  */
-public class GetSignedCookieTaskParameters extends GetUrlTaskParameters {
+public class GetSignedCookiesUrlTaskParameters {
 
     /**
      * Can be used as the value of the minutesToExpire parameter
@@ -44,8 +44,14 @@ public class GetSignedCookieTaskParameters extends GetUrlTaskParameters {
     @XmlValue
     private String ipAddress;
 
+    /**
+     * URL to which the user should be redirected after cookies are set
+     */
+    @XmlValue
+    private String redirectUrl;
+
     // Required by JAXB
-    public GetSignedCookieTaskParameters() {
+    public GetSignedCookiesUrlTaskParameters() {
     }
 
     public String getSpaceId() {
@@ -72,14 +78,22 @@ public class GetSignedCookieTaskParameters extends GetUrlTaskParameters {
         this.ipAddress = ipAddress;
     }
 
+    public String getRedirectUrl() {
+        return redirectUrl;
+    }
+
+    public void setRedirectUrl(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
+    }
+
     /**
      * Creates a serialized version of task parameters
      *
      * @return JSON formatted task result info
      */
     public String serialize() {
-        JaxbJsonSerializer<GetSignedCookieTaskParameters> serializer =
-            new JaxbJsonSerializer<>(GetSignedCookieTaskParameters.class);
+        JaxbJsonSerializer<GetSignedCookiesUrlTaskParameters> serializer =
+            new JaxbJsonSerializer<>(GetSignedCookiesUrlTaskParameters.class);
         try {
             return serializer.serialize(this);
         } catch (IOException e) {
@@ -93,16 +107,19 @@ public class GetSignedCookieTaskParameters extends GetUrlTaskParameters {
      *
      * @param taskParameters - JSON formatted set of parameters
      */
-    public static GetSignedCookieTaskParameters deserialize(String taskParameters) {
-        JaxbJsonSerializer<GetSignedCookieTaskParameters> serializer =
-            new JaxbJsonSerializer<>(GetSignedCookieTaskParameters.class);
+    public static GetSignedCookiesUrlTaskParameters deserialize(String taskParameters) {
+        JaxbJsonSerializer<GetSignedCookiesUrlTaskParameters> serializer =
+            new JaxbJsonSerializer<>(GetSignedCookiesUrlTaskParameters.class);
         try {
-            GetSignedCookieTaskParameters params =
+            GetSignedCookiesUrlTaskParameters params =
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
             if (null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
                 throw new TaskDataException(
                     "Task parameter 'spaceId' may not be empty");
+            } else if (null == params.getRedirectUrl() || params.getRedirectUrl().isEmpty()) {
+                throw new TaskDataException(
+                    "Task parameter 'redirectUrl' may not be empty");
             }
 
             return params;
