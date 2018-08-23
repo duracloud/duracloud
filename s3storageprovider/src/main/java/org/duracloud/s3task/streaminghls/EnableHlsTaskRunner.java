@@ -223,8 +223,7 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
         setCorsPolicy(bucketName, allowedOrigins, dcHost);
 
         // Update bucket tags to include streaming host
-        Map<String, String> spaceProps =
-            s3Provider.getSpaceProperties(spaceId);
+        Map<String, String> spaceProps = s3Provider.getSpaceProperties(spaceId);
         spaceProps.put(HLS_STREAMING_HOST_PROP, domainName);
         spaceProps.put(HLS_STREAMING_TYPE_PROP,
                        secure ? STREAMING_TYPE.SECURE.name() : STREAMING_TYPE.OPEN.name());
