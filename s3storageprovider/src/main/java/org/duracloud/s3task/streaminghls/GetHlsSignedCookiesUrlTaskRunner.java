@@ -24,6 +24,7 @@ import org.duracloud.common.util.IOUtil;
 import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StringDataStore;
+import org.duracloud.s3storage.StringDataStoreFactory;
 import org.duracloud.s3storageprovider.dto.GetSignedCookiesUrlTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetSignedCookiesUrlTaskResult;
 import org.duracloud.s3storageprovider.dto.SignedCookieData;
@@ -49,18 +50,19 @@ public class GetHlsSignedCookiesUrlTaskRunner extends BaseHlsTaskRunner {
 
     private static final String TASK_NAME = StorageTaskConstants.GET_SIGNED_COOKIES_URL_TASK_NAME;
 
-    private StringDataStore signedCookieStore;
+    private StringDataStoreFactory dataStoreFactory;
 
     public GetHlsSignedCookiesUrlTaskRunner(StorageProvider s3Provider,
                                             S3StorageProvider unwrappedS3Provider,
                                             AmazonCloudFrontClient cfClient,
+                                            StringDataStoreFactory dataStoreFactory,
                                             String cfKeyId,
                                             String cfKeyPath) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
-
-        this.signedCookieStore = new StringDataStore(Constants.HIDDEN_COOKIE_SPACE, this.unwrappedS3Provider);
         this.cfClient = cfClient;
+        this.dataStoreFactory = dataStoreFactory;
+
         // Certificate identifier, an active trusted signer for the distribution
         this.cfKeyId = cfKeyId;
         // Local file path to signing key in DER format
@@ -144,11 +146,11 @@ public class GetHlsSignedCookiesUrlTaskRunner extends BaseHlsTaskRunner {
     }
 
     private File getCfKeyPathFile(String cfKeyPath) throws IOException {
-        if (this.cfKeyPath.startsWith("s3://")) {
+        if (cfKeyPath.startsWith("s3://")) {
             File keyFile = new File(System.getProperty("java.io.tmpdir"),
                                     "cloudfront-key.der");
             if (!keyFile.exists()) {
-                Resource resource = S3ProviderUtil.getS3ObjectByUrl(this.cfKeyPath);
+                Resource resource = S3ProviderUtil.getS3ObjectByUrl(cfKeyPath);
                 File tmpFile = IOUtil.writeStreamToFile(resource.getInputStream());
                 tmpFile.renameTo(keyFile);
                 keyFile.deleteOnExit();
@@ -156,7 +158,7 @@ public class GetHlsSignedCookiesUrlTaskRunner extends BaseHlsTaskRunner {
 
             return keyFile;
         } else {
-            return new File(this.cfKeyPath);
+            return new File(cfKeyPath);
         }
     }
 
@@ -174,6 +176,7 @@ public class GetHlsSignedCookiesUrlTaskRunner extends BaseHlsTaskRunner {
 
         String cookiesData = signedCookieData.serialize();
 
+        StringDataStore signedCookieStore = dataStoreFactory.create(Constants.HIDDEN_COOKIE_SPACE);
         return signedCookieStore.storeData(cookiesData);
     }
 

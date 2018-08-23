@@ -23,6 +23,8 @@ import com.amazonaws.services.cloudfront.model.Origins;
 import com.amazonaws.services.cloudfront.model.TrustedSigners;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3storage.StringDataStore;
+import org.duracloud.s3storage.StringDataStoreFactory;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -38,14 +40,17 @@ public class HlsTaskRunnerTestBase {
     protected S3StorageProvider unwrappedS3Provider;
     protected AmazonS3Client s3Client;
     protected AmazonCloudFrontClient cfClient;
+    protected StringDataStoreFactory dataStoreFactory;
+    protected StringDataStore dataStore;
 
     protected String cfKeyId = "cf-key-id";
-    protected String cfKeyPath = "cf-key-path";
+    protected String cfKeyPath;
 
     protected String spaceId = "space-id";
     protected String contentId = "content-id";
     protected String bucketName = "bucket-name";
     protected String domainName = "domain-name";
+    protected String redirectUrl = "redirect-url";
 
     @Before
     public void setup() {
@@ -53,15 +58,17 @@ public class HlsTaskRunnerTestBase {
         unwrappedS3Provider = EasyMock.createMock(S3StorageProvider.class);
         s3Client = EasyMock.createMock(AmazonS3Client.class);
         cfClient = EasyMock.createMock(AmazonCloudFrontClient.class);
+        dataStoreFactory = EasyMock.createMock(StringDataStoreFactory.class);
+        dataStore = EasyMock.createMock(StringDataStore.class);
     }
 
     protected void replayMocks() {
-        EasyMock.replay(s3Provider, unwrappedS3Provider, s3Client, cfClient);
+        EasyMock.replay(s3Provider, unwrappedS3Provider, s3Client, cfClient, dataStoreFactory, dataStore);
     }
 
     @After
     public void teardown() {
-        EasyMock.verify(s3Provider, unwrappedS3Provider, s3Client, cfClient);
+        EasyMock.verify(s3Provider, unwrappedS3Provider, s3Client, cfClient, dataStoreFactory, dataStore);
     }
 
     /**
