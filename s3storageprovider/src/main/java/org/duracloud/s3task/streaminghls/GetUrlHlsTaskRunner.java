@@ -64,9 +64,9 @@ public class GetUrlHlsTaskRunner extends BaseHlsTaskRunner {
         if (null == existingDist) {
             throw new UnsupportedTaskException(TASK_NAME,
                                                "The " + TASK_NAME + " task can only be used after a space has " +
-                                               "been configured to enable open HLS streaming. Use " +
+                                               "been configured to enable HLS streaming. Use " +
                                                StorageTaskConstants.ENABLE_HLS_TASK_NAME +
-                                               " to enable open HLS streaming on this space.");
+                                               " to enable HLS streaming on this space.");
         }
         String domainName = existingDist.getDomainName();
 
