@@ -39,7 +39,11 @@ public class HlsTaskRunnerTestBase {
     protected AmazonS3Client s3Client;
     protected AmazonCloudFrontClient cfClient;
 
+    protected String cfKeyId = "cf-key-id";
+    protected String cfKeyPath = "cf-key-path";
+
     protected String spaceId = "space-id";
+    protected String contentId = "content-id";
     protected String bucketName = "bucket-name";
     protected String domainName = "domain-name";
 
