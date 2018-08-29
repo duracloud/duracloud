@@ -69,7 +69,7 @@
 
                 var rtmpSwitchControl = $.fn.create("div").attr("id", "rtmpSwitchControl")
                                             .append(this._createSwitchHolder("rtmpSwitchHolder", "RTMP Streaming"))
-                                            .append("<div><p>Enables Streaming using RTMP (Real-Time Messaging Protocol for this space.  </p></div>");
+                                            .append("<div><p>Enables Streaming using RTMP (Real-Time Messaging Protocol) for this space.</p></div>");
                 panel.append(rtmpSwitchControl);
 
                 var props = [];
