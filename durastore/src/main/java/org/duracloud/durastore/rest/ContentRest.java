@@ -11,6 +11,7 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static org.apache.http.HttpHeaders.CONTENT_ENCODING;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -32,6 +33,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.io.input.AutoCloseInputStream;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.duracloud.audit.logger.ClientInfoLogger;
 import org.duracloud.common.constant.Constants;
@@ -41,7 +43,9 @@ import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.durastore.error.ResourceChecksumException;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
+import org.duracloud.durastore.error.ResourcePropertiesInvalidException;
 import org.duracloud.durastore.error.ResourceStateException;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.error.InvalidRequestException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -80,7 +84,8 @@ public class ContentRest extends BaseRest {
     public Response getContent(@PathParam("spaceID") String spaceID,
                                @PathParam("contentID") String contentID,
                                @QueryParam("storeID") String storeID,
-                               @QueryParam("attachment") boolean attachment) {
+                               @QueryParam("attachment") boolean attachment,
+                               @HeaderParam(RANGE_HEADER) String range) {
         StringBuilder msg = new StringBuilder("getting content(");
         msg.append(spaceID);
         msg.append(", ");
@@ -89,11 +94,16 @@ public class ContentRest extends BaseRest {
         msg.append(storeID);
         msg.append(", ");
         msg.append(attachment);
+        msg.append(", ");
+        msg.append(range);
         msg.append(")");
 
         try {
             log.debug(msg.toString());
-            return doGetContent(spaceID, contentID, storeID, attachment);
+            return doGetContent(spaceID, contentID, storeID, attachment, range);
+
+        } catch (InvalidRequestException e) {
+            return responseBad(msg.toString(), e, BAD_REQUEST);
 
         } catch (ResourceNotFoundException e) {
             return responseNotFound(msg.toString(), e, NOT_FOUND);
@@ -112,19 +122,23 @@ public class ContentRest extends BaseRest {
     private Response doGetContent(String spaceID,
                                   String contentID,
                                   String storeID,
-                                  boolean attachment) throws ResourceException {
-        Map<String, String> properties =
-            contentResource.getContentProperties(spaceID, contentID, storeID);
-        InputStream content =
-            new AutoCloseInputStream(contentResource.getContent(spaceID, contentID, storeID));
+                                  boolean attachment,
+                                  String range) throws InvalidRequestException, ResourceException {
+        RetrievedContent retrievedContent = contentResource.getContent(spaceID, contentID, storeID, range);
+        InputStream content = new AutoCloseInputStream(retrievedContent.getContentStream());
 
-        ResponseBuilder responseBuilder = Response.ok(content);
+        ResponseBuilder responseBuilder;
+        if (StringUtils.isNotEmpty(range)) {
+            responseBuilder = Response.status(HttpStatus.SC_PARTIAL_CONTENT).entity(content);
+        } else {
+            responseBuilder = Response.ok(content);
+        }
 
         if (attachment) {
             addContentDispositionHeader(responseBuilder, contentID);
         }
         return addContentPropertiesToResponse(responseBuilder,
-                                              properties);
+                                              retrievedContent.getContentProperties());
     }
 
     private void addContentDispositionHeader(ResponseBuilder responseBuilder,
@@ -181,6 +195,10 @@ public class ContentRest extends BaseRest {
     protected Response addContentPropertiesToResponse(ResponseBuilder response,
                                                       Map<String, String> properties) {
         if (properties != null) {
+            // Set Accept-Ranges header
+            properties.remove(HttpHeaders.ACCEPT_RANGES);
+            response.header(HttpHeaders.ACCEPT_RANGES, HttpHeaders.ACCEPT_RANGES_BYTES);
+
             // Set Content-Type header
             String contentMimetype = // content-mimetype header
                 properties.remove(StorageProvider.PROPERTIES_CONTENT_MIMETYPE);
@@ -248,7 +266,8 @@ public class ContentRest extends BaseRest {
                 if (propertiesName.equals(HttpHeaders.DATE) ||
                     propertiesName.equals(HttpHeaders.CONNECTION)) {
                     // Ignore this value
-                } else if (propertiesName.equals(HttpHeaders.AGE) ||
+                } else if (propertiesName.equals(HttpHeaders.ACCEPT_RANGES) ||
+                           propertiesName.equals(HttpHeaders.AGE) ||
                            propertiesName.equals(HttpHeaders.CACHE_CONTROL) ||
                            propertiesName.equals(HttpHeaders.CONTENT_ENCODING) ||
                            propertiesName.equals(HttpHeaders.CONTENT_LANGUAGE) ||
@@ -310,10 +329,10 @@ public class ContentRest extends BaseRest {
 
         } catch (ResourceNotFoundException e) {
             return responseNotFound(msg.toString(), e, NOT_FOUND);
-
+        } catch (ResourcePropertiesInvalidException e) {
+            return responseBad(e.getMessage(), BAD_REQUEST);
         } catch (ResourceStateException e) {
             return responseBad(msg.toString(), e, CONFLICT);
-
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
 
@@ -325,40 +344,45 @@ public class ContentRest extends BaseRest {
     private Response doUpdateContentProperties(String spaceID,
                                                String contentID,
                                                String storeID)
-        throws ResourceException {
+        throws ResourceException, ResourcePropertiesInvalidException {
         MultivaluedMap<String, String> rHeaders =
             headers.getRequestHeaders();
 
         // Set mimetype in properties if it was provided
-        String contentMimeType = null;
-        if (rHeaders.containsKey(CONTENT_MIMETYPE_HEADER)) {
-            contentMimeType = rHeaders.getFirst(CONTENT_MIMETYPE_HEADER);
-        }
-        if (contentMimeType == null && rHeaders.containsKey(HttpHeaders.CONTENT_TYPE)) {
+        String contentMimeType = rHeaders.getFirst(CONTENT_MIMETYPE_HEADER);
+
+        if (contentMimeType == null) {
             contentMimeType = rHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
         }
+
+        // Set Content-Encoding in properties if it was provided
+        String contentEncoding = getContentEncoding(rHeaders);
 
         contentResource.updateContentProperties(spaceID,
                                                 contentID,
                                                 contentMimeType,
-                                                getProperties(contentMimeType),
+                                                getProperties(contentMimeType, contentEncoding),
                                                 storeID);
         String responseText = "Content " + contentID + " updated successfully";
         return Response.ok(responseText, TEXT_PLAIN).build();
     }
 
-    private Map<String, String> getProperties(String contentMimeType)
+    private Map<String, String> getProperties(String contentMimeType, String contentEncoding)
         throws ResourceException {
         Map<String, String> userProperties =
             getUserProperties(CONTENT_MIMETYPE_HEADER);
 
-        if (contentMimeType != null && !contentMimeType.equals("")) {
+        if (StringUtils.isNotBlank(contentMimeType)) {
             if (validMimetype(contentMimeType)) {
                 userProperties.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE,
                                    contentMimeType);
             } else {
                 throw new ResourceException("Invalid Mimetype");
             }
+        }
+
+        if (StringUtils.isNotBlank(contentEncoding)) {
+            userProperties.put(CONTENT_ENCODING, contentEncoding);
         }
 
         return userProperties;
@@ -373,8 +397,8 @@ public class ContentRest extends BaseRest {
     public Response putContent(@PathParam("spaceID") String spaceID,
                                @PathParam("contentID") String contentID,
                                @QueryParam("storeID") String storeID,
-                               @HeaderParam(BaseRest.COPY_SOURCE_HEADER) String copySource,
-                               @HeaderParam(BaseRest.COPY_SOURCE_STORE_HEADER) String sourceStoreID) {
+                               @HeaderParam(COPY_SOURCE_HEADER) String copySource,
+                               @HeaderParam(COPY_SOURCE_STORE_HEADER) String sourceStoreID) {
         if (null != copySource) {
             return copyContent(spaceID, contentID, storeID, sourceStoreID, copySource);
 
@@ -405,6 +429,9 @@ public class ContentRest extends BaseRest {
         } catch (InvalidIdException e) {
             return responseBad(msg.toString(), e, BAD_REQUEST);
 
+        } catch (ResourcePropertiesInvalidException e) {
+            return responseBad(msg.toString(), BAD_REQUEST);
+
         } catch (ResourceNotFoundException e) {
             return responseNotFound(msg.toString(), e, NOT_FOUND);
 
@@ -422,26 +449,25 @@ public class ContentRest extends BaseRest {
     private Response doAddContent(String spaceID, String contentID, String storeID) throws Exception {
 
         RestUtil.RequestContent content = restUtil.getRequestContent(request, headers);
-        String checksum = null;
         MultivaluedMap<String, String> rHeaders = headers.getRequestHeaders();
 
         logClientInfo(rHeaders);
 
-        if (rHeaders.containsKey(HttpHeaders.CONTENT_MD5)) {
-            checksum = rHeaders.getFirst(HttpHeaders.CONTENT_MD5);
-        }
+        String checksum = rHeaders.getFirst(HttpHeaders.CONTENT_MD5);
+
+        String contentEncoding = getContentEncoding(rHeaders);
 
         if (content != null) {
             checksum = contentResource.addContent(spaceID,
                                                   contentID,
                                                   content.getContentStream(),
                                                   content.getMimeType(),
-                                                  getProperties(content.getMimeType()),
+                                                  getProperties(content.getMimeType(), contentEncoding),
                                                   content.getSize(),
                                                   checksum,
                                                   storeID);
             URI location = uriInfo.getRequestUri();
-            Map<String, String> properties = new HashMap<String, String>();
+            Map<String, String> properties = new HashMap<>();
             properties.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, checksum);
             return addContentPropertiesToResponse(Response.created(location),
                                                   properties);
@@ -451,6 +477,10 @@ public class ContentRest extends BaseRest {
             log.error(error);
             return Response.status(HttpStatus.SC_BAD_REQUEST).entity(error).build();
         }
+    }
+
+    private String getContentEncoding(MultivaluedMap<String, String> rHeaders) {
+        return rHeaders.getFirst(CONTENT_ENCODING);
     }
 
     private void logClientInfo(MultivaluedMap<String, String> rHeaders) {

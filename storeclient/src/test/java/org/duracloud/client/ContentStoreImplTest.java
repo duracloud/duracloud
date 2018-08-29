@@ -280,13 +280,14 @@ public class ContentStoreImplTest {
         InputStream content = IOUtils.toInputStream("content");
         String checksum = "checksum";
         String mime = "text/plain";
-
+        String encoding = "encoding";
         Capture<Map<String, String>> headersCapture = new Capture<>();
         mockSuccessfulAddContent(headersCapture, checksum, mime, content);
-
+        Map<String,String> props = new HashMap<>();
+        props.put("Content-Encoding", encoding);
         contentStore.addContent(spaceId, contentId, content, 7,
-                                mime, checksum, null);
-        validAddContentHeadersCapture(checksum, mime, headersCapture);
+                                mime, checksum, props);
+        validAddContentHeadersCapture(checksum, mime, encoding, headersCapture);
     }
 
     @Test
@@ -294,12 +295,15 @@ public class ContentStoreImplTest {
         InputStream content = IOUtils.toInputStream("content");
         String checksum = "checksum";
         String mime = "text/plain";
+        String encoding = "encoding";
+        Map<String,String> props = new HashMap<>();
+        props.put("Content-Encoding", encoding);
 
         Capture<Map<String, String>> headersCapture = new Capture<>();
         mockSuccessfulAddContent(headersCapture, checksum, mime, content);
 
         contentStore.addContent(spaceId, contentId, content, 7,
-                                mime, null, null);
+                                mime, null, props);
     }
 
     @Test
@@ -308,6 +312,10 @@ public class ContentStoreImplTest {
         String checksum = "checksum";
         String outputChecksum = "badChecksum";
         String mime = "text/plain";
+        String encoding = "encoding";
+        Map<String,String> props = new HashMap<>();
+        props.put("Content-Encoding", encoding);
+
         InputStream content = IOUtils.toInputStream("content");
 
         mockSuccessfulAddContent(headersCapture,
@@ -317,13 +325,13 @@ public class ContentStoreImplTest {
 
         try {
             contentStore.addContent(spaceId, contentId, content, 7,
-                                    mime, checksum, null);
+                                    mime, checksum, props);
             fail("addContent call should have failed.");
         } catch (ContentStoreException e) {
             assertTrue("expected failure", true);
         }
 
-        validAddContentHeadersCapture(checksum, mime, headersCapture);
+        validAddContentHeadersCapture(checksum, mime, encoding, headersCapture);
     }
 
     protected void mockSuccessfulAddContent(Capture<Map<String, String>> headersCapture,
@@ -336,6 +344,7 @@ public class ContentStoreImplTest {
         EasyMock.expect(response.getStatusCode()).andReturn(201);
         EasyMock.expect(response.getResponseHeader(HttpHeaders.CONTENT_MD5))
                 .andReturn(new BasicHeader(HttpHeaders.CONTENT_MD5, outputChecksum));
+
         EasyMock.expect(restHelper.put(EasyMock.eq(fullURL),
                                        EasyMock.eq(content),
                                        EasyMock.eq(mime),
@@ -348,10 +357,12 @@ public class ContentStoreImplTest {
 
     protected void validAddContentHeadersCapture(String checksum,
                                                  String mime,
+                                                 String encoding,
                                                  Capture<Map<String, String>> headersCapture) {
         Map<String, String> headers = headersCapture.getValue();
         Assert.assertEquals(mime, headers.get("x-dura-meta-" + ContentStore.CONTENT_MIMETYPE));
         Assert.assertEquals(checksum, headers.get(HttpHeaders.CONTENT_MD5));
+        Assert.assertEquals(encoding, headers.get(HttpHeaders.CONTENT_ENCODING));
         Assert.assertNotNull(headers.get(Constants.CLIENT_VERSION_HEADER));
 
     }

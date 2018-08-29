@@ -5,13 +5,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>synctoolui</artifactId>
   <packaging>war</packaging>
-  <version>4.4.6</version>
+  <version>5.0.0</version>
   <name>DuraCloud Sync Tool</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>4.4.6</version>
+    <version>5.0.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

@@ -7,20 +7,22 @@
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
            http://www.springframework.org/schema/aop
-           http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
+           http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
            http://www.springframework.org/schema/security
            http://www.springframework.org/schema/security/spring-security-4.0.xsd">
 
   <!--
     A lot of Spring conventions here.
     This element wires together the
-      authentication-manager, 
+      authentication-manager,
       access-decision-manager,
       various servlet filters (including basic-auth, anonymous, and exception-translation)
    -->
   <http access-decision-manager-ref="duraAccessDecisionManager"
         realm="DuraCloud:DuraStore" use-expressions="false">
     <csrf disabled="true"/>
+
+    <intercept-url pattern="/aux/cookies" access="ROLE_ANONYMOUS"/>
 
     <!-- no one should be adding the 'acl' space, not even ROOT -->
     <intercept-url pattern="/acl" method="PUT" access="ROLE_ROOT"/>

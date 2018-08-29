@@ -31,6 +31,7 @@ import org.duracloud.common.model.AclType;
 import org.duracloud.mill.db.model.BitIntegrityReport;
 import org.duracloud.mill.db.repo.JpaBitIntegrityReportRepo;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReportResult;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
@@ -176,7 +177,10 @@ public class BitIntegrityReportRestTest extends EasyMockSupport {
 
     protected void setupGetContent() {
         InputStream is = new ByteArrayInputStream("test".getBytes());
-        expect(store.getContent(eq(reportSpaceId), eq(reportContentId))).andReturn(is);
+        RetrievedContent retrievedContent = new RetrievedContent();
+        retrievedContent.setContentStream(is);
+        expect(store.getContent(eq(reportSpaceId), eq(reportContentId)))
+            .andReturn(retrievedContent);
     }
 
     protected void setupBitIntegrityReportRepo() {

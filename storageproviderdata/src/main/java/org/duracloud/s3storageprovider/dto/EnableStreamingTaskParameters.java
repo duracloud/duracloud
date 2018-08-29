@@ -8,6 +8,7 @@
 package org.duracloud.s3storageprovider.dto;
 
 import java.io.IOException;
+import java.util.List;
 import javax.xml.bind.annotation.XmlValue;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
@@ -28,6 +29,9 @@ public class EnableStreamingTaskParameters {
     @XmlValue
     private boolean secure;
 
+    @XmlValue
+    private List<String> allowedOrigins;
+
     // Required by JAXB
     public EnableStreamingTaskParameters() {
     }
@@ -46,6 +50,14 @@ public class EnableStreamingTaskParameters {
 
     public void setSecure(boolean secure) {
         this.secure = secure;
+    }
+
+    public List<String> getAllowedOrigins() {
+        return allowedOrigins;
+    }
+
+    public void setAllowedOrigins(List<String> allowedOrigins) {
+        this.allowedOrigins = allowedOrigins;
     }
 
     /**

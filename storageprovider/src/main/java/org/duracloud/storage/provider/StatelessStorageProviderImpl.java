@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 
@@ -91,11 +92,22 @@ public class StatelessStorageProviderImpl
     /**
      * {@inheritDoc}
      */
-    public InputStream getContent(StorageProvider targetProvider,
+    public RetrievedContent getContent(StorageProvider targetProvider,
                                   String storeId,
                                   String spaceId,
                                   String contentId) throws StorageException {
         return targetProvider.getContent(spaceId, contentId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public RetrievedContent getContent(StorageProvider targetProvider,
+                                       String storeId,
+                                       String spaceId,
+                                       String contentId,
+                                       String range) throws StorageException {
+        return targetProvider.getContent(spaceId, contentId, range);
     }
 
     /**

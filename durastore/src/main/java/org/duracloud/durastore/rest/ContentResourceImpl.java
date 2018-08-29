@@ -8,14 +8,19 @@
 package org.duracloud.durastore.rest;
 
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.Map;
 
 import org.duracloud.durastore.error.ResourceChecksumException;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
+import org.duracloud.durastore.error.ResourcePropertiesInvalidException;
 import org.duracloud.durastore.error.ResourceStateException;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.InvalidIdException;
+import org.duracloud.storage.error.InvalidRequestException;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageStateException;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
@@ -49,14 +54,15 @@ public class ContentResourceImpl implements ContentResource {
      * @return InputStream which can be used to read content.
      */
     @Override
-    public InputStream getContent(String spaceID,
-                                  String contentID,
-                                  String storeID)
-        throws ResourceException {
+    public RetrievedContent getContent(String spaceID,
+                                       String contentID,
+                                       String storeID,
+                                       String range)
+        throws InvalidRequestException, ResourceException {
         try {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
-            return storage.getContent(spaceID, contentID);
+            return storage.getContent(spaceID, contentID, range);
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("get content",
                                                 spaceID,
@@ -67,6 +73,9 @@ public class ContentResourceImpl implements ContentResource {
                                              spaceID,
                                              contentID,
                                              e);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidRequestException(e.getMessage());
+
         } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("get content", spaceID, contentID, e);
@@ -115,7 +124,11 @@ public class ContentResourceImpl implements ContentResource {
                                         Map<String, String> userProperties,
                                         String storeID)
         throws ResourceException {
+
+        validateProperties(userProperties, "update properties for content", spaceID, contentID);
+
         try {
+
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
 
@@ -142,6 +155,35 @@ public class ContentResourceImpl implements ContentResource {
         }
     }
 
+    private void validateProperties(Map<String, String> userProperties, String task, String spaceId, String contentId)
+        throws ResourcePropertiesInvalidException {
+        StringBuilder message = new StringBuilder();
+        for (Map.Entry<String, String> entry : userProperties.entrySet()) {
+            if (!isAllUSASCII(entry.getKey())) {
+                message.append(
+                    "The property name '" + entry.getKey() + "' is invalid. Only US-ASCII characters are allowed.  ");
+            }
+
+            if (!isAllUSASCII(entry.getValue())) {
+                message.append("The property value '" + entry
+                    .getValue() + "' is invalid. Only US-ASCII characters are allowed.  ");
+            }
+        }
+
+        if (message.length() > 0) {
+            throw new ResourcePropertiesInvalidException(task, spaceId, contentId, new Exception(message.toString()));
+        }
+    }
+
+    private boolean isAllUSASCII(String value) {
+        if (value != null) {
+            CharsetEncoder encoder =
+                Charset.forName("US-ASCII").newEncoder();
+            return encoder.canEncode(value);
+        }
+        return true;
+    }
+
     /**
      * Adds content to a space.
      *
@@ -156,8 +198,10 @@ public class ContentResourceImpl implements ContentResource {
                              long contentSize,
                              String checksum,
                              String storeID)
-        throws ResourceException, InvalidIdException {
+        throws ResourceException, InvalidIdException, ResourcePropertiesInvalidException {
+
         IdUtil.validateContentId(contentID);
+        validateProperties(userProperties, "add content", spaceID, contentID);
 
         try {
             StorageProvider storage =
@@ -267,11 +311,11 @@ public class ContentResourceImpl implements ContentResource {
                                                       String destSpaceID,
                                                       String destContentID,
                                                       String destStoreID) throws ResourceException {
-        try (InputStream inputStream =
-                 srcStorage.getContent(srcSpaceID, srcContentID)) {
+        RetrievedContent retrievedContent = srcStorage.getContent(srcSpaceID, srcContentID);
 
-            Map<String, String> properties =
-                srcStorage.getContentProperties(srcSpaceID, srcContentID);
+        try (InputStream inputStream = retrievedContent.getContentStream()) {
+
+            Map<String, String> properties = retrievedContent.getContentProperties();
 
             Long contentSize = null;
 

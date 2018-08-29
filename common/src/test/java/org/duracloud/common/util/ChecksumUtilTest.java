@@ -260,12 +260,14 @@ public class ChecksumUtilTest {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    if (util.generateChecksum(new ByteArrayInputStream(data)).equals(checksum)) {
-                        successes.incrementAndGet();
+                    try {
+                        if (util.generateChecksum(new ByteArrayInputStream(data)).equals(checksum)) {
+                            successes.incrementAndGet();
+                        }
+                    } catch (Exception e) {
+                        //do nothing
                     }
-
                     latch.countDown();
-
                 }
             }).start();
         }

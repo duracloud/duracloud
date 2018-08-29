@@ -32,6 +32,7 @@ public class AuditTask extends TypedTask {
     public static final String CONTENT_CHECKSUM_PROP = "content-checksum";
     public static final String CONTENT_MIMETYPE_PROP = "content-mimetype";
     public static final String CONTENT_SIZE_PROP = "content-size";
+    public static final String CONTENT_RANGE_PROP = "content-range";
     public static final String CONTENT_PROPERTIES_PROP = "content-properties";
     public static final String SPACE_ACLS_PROP = "space-acls";
     public static final String STORE_TYPE_PROP = "store-type";
@@ -48,14 +49,13 @@ public class AuditTask extends TypedTask {
         GET_CONTENT_PROPERTIES
     }
 
-    ;
-
     private String action;
     private String userId;
     private String dateTime;
     private String contentChecksum;
     private String contentMimetype;
     private String contentSize;
+    private String contentRange;
     private Map<String, String> contentProperties;
     private String spaceACLs;
     private String storeType;
@@ -110,6 +110,14 @@ public class AuditTask extends TypedTask {
 
     public void setContentSize(String contentSize) {
         this.contentSize = contentSize;
+    }
+
+    public String getContentRange() {
+        return contentRange;
+    }
+
+    public void setContentRange(String contentRange) {
+        this.contentRange = contentRange;
     }
 
     public Map<String, String> getContentProperties() {
@@ -182,6 +190,7 @@ public class AuditTask extends TypedTask {
         addProperty(task, CONTENT_CHECKSUM_PROP, getContentChecksum());
         addProperty(task, CONTENT_MIMETYPE_PROP, getContentMimetype());
         addProperty(task, CONTENT_SIZE_PROP, getContentSize());
+        addProperty(task, CONTENT_RANGE_PROP, getContentRange());
         String contentProps = serializeContentProperties(getContentProperties());
         addProperty(task, CONTENT_PROPERTIES_PROP, contentProps);
         addProperty(task, SPACE_ACLS_PROP, this.spaceACLs);

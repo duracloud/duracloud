@@ -62,6 +62,8 @@ public class SpaceUtil {
         space.setSpaceId(cloudSpace.getId());
         space.setProperties(getSpaceProperties(cloudSpace.getProperties()));
         space.setStreamingEnabled(StringUtils.isNotBlank(space.getProperties().getStreamingHost()));
+        space.setHlsEnabled(StringUtils.isNotBlank(space.getProperties().getHlsStreamingHost()));
+
         space.setExtendedProperties(cloudSpace.getProperties());
         space.setContents(cloudSpace.getContentIds());
         Map<String, AclType> spaceAcls = contentStore.getSpaceACLs(cloudSpace.getId());
@@ -98,6 +100,9 @@ public class SpaceUtil {
         spaceProperties.setTags(TagUtil.parseTags(spaceProps.remove(TagUtil.TAGS)));
         spaceProperties.setStreamingHost(spaceProps.get(ContentStore.STREAMING_HOST));
         spaceProperties.setStreamingType(spaceProps.get(ContentStore.STREAMING_TYPE));
+        spaceProperties.setHlsStreamingHost(spaceProps.get(ContentStore.HLS_STREAMING_HOST));
+        spaceProperties.setHlsStreamingType(spaceProps.get(ContentStore.HLS_STREAMING_TYPE));
+
         spaceProperties.setSnapshotId(spaceProps.get(Constants.SNAPSHOT_ID_PROP));
 
         String restoreId = spaceProps.get(Constants.RESTORE_ID_PROP);
@@ -162,7 +167,7 @@ public class SpaceUtil {
         return properties;
     }
 
-    public static void streamContent(ContentStore store, HttpServletResponse response, String spaceId, String contentId)
+    public static void  streamContent(ContentStore store, HttpServletResponse response, String spaceId, String contentId)
         throws ContentStoreException, IOException {
         Content c = store.getContent(spaceId, contentId);
         Map<String, String> m = store.getContentProperties(spaceId, contentId);

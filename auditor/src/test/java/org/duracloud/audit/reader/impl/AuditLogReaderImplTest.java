@@ -32,6 +32,7 @@ import org.duracloud.audit.reader.AuditLogReaderException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.mill.test.AbstractTestBase;
 import org.duracloud.storage.domain.AuditConfig;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -226,8 +227,12 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
                                             String contentId,
                                             String[] file1Lines) throws IOException, ContentStoreException {
         InputStream is = createMock(InputStream.class);
+        RetrievedContent retrievedContent = new RetrievedContent();
+        retrievedContent.setContentStream(is);
+
         expect(is.read(isA(byte[].class), anyInt(), anyInt())).andThrow(new IOException("test"));
-        expect(storageProvider.getContent(eq(globalAuditSpaceId), eq(prefix + "/" + contentId))).andReturn(is);
+        expect(storageProvider.getContent(eq(globalAuditSpaceId), eq(prefix + "/" + contentId)))
+            .andReturn(retrievedContent);
     }
 
     protected AuditLogReaderImpl createAuditLogReader(final StorageProvider storageProvider, AuditConfig config) {
@@ -255,8 +260,10 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         }
         writer.close();
 
+        RetrievedContent retrievedContent = new RetrievedContent();
+        retrievedContent.setContentStream(new FileInputStream(file));
         expect(storageProvider.getContent(eq(globalAuditSpaceId), eq(prefix + "/" + contentId)))
-            .andReturn(new FileInputStream(file));
+            .andReturn(retrievedContent);
     }
 
 }

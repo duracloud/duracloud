@@ -27,6 +27,13 @@ public class StorageTaskConstants {
     public static final String GET_URL_TASK_NAME = "get-url";
     public static final String GET_SIGNED_URL_TASK_NAME = "get-signed-url";
 
+    // HLS Streaming
+    public static final String ENABLE_HLS_TASK_NAME = "enable-hls";
+    public static final String DISABLE_HLS_TASK_NAME = "disable-hls";
+    public static final String DELETE_HLS_TASK_NAME = "delete-hls";
+    public static final String GET_HLS_URL_TASK_NAME = "get-url-hls";
+    public static final String GET_SIGNED_COOKIES_URL_TASK_NAME = "get-signed-cookies-url";
+
     // Storage policy
     public static final String SET_STORAGE_POLICY_TASK_NAME = "set-storage-policy";
 

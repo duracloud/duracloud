@@ -7,6 +7,7 @@
  */
 package org.duracloud.client;
 
+import static org.duracloud.client.HttpHeaders.CONTENT_ENCODING;
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 
 import java.io.ByteArrayInputStream;
@@ -285,7 +286,7 @@ public class ContentStoreImpl implements ContentStore {
             throw new UnauthorizedException(task, "listing", e);
         } catch (Exception e) {
             throw new ContentStoreException("Error attempting to get spaces " +
-                                            "due to: " + e.getMessage(), e);
+                                                "due to: " + e.getMessage(), e);
         }
     }
 
@@ -637,8 +638,8 @@ public class ContentStoreImpl implements ContentStore {
 
             if (contentChecksum != null && !returnedChecksum.equals(contentChecksum)) {
                 String message = MessageFormat.format("checksum returned from durastore ({0}) " +
-                                                      "does not match the checksum that was sent ({1}): " +
-                                                      "task={2}, spaceId={3}, contentId={4}",
+                                                          "does not match the checksum that was sent ({1}): " +
+                                                          "task={2}, spaceId={3}, contentId={4}",
                                                       returnedChecksum,
                                                       contentChecksum,
                                                       task,
@@ -1004,7 +1005,12 @@ public class ContentStoreImpl implements ContentStore {
         Map<String, String> headers = new HashMap<String, String>();
         if (properties != null) {
             for (String key : properties.keySet()) {
-                headers.put(HEADER_PREFIX + key, properties.get(key));
+                String value = properties.get(key);
+                if (key.equalsIgnoreCase(CONTENT_ENCODING)) {
+                    headers.put(CONTENT_ENCODING, value);
+                } else {
+                    headers.put(HEADER_PREFIX + key, value);
+                }
             }
         }
 
@@ -1037,12 +1043,14 @@ public class ContentStoreImpl implements ContentStore {
                 if (name.equals(HttpHeaders.CONTENT_TYPE)) {
                     headers.put(CONTENT_MIMETYPE, header.getValue());
                 } else if (name.equals(HttpHeaders.CONTENT_MD5) ||
-                           name.equals(HttpHeaders.ETAG)) {
+                    name.equals(HttpHeaders.ETAG)) {
                     headers.put(CONTENT_CHECKSUM, header.getValue());
                 } else if (name.equals(HttpHeaders.CONTENT_LENGTH)) {
                     headers.put(CONTENT_SIZE, header.getValue());
                 } else if (name.equals(HttpHeaders.LAST_MODIFIED)) {
                     headers.put(CONTENT_MODIFIED, header.getValue());
+                } else if (name.equals(CONTENT_ENCODING)) {
+                    headers.put(CONTENT_ENCODING, header.getValue());
                 }
             }
         }
@@ -1117,10 +1125,10 @@ public class ContentStoreImpl implements ContentStore {
             return SerializationUtil.deserializeList(reponseText);
         } catch (UnauthorizedException e) {
             throw new UnauthorizedException("Not authorized to get supported " +
-                                            "tasks", e);
+                                                "tasks", e);
         } catch (Exception e) {
             throw new ContentStoreException("Error getting supported tasks: " +
-                                            e.getMessage(), e);
+                                                e.getMessage(), e);
         }
     }
 
@@ -1162,12 +1170,12 @@ public class ContentStoreImpl implements ContentStore {
             throw new UnsupportedTaskException(taskName, e);
         } catch (UnauthorizedException e) {
             throw new UnauthorizedException("Not authorized to perform task: " +
-                                            taskName, e);
+                                                taskName, e);
         } catch (ContentStateException e) {
             throw e;
         } catch (Exception e) {
             throw new ContentStoreException("Error performing task (" +
-                                            taskName + "):  " + e.getMessage(), e);
+                                                taskName + "):  " + e.getMessage(), e);
         }
     }
 

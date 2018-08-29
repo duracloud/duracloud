@@ -151,7 +151,7 @@ public class StorageAccountProviderSimpleBindingImplTest {
         String id = "id";
         String username = "username";
         String password = "password";
-        StorageProviderType type = StorageProviderType.RACKSPACE;
+        StorageProviderType type = StorageProviderType.AMAZON_GLACIER;
         return new StorageAccountImpl(id, username, password, type);
     }
 

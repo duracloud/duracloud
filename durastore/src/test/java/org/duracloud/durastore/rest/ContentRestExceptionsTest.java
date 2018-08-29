@@ -39,8 +39,10 @@ public class ContentRestExceptionsTest {
         ContentResource resource = EasyMock.createMock("ContentResource",
                                                        ContentResource.class);
 
-        EasyMock.expect(resource.getContentProperties(null, null, null)).andThrow(
-            support.createRuntimeException()).anyTimes();
+        EasyMock.expect(resource.getContentProperties(null, null, null))
+                .andThrow(support.createRuntimeException()).anyTimes();
+        EasyMock.expect(resource.getContent(null, null, null, null))
+                .andThrow(support.createRuntimeException()).anyTimes();
         resource.deleteContent(null, null, null);
         EasyMock.expectLastCall()
                 .andThrow(support.createRuntimeException())
@@ -53,7 +55,7 @@ public class ContentRestExceptionsTest {
 
     @Test
     public void testGetContent() throws Exception {
-        Response response = contentRest.getContent(null, null, null, false);
+        Response response = contentRest.getContent(null, null, null, false, null);
         support.verifyErrorResponse(response);
     }
 

@@ -41,6 +41,7 @@ import edu.umiacs.irods.operation.QueryBuilder;
 import edu.umiacs.irods.operation.QueryResult;
 import edu.umiacs.irods.operation.UnknownSizeOutputStream;
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -366,7 +367,7 @@ public class IrodsStorageProvider implements StorageProvider {
     }
 
     @Override
-    public InputStream getContent(String spaceId, String contentId) {
+    public RetrievedContent getContent(String spaceId, String contentId) {
         String path = baseDirectory + "/" + spaceId + "/" + contentId;
         ConnectOperation co =
             new ConnectOperation(host, port, username, password, zone);
@@ -374,14 +375,23 @@ public class IrodsStorageProvider implements StorageProvider {
             ObjTypeEnum type = new IrodsOperations(co).stat(path).getObjType();
             log.trace("Opening inputstream to irods path: " +
                       path + " type " + type);
-            return new BufferedInputStream(
-                new IrodsProxyInputStream(path, co.getConnection()),
-                BLOCK_SIZE);
+
+            RetrievedContent content = new RetrievedContent();
+            content.setContentStream(new BufferedInputStream(
+                new IrodsProxyInputStream(path, co.getConnection()), BLOCK_SIZE));
+            content.setContentProperties(getContentProperties(spaceId, contentId));
+
+            return content;
 
         } catch (IOException e) {
             log.error("Could not connect to iRODS", e);
             throw new StorageException(e);
         }
+    }
+
+    @Override
+    public RetrievedContent getContent(String spaceId, String contentId, String range) {
+        throw new UnsupportedOperationException("Content Range requests are not supported");
     }
 
     @Override

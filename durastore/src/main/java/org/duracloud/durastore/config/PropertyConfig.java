@@ -20,10 +20,15 @@ import org.springframework.core.io.ResourceLoader;
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @PropertySource("${duracloud.config.file}") //this references the system property.
+/*
+ * Checkstyle suppression is necessary to allow static method and public
+ * constructor, see: https://jira.duraspace.org/browse/DURACLOUD-1190
+ */
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
 public class PropertyConfig {
 
     @Bean
-    public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer(
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer(
         ResourceLoader resourceLoader) throws IOException {
 
         PropertySourcesPlaceholderConfigurer p = new PropertySourcesPlaceholderConfigurer();

@@ -4,7 +4,7 @@
 */
 
 /* RESETTERS *************************************************/
-/* Eric Meyer: 
+/* Eric Meyer:
 /* v1.0 | 20080212 */
 
 html, body, div, span, applet, object, iframe,
@@ -91,7 +91,7 @@ input:-webkit-autofill {
 .clearfix { display: block; }
 /* close commented backslash hack */
 
-	
+
 .horizontal-list li
 {
 	display:inline-block;
@@ -150,8 +150,8 @@ body > #page-header
 }
 
 .dc-prototype {
-	
-	display:none;	
+
+	display:none;
 }
 
 .list-browser
@@ -231,20 +231,20 @@ body > #page-header
 #spaces-list-view .list-header .button span,
 #content-item-list-view .list-header .button span
 {
-	width:130px;	
+	width:130px;
 }
 
 .item-scroll-action:hover {
 	color:#EEE;
-	font-weight:bold;	
+	font-weight:bold;
 }
 
 .item-scroll-action{
-	text-decoration: none;	
+	text-decoration: none;
 }
 
-.ui-layout-pane	
-{ 
+.ui-layout-pane
+{
 	color:#fff;
 }
 
@@ -266,16 +266,6 @@ body > #page-header
     background:url(../images/amazon.png) no-repeat;
 }
 
-.rackspace-logo
-{
-    background:url(../images/rackspace.png) no-repeat;
-}
-
-.sdsc-logo
-{
-    background:url(../images/sdsc.png) no-repeat;
-}
-
 .dpn-logo
 {
     background:url(../images/dpn.png) no-repeat;
@@ -287,20 +277,20 @@ body > #page-header
 }
 
 .ui-layout-resizer
-{ 
+{
 	background-color:#4b4b4b;
-	cursor:col-resize !important; 
+	cursor:col-resize !important;
 }
 
 .ui-layout-resizer:hover
-{ 
-	background-color:#257bba !important; 
-	cursor:col-resize !important; 
-	opacity:1 !important; 
+{
+	background-color:#257bba !important;
+	cursor:col-resize !important;
+	opacity:1 !important;
 }
 
 #spaces-list-view-resizer
-{	
+{
 	background-color:#6e6e6e;
 	border-top:1px solid #828282;
 }
@@ -383,7 +373,7 @@ ul.dc-user-config > li:last-child {
 	height:20px;
 	width:110px;
 	vertical-align:middle;
-	
+
 }
 
 #status-holder {
@@ -481,12 +471,12 @@ ul.dc-user-config > li:last-child {
 
 .dc-item {
     position:relative;
-	min-height:20px;	
+	min-height:20px;
 }
 .dc-item-list td,
 .dc-item-list th
 {
-	padding:3px 5px;	
+	padding:3px 5px;
 }
 
 .dc-item-list td.icon
@@ -551,7 +541,7 @@ input.dc-check-all
 
 .dc-item div:first-child {
 	/*
-	
+
 	float:left;*/
 }
 
@@ -609,7 +599,7 @@ input.dc-check-all
 }
 
 #page-header #dc-user
-{	
+{
 	border-right:solid 1px #ccc;
 	height:60px;
 	margin-right:10px;
@@ -637,9 +627,9 @@ input.dc-check-all
 
 .dc-mouse-panel-activator
 {
-	cursor:pointer;	
-}	
-	
+	cursor:pointer;
+}
+
 .dc-toggler {
 	float:right;
 	background: url(../images/icon_sm_arw_blue_updown.gif) no-repeat right top;
@@ -648,10 +638,10 @@ input.dc-check-all
 }
 
 .dc-toggler-close { background-position:left top; }
-	
+
 
 .dc-expandable-panel div:first-child{
-	cursor: pointer;		
+	cursor: pointer;
 }
 
 /* DETAIL PANE ****************************************************/
@@ -668,7 +658,7 @@ input.dc-check-all
 }
 
 .detail-pane > .north {
-	overflow: hidden;	
+	overflow: hidden;
 }
 
 .detail-pane th {
@@ -699,7 +689,7 @@ h2,.footer-prompt
 	position:relative;
 }
 
-.detail-pane .center 
+.detail-pane .center
 {
 	background-color:#414141;
 	border:1px solid #2d2d2d;
@@ -715,7 +705,7 @@ h2,.footer-prompt
 	width:auto !important;
 }
 
-.detail-pane .segment-header, 
+.detail-pane .segment-header,
 #add-remove-properties-dialog .segment-header
 {
 	background:url(../images/bg_segment_header.gif) repeat-x top left;
@@ -728,7 +718,7 @@ h2,.footer-prompt
 	padding:0 10px;
 }
 
-.detail-pane .segment-header:hover, 
+.detail-pane .segment-header:hover,
 #add-remove-properties-dialog .segment-header:hover
 {
 	color:#fff;
@@ -746,7 +736,7 @@ h2,.footer-prompt
 	width:100%;
 }
 
-.detail-pane .segment-content table td, 
+.detail-pane .segment-content table td,
 #add-remove-properties-dialog .segment-content table td
 {
 	border-bottom:1px solid #555;
@@ -846,9 +836,9 @@ span.label,
 }
 
 
- 
+
  /* ERRORS *********************************************************/
- 
+
  .error, .warning
  {
  	color:#ccc;
@@ -865,7 +855,7 @@ span.label,
  	border:1px solid #ff9933;
 	background-color:#ff6600;
  }
- 
+
  .success {
  	border:1px solid #00AA00;
 	background-color:#009900;
@@ -879,17 +869,20 @@ span.label,
 	padding:5px;
  }
 
+.detail-pane label.error {
+	padding:0px;
+ }
 
  .health-check {
  	padding:5px;
  }
 
  /* MISC **********************************************************/
- 
+
  .object-id {
  	display:none;
  }
- 
+
  /*flyout select default styling ******************************************/
 
 .provider-widget
@@ -899,7 +892,7 @@ span.label,
 }
 
 .provider-widget ul
-{ 
+{
 	-moz-border-radius:3px;
 	border-radius:3px;
 	-webkit-border-radius:3px;
@@ -950,7 +943,7 @@ span.label,
 
 .provider-widget > a,
 .provider-widget > a span
-{	
+{
 	background-image:url(../images/btn_provider.gif);
 
 }
@@ -979,7 +972,7 @@ span.label,
 }
 
 .dc-removing {
-	background-color: orange;	
+	background-color: orange;
 	filter:alpha(opacity=0.25);
 	-moz-opacity:0.25;
 	-khtml-opacity: 0.25;
@@ -988,7 +981,7 @@ span.label,
 
 .dc-progressbar
 {
-	display:block;	
+	display:block;
 	background-color:#003300;
 	border:1px solid #000;
 	border-bottom-color:#454545;
@@ -1024,7 +1017,7 @@ span.label,
 
 
 .dc-progress-state {
-	padding-right:1em;	
+	padding-right:1em;
 }
 
 .dc-controls
@@ -1035,7 +1028,7 @@ span.label,
 
 
 #busy-dialog-title {
-	margin-bottom:20px;	
+	margin-bottom:20px;
 }
 #busy-dialog-progressbar  {
 	height: 30px;
@@ -1045,7 +1038,7 @@ span.label,
 
 .ui-serviceconfig > div {
 	height: 420px;
-	overflow: auto;	
+	overflow: auto;
 }
 
 
@@ -1057,7 +1050,7 @@ p.ui-serviceconfig-no-config{
 * hiding the jquery-ui dialog title bars globally.
 */
 .ui-dialog-titlebar{
-	display:none;	
+	display:none;
 }
 
 
@@ -1069,7 +1062,7 @@ p.ui-serviceconfig-no-config{
 }
 
 .dc-breadcrumb  li:after {
-	content:' :: '	
+	content:' :: '
 }
 
 
@@ -1081,29 +1074,29 @@ p.ui-serviceconfig-no-config{
 
 
 .dc-breadcrumb-title {
-	font-size:1.3em !important;	
+	font-size:1.3em !important;
 	color:#555 !important;
-	
+
 }
 
 
 .dc-breadcrumb ul{
-	
+
 }
 
 .dc-report-panel {
-	
+
 }
 
 .dc-hidden {
-	display:none;	
+	display:none;
 }
 .dc-date-slider > div {
 	 display:inline-block;
 }
 
 .number {
-	text-align:right;	
+	text-align:right;
 }
 
 
@@ -1211,27 +1204,27 @@ table.dc-acls td:last-child {
 
 .dc-graph-holder {
 	margin-left: 40px;
-	
+
 }
  .history-panel #summaries-graph {
  	height:150px;
 	display:inline-block;
-		
+
  }
 
  .history-panel .segment-content > * {
     width: 95%;
  }
- 
+
  .history-panel #summaries-legend {
 	display:block;
 	color: #EEE;
-	padding:5px; 
+	padding:5px;
  }
  .history-panel #summaries-legend table {
  	border: 1px solid #555;
  }
- 
+
 .history-panel #summaries-legend .legendLabel{
 	color: #EEE;
 }
@@ -1244,19 +1237,37 @@ table.dc-acls td:last-child {
 	margin-bottom: 10px;
 }
 
+#streaming-pane > p {
+	margin-bottom: 20px;
+}
+
+#rtmpSwitchControl, #hlsSwitchControl {
+	border-bottom: 1px solid #555;
+	padding-bottom:10px;
+	margin-bottom:10px;
+	width:100%;
+	display: inline-block;
+	margin-top: 20px;
+
+}
+
+#hlsSwitchControl {
+	margin-top: 25px;
+}
+
 .streaming-switch-holder {
 	height:20px;
-	margin-left:15px;
-	display:inline-block; 
+	display:inline-block;
 	white-space: nowrap;
+	margin-bottom: 20px;
 }
 .streaming-switch-holder label {
-	font-size: 0.6em;
+	font-size: 1.25em;
 }
 
 .streaming-switch {
 	display:inline-block;
-	font-size:0.7em"
+	font-size:0.7em;
 }
 
 .button-bar {
@@ -1275,12 +1286,12 @@ button#enable-streaming {
   background-color:#5b5b5b;
   padding:5px;
   font-weight: bold;
-	
+
 }
 
 .dc-busy-holder {
     background: url('../images/wait.gif') no-repeat left center;
-    display:inline-block; 
+    display:inline-block;
     vertical-align:middle;
     height:20px;
     width:20px;

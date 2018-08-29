@@ -15,12 +15,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 
-public class MockStorageProvider
-    implements StorageProvider {
+public class MockStorageProvider implements StorageProvider {
 
     private String spaceId;
 
@@ -35,6 +35,8 @@ public class MockStorageProvider
     private String contentChecksum;
 
     private InputStream content;
+
+    private RetrievedContent retrievedContent;
 
     private Map<String, String> contentProperties;
 
@@ -67,6 +69,8 @@ public class MockStorageProvider
         this.contentSize = contentSize;
         this.contentChecksum = contentChecksum;
         this.content = content;
+        this.retrievedContent = new RetrievedContent();
+        this.retrievedContent.setContentStream(content);
         this.spaceContents = new ArrayList<String>();
         spaceContents.add(content.toString());
         return new String();
@@ -97,9 +101,14 @@ public class MockStorageProvider
         this.spaceId = spaceId;
     }
 
-    public InputStream getContent(String spaceId, String contentId)
+    public RetrievedContent getContent(String spaceId, String contentId)
         throws StorageException {
-        return content;
+        return retrievedContent;
+    }
+
+    public RetrievedContent getContent(String spaceId, String contentId, String range)
+        throws StorageException {
+        return retrievedContent;
     }
 
     public Map<String, String> getContentProperties(String spaceId,
@@ -187,6 +196,8 @@ public class MockStorageProvider
 
     public void setContent(InputStream content) {
         this.content = content;
+        this.retrievedContent = new RetrievedContent();
+        this.retrievedContent.setContentStream(content);
     }
 
     public Map<String, String> getContentProperties() {

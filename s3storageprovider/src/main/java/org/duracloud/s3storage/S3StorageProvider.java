@@ -7,6 +7,7 @@
  */
 package org.duracloud.s3storage;
 
+import static org.apache.http.HttpHeaders.CONTENT_ENCODING;
 import static org.duracloud.storage.error.StorageException.NO_RETRY;
 import static org.duracloud.storage.error.StorageException.RETRY;
 
@@ -35,6 +36,7 @@ import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -50,7 +52,9 @@ import org.duracloud.common.model.AclType;
 import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
+import org.duracloud.storage.domain.ContentByteRange;
 import org.duracloud.storage.domain.ContentIterator;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.NotFoundException;
@@ -75,6 +79,7 @@ public class S3StorageProvider extends StorageProviderBase {
         StorageClass.Standard;
 
     private static final String UTF_8 = StandardCharsets.UTF_8.name();
+    protected static final String HIDDEN_SPACE_PREFIX = "hidden-";
 
     protected static final String HEADER_VALUE_PREFIX = UTF_8 + "''";
     protected static final String HEADER_KEY_SUFFIX = "*";
@@ -261,6 +266,45 @@ public class S3StorageProvider extends StorageProviderBase {
             throw new StorageException(err, e, RETRY);
         }
     }
+
+    private String getHiddenBucketName(String spaceId) {
+        return HIDDEN_SPACE_PREFIX + getNewBucketName(spaceId);
+    }
+
+    /**
+     * Creates a "hidden" space.  This space will not be returned by the StorageProvider.getSpaces() method.
+     * It can be accessed using the getSpace* methods.  You must know the name of the space in order to
+     * access it.
+     * @param spaceId The spaceId
+     * @param expirationInDays The number of days before content in the space is automatically deleted.
+     * @return
+     */
+    public String createHiddenSpace(String spaceId, int expirationInDays) {
+        String bucketName = getHiddenBucketName(spaceId);
+        try {
+            Bucket bucket = s3Client.createBucket(bucketName);
+
+            // Apply lifecycle config to bucket
+
+            BucketLifecycleConfiguration.Rule expiresRule = new BucketLifecycleConfiguration.Rule()
+                .withId("ExpirationRule")
+                .withExpirationInDays(expirationInDays)
+                .withStatus(BucketLifecycleConfiguration.ENABLED);
+
+            // Add the rules to a new BucketLifecycleConfiguration.
+            BucketLifecycleConfiguration configuration = new BucketLifecycleConfiguration()
+                .withRules(expiresRule);
+
+            s3Client.setBucketLifecycleConfiguration(bucketName, configuration);
+
+            return spaceId;
+        } catch (AmazonClientException e) {
+            String err = "Could not create S3 bucket with name " + bucketName
+                         + " due to error: " + e.getMessage();
+            throw new StorageException(err, e, RETRY);
+        }
+    }
+
 
     /**
      * Defines the storage policy for the primary S3 provider.
@@ -464,6 +508,54 @@ public class S3StorageProvider extends StorageProviderBase {
     }
 
     /**
+     * Adds content to a hidden space.
+     *
+     * @param spaceId         hidden spaceId
+     * @param contentId
+     * @param contentMimeType
+     * @param content
+     * @return
+     */
+    public String addHiddenContent(String spaceId,
+                                   String contentId,
+                                   String contentMimeType,
+                                   InputStream content) {
+        log.debug("addHiddenContent(" + spaceId + ", " + contentId + ", " +
+                  contentMimeType + ")");
+
+        // Will throw if bucket does not exist
+        String bucketName = getBucketName(spaceId);
+
+        // Wrap the content in order to be able to retrieve a checksum
+
+        if (contentMimeType == null || contentMimeType.equals("")) {
+            contentMimeType = DEFAULT_MIMETYPE;
+        }
+
+        ObjectMetadata objMetadata = new ObjectMetadata();
+        objMetadata.setContentType(contentMimeType);
+
+        PutObjectRequest putRequest = new PutObjectRequest(bucketName,
+                                                           contentId,
+                                                           content,
+                                                           objMetadata);
+        putRequest.setStorageClass(DEFAULT_STORAGE_CLASS);
+        putRequest.setCannedAcl(CannedAccessControlList.Private);
+
+        try {
+            PutObjectResult putResult = s3Client.putObject(putRequest);
+            return putResult.getETag();
+        } catch (AmazonClientException e) {
+            String err = "Could not add content " + contentId +
+                         " with type " + contentMimeType +
+                         " to S3 bucket " + bucketName + " due to error: " +
+                         e.getMessage();
+            throw new StorageException(err, e, NO_RETRY);
+        }
+
+    }
+
+    /**
      * {@inheritDoc}
      */
     public String addContent(String spaceId,
@@ -483,6 +575,8 @@ public class S3StorageProvider extends StorageProviderBase {
         ChecksumInputStream wrappedContent =
             new ChecksumInputStream(content, contentChecksum);
 
+        String contentEncoding = removeContentEncoding(userProperties);
+
         userProperties = removeCalculatedProperties(userProperties);
 
         if (contentMimeType == null || contentMimeType.equals("")) {
@@ -498,6 +592,10 @@ public class S3StorageProvider extends StorageProviderBase {
             String encodedChecksum =
                 ChecksumUtil.convertToBase64Encoding(contentChecksum);
             objMetadata.setContentMD5(encodedChecksum);
+        }
+
+        if (contentEncoding != null) {
+            objMetadata.setContentEncoding(contentEncoding);
         }
 
         if (userProperties != null) {
@@ -587,6 +685,14 @@ public class S3StorageProvider extends StorageProviderBase {
                                             contentId,
                                             checksum);
         return providerChecksum;
+    }
+
+    private String removeContentEncoding(Map<String, String> properties) {
+        if (properties != null) {
+            return properties.remove(CONTENT_ENCODING);
+        }
+
+        return null;
     }
 
     /*
@@ -710,15 +816,43 @@ public class S3StorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public InputStream getContent(String spaceId, String contentId) {
-        log.debug("getContent(" + spaceId + ", " + contentId + ")");
+    public RetrievedContent getContent(String spaceId, String contentId) {
+        return getContent(spaceId, contentId, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public RetrievedContent getContent(String spaceId, String contentId, String range) {
+        log.debug("getContent(" + spaceId + ", " + contentId + ", " + range + ")");
 
         // Will throw if bucket does not exist
         String bucketName = getBucketName(spaceId);
 
         try {
-            S3Object contentItem = s3Client.getObject(bucketName, contentId);
-            return contentItem.getObjectContent();
+            GetObjectRequest getRequest = new GetObjectRequest(bucketName, contentId);
+            if (StringUtils.isNotEmpty(range)) {
+                ContentByteRange byteRange = new ContentByteRange(range);
+                if (null == byteRange.getRangeStart()) {
+                    // While this should be a valid setting, it is not currently
+                    // supported due to a limitation of the AWS S3 client
+                    // see: https://github.com/aws/aws-sdk-java/issues/1551
+                    throw new IllegalArgumentException(byteRange.getUsage(range));
+                } else if (null == byteRange.getRangeEnd()) {
+                    getRequest.setRange(byteRange.getRangeStart());
+                } else {
+                    getRequest.setRange(byteRange.getRangeStart(),
+                                        byteRange.getRangeEnd());
+                }
+            }
+
+            S3Object contentItem = s3Client.getObject(getRequest);
+
+            RetrievedContent retrievedContent = new RetrievedContent();
+            retrievedContent.setContentStream(contentItem.getObjectContent());
+            retrievedContent.setContentProperties(prepContentProperties(contentItem.getObjectMetadata()));
+
+            return retrievedContent;
         } catch (AmazonClientException e) {
             throwIfContentNotExist(bucketName, contentId);
             String err = "Could not retrieve content " + contentId + " in S3 bucket " +
@@ -760,6 +894,8 @@ public class S3StorageProvider extends StorageProviderBase {
         // Will throw if bucket does not exist
         String bucketName = getBucketName(spaceId);
 
+        String contentEncoding = removeContentEncoding(contentProperties);
+
         contentProperties = removeCalculatedProperties(contentProperties);
 
         // Determine mimetype, from properties list or existing value
@@ -786,6 +922,11 @@ public class S3StorageProvider extends StorageProviderBase {
         // Set Content-Type
         if (mimeType != null && !mimeType.equals("")) {
             objMetadata.setContentType(mimeType);
+        }
+
+        // Set Content-Encoding
+        if (contentEncoding != null && !contentEncoding.equals("")) {
+            objMetadata.setContentEncoding(contentEncoding);
         }
 
         updateObjectProperties(bucketName, contentId, objMetadata);
@@ -875,6 +1016,15 @@ public class S3StorageProvider extends StorageProviderBase {
             throw new StorageException(err, NO_RETRY);
         }
 
+        return prepContentProperties(objMetadata);
+    }
+
+    @Override
+    public Map<String, String> getSpaceProperties(String spaceId) {
+        return super.getSpaceProperties(spaceId);
+    }
+
+    private Map<String, String> prepContentProperties(ObjectMetadata objMetadata) {
         Map<String, String> contentProperties = new HashMap<>();
 
         // Set the user properties
@@ -884,11 +1034,26 @@ public class S3StorageProvider extends StorageProviderBase {
             contentProperties.put(getWithSpace(decodeHeaderKey(metaName)), decodeHeaderValue(metaValue));
         }
 
+        // Set the response metadata
+        Map<String, Object> responseMeta = objMetadata.getRawMetadata();
+        for (String metaName : responseMeta.keySet()) {
+            Object metaValue = responseMeta.get(metaName);
+            if (metaValue instanceof String) {
+                contentProperties.put(metaName, (String) metaValue);
+            }
+        }
+
         // Set MIMETYPE
         String contentType = objMetadata.getContentType();
         if (contentType != null) {
             contentProperties.put(PROPERTIES_CONTENT_MIMETYPE, contentType);
             contentProperties.put(Headers.CONTENT_TYPE, contentType);
+        }
+
+        // Set CONTENT_ENCODING
+        String encoding = objMetadata.getContentEncoding();
+        if (encoding != null) {
+            contentProperties.put(Headers.CONTENT_ENCODING, encoding);
         }
 
         // Set SIZE
@@ -947,7 +1112,7 @@ public class S3StorageProvider extends StorageProviderBase {
         for (Bucket bucket : buckets) {
             String bucketName = bucket.getName();
             spaceId = spaceId.replace(".", "[.]");
-            if (bucketName.matches("[\\w]{20}[.]" + spaceId)) {
+            if (bucketName.matches("(" + HIDDEN_SPACE_PREFIX + ")?[\\w]{20}[.]" + spaceId)) {
                 return bucketName;
             }
         }

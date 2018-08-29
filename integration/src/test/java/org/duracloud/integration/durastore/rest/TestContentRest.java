@@ -8,9 +8,11 @@
 package org.duracloud.integration.durastore.rest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
@@ -67,8 +69,16 @@ public class TestContentRest extends BaseRestTester {
     public void tearDown() throws Exception {
         // Delete space
         HttpResponse response = RestTestHelper.deleteSpace(BaseRestTester.spaceId);
-        String responseText = checkResponse(response, HttpStatus.SC_OK);
+
+        // Check response
+        assertNotNull(response);
+        String responseText = response.getResponseBody();
         assertNotNull(responseText);
+        int statusCode = response.getStatusCode();
+        if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_NOT_FOUND) {
+            fail("Space delete should result in a 200 or 404 response (if the space " +
+                 "has already been removed), response code received: " + statusCode);
+        }
     }
 
     private String removeParams(String contentId) {
@@ -155,6 +165,69 @@ public class TestContentRest extends BaseRestTester {
             response.getResponseHeader(HttpHeaders.CONTENT_TYPE).getValue();
         assertNotNull(contentType);
         assertTrue(contentType.contains("text/xml"));
+    }
+
+    /*
+     * Tests a GET content call with a limited range in the middle of the content file.
+     * The call should return part of the test file with an HTTP 206 response code.
+     */
+    @Test
+    public void testGetContentRange() throws Exception {
+        String contentId = contentIds[0];
+        HttpResponse response = getContentItemRange(contentId, "bytes=3-5");
+        String responseText = checkResponse(response, HttpStatus.SC_PARTIAL_CONTENT);
+        assertNotNull(responseText);
+        assertFalse(CONTENT.equals(responseText));
+        assertTrue(CONTENT.contains(responseText));
+
+        // Verify headers
+        assertEquals("3", response.getResponseHeader(HttpHeaders.CONTENT_LENGTH).getValue());
+        assertEquals("bytes 3-5/11", response.getResponseHeader(HttpHeaders.CONTENT_RANGE).getValue());
+        assertEquals("bytes", response.getResponseHeader(HttpHeaders.ACCEPT_RANGES).getValue());
+    }
+
+    /*
+     * Tests a GET content call which begins in the middle of a content file and extends
+     * to the end. The call should return the end of the test file with an HTTP 206 response code.
+     */
+    @Test
+    public void testGetContentRangeUnbound() throws Exception {
+        String contentId = contentIds[0];
+        HttpResponse response = getContentItemRange(contentId, "bytes=3-");
+        String responseText = checkResponse(response, HttpStatus.SC_PARTIAL_CONTENT);
+        assertNotNull(responseText);
+        assertFalse(CONTENT.equals(responseText));
+        assertTrue(CONTENT.endsWith(responseText));
+
+        // Verify headers
+        assertEquals("8", response.getResponseHeader(HttpHeaders.CONTENT_LENGTH).getValue());
+        assertEquals("bytes 3-10/11", response.getResponseHeader(HttpHeaders.CONTENT_RANGE).getValue());
+        assertEquals("bytes", response.getResponseHeader(HttpHeaders.ACCEPT_RANGES).getValue());
+    }
+
+    /*
+     * Tests GET content calls which provide invalid Range headers, these
+     * calls should return HTTP 400 response codes.
+     */
+    @Test
+    public void testGetContentInvalidRange() throws Exception {
+        String contentId = contentIds[0];
+        // Range value should be formatted as "bytes=X-Y", this should fail
+        HttpResponse response = getContentItemRange(contentId, "3-5");
+        String responseText = checkResponse(response, HttpStatus.SC_BAD_REQUEST);
+        assertNotNull(responseText);
+
+        // Negative range is not currently supported, this should fail
+        response = getContentItemRange(contentId, "bytes=-5");
+        responseText = checkResponse(response, HttpStatus.SC_BAD_REQUEST);
+        assertNotNull(responseText);
+    }
+
+    private HttpResponse getContentItemRange(String contentId, String range) throws Exception {
+        String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/" + contentId;
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaders.RANGE, range);
+        return BaseRestTester.restHelper.get(url, headers);
     }
 
     @Test

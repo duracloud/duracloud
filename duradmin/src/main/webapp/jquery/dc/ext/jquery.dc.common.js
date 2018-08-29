@@ -7,7 +7,7 @@
  */
 
 /**
- * 
+ *
  * @author "Daniel Bernstein (dbernstein@duraspace.org)"
  */
 
@@ -21,8 +21,8 @@ $(function(){
 		if(dc == undefined){
 			dc = {};
 		}
-		
-		
+
+
 		dc.log = function(message){
 			if(window.console){
 				console.log(message);
@@ -46,7 +46,7 @@ $(function(){
 	    dc.logXhr = function(xhr, message){
            dc.error("status="+xhr.status + "; statusText="+xhr.statusText);
 	    };
-	    
+
 		dc.error = function(message){
 			if(window.console){
 				if(window.opera){
@@ -56,7 +56,7 @@ $(function(){
 				}
 			}
 		};
-		
+
     dc.checkSession = function(data){
       if(data != undefined && data != null){
         if(data.responseText){
@@ -71,27 +71,27 @@ $(function(){
 
 		dc.displayErrorDialog = function(xhr, textStatus, errorThrown, showStackTrace){
 			var errorText = xhr.responseText;
-	
-			
+
+
 			if(!textStatus){
 			    textStatus = "An unexpected error occurred:";
 			}
-			
+
 			if(showStackTrace == undefined || showStackTrace == null){
 			  showStackTrace = true;
 			}
-			
+
 			try{
 				var response = $.parseJSON(errorText);
 				errorText = "cause: " + response['exception.message'];
 				errorText += "; stacktrace: " + response['exception.stacktrace'];
 			}catch(error){
-				
+
 			}
 
-      dc.error("error: " + 
-               errorThrown + 
-               "; response=" + 
+      dc.error("error: " +
+               errorThrown +
+               "; response=" +
                errorText);
 
 	     var options = {
@@ -109,21 +109,21 @@ $(function(){
 	                      },
 	                    },
 	                  };
-	                  
+
 
 			var errorDialog = $.fn.create("div");
-			
+
 			$(document).append(errorDialog);
 			errorDialog.append("<h2>"+textStatus+"</h2>");
-			
+
       if(showStackTrace){
-        
+
         errorDialog.append("<div><button>Show Details</button>" +
                            "<div class='error-detail' style='overflow:auto;height:200px;display:none'>" +
                            "<pre>"+errorText+"</pre></div>");
-        
+
         errorDialog.find("button").click(function(){
-          errorDialog.find(".error-detail").show(); 
+          errorDialog.find(".error-detail").show();
         });
 
         options = $.extend(options, {
@@ -131,11 +131,11 @@ $(function(){
         });
       }
 
-			
+
 			errorDialog.dialog(options);
 		};
 
-		
+
 		dc.ajax2 = function(settings){
 		    return $.ajax(settings)
                   .error(function(data){
@@ -146,19 +146,19 @@ $(function(){
                   });
 
 		};
-		
+
 		dc.ajax = function(innerCallback, outerCallback){
 			var callback = $.extend(
-					true, 
-					{}, 
-					innerCallback, 
+					true,
+					{},
+					innerCallback,
 					{
 						success: function(data, status, xhr){
 							dc.checkSession(data);
 							if(innerCallback.success != undefined){
 								innerCallback.success(data, status, xhr);
 							}else{
-								if(outerCallback != undefined 
+								if(outerCallback != undefined
 										&& outerCallback.success != undefined){
 									outerCallback.success(data, status, xhr);
 								}
@@ -168,7 +168,7 @@ $(function(){
 							dc.error(xhr.responseText);
 							if(innerCallback.failure != undefined){
 								innerCallback.failure(textStatus, xhr, errorThrown);
-							}else if(outerCallback != undefined 
+							}else if(outerCallback != undefined
 										&& outerCallback.failure != undefined){
 									outerCallback.failure(textStatus, xhr, errorThrown);
 							}else{
@@ -177,8 +177,8 @@ $(function(){
 								dc.displayErrorDialog(xhr, textStatus, errorThrown);
 							}
 						},
-						 
-						begin: (innerCallback.begin != undefined ? innerCallback.begin : 
+
+						begin: (innerCallback.begin != undefined ? innerCallback.begin :
 								(outerCallback != undefined && outerCallback.begin != undefined ? outerCallback.begin : undefined)),
 					}
 			);
@@ -186,8 +186,8 @@ $(function(){
 			if(callback.begin != undefined){
 				callback.begin();
 			}
-			
-			return $.ajax(callback);			
+
+			return $.ajax(callback);
 		};
 		/**
 		 * Create a cookie with the given name and value and other optional parameters.
@@ -256,7 +256,7 @@ $(function(){
 		        return cookieValue;
 		    }
 		};
-		
+
 		dc.createTable = function(data, /*optional: array*/ columnDefs){
 			var table, body, row, i,j;
 			table = $.fn.create("table");
@@ -265,25 +265,25 @@ $(function(){
 				$.each(columnDefs, function(x,item){
 					var h = $.fn.create("th").html(item.name);
 					if(item.cssClass){
-						//h.addClass(item.cssClass);	
+						//h.addClass(item.cssClass);
 					}
 					row.append(h);
 				});
 				table.append($.fn.create("thead").append(row));
 			}
-			
+
 			body = $.fn.create("tbody");
 			table.append(body);
-			
+
 			for(i = 0; i < data.length; i++){
 				row = $.fn.create("tr");
 				$(body).append(row);
 				for(j = 0; j < data[i].length; j++){
 					var value = data[i][j],
 							cell = $.fn.create("td");
-					
+
 					$(row).append(cell);
-					
+
 					if(columnDefs && columnDefs[j]){
 						if(columnDefs[j].formatter){
 							value = columnDefs[j].formatter(value);
@@ -315,55 +315,53 @@ $(function(){
 			mtc = "generic";
 		}
 		return "mime-type-" + mtc;
-		
+
 		};
-		
+
 		var spNameMap = {};
 		spNameMap["AMAZON_S3"] = "Amazon S3";
 		spNameMap["AMAZON_GLACIER"] = "Amazon Glacier";
-		spNameMap["RACKSPACE"] = "Rackspace";
-		spNameMap["SDSC"] = "SDSC";
 		spNameMap["DPN"] = "DPN";
 		spNameMap["CHRONOPOLIS"] = "Chronopolis";
 		spNameMap["IRODS"] = "iRODS";
 		dc.STORAGE_PROVIDER_KEY_MAP = spNameMap;
 
-		
+
 		dc.formatGB = function(value, decimalplaces, showUnits){
 			if(!decimalplaces){
 				decimalplaces = 0;
 			}
-			
+
 			if(showUnits == undefined){
 				showUnits = true;
 			}
-			
+
 			value = new Number(value/(1000*1000*1000));
 			value =  value.toFixed(parseInt(decimalplaces));
-			
+
 			if(showUnits){
 				return value +"GB";
 			}else{
 				return value;
 			}
 		};
-		
+
 		dc.busy = function(message, options){
-			var d = 
+			var d =
 			   $("#busy-dialog");
 			var modal = false;
 			var buttons = undefined;
-			
+
 			if(options != undefined){
 				if(options.modal != undefined){
 					modal = options.modal;
 				}
-				
+
 				if(options.buttons != undefined){
 					buttons = options.buttons;
 				}
 			}
-			
+
 			var dOptions = {
 					autoOpen: false,
 					show: 'fade',
@@ -374,26 +372,26 @@ $(function(){
 					modal: modal != undefined ? modal : false,
 					width:300,
 					close: function() {
-						
+
 					},
-					
+
 					open: function(e){
 					},
 			};
-			
+
 			if(buttons != undefined){
 				dOptions.buttons = buttons;
 			}
-			
+
 			d.dialog(dOptions);
-			
+
 		   $("#busy-dialog-title").html(message);
-		   
+
 		   if(!d.dialog("isOpen")){
 		       d.dialog("open");
 		   }
 		};
-		
+
 		dc.done = function(message){
 			$("#busy-dialog").dialog("close");
 
@@ -408,21 +406,21 @@ $(function(){
 					closeOnEscape:true,
 					modal: false,
 					width:300,
-					buttons: { 
-						"Close" : function(){ 
+					buttons: {
+						"Close" : function(){
 							$(this).dialog('close');
 						 },
 					},
 					close: function() {},
 					open: function(e){},
 				});
-				
+
 			   $("#message-dialog-title").html(message);
 			   d.dialog("open");
 			}
 		};
 
-		
+
 		dc.confirm = function(message,evt){
 			if(!confirm(message)){
 				if(evt != undefined){
@@ -431,10 +429,10 @@ $(function(){
 				}
 				return false;
 			};
-			
+
 			return true;
 		};
-		
+
 
         dc.extractStoreId = function(path){
             var index = path.indexOf("?storeId=");
@@ -444,7 +442,7 @@ $(function(){
                 return null;
             }
         };
-		
+
 	    dc.extractSpaceId = function(path){
 	        var index = path.indexOf("/");
 	        return path.substring(0, index);
@@ -455,15 +453,15 @@ $(function(){
 	        var qsIndex = path.indexOf("?");
 	        return path.substring(index+1, (qsIndex > 0 ? qsIndex : path.length));
 	    };
-	    
+
 	    dc.reportOverlayOnClick = function(link, storeId, spaceId){
             var params = "&spaceId=" + spaceId;
             if(storeId){
                 params+="&storeId="+storeId;
             }
-            
-            var prefix = "/duradmin/servicesreport";                 
-                            
+
+            var prefix = "/duradmin/servicesreport";
+
             var fileInfoUrl = prefix + "/info?" + params;
 
             var jqxhr = $.getJSON(fileInfoUrl, function(data){
@@ -487,9 +485,9 @@ $(function(){
 		 * checks the progress of a remote task and notifies caller of results.
 		 */
 		var DEFAULT_POLL_INTERVAL = 5000;
-		
+
 		dc.checkProgress = function(url, key, callback){
-			
+
 			if(callback.count == undefined){
 				callback.count = 0;
 			}
@@ -500,11 +498,11 @@ $(function(){
 					progressCallback.failure(message);
 					return;
 				}
-				
+
 				progressCallback.update(data);
 				if(data.task != undefined){
 					var state = data.task.properties.state;
-					
+
 					if(state == 'running' || state == 'initialized'){
 						setTimeout(function(){ dc.checkProgress(url,key, progressCallback); }, DEFAULT_POLL_INTERVAL);
 					}else if(state == 'success'){
@@ -522,8 +520,8 @@ $(function(){
 					}
 				}
 			};
-			
-			dc.ajax({ url: url, 
+
+			dc.ajax({ url: url,
 				cache: false,
 				type: "GET",
 				success: function(data){
@@ -533,12 +531,12 @@ $(function(){
 			    failure: function(textStatus){
 			    	alert("updater failed: " + textStatus);
 			    },
-			});		
+			});
 		};
 
         /**
         * Login function
-        * 
+        *
         * @return jqXHR Jquery XmlHttpRequest object.
         */
         dc.login = function(/* jquery object */form) {
@@ -576,13 +574,13 @@ $(function(){
                 },
             });
         };
-        
-        
+
+
         dc.formatBytes = function(bytes, showBytes){
             var val = null;
             bytes = new Number(bytes);
             var bytesValue = bytes + " bytes";
-            
+
             if(bytes < 1000){
                 return bytesValue;
             }else if(bytes < 1000*1000){
@@ -592,26 +590,26 @@ $(function(){
             }else{
                 val = (bytes/(1000*1000*1000)).toFixed(1) + " GB";
             }
-            
+
             if(showBytes){
                 val += " (" + bytesValue + ")";
             }
             return val;
         };
-        
-  
+
+
         dc.hexEncode = function(val) {
           var hex, i;
-    
+
           var result = "";
           for (i = 0; i < val.length; i++) {
             hex = val.charCodeAt(i).toString(16);
             result += ("000" + hex).slice(-4);
           }
-    
+
           return result
         };
-  
+
       dc.hexDecode = function(val) {
         var j;
         var hexes = val.match(/.{1,4}/g) || [];
@@ -619,9 +617,9 @@ $(function(){
         for (j = 0; j < hexes.length; j++) {
           back += String.fromCharCode(parseInt(hexes[j], 16));
         }
-  
+
         return back;
-      };        
+      };
 
 	})();
 });

@@ -98,6 +98,12 @@
     <aop:scoped-proxy/>
   </bean>
 
+  <bean id="stringDataStoreFactory" class="org.duracloud.s3storage.StringDataStoreFactory" lazy-init="true"
+        scope="request">
+    <constructor-arg ref="storageAccountManager"/>
+    <aop:scoped-proxy/>
+  </bean>
+
   <bean id="authorizationHelper" class="org.duracloud.security.util.AuthorizationHelper">
     <constructor-arg ref="storageProviderFactory"/>
   </bean>

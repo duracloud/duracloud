@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -120,7 +121,12 @@ public class MockVerifyCreateStorageProvider implements StorageProvider {
         return null;
     }
 
-    public InputStream getContent(String spaceId, String contentId) {
+    public RetrievedContent getContent(String spaceId, String contentId) {
+        // Default method body
+        return null;
+    }
+
+    public RetrievedContent getContent(String spaceId, String contentId, String range) {
         // Default method body
         return null;
     }

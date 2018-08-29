@@ -32,7 +32,9 @@ import java.util.Set;
 
 import junit.framework.Assert;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpHeaders;
 import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -110,7 +112,7 @@ public abstract class TestStorageProvider {
 
         // test addContent()
         log.debug("Test addContent()");
-        String CONTENT_ID = getNewContentId();
+        final String CONTENT_ID = getNewContentId();
         addContent(SPACE_ID, CONTENT_ID, CONTENT_MIME_VALUE, false);
 
         log.debug("Test addContent() with invalid checksum");
@@ -171,10 +173,24 @@ public abstract class TestStorageProvider {
 
         // test getContent()
         log.debug("Test getContent()");
-        InputStream is = storageProvider.getContent(SPACE_ID, CONTENT_ID);
+        InputStream is = storageProvider.getContent(SPACE_ID, CONTENT_ID).getContentStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String contentLine = reader.readLine();
         assertTrue(contentLine.equals(CONTENT_DATA));
+
+        // test getContent() range
+        log.debug("Test getContent() range");
+        RetrievedContent retrievedContent =
+            storageProvider.getContent(SPACE_ID, CONTENT_ID, "bytes=0-4");
+        is = retrievedContent.getContentStream();
+        reader = new BufferedReader(new InputStreamReader(is));
+        contentLine = reader.readLine();
+        assertFalse(contentLine.equals(CONTENT_DATA));
+        assertTrue(CONTENT_DATA.startsWith(contentLine));
+        assertEquals(5, contentLine.getBytes().length);
+        Map<String, String> rangeMetadata = retrievedContent.getContentProperties();
+        assertEquals("5", rangeMetadata.get(HttpHeaders.CONTENT_LENGTH));
+        assertEquals("bytes 0-4/12", rangeMetadata.get(HttpHeaders.CONTENT_RANGE));
 
         // test invalid content
         log.debug("Test getContent() with invalid content ID");
@@ -577,7 +593,7 @@ public abstract class TestStorageProvider {
                                String md5,
                                Map<String, String> props,
                                Set<String> keys) throws IOException {
-        InputStream content = storageProvider.getContent(spaceId, contentId);
+        InputStream content = storageProvider.getContent(spaceId, contentId).getContentStream();
         Assert.assertNotNull(content);
 
         String text = IOUtils.toString(content);

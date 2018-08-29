@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import javax.ws.rs.GET;
@@ -26,6 +28,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
 import org.duracloud.common.util.ChecksumUtil;
@@ -197,15 +200,17 @@ public class ManifestRest extends BaseRest {
         executor.execute(() -> {
 
             try {
+                boolean gzip = true;
                 // write file to disk
-                File file = IOUtil.writeStreamToFile(manifest, true);
+                File file = IOUtil.writeStreamToFile(manifest, gzip);
 
                 // upload to the default storage provider with retries
                 uploadManifestToDefaultStorageProvider(format,
                                                        adminSpace,
                                                        contentId,
                                                        file,
-                                                       provider);
+                                                       provider,
+                                                       gzip);
             } catch (Exception ex) {
                 log.error("failed to generate manifest for space: spaceId="
                           + spaceId
@@ -258,7 +263,8 @@ public class ManifestRest extends BaseRest {
                                                           String adminSpace,
                                                           String contentId,
                                                           File file,
-                                                          StorageProvider provider)
+                                                          StorageProvider provider,
+                                                          boolean gzipped)
         throws Exception {
         try {
             // calculate the md5
@@ -269,11 +275,15 @@ public class ManifestRest extends BaseRest {
                 @Override
                 public Object retry() throws Exception {
                     try (FileInputStream content = new FileInputStream(file)) {
+                        Map<String, String> props = new HashMap<>();
+                        if (gzipped) {
+                            props.put(HttpHeaders.CONTENT_ENCODING, "gzip");
+                        }
 
                         return provider.addContent(adminSpace,
                                                    contentId,
                                                    ManifestFormat.valueOf(format.toUpperCase()).getMimeType(),
-                                                   null,
+                                                   props,
                                                    file.length(),
                                                    checksum,
                                                    content);

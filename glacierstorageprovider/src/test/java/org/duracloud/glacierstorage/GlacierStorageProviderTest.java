@@ -24,6 +24,7 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -132,7 +133,7 @@ public class GlacierStorageProviderTest {
         setListBucketsMock();
 
         // Set up the mocks to throw on the getObject() call
-        EasyMock.expect(s3Client.getObject(accessKey + "." + spaceId, contentId))
+        EasyMock.expect(s3Client.getObject(EasyMock.isA(GetObjectRequest.class)))
                 .andThrow(glacierEx);
 
         EasyMock.expect(s3Client.getObjectMetadata(accessKey + "." + spaceId,
@@ -145,7 +146,7 @@ public class GlacierStorageProviderTest {
             new GlacierStorageProvider(s3Client, accessKey);
 
         try {
-            provider.getContent(spaceId, contentId);
+            provider.getContent(spaceId, contentId, null);
             fail("StorageStateException expected");
         } catch (StorageStateException expected) {
             assertNotNull(expected.getMessage());

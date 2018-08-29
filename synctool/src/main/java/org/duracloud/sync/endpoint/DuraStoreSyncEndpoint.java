@@ -10,6 +10,9 @@ package org.duracloud.sync.endpoint;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -322,7 +325,26 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     }
 
     protected Map<String, String> createProps(String absolutePath, String username) {
-        return StorageProviderUtil.createContentProperties(absolutePath, username);
+        Map<String, String> props = StorageProviderUtil.createContentProperties(absolutePath, username);
+        removePropsWithNonUSASCIINamesOrValues(props);
+        return props;
+    }
+
+    private void removePropsWithNonUSASCIINamesOrValues(Map<String, String> props) {
+        for (String key : new ArrayList<>(props.keySet())) {
+            if (!isAllUSASCII(key) || !isAllUSASCII(props.get(key))) {
+                props.remove(key);
+            }
+        }
+    }
+
+    private boolean isAllUSASCII(String value) {
+        if (value != null) {
+            CharsetEncoder encoder =
+                Charset.forName("US-ASCII").newEncoder();
+            return encoder.canEncode(value);
+        }
+        return true;
     }
 
     public Iterator<String> getFilesList() {

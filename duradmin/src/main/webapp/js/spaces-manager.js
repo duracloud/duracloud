@@ -56,6 +56,11 @@ $(function() {
     $.validator.addMethod("reserved", function(value, element) {
       return !(/^(init|stores|spaces|security|task|acl)$/.test(value));
     }, "A Space ID cannot be a reserved name");
+
+    $.validator.addMethod("isusascii", function(value, element) {
+      return /^[\x00-\x7F]*$/.test(value);
+    }, "Non US-ASCII chars are not allowed.");
+
     // end validator definitions
   })();
 
@@ -2356,6 +2361,14 @@ $(function() {
       return viewerPane;
     },
 
+    _loadStreamingPane : function(space) {
+      var viewerPane = $.fn.create("div").attr("id", "streamingPane").streaming({
+        open : true,
+        space : space
+      });
+      this._appendToCenter(viewerPane);
+    },
+
     _loadSnapshotPane : function(space) {
 
       if (this._isSnapshot(space.storeId) && this._getRestoreId(space) == null) {
@@ -2364,9 +2377,7 @@ $(function() {
           space : space
         });
         this._appendToCenter(viewerPane);
-
       }
-
     },
 
     _loadPropertiesPane : function(extendedProperties, /* bool */
@@ -3083,14 +3094,6 @@ $(function() {
         spaceProps.push([ 'Size', space.properties.size ]);
       }
 
-      if (space.properties.streamingHost) {
-        spaceProps.push([ 'Streaming Host', space.properties.streamingHost ]);
-      }
-
-      if (space.properties.streamingType) {
-        spaceProps.push([ 'Streaming Type', space.properties.streamingType ]);
-      }
-
       var bitIntegrityReport = space.bitIntegrityReportProperties;
       if (bitIntegrityReport) {
         var completionDate = bitIntegrityReport.completionDate;
@@ -3194,40 +3197,6 @@ $(function() {
         $("#manifest-tsv").attr("href", manifestUrl+"tsv");
         $("#manifest-bagit").attr("href", manifestUrl+"bagit");
       }
-      
-      
-      var switchHolder = $(".streaming-switch-holder");
-      switchHolder.hide();
-      if (this._isAdmin() && space.primaryStorageProvider && !this._isSnapshot(this._storeId)) {
-        switchHolder.show();
-
-        // deploy/undeploy switch
-        // definition and bindings
-        $(".streaming-switch", that.element).onoffswitch({
-          initialState : space.streamingEnabled ? "on" : "off",
-          onStateClass : "on left",
-          onIconClass : "checkbox",
-          offStateClass : "right",
-          offIconClass : "x",
-          onText : "On",
-          offText : "Off"
-        }).bind("turnOff", function(evt, future) {
-          switchHolder.busy();
-          $.when(dc.store.UpdateSpaceStreaming(space.storeId, space.spaceId, false)).done(function() {
-            future.success();
-          }).always(function() {
-            switchHolder.idle();
-          });
-        }).bind("turnOn", function(evt, future) {
-          switchHolder.busy();
-          $.when(dc.store.UpdateSpaceStreaming(space.storeId, space.spaceId, true)).done(function() {
-            future.success();
-          }).always(function() {
-            switchHolder.idle();
-          });
-
-        });
-      }
 
       if (this._isAdmin()) {
         var makePublicButton = this._createMakePublicButton(space.storeId, space.spaceId);
@@ -3236,6 +3205,10 @@ $(function() {
 
         if (this._isPubliclyReadable(space.acls)) {
           makePublicButton.hide();
+        }
+
+        if( space.primaryStorageProvider && this._isAdmin() && !this._isSnapshot(this._storeId)){
+            this._loadStreamingPane(space);
         }
 
         this._loadSnapshotPane(space);
@@ -3874,11 +3847,10 @@ $(function() {
       }
 
       var mimetype = contentItem.properties.mimetype;
+      var mediaType = this._getMediaType(mimetype);
 
-      if (mimetype.indexOf("video") == 0) {
-        this._loadVideo(contentItem);
-      } else if (mimetype.indexOf("audio") == 0) {
-        this._loadAudio(contentItem);
+      if (mediaType != null) {
+          this._loadMedia(contentItem, "Streaming", mediaType)
       } else {
         var viewerURL = dc.store.formatDownloadURL(contentItem, false);
         $(".view-content-item-button", this.element).attr("href", viewerURL).css("display", "inline-block");
@@ -4014,15 +3986,21 @@ $(function() {
       this._appendToCenter(div);
     },
 
-    _loadVideo : function(contentItem) {
-      this._loadMedia(contentItem, "Watch", "video");
-    },
+      _getMediaType : function(mimetype){
+        if(mimetype != null){
+            if(/video/.test(mimetype) ||
+                /application\/x-mpegURL/.test(mimetype)) {
+                return "video";
+            } else if (/audio/.test(mimetype)) {
+                return "audio";
+            }
+        }
 
-    _loadAudio : function(contentItem) {
-      this._loadMedia(contentItem, "Listen", "audio");
-    },
+        //return null if could not be determined
+        return null;
+      },
 
-    _loadMedia : function(contentItem, title,/* audio or video */type) {
+    _loadMedia : function(contentItem, title,/* audio or video */mediaType) {
       // non primary content is not
       // streamable.
       if (!contentItem.primaryStorageProvider) {
@@ -4034,7 +4012,8 @@ $(function() {
         title : title
       });
 
-      $(div).expandopanel("getContent").css("text-align", "center").append(viewer);
+      var contentPane = $(div).expandopanel("getContent");
+      contentPane.css("text-align", "center").append(viewer);
 
       this._appendToCenter(div);
 
@@ -4044,6 +4023,9 @@ $(function() {
       })).done(function(result) {
         var streamingHost = result.space.properties.streamingHost;
         var streamingType = result.space.properties.streamingType;
+        var hlsStreamingHost = result.space.properties.hlsStreamingHost;
+        var hlsStreamingType = result.space.properties.hlsStreamingType;
+
         if (streamingHost != null && streamingHost.trim() != "" && streamingHost.indexOf("null") == -1) {
           if (streamingType == "OPEN") {
             dc.store.GetStreamingUrl(contentItem, streamingType, {
@@ -4057,10 +4039,52 @@ $(function() {
           } else {
             viewer.append("<p>Streaming preview unavailable for secure streams</p>");
           }
-        } else {
-          viewer.append("<p>Turn on streaming for this space to enable playback</p>");
         }
+
+        if (hlsStreamingHost != null && hlsStreamingHost.trim() != "" && hlsStreamingHost.indexOf("null") == -1) {
+          if (hlsStreamingType == "OPEN") {
+              dc.store.GetHlsUrl(contentItem, hlsStreamingType, {
+                  success: function (data) {
+
+                      var streamingUrl = data.streamingInfo.streamingUrl;
+                      var tag = that._createHTML5MediaTag(contentItem, streamingUrl, mediaType);
+                      var hlsElementId = "html5Media";
+                      tag.attr("id", hlsElementId)
+                      contentPane.append(tag);
+
+                      $.getScript("https://cdn.jsdelivr.net/npm/hls.js@latest", function() {
+                          $(document).ready(function(){
+                              that._enableAV(hlsElementId);
+                          });
+                      });
+
+                  },
+                  failure: function (data) {
+                      contentPane.append("<p>Unable to use HTTP Live Streaming.</p>");
+                  }
+              });
+          } else {
+              contentPane.append("<p>Streaming preview unavailable for secure streams</p>");
+          }
+        }
+
+        //if neither streaming host is available, display message
+        if ((streamingHost == null || streamingHost.trim() == "" || streamingHost.indexOf("null") > -1) &&
+          (hlsStreamingHost == null || hlsStreamingHost.trim() == "" || hlsStreamingHost.indexOf("null") >   -1)) {
+            contentPane.append("<p>Turn on streaming for this space to enable playback</p>");
+        }
+
       });
+    },
+
+    _enableAV: function(elementId) {
+      var avtag = document.getElementById(elementId);
+      // Using hls.js for display, see: https://video-dev.github.io/hls.js/
+      if(Hls.isSupported()) {
+          var hls = new Hls();
+          hls.loadSource(avtag.src);
+          hls.attachMedia(avtag);
+      }
     },
 
     _writeMediaTag : function(streamingUrl) {
@@ -4081,16 +4105,26 @@ $(function() {
       }, 1000);
     },
 
-    _createHTML5MediaTag : function(contentItem, type) {
-      return type == 'audio' ? this._createHTML5AudioTag(contentItem) : this._createHTML5VideoTag(contentItem);
+    _createHTML5MediaTag : function(contentItem, streamingUrl, mediaType) {
+      return mediaType  != 'video' ? this._createHTML5AudioTag(contentItem, streamingUrl) :
+                               this._createHTML5VideoTag(contentItem, streamingUrl);
     },
 
-    _createHTML5AudioTag : function(contentItem) {
-      return $.fn.create("audio").attr("src", contentItem.viewerURL).attr("loop", "false").attr("preload", "false").attr("controls", "true");
+    _createHTML5AudioTag : function(contentItem, streamingUrl) {
+      return $.fn.create("audio")
+                 .attr("src", streamingUrl)
+                 .attr("loop", "false")
+                 .attr("preload", "false")
+                 .attr("controls", "true");
     },
 
-    _createHTML5VideoTag : function(contentItem) {
-      return $.fn.create("video").attr("src", contentItem.viewerURL).attr("loop", "false").attr("preload", "false").attr("width", "350").attr("height", "216").attr("controls", "true");
+    _createHTML5VideoTag : function(contentItem, streamingUrl) {
+      return $.fn.create("video")
+                 .attr("src", streamingUrl)
+                 .attr("loop", "false")
+                 .attr("width", "350")
+                 .attr("height", "216")
+                 .attr("controls", "true");
     },
 
   }));

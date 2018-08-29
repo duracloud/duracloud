@@ -33,9 +33,9 @@ public class ReportTestHelper<T> {
     public String spaceName1 = "space1";
     public String spaceName2 = "space2";
     public String providerId1 = "provider1";
-    public String providerType1 = "AMAZON";
+    public String providerType1 = "AMAZON_S3";
     public String providerId2 = "provider2";
-    public String providerType2 = "RACKSPACE";
+    public String providerType2 = "AMAZON_GLACIER";
 
     public StorageMetrics createMetrics() {
         List<MimetypeMetrics> spaceMime = new LinkedList<MimetypeMetrics>();

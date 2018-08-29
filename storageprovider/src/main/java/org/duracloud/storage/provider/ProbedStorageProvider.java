@@ -17,6 +17,7 @@ import org.duracloud.common.util.metrics.Metric;
 import org.duracloud.common.util.metrics.MetricException;
 import org.duracloud.common.util.metrics.MetricsProbed;
 import org.duracloud.common.util.metrics.MetricsTable;
+import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 
@@ -133,10 +134,18 @@ public abstract class ProbedStorageProvider
         stopMetric("deleteSpace");
     }
 
-    public InputStream getContent(String spaceId, String contentId)
+    public RetrievedContent getContent(String spaceId, String contentId)
         throws StorageException {
         startMetric("getContent");
-        InputStream result = storageProvider.getContent(spaceId, contentId);
+        RetrievedContent result = storageProvider.getContent(spaceId, contentId);
+        stopMetric("getContent");
+        return result;
+    }
+
+    public RetrievedContent getContent(String spaceId, String contentId, String range)
+        throws StorageException {
+        startMetric("getContent");
+        RetrievedContent result = storageProvider.getContent(spaceId, contentId, range);
         stopMetric("getContent");
         return result;
     }

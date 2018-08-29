@@ -106,7 +106,8 @@ public abstract class SpaceModifyingSnapshotTaskRunner extends AbstractSnapshotT
      */
     protected String getSnapshotIdFromProperties(String spaceId) {
         Properties props = new Properties();
-        try (InputStream is = this.snapshotProvider.getContent(spaceId, Constants.SNAPSHOT_PROPS_FILENAME)) {
+        try (InputStream is = this.snapshotProvider.getContent(spaceId, Constants.SNAPSHOT_PROPS_FILENAME)
+                                                   .getContentStream()) {
             props.load(is);
             return props.getProperty(Constants.SNAPSHOT_ID_PROP);
         } catch (NotFoundException ex) {

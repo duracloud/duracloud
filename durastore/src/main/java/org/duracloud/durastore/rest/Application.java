@@ -32,6 +32,7 @@ public class Application extends ResourceConfig {
             AuditLogRest.class,
             TaskRest.class,
             ContentRest.class,
+            AuxRest.class,
             StorageStatsRest.class);
 
     }

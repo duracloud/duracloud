@@ -18,15 +18,16 @@ import org.junit.Test;
  */
 public class CreateSnapshotBridgeParametersTest {
 
+    private String host = "dc-host";
+    private String port = "dc-port";
+    private String storeId = "store-id";
+    private String spaceId = "space-id";
+    private String userEmail = "user-email";
+    private String memberId = "member-id";
+
     @Test
     public void testSerialize() {
-        String host = "dc-host";
-        String port = "dc-port";
-        String storeId = "store-id";
-        String spaceId = "space-id";
         String description = "description";
-        String userEmail = "user-email";
-        String memberId = "member-id";
 
         CreateSnapshotBridgeParameters params =
             new CreateSnapshotBridgeParameters(host, port, storeId, spaceId,
@@ -42,6 +43,29 @@ public class CreateSnapshotBridgeParametersTest {
         assertThat(cleanResult, containsString("\"userEmail\":\"" + userEmail + "\""));
         assertThat(cleanResult, containsString("\"memberId\":\"" + memberId + "\""));
 
+    }
+
+    @Test
+    public void testEmptyDescription() {
+        String description = "";
+        CreateSnapshotBridgeParameters params =
+            new CreateSnapshotBridgeParameters(host, port, storeId, spaceId,
+                                               description, userEmail, memberId);
+        String result = params.serialize();
+        String cleanResult = result.replaceAll("\\s+", "");
+        assertThat(cleanResult, containsString("\"description\":\"" + description + "\""));
+
+    }
+
+    @Test
+    public void testNullDescription() {
+        String description = null;
+        CreateSnapshotBridgeParameters params =
+            new CreateSnapshotBridgeParameters(host, port, storeId, spaceId,
+                                               description, userEmail, memberId);
+        String result = params.serialize();
+        String cleanResult = result.replaceAll("\\s+", "");
+        assertThat(cleanResult, containsString("\"description\":null"));
     }
 
 }
