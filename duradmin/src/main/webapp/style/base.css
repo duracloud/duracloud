@@ -1282,6 +1282,10 @@ button#enable-streaming {
 	margin-top:10px;
 }
 
+button.add-space-button {
+  display: none;
+}
+
 .dc-item-divider {
   background-color:#5b5b5b;
   padding:5px;
