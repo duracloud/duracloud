@@ -810,23 +810,47 @@ public class ContentStoreImpl implements ContentStore {
      * {@inheritDoc}
      */
     @Override
-    public Content getContent(final String spaceId, final String contentId)
+    public Content getContent(final String spaceId, final String contentId, final Long startByte, final Long endByte)
         throws ContentStoreException {
         return execute(new Retriable() {
             @Override
             public Content retry() throws ContentStoreException {
                 // The actual method being executed
-                return doGetContent(spaceId, contentId);
+                return doGetContent(spaceId, contentId, startByte, endByte);
             }
         });
     }
 
-    private Content doGetContent(String spaceId, String contentId)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Content getContent(final String spaceId, final String contentId)
+        throws ContentStoreException {
+        return getContent(spaceId, contentId, 0l, null);
+    }
+
+    private Content doGetContent(String spaceId, String contentId, Long startByte, Long endByte)
         throws ContentStoreException {
         String task = "get content";
         String url = buildContentURL(spaceId, contentId);
+
+        //vali
+        if (startByte == null || startByte < 0) {
+            throw new ContentStateException("startByte must be equal to or greater than zero.");
+        } else if (endByte != null && endByte <= startByte) {
+            throw new ContentStateException("endByte must be null or greater than the startByte.");
+        }
+
         try {
-            HttpResponse response = restHelper.get(url);
+            final HttpResponse response;
+            if (startByte == 0l && endByte == null) {
+                response = restHelper.get(url);
+            } else {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Range", "bytes=" + startByte + "-" + (endByte != null ? endByte : ""));
+                response = restHelper.get(url, headers);
+            }
             checkResponse(response, HttpStatus.SC_OK);
             Content content = new Content();
             content.setId(contentId);

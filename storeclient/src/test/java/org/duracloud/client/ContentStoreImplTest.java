@@ -7,6 +7,8 @@
  */
 package org.duracloud.client;
 
+import static org.easymock.EasyMock.capture;
+import static org.easymock.EasyMock.eq;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -345,11 +347,11 @@ public class ContentStoreImplTest {
         EasyMock.expect(response.getResponseHeader(HttpHeaders.CONTENT_MD5))
                 .andReturn(new BasicHeader(HttpHeaders.CONTENT_MD5, outputChecksum));
 
-        EasyMock.expect(restHelper.put(EasyMock.eq(fullURL),
-                                       EasyMock.eq(content),
-                                       EasyMock.eq(mime),
+        EasyMock.expect(restHelper.put(eq(fullURL),
+                                       eq(content),
+                                       eq(mime),
                                        EasyMock.anyLong(),
-                                       EasyMock.capture(headersCapture)))
+                                       capture(headersCapture)))
                 .andReturn(response);
 
         replayMocks();
@@ -387,6 +389,47 @@ public class ContentStoreImplTest {
     }
 
     @Test
+    public void testGetContentWithRange() throws Exception {
+        InputStream stream = IOUtils.toInputStream("content");
+
+        String fullURL = baseURL + "/" + spaceId + "/" + contentId + "?storeID=" + storeId;
+        EasyMock.expect(response.getStatusCode()).andReturn(200);
+        EasyMock.expect(response.getResponseHeaders())
+                .andReturn(new Header[0]).times(2);
+        EasyMock.expect(response.getResponseStream()).andReturn(stream);
+        Capture<Map<String,String>> captureHeaders = Capture.newInstance();
+        EasyMock.expect(restHelper.get(eq(fullURL), capture(captureHeaders))).andReturn(response);
+        replayMocks();
+        Content content = contentStore.getContent(spaceId, contentId, 0l, 1l);
+        Assert.assertNotNull(content);
+        Assert.assertEquals(contentId, content.getId());
+        Assert.assertEquals(stream, content.getStream());
+        Map<String,String> headers = captureHeaders.getValue();
+        Assert.assertEquals("Range header value is incorrect.", "bytes=0-1", headers.get("Range") );
+    }
+
+    @Test(expected = ContentStoreException.class)
+    public void testGetContentWithInvalidRange1() throws Exception {
+        //start byte must be non-null
+        replayMocks();
+        contentStore.getContent(spaceId, contentId, null, 1l);
+    }
+
+    @Test(expected = ContentStoreException.class)
+    public void testGetContentWithInvalidRange2() throws Exception {
+        replayMocks();
+        //start byte must not be greater than end byte.
+        contentStore.getContent(spaceId, contentId, 10l, 1l);
+    }
+
+    @Test(expected = ContentStoreException.class)
+    public void testGetContentWithInvalidRange3() throws Exception {
+        //start and end must not be equal
+        replayMocks();
+        contentStore.getContent(spaceId, contentId, 10l, 10l);
+    }
+
+    @Test
     public void testDeleteContent() throws Exception {
         String fullURL = baseURL + "/" + spaceId + "/" + contentId + "?storeID=" + storeId;
         EasyMock.expect(response.getStatusCode()).andReturn(200);
@@ -402,9 +445,9 @@ public class ContentStoreImplTest {
         Capture<Map<String, String>> headersCapture = new Capture<>();
         String fullURL = baseURL + "/" + spaceId + "/" + contentId + "?storeID=" + storeId;
         EasyMock.expect(response.getStatusCode()).andReturn(200);
-        EasyMock.expect(restHelper.post(EasyMock.eq(fullURL),
+        EasyMock.expect(restHelper.post(eq(fullURL),
                                         EasyMock.<String>isNull(),
-                                        EasyMock.capture(headersCapture)))
+                                        capture(headersCapture)))
                 .andReturn(response);
 
         replayMocks();
@@ -592,9 +635,9 @@ public class ContentStoreImplTest {
         String fullURL =
             baseURL + "/" + destSpaceId + "/" + destContentId + "?storeID=" + destStoreId;
         Capture<Map<String, String>> capturedHeaders = new Capture<>();
-        EasyMock.expect(restHelper.put(EasyMock.eq(fullURL),
+        EasyMock.expect(restHelper.put(eq(fullURL),
                                        EasyMock.<String>isNull(),
-                                       EasyMock.capture(capturedHeaders)))
+                                       capture(capturedHeaders)))
                 .andReturn(response)
                 .times(expectedAttempts);
     }
@@ -617,9 +660,9 @@ public class ContentStoreImplTest {
             baseURL + "/" + destSpaceId + "/" + destContentId + "?storeID=" + destStoreId;
         Capture<Map<String, String>> capturedHeaders =
             new Capture<Map<String, String>>();
-        EasyMock.expect(restHelper.put(EasyMock.eq(fullURL),
+        EasyMock.expect(restHelper.put(eq(fullURL),
                                        EasyMock.<String>isNull(),
-                                       EasyMock.capture(capturedHeaders)))
+                                       capture(capturedHeaders)))
                 .andReturn(response);
 
         return capturedHeaders;
@@ -745,9 +788,9 @@ public class ContentStoreImplTest {
         String fullURL = baseURL + "/acl/" + spaceId + "?storeID=" + storeId;
         Capture<Map<String, String>> capturedHeaders =
             new Capture<Map<String, String>>();
-        EasyMock.expect(restHelper.post(EasyMock.eq(fullURL),
+        EasyMock.expect(restHelper.post(eq(fullURL),
                                         EasyMock.<String>isNull(),
-                                        EasyMock.capture(capturedHeaders)))
+                                        capture(capturedHeaders)))
                 .andReturn(response);
 
         EasyMock.replay(header);
@@ -797,7 +840,7 @@ public class ContentStoreImplTest {
         EasyMock.expect(response.getResponseHeaders()).andReturn(headers);
 
         String fullURL = baseURL + "/acl/" + spaceId + "?storeID=" + storeId;
-        EasyMock.expect(restHelper.head(EasyMock.eq(fullURL))).andReturn(
+        EasyMock.expect(restHelper.head(eq(fullURL))).andReturn(
             response);
 
         EasyMock.replay(header);
