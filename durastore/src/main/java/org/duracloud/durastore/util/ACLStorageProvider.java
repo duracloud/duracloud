@@ -98,12 +98,17 @@ public class ACLStorageProvider implements StorageProvider {
      */
     private class CacheLoader implements Runnable {
         public void run() {
-            Iterator<String> spaces = targetProvider.getSpaces();
-            while (spaces.hasNext()) {
-                String space = spaces.next();
-                spaceACLMap.put(space, getSpaceACLs(space));
+            try {
+
+                Iterator<String> spaces = targetProvider.getSpaces();
+                while (spaces.hasNext()) {
+                    String space = spaces.next();
+                    spaceACLMap.put(space, getSpaceACLs(space));
+                }
+                loaded = true;
+            } catch (Exception ex) {
+                log.error("Failed to complete the run of the CacheLoader", ex);
             }
-            loaded = true;
         }
 
         private Map<String, AclType> getSpaceACLs(String space) {
