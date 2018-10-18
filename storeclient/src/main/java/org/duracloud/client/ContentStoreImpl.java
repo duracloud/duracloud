@@ -810,13 +810,22 @@ public class ContentStoreImpl implements ContentStore {
      * {@inheritDoc}
      */
     @Override
-    public Content getContent(final String spaceId, final String contentId, final Long startByte, final Long endByte)
+    public Content getContent(String spaceId, String contentId, Long startByte, Long endByte)
         throws ContentStoreException {
-        return execute(new Retriable() {
-            @Override
-            public Content retry() throws ContentStoreException {
-                // The actual method being executed
-                return doGetContent(spaceId, contentId, startByte, endByte);
+
+        //validate args
+        if (startByte == null || startByte < 0) {
+            throw new IllegalArgumentException("startByte must be equal to or greater than zero.");
+        } else if (endByte != null && endByte <= startByte) {
+            throw new IllegalArgumentException("endByte must be null or greater than the startByte.");
+        }
+
+        return execute(() -> {
+            try {
+                final HttpResponse response = doGetContent(spaceId, contentId, startByte, endByte);
+                return toContent(response, spaceId, contentId, startByte, endByte);
+            } catch (IOException ex) {
+                throw new ContentStoreException(ex.getMessage(), ex);
             }
         });
     }
@@ -830,35 +839,35 @@ public class ContentStoreImpl implements ContentStore {
         return getContent(spaceId, contentId, 0l, null);
     }
 
-    private Content doGetContent(String spaceId, String contentId, Long startByte, Long endByte)
+    private Content toContent(HttpResponse response, String spaceId, String contentId, Long startByte, Long endByte)
+        throws IOException {
+        Content content = new Content();
+        content.setId(contentId);
+        content.setStream(
+            new PartialContentRetryInputStream(this, spaceId, contentId, response.getResponseStream(), startByte,
+                                               endByte));
+        content.setProperties(
+            mergeMaps(extractPropertiesFromHeaders(response),
+                      extractNonPropertiesHeaders(response)));
+        return content;
+    }
+
+    HttpResponse doGetContent(String spaceId, String contentId, Long startByte, Long endByte)
         throws ContentStoreException {
         String task = "get content";
         String url = buildContentURL(spaceId, contentId);
-
-        //vali
-        if (startByte == null || startByte < 0) {
-            throw new ContentStateException("startByte must be equal to or greater than zero.");
-        } else if (endByte != null && endByte <= startByte) {
-            throw new ContentStateException("endByte must be null or greater than the startByte.");
-        }
-
         try {
+            final boolean hasRange = !(startByte == 0l && endByte == null);
             final HttpResponse response;
-            if (startByte == 0l && endByte == null) {
+            if (!hasRange) {
                 response = restHelper.get(url);
             } else {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Range", "bytes=" + startByte + "-" + (endByte != null ? endByte : ""));
                 response = restHelper.get(url, headers);
             }
-            checkResponse(response, HttpStatus.SC_OK);
-            Content content = new Content();
-            content.setId(contentId);
-            content.setStream(response.getResponseStream());
-            content.setProperties(
-                mergeMaps(extractPropertiesFromHeaders(response),
-                          extractNonPropertiesHeaders(response)));
-            return content;
+            checkResponse(response, hasRange ? HttpStatus.SC_PARTIAL_CONTENT : HttpStatus.SC_OK);
+            return response;
         } catch (NotFoundException e) {
             throw new NotFoundException(task, spaceId, contentId, e);
         } catch (UnauthorizedException e) {

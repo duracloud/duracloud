@@ -15,10 +15,12 @@ import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -371,7 +373,8 @@ public class ContentStoreImplTest {
 
     @Test
     public void testGetContent() throws Exception {
-        InputStream stream = IOUtils.toInputStream("content");
+        String streamContent = "content";
+        InputStream stream = IOUtils.toInputStream(streamContent);
 
         String fullURL = baseURL + "/" + spaceId + "/" + contentId + "?storeID=" + storeId;
         EasyMock.expect(response.getStatusCode()).andReturn(200);
@@ -385,15 +388,49 @@ public class ContentStoreImplTest {
         Content content = contentStore.getContent(spaceId, contentId);
         Assert.assertNotNull(content);
         Assert.assertEquals(contentId, content.getId());
-        Assert.assertEquals(stream, content.getStream());
+        Assert.assertEquals(streamContent, IOUtils.toString(content.getStream()));
+    }
+
+    @Test
+    public void testGetContentWithMidstreamNetworkFailureAndRecovery() throws Exception {
+        String streamContent = "content";
+        byte[] bytes = streamContent.getBytes();
+        InputStream stream = EasyMock.createMock(InputStream.class);
+        EasyMock.expect(stream.read()).andReturn((int) bytes[0]);
+        EasyMock.expect(stream.read()).andThrow(new IOException());
+
+        String fullURL = baseURL + "/" + spaceId + "/" + contentId + "?storeID=" + storeId;
+        EasyMock.expect(response.getStatusCode()).andReturn(200);
+        EasyMock.expect(response.getResponseHeaders())
+                .andReturn(new Header[0]).times(2);
+        EasyMock.expect(response.getResponseStream()).andReturn(stream);
+        EasyMock.expect(restHelper.get(fullURL)).andReturn(response);
+
+        EasyMock.expect(response.getStatusCode()).andReturn(206);
+        Capture<Map<String,String>> captureHeaders = Capture.newInstance();
+        EasyMock.expect(restHelper.get(eq(fullURL), capture(captureHeaders))).andReturn(response);
+        EasyMock.expect(response.getResponseStream()).andReturn(new ByteArrayInputStream(Arrays.copyOfRange(bytes, 1, bytes.length)));
+
+        replayMocks();
+        EasyMock.replay(stream);
+
+        Content content = contentStore.getContent(spaceId, contentId);
+        Assert.assertNotNull(content);
+        Assert.assertEquals(contentId, content.getId());
+        Assert.assertEquals(streamContent, IOUtils.toString(content.getStream()));
+
+        Map<String,String> headers = captureHeaders.getValue();
+        Assert.assertEquals("Range header value is incorrect.", "bytes=1-", headers.get("Range") );
+        EasyMock.verify(stream);
     }
 
     @Test
     public void testGetContentWithRange() throws Exception {
-        InputStream stream = IOUtils.toInputStream("content");
+        String streamContent = "content";
+        InputStream stream = IOUtils.toInputStream(streamContent);
 
         String fullURL = baseURL + "/" + spaceId + "/" + contentId + "?storeID=" + storeId;
-        EasyMock.expect(response.getStatusCode()).andReturn(200);
+        EasyMock.expect(response.getStatusCode()).andReturn(206);
         EasyMock.expect(response.getResponseHeaders())
                 .andReturn(new Header[0]).times(2);
         EasyMock.expect(response.getResponseStream()).andReturn(stream);
@@ -403,26 +440,27 @@ public class ContentStoreImplTest {
         Content content = contentStore.getContent(spaceId, contentId, 0l, 1l);
         Assert.assertNotNull(content);
         Assert.assertEquals(contentId, content.getId());
-        Assert.assertEquals(stream, content.getStream());
         Map<String,String> headers = captureHeaders.getValue();
         Assert.assertEquals("Range header value is incorrect.", "bytes=0-1", headers.get("Range") );
+        Assert.assertEquals(streamContent, IOUtils.toString(content.getStream()));
+
     }
 
-    @Test(expected = ContentStoreException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testGetContentWithInvalidRange1() throws Exception {
         //start byte must be non-null
         replayMocks();
         contentStore.getContent(spaceId, contentId, null, 1l);
     }
 
-    @Test(expected = ContentStoreException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testGetContentWithInvalidRange2() throws Exception {
         replayMocks();
         //start byte must not be greater than end byte.
         contentStore.getContent(spaceId, contentId, 10l, 1l);
     }
 
-    @Test(expected = ContentStoreException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testGetContentWithInvalidRange3() throws Exception {
         //start and end must not be equal
         replayMocks();
