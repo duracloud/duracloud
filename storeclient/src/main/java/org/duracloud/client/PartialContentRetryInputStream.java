@@ -64,7 +64,7 @@ class PartialContentRetryInputStream extends InputStream {
             nextBytePos++;
             return b;
         } catch (IOException ex) {
-            log.warn(
+            log.info(
                 "Failed to read byte at position {} (space: {}, contentId: {}, startByte:{}, endByte: {}. " +
                 "Starting attempts to re-acquire stream from current position.",
                 nextBytePos, spaceId, contentId, startByte, endByte);
@@ -84,7 +84,7 @@ class PartialContentRetryInputStream extends InputStream {
                 //stream re-acquired, start reading again.
                 return read();
             } catch (Exception e) {
-                log.error(
+                log.warn(
                     "Exhausted max retries to re-acquire stream (space: {}, contentId: {}, nextBytePos:{}," +
                     " endByte: {}. ",
                     spaceId, contentId, nextBytePos, endByte, e);

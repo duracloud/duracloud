@@ -852,7 +852,7 @@ public class ContentStoreImpl implements ContentStore {
         return content;
     }
 
-    HttpResponse doGetContent(String spaceId, String contentId, Long startByte, Long endByte)
+    protected HttpResponse doGetContent(String spaceId, String contentId, Long startByte, Long endByte)
         throws ContentStoreException {
         String task = "get content";
         String url = buildContentURL(spaceId, contentId);
