@@ -70,7 +70,7 @@ class PartialContentRetryInputStream extends InputStream {
                 nextBytePos, spaceId, contentId, startByte, endByte);
             try {
                 //exponential backoff on retries
-                new Retrier(3, 1000, 2).execute(() -> {
+                new Retrier(5, 2000, 2).execute(() -> {
                     RestHttpHelper.HttpResponse response = contentStore.doGetContent(spaceId, contentId,
                                                                                      nextBytePos, endByte);
                     currentStream = response.getResponseStream();
