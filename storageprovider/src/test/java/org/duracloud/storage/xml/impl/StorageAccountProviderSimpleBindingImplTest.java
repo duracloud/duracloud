@@ -9,6 +9,7 @@ package org.duracloud.storage.xml.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.List;
 
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.storage.domain.StorageAccount;
@@ -163,11 +164,15 @@ public class StorageAccountProviderSimpleBindingImplTest {
         String username = "username";
         String password = "password";
         StorageProviderType type = StorageProviderType.AMAZON_S3;
-        String optionName = StorageAccount.OPTS.CF_KEY_ID.name();
-        String optionValue = "option-value";
+        String hiddenOptionName = StorageAccount.OPTS.CF_KEY_ID.name();
+        String hiddenOptionValue = "option-value";
+        String openOptionName = StorageAccount.OPTS.WRITABLE_BY_NON_ROOT.name();
+        String openOptionValue = "option-value";
+
         StorageAccount account =
             new StorageAccountImpl(storeId, username, password, type);
-        account.setOption(optionName, optionValue);
+        account.setOption(hiddenOptionName, hiddenOptionValue);
+        account.setOption(openOptionName, openOptionValue);
 
         // Include both credentials and options
         Element element = binding.getElementFrom(account, true, true);
@@ -178,24 +183,40 @@ public class StorageAccountProviderSimpleBindingImplTest {
         Assert.assertEquals(encryptionUtil.encrypt(password),
                             element.getChild("storageProviderCredential")
                                    .getChildText("password"));
-        Element option =
-            element.getChild("storageProviderOptions").getChild("option");
-        Assert.assertEquals(optionName, option.getAttribute("name").getValue());
-        Assert.assertEquals(optionValue, option.getAttribute("value").getValue());
+        List<Element> options =
+            element.getChild("storageProviderOptions").getChildren();
+        Assert.assertEquals(2, options.size());
+
+        verifyThatOptionIsContained(options, hiddenOptionName, hiddenOptionValue);
+        verifyThatOptionIsContained(options, openOptionName, openOptionValue);
 
         // Include options but no credentials
         element = binding.getElementFrom(account, false, true);
         Assert.assertEquals(storeId, element.getChildText("id"));
         Assert.assertNull(element.getChild("storageProviderCredential"));
-        option = element.getChild("storageProviderOptions").getChild("option");
-        Assert.assertEquals(optionName, option.getAttribute("name").getValue());
-        Assert.assertEquals(optionValue, option.getAttribute("value").getValue());
+        options =
+            element.getChild("storageProviderOptions").getChildren();
+        Assert.assertEquals(2, options.size());
+
+        verifyThatOptionIsContained(options, hiddenOptionName, hiddenOptionValue);
+        verifyThatOptionIsContained(options, openOptionName, openOptionValue);
 
         // Include no credentials or options
         element = binding.getElementFrom(account, false, false);
         Assert.assertEquals(storeId, element.getChildText("id"));
         Assert.assertNull(element.getChild("storageProviderCredential"));
-        Assert.assertNull(element.getChild("storageProviderOptions"));
+        options =
+            element.getChild("storageProviderOptions").getChildren();
+        Assert.assertEquals(1, options.size());
+        verifyThatOptionIsContained(options, openOptionName, openOptionValue);
+
+    }
+
+    private void verifyThatOptionIsContained(List<Element> options, String name, String value) {
+        Assert.assertEquals(1, options.stream()
+                                      .filter(option -> option.getAttribute("name").getValue().equals(name))
+                                      .filter(option -> option.getAttribute("value").getValue().equals(value)).count());
+
     }
 
 }
