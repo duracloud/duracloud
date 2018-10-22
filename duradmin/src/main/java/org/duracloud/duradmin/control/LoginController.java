@@ -7,6 +7,8 @@
  */
 package org.duracloud.duradmin.control;
 
+import org.duracloud.common.util.DuracloudConfig;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -19,9 +21,13 @@ import org.springframework.web.servlet.ModelAndView;
 public class LoginController {
 
     @RequestMapping("/login")
-    public ModelAndView presentLogin()
-        throws Exception {
-        return new ModelAndView("login");
+    public ModelAndView presentLogin() throws Exception {
+        DuracloudConfig duracloudConfig = new DuracloudConfig();
+        String amaUrl = duracloudConfig.getAmaUrl();
+
+        ModelAndView login = new ModelAndView("login");
+        login.addObject("amaUrl", amaUrl);
+        return login;
     }
 
 }
