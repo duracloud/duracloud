@@ -38,12 +38,13 @@ class PartialContentRetryInputStream extends InputStream {
 
     /**
      * Constructor
-     * @param contentStore The content store to use for retries
-     * @param spaceId The spaceId of the content item to retry
-     * @param contentId The content id of the item to retry
+     *
+     * @param contentStore  The content store to use for retries
+     * @param spaceId       The spaceId of the content item to retry
+     * @param contentId     The content id of the item to retry
      * @param currentStream The initial content stream
-     * @param startByte The starting byte offset of the specified stream
-     * @param endByte The last byte offset of the specified stream. If streaming to the end of the file, use null.
+     * @param startByte     The starting byte offset of the specified stream
+     * @param endByte       The last byte offset of the specified stream. If streaming to the end of the file, use null.
      */
     PartialContentRetryInputStream(ContentStoreImpl contentStore, String spaceId, String contentId,
                                    InputStream currentStream, Long startByte, Long endByte) {
@@ -64,32 +65,64 @@ class PartialContentRetryInputStream extends InputStream {
             nextBytePos++;
             return b;
         } catch (IOException ex) {
-            log.info(
-                "Failed to read byte at position {} (space: {}, contentId: {}, startByte:{}, endByte: {}. " +
-                "Starting attempts to re-acquire stream from current position.",
-                nextBytePos, spaceId, contentId, startByte, endByte);
-            try {
-                //exponential backoff on retries
-                new Retrier(5, 2000, 2).execute(() -> {
-                    RestHttpHelper.HttpResponse response = contentStore.doGetContent(spaceId, contentId,
-                                                                                     nextBytePos, endByte);
-                    currentStream = response.getResponseStream();
-                    log.info(
-                        "Successfully  re-acquired stream (space: {}, contentId: {}, nextBytePos:{}," +
-                        " endByte: {}. ",
-                        spaceId, contentId, nextBytePos, endByte);
-                    return null;
-                });
-
-                //stream re-acquired, start reading again.
-                return read();
-            } catch (Exception e) {
-                log.warn(
-                    "Exhausted max retries to re-acquire stream (space: {}, contentId: {}, nextBytePos:{}," +
-                    " endByte: {}. ",
-                    spaceId, contentId, nextBytePos, endByte, e);
-                throw new IOException(e.getMessage(), e);
-            }
+            retryFromNextByte();
+            //stream re-acquired, start reading again.
+            return read();
         }
+    }
+
+    @Override
+    public int read(byte[] b) throws IOException {
+        return read(b, 0, b.length);
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        try {
+            //read the next byte;
+            int read = this.currentStream.read(b, off, len);
+            if (read > -1) {
+                nextBytePos += read;
+            }
+
+            return read;
+        } catch (IOException ex) {
+            retryFromNextByte();
+            //stream re-acquired, start reading again.
+            return read(b, off, len);
+
+        }
+    }
+
+    private void retryFromNextByte() throws IOException {
+        log.info(
+            "Failed to read byte at position {} (space: {}, contentId: {}, startByte:{}, endByte: {}. " +
+            "Starting attempts to re-acquire stream from current position.",
+            nextBytePos, spaceId, contentId, startByte, endByte);
+        try {
+            //exponential backoff on retries
+            new Retrier(5, 2000, 2).execute(() -> {
+                RestHttpHelper.HttpResponse response = contentStore.doGetContent(spaceId, contentId,
+                                                                                 nextBytePos, endByte);
+                currentStream = response.getResponseStream();
+                log.info(
+                    "Successfully  re-acquired stream (space: {}, contentId: {}, nextBytePos:{}," +
+                    " endByte: {}. ",
+                    spaceId, contentId, nextBytePos, endByte);
+                return null;
+            });
+
+        } catch (Exception e) {
+            log.warn(
+                "Exhausted max retries to re-acquire stream (space: {}, contentId: {}, nextBytePos:{}," +
+                " endByte: {}. ",
+                spaceId, contentId, nextBytePos, endByte, e);
+            throw new IOException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public int available() throws IOException {
+        return this.currentStream.available();
     }
 }
