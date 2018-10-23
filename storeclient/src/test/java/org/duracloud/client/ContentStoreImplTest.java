@@ -7,6 +7,7 @@
  */
 package org.duracloud.client;
 
+import static org.easymock.EasyMock.anyInt;
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.eq;
 import static org.junit.Assert.assertEquals;
@@ -396,8 +397,27 @@ public class ContentStoreImplTest {
         String streamContent = "content";
         byte[] bytes = streamContent.getBytes();
         InputStream stream = EasyMock.createMock(InputStream.class);
-        EasyMock.expect(stream.read()).andReturn((int) bytes[0]);
-        EasyMock.expect(stream.read()).andThrow(new IOException());
+        EasyMock.expect(stream.available()).andReturn(0).anyTimes();
+        EasyMock.expect(stream.read((byte[]) EasyMock.anyObject(), anyInt(), anyInt())).andDelegateTo(
+            new InputStream() {
+                @Override
+                public int read() throws IOException {
+                    return bytes[0];
+                }
+
+                @Override
+                public int read(byte[] bytes1, int offset, int length) throws IOException {
+                    bytes1[0] = bytes[0];
+                    return 1;
+                }
+
+                @Override
+                public int available() {
+                    return 0;
+                }
+            });
+
+        EasyMock.expect(stream.read((byte[]) EasyMock.anyObject(), anyInt(), anyInt())).andThrow(new IOException());
 
         String fullURL = baseURL + "/" + spaceId + "/" + contentId + "?storeID=" + storeId;
         EasyMock.expect(response.getStatusCode()).andReturn(200);
@@ -407,9 +427,10 @@ public class ContentStoreImplTest {
         EasyMock.expect(restHelper.get(fullURL)).andReturn(response);
 
         EasyMock.expect(response.getStatusCode()).andReturn(206);
-        Capture<Map<String,String>> captureHeaders = Capture.newInstance();
+        Capture<Map<String, String>> captureHeaders = Capture.newInstance();
         EasyMock.expect(restHelper.get(eq(fullURL), capture(captureHeaders))).andReturn(response);
-        EasyMock.expect(response.getResponseStream()).andReturn(new ByteArrayInputStream(Arrays.copyOfRange(bytes, 1, bytes.length)));
+        EasyMock.expect(response.getResponseStream()).andReturn(
+            new ByteArrayInputStream(Arrays.copyOfRange(bytes, 1, bytes.length)));
 
         replayMocks();
         EasyMock.replay(stream);
@@ -419,8 +440,8 @@ public class ContentStoreImplTest {
         Assert.assertEquals(contentId, content.getId());
         Assert.assertEquals(streamContent, IOUtils.toString(content.getStream()));
 
-        Map<String,String> headers = captureHeaders.getValue();
-        Assert.assertEquals("Range header value is incorrect.", "bytes=1-", headers.get("Range") );
+        Map<String, String> headers = captureHeaders.getValue();
+        Assert.assertEquals("Range header value is incorrect.", "bytes=1-", headers.get("Range"));
         EasyMock.verify(stream);
     }
 
