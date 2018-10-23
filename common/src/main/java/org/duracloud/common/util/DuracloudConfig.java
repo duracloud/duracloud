@@ -7,51 +7,32 @@
  */
 package org.duracloud.common.util;
 
-import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
 
-@Configuration
-@PropertySource("${duracloud.config.file}") // this references the system property.
 /**
  * @author Nicholas Woodward
  */
+@Configuration
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@PropertySource("${duracloud.config.file}") // this references the system property.
 public class DuracloudConfig {
     private Logger log = LoggerFactory.getLogger(DuracloudConfig.class);
 
-    @Value("${mc.host}")
-    private String mcHost;
-
-    @Value("${mc.port}")
-    private String mcPort;
-
-    public String getMcHost() {
-        log.info("TDL mcHost: {}", mcHost);
-        return mcHost;
-    }
-
-    public String getMcPort() {
-        log.info("TDL mcPort: {}", mcPort);
-        return mcPort;
-    }
-
-    public String getAmaUrl() {
-        String mcSchema = (getMcPort() == "443") ? "https" : "http";
-        log.info("TDL mcSchema: {}", mcSchema);
-        return mcSchema + "://" + getMcHost();
-    }
+    @Autowired
+    Environment env;
 
     @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
-        PropertySourcesPlaceholderConfigurer p = new PropertySourcesPlaceholderConfigurer();
-        return p;
+    public DuracloudConfigBean duracloudConfigBean() {
+        return new DuracloudConfigBean(env);
     }
 
 }

@@ -30,4 +30,9 @@
   <bean id="controllerSupport" class="org.duracloud.duradmin.control.ControllerSupport">
     <constructor-arg ref="contentStoreManager"/>
   </bean>
+
+  <bean id="duracloudConfigBean" class="org.duracloud.common.util.DuracloudConfigBean">
+    <constructor-arg ref="environment"/>
+  </bean>
+
 </beans>

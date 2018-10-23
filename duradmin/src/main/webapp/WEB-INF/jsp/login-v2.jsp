@@ -46,7 +46,7 @@
 						</ul>
 						<ul class="horizontal-list">
 							<li><a
-							  	href="${amaUrl}/users/forgot-password">Forgot Password</a></li>
+							  	href="${amaUrl}/users/forgot-password" target="_blank">Forgot Password</a></li>
 						</ul>
 					</div>
 				</div>
