@@ -44,10 +44,11 @@
 
 							</li>
 						</ul>
-						<ul class="horizontal-list">
-							<li><a
-							  	href="${amaUrl}/users/forgot-password" target="_blank">Forgot Password</a></li>
-						</ul>
+						<div id="login-links">
+						    <ul class="horizontal-list">
+							    <li><a href="${amaUrl}/users/forgot-password" target="_blank">Forgot Password</a></li>
+						    </ul>
+						</div>
 					</div>
 				</div>
 

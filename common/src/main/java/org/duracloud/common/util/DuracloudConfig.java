@@ -19,6 +19,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 
 /**
+ * This class provides access to Duracloud configuration properties.
+ *
  * @author Nicholas Woodward
  */
 @Configuration

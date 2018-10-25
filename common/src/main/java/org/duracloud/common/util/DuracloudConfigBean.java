@@ -29,8 +29,21 @@ public class DuracloudConfigBean {
     }
 
     public String getAmaUrl() {
-        String mcSchema = (getMcPort() == "443") ? "https" : "http";
-        return mcSchema + "://" + getMcHost();
+        String port = getMcPort();
+        String amaUrl = new String();
+
+        switch (port) {
+            case "80":
+                amaUrl = "http://" + getMcHost();
+                break;
+            case "443":
+                amaUrl = "https://" + getMcHost();
+                break;
+            default:
+                amaUrl = "http://" + getMcHost() + ":" + port;
+                break;
+        }
+        return amaUrl;
     }
 
 }
