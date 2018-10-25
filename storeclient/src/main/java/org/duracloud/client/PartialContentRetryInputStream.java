@@ -101,7 +101,7 @@ class PartialContentRetryInputStream extends InputStream {
             nextBytePos, spaceId, contentId, startByte, endByte);
         try {
             //exponential backoff on retries
-            new Retrier(5, 2000, 2).execute(() -> {
+            new Retrier(5, 4000, 3).execute(() -> {
                 RestHttpHelper.HttpResponse response = contentStore.doGetContent(spaceId, contentId,
                                                                                  nextBytePos, endByte);
                 currentStream = response.getResponseStream();
@@ -122,7 +122,12 @@ class PartialContentRetryInputStream extends InputStream {
     }
 
     @Override
-    public int available() throws IOException {
-        return this.currentStream.available();
+    public int available() {
+        return 0;
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.currentStream.close();
     }
 }
