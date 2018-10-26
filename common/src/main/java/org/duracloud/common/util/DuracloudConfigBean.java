@@ -7,6 +7,8 @@
  */
 package org.duracloud.common.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.springframework.core.env.Environment;
 
 /**
@@ -28,8 +30,13 @@ public class DuracloudConfigBean {
         return env.getProperty("mc.port");
     }
 
+    public String getMcContext() {
+        return env.getProperty("mc.context");
+    }
+
     public String getAmaUrl() {
         String port = getMcPort();
+        String context = getMcContext();
         String amaUrl = new String();
 
         switch (port) {
@@ -43,6 +50,11 @@ public class DuracloudConfigBean {
                 amaUrl = "http://" + getMcHost() + ":" + port;
                 break;
         }
+
+        if (!StringUtils.isEmpty(context)) {
+            amaUrl += "/" + context;
+        }
+
         return amaUrl;
     }
 
