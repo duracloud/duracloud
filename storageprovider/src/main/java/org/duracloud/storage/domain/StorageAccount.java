@@ -40,7 +40,7 @@ public interface StorageAccount {
         BRIDGE_PASS,
         BRIDGE_MEMBER_ID,
         //GENERAL
-        WRITABLE_BY_NON_ROOT(false);
+        WRITABLE(false);
 
         private boolean hidden;
 

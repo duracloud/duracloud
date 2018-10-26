@@ -216,12 +216,12 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
         return new ContentStoreImpl(baseURL,
                                     acct.getType(),
                                     acct.getId(),
-                                    isWritableByNonRoot(acct),
+                                    isWritable(acct),
                                     getRestHelper());
     }
 
-    protected boolean isWritableByNonRoot(StorageAccount acct) {
-        return Boolean.valueOf(acct.getOptions().get(StorageAccount.OPTS.WRITABLE_BY_NON_ROOT.name()));
+    protected boolean isWritable(StorageAccount acct) {
+        return Boolean.valueOf(acct.getOptions().get(StorageAccount.OPTS.WRITABLE.name()));
     }
 
     protected ContentStore newContentStoreImpl(StorageAccount acct,
@@ -229,7 +229,7 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
         return new ContentStoreImpl(baseURL,
                                     acct.getType(),
                                     acct.getId(),
-                                    isWritableByNonRoot(acct),
+                                    isWritable(acct),
                                     getRestHelper(),
                                     maxRetries);
     }

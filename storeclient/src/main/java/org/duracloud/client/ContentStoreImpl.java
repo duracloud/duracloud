@@ -72,7 +72,7 @@ public class ContentStoreImpl implements ContentStore {
 
     private StorageProviderType type = null;
 
-    private boolean writableByNonRoot;
+    private boolean writable;
 
     private String baseURL = null;
 
@@ -96,20 +96,20 @@ public class ContentStoreImpl implements ContentStore {
      * @param baseURL           a {@link java.lang.String} object.
      * @param type              a {@link org.duracloud.storage.domain.StorageProviderType} object.
      * @param storeId           a {@link java.lang.String} object.
-     * @param writableByNonRoot flag that indicates whether the content store is writable by non-users (value can be
-     *                          toggled in the Management Console)
+     * @param writable          flag that indicates whether the content store is writable by non-root users (value
+     *                          can be toggled in the Management Console)
      * @param restHelper        a {@link org.duracloud.common.web.RestHttpHelper} object
      */
     public ContentStoreImpl(String baseURL,
                             StorageProviderType type,
                             String storeId,
-                            boolean writableByNonRoot,
+                            boolean writable,
                             RestHttpHelper restHelper) {
         this.baseURL = baseURL;
         this.type = type;
         this.storeId = storeId;
         this.restHelper = restHelper;
-        this.writableByNonRoot = writableByNonRoot;
+        this.writable = writable;
 
         this.retryExceptionHandler = new ExceptionHandler() {
             @Override
@@ -133,10 +133,10 @@ public class ContentStoreImpl implements ContentStore {
     public ContentStoreImpl(String baseURL,
                             StorageProviderType type,
                             String storeId,
-                            boolean writableByNonRootUser,
+                            boolean writable,
                             RestHttpHelper restHelper,
                             int maxRetries) {
-        this(baseURL, type, storeId, writableByNonRootUser, restHelper);
+        this(baseURL, type, storeId, writable, restHelper);
         if (maxRetries >= 0) {
             this.maxRetries = maxRetries;
         }
@@ -166,8 +166,8 @@ public class ContentStoreImpl implements ContentStore {
      * {@inheritDoc}
      */
     @Override
-    public boolean isWritableByNonRoot() {
-        return writableByNonRoot;
+    public boolean isWritable() {
+        return writable;
     }
 
     /**

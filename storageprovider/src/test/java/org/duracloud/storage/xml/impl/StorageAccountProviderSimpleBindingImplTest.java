@@ -166,7 +166,7 @@ public class StorageAccountProviderSimpleBindingImplTest {
         StorageProviderType type = StorageProviderType.AMAZON_S3;
         String hiddenOptionName = StorageAccount.OPTS.CF_KEY_ID.name();
         String hiddenOptionValue = "option-value";
-        String openOptionName = StorageAccount.OPTS.WRITABLE_BY_NON_ROOT.name();
+        String openOptionName = StorageAccount.OPTS.WRITABLE.name();
         String openOptionValue = "option-value";
 
         StorageAccount account =

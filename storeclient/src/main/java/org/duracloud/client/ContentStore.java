@@ -111,7 +111,7 @@ public interface ContentStore {
      * Indicates whether or not the content store is writable by non root users.
      * @return
      */
-    public boolean isWritableByNonRoot();
+    public boolean isWritable();
 
     /**
      * Gets the storage provider type

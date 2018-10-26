@@ -14,7 +14,7 @@
                             id: ${storeOption.storeId},
                             label: '<spring:message code="${fn:toLowerCase(storeOption.storageProviderType)}"/>',
                             type: '${fn:toLowerCase(storeOption.storageProviderType)}',
-                            writableByNonRoot: ${storeOption.writableByNonRoot}
+                            writable: ${storeOption.writable}
 							},
 							</c:forEach>				
 						];

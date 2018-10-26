@@ -323,7 +323,7 @@ $(function() {
         !storeProviders.filter(function(sp){
                                     return sp.id == that._storeId;
                                 }).map(function(sp){
-                                    return sp.writableByNonRoot;
+                                    return sp.writable;
                                 })[0];
     },
 
