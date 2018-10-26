@@ -11,6 +11,19 @@
 	margin:0 0 20px 20px;
 }
 
+#login-links
+{
+    float: right;
+    text-decoration: none;
+    margin-top: 10px;
+    margin-right: 12px;
+}
+
+#login-links a
+{
+    text-decoration: none;
+}
+
 #dc-logo,
 #dc-app-title
 {
