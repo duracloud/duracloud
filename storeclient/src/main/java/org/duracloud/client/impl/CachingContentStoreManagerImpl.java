@@ -66,6 +66,7 @@ public class CachingContentStoreManagerImpl extends ContentStoreManagerImpl {
         return new CachingContentStoreImpl(getBaseURL(),
                                            acct.getType(),
                                            acct.getId(),
+                                           isWritable(acct),
                                            getRestHelper());
     }
 

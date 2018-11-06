@@ -46,7 +46,7 @@ public class ContentIteratorTest {
         private List<String> contentItems;
 
         public MockStore(long numItems) {
-            super(null, null, null, null);
+            super(null, null, null, false, null);
             this.contentItems = new ArrayList<String>();
             for (int i = 0; i < numItems; ++i) {
                 this.contentItems.add("test" + i);

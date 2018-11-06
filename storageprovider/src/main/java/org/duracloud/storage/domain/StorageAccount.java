@@ -38,7 +38,30 @@ public interface StorageAccount {
         BRIDGE_PORT,
         BRIDGE_USER,
         BRIDGE_PASS,
-        BRIDGE_MEMBER_ID;
+        BRIDGE_MEMBER_ID,
+        //GENERAL
+        WRITABLE(false);
+
+        private boolean hidden;
+
+        OPTS() {
+            this(true);
+        }
+
+        OPTS(final boolean hidden) {
+            this.hidden = hidden;
+        }
+
+        /**
+         * Returns true if this option should not be exposed in serializations
+         * unless explicitly requested. See
+         * {@link org.duracloud.storage.xml.StorageAccountProviderBinding#getElementFrom(StorageAccount, boolean, boolean)}
+         *
+         * @return
+         */
+        public boolean isHidden() {
+            return this.hidden;
+        }
     }
 
     public String getId();

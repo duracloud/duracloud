@@ -76,7 +76,7 @@ public class ContentStoreImplTest {
         response = EasyMock.createMock("HttpResponse",
                                        RestHttpHelper.HttpResponse.class);
 
-        contentStore = new ContentStoreImpl(baseURL, type, storeId, restHelper);
+        contentStore = new ContentStoreImpl(baseURL, type, storeId, false, restHelper);
     }
 
     @After
@@ -128,7 +128,7 @@ public class ContentStoreImplTest {
     }
 
     private Integer doWork(int expectedFailures) throws ContentStoreException {
-        ContentStoreImpl fakeStore = new ContentStoreImpl(null, null, null, null);
+        ContentStoreImpl fakeStore = new ContentStoreImpl(null, null, null, false,  null);
         return fakeStore.execute(new TestRetriable(expectedFailures));
     }
 
@@ -522,7 +522,7 @@ public class ContentStoreImplTest {
     public void testCopyContentErrorWithDefaultStore() throws Exception {
         int retries = 2;
         contentStore =
-            new ContentStoreImpl(baseURL, type, storeId, restHelper, retries);
+            new ContentStoreImpl(baseURL, type, storeId, false, restHelper, retries);
         doTestCopyContentError(storeId, retries);
     }
 
@@ -530,7 +530,7 @@ public class ContentStoreImplTest {
     public void testCopyContentErrorWithAlternateStore() throws Exception {
         int retries = 4;
         contentStore =
-            new ContentStoreImpl(baseURL, type, storeId, restHelper, retries);
+            new ContentStoreImpl(baseURL, type, storeId, false, restHelper, retries);
         doTestCopyContentError("1", retries);
     }
 

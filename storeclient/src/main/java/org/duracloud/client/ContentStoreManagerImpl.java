@@ -216,7 +216,12 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
         return new ContentStoreImpl(baseURL,
                                     acct.getType(),
                                     acct.getId(),
+                                    isWritable(acct),
                                     getRestHelper());
+    }
+
+    protected boolean isWritable(StorageAccount acct) {
+        return Boolean.valueOf(acct.getOptions().get(StorageAccount.OPTS.WRITABLE.name()));
     }
 
     protected ContentStore newContentStoreImpl(StorageAccount acct,
@@ -224,6 +229,7 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
         return new ContentStoreImpl(baseURL,
                                     acct.getType(),
                                     acct.getId(),
+                                    isWritable(acct),
                                     getRestHelper(),
                                     maxRetries);
     }
@@ -232,6 +238,7 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
         return new ContentStoreImpl(baseURL,
                                     StorageProviderType.UNKNOWN,
                                     null,
+                                    false,
                                     getRestHelper());
     }
 
@@ -239,6 +246,7 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
         return new ContentStoreImpl(baseURL,
                                     StorageProviderType.UNKNOWN,
                                     null,
+                                    false,
                                     getRestHelper(),
                                     maxRetries);
     }

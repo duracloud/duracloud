@@ -108,6 +108,12 @@ public interface ContentStore {
     public String getStoreId();
 
     /**
+     * Indicates whether or not the content store is writable by non root users.
+     * @return
+     */
+    public boolean isWritable();
+
+    /**
      * Gets the storage provider type
      * {@link org.duracloud.storage.domain.StorageProviderType}
      */

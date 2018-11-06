@@ -35,8 +35,9 @@ public class CachingContentStoreImpl extends ContentStoreImpl {
     public CachingContentStoreImpl(String baseURL,
                                    StorageProviderType type,
                                    String storeId,
+                                   Boolean writable,
                                    RestHttpHelper restHelper) {
-        super(baseURL, type, storeId, restHelper);
+        super(baseURL, type, storeId, writable, restHelper);
     }
 
     @Override
