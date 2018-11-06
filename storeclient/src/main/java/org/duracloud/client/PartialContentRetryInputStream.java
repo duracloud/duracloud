@@ -123,7 +123,11 @@ class PartialContentRetryInputStream extends InputStream {
 
     @Override
     public int available() {
-        return 0;
+        try {
+            return this.currentStream.available();
+        } catch(IOException ex){
+            return 0;
+        }
     }
 
     @Override
