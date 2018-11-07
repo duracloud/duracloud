@@ -125,7 +125,7 @@ class PartialContentRetryInputStream extends InputStream {
     public int available() {
         try {
             return this.currentStream.available();
-        } catch(IOException ex){
+        } catch (IOException ex) {
             return 0;
         }
     }
