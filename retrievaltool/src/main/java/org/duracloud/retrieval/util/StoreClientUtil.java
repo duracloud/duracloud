@@ -19,6 +19,8 @@ import org.duracloud.error.ContentStoreException;
  */
 public class StoreClientUtil {
 
+    private static final int SOCKET_TIMEOUT_MS = 10 * 1000;
+
     public ContentStore createContentStore(String host,
                                            int port,
                                            String context,
@@ -26,7 +28,7 @@ public class StoreClientUtil {
                                            String password,
                                            String storeId) {
         ContentStoreManager storeManager =
-            new ContentStoreManagerImpl(host, String.valueOf(port), context);
+            new ContentStoreManagerImpl(host, String.valueOf(port), context, SOCKET_TIMEOUT_MS);
         storeManager.login(new Credential(username, password));
 
         ContentStore contentStore;
