@@ -14,6 +14,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -502,7 +503,11 @@ public class TestContentStore extends ClientTestBase {
         assertEquals(String.valueOf(content.length()),
                      responseProperties.get(ContentStore.CONTENT_SIZE));
         assertNotNull(responseProperties.get(ContentStore.CONTENT_MODIFIED));
+        deleteContent(contentId);
 
+    }
+
+    private void deleteContent(String contentId) throws ContentStoreException {
         // Delete content
         store.deleteContent(spaceId, contentId);
         try {
@@ -511,6 +516,61 @@ public class TestContentStore extends ClientTestBase {
         } catch (ContentStoreException cse) {
             assertNotNull(cse.getMessage());
         }
+    }
+
+    @Test
+    public void testGetContentWithRange() throws Exception {
+        String contentId = "test-content-with-range";
+        String content = "This is the information stored as content";
+        InputStream contentStream = IOUtil.writeStringToStream(content);
+        String contentMimeType = "text/plain";
+        ChecksumUtil checksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
+        String contentChecksum = checksumUtil.generateChecksum(content);
+        // Add content
+        String checksum = store.addContent(spaceId,
+                                           contentId,
+                                           contentStream,
+                                           content.length(),
+                                           contentMimeType,
+                                           contentChecksum,
+                                           null);
+        // Check content checksum
+        assertNotNull(checksum);
+        contentStream = IOUtil.writeStringToStream(content);
+        assertEquals(checksum, checksumUtil.generateChecksum(contentStream));
+
+        //get content length:
+        final int size = Integer.parseInt(
+            store.getContentProperties(spaceId, contentId).get(ContentStore.CONTENT_SIZE));
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        long rangeSize = 5;
+        long start = 0;
+        long end = rangeSize - 1;
+
+        // Check content
+        while (true) {
+            Content responseContent = store.getContent(spaceId, contentId, start, end);
+            byte[] bytes = new byte[(int) rangeSize];
+            InputStream is = responseContent.getStream();
+            int read = -1;
+            while ((read = is.read(bytes)) > -1) {
+                os.write(bytes, 0, read);
+            }
+
+            if (os.size() == size) {
+                break;
+            }
+
+            start += rangeSize;
+            end += rangeSize;
+        }
+
+        final byte[] retrievedBytes = os.toByteArray();
+        assertEquals(size, retrievedBytes.length);
+        assertEquals(content, IOUtil.readStringFromStream(new ByteArrayInputStream(retrievedBytes)));
+        deleteContent(contentId);
     }
 
     @Test

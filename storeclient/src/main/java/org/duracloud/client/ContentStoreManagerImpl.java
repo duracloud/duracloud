@@ -42,6 +42,8 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
 
     private RestHttpHelper restHelper;
 
+    private int socketTimeoutMs;
+
     /**
      * <p>Constructor for ContentStoreManagerImpl.</p>
      *
@@ -52,15 +54,21 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
         this(host, port, DEFAULT_CONTEXT);
     }
 
+    public ContentStoreManagerImpl(String host, String port, String context) {
+        this(host, port, context, -1);
+    }
+
     /**
      * <p>Constructor for ContentStoreManagerImpl.</p>
      *
      * @param host    the host name on which DuraStore can be accessed
      * @param port    the port on which DuraStore can be accessed
      * @param context the application context by which DuraStore can be accessed
+     * @param socketTimeoutMs The socket timeout in milliseconds. A value less than zero indicates no timeout.
      */
-    public ContentStoreManagerImpl(String host, String port, String context) {
+    public ContentStoreManagerImpl(String host, String port, String context, int socketTimeoutMs) {
         init(host, port, context);
+        this.socketTimeoutMs = socketTimeoutMs;
     }
 
     private void init(String host, String port, String context) {
@@ -169,7 +177,7 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
 
     public void login(Credential appCred) {
         log.debug("login: " + appCred.getUsername());
-        setRestHelper(new RestHttpHelper(appCred));
+        setRestHelper(new RestHttpHelper(appCred, socketTimeoutMs));
     }
 
     public void logout() {
@@ -257,7 +265,7 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
 
     protected RestHttpHelper getRestHelper() {
         if (null == restHelper) {
-            restHelper = new RestHttpHelper();
+            restHelper = new RestHttpHelper(this.socketTimeoutMs);
         }
         return restHelper;
     }

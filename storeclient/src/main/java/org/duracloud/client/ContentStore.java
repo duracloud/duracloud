@@ -349,6 +349,23 @@ public interface ContentStore {
         throws ContentStoreException;
 
     /**
+     * Gets a byte range of a content item from a space.
+     * The startByte must be greater than or equal to 0 and less than the content length.
+     * The endByte can be null which indicates you would like all bytes beginning with the specified start byte.
+     * Otherwise the endByte must be less than the content length and greater than the startByte.
+     *
+     * @param spaceId   the identifier of the DuraCloud Space
+     * @param contentId the identifier of the content item
+     * @param startByte   the starting byte of the range.
+     * @param endByte  The end byte of the range.
+     * @return the content stream
+     * @throws NotFoundException     if the space or content does not exist
+     * @throws ContentStoreException if an error occurs
+     */
+    public Content getContent(String spaceId, String contentId, Long startByte, Long endByte)
+        throws ContentStoreException;
+
+    /**
      * Removes content from a space.
      *
      * @param spaceId   the identifier of the DuraCloud Space
