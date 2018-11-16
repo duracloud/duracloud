@@ -25,8 +25,8 @@
         <exclude>org.seleniumhq.selenium:*</exclude>
         <exclude>org.easymock:*</exclude>
         <exclude>htmlunit:*</exclude>
-        <exclude>javax.servlet:jstl</exclude>
-        <exclude>javax.servlet:jsp*</exclude>
+        <exclude>org.apache:jstl</exclude>
+        <exclude>org.apache:jsp</exclude>
         <exclude>org.springframework:*</exclude>
         <exclude>org.springframework.webflow:*</exclude>
         <exclude>org.springframework.security:*</exclude>

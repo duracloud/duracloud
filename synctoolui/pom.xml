@@ -23,8 +23,7 @@
     <skipUTs>false</skipUTs>
     <jetty.port>8888</jetty.port>
     <durcloud.defaultport>443</durcloud.defaultport>
-    <glassfish-jsp-2.1.version>2.1.v20100127</glassfish-jsp-2.1.version>
-    <jetty.version>8.1.4.v20120524</jetty.version>
+    <jetty.version>9.4.12.v20180830</jetty.version>
     <slf4j.version>1.6.4</slf4j.version>
     <installbuilder.executable.path>/Applications/BitRock InstallBuilder Enterprise
       15.1.0/bin/Builder.app/Contents/MacOS/installbuilder.sh
@@ -79,7 +78,7 @@
       <!-- jsps need to be precompiled. otherwise the executable jar 
       will choke on machines that are running on a JRE rather than JDK -->
       <plugin>
-        <groupId>org.mortbay.jetty</groupId>
+        <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-jspc-maven-plugin</artifactId>
         <version>${jetty.version}</version>
         <executions>
@@ -166,9 +165,9 @@
       </plugin>
 
       <plugin>
-        <groupId>org.mortbay.jetty</groupId>
+        <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
-        <version>8.1.14.v20131031</version>
+        <version>${jetty.version}</version>
 
         <configuration>
           <scanIntervalSeconds>10</scanIntervalSeconds>
@@ -228,7 +227,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.3</version>
+        <version>2.4.1</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -297,17 +296,24 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
+      <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-annotations</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-jmx</artifactId>
       <version>${jetty.version}</version>
     </dependency>
 
@@ -319,30 +325,14 @@
 
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-jsp</artifactId>
+      <artifactId>apache-jsp</artifactId>
       <version>${jetty.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.eclipse.jetty.orbit</groupId>
-          <artifactId>javax.servlet</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.jetty.orbit</groupId>
-          <artifactId>javax.servlet.jsp</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
-      <groupId>org.eclipse.jetty.orbit</groupId>
-      <artifactId>org.apache.jasper.glassfish</artifactId>
-      <version>2.2.2.v201112011158</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.jetty.orbit</groupId>
-      <artifactId>javax.servlet.jsp</artifactId>
-      <version>2.2.0.v201112011158</version>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>apache-jstl</artifactId>
+      <version>${jetty.version}</version>
     </dependency>
 
     <dependency>
