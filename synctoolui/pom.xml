@@ -23,7 +23,7 @@
     <skipUTs>false</skipUTs>
     <jetty.port>8888</jetty.port>
     <durcloud.defaultport>443</durcloud.defaultport>
-    <jetty.version>9.4.12.v20180830</jetty.version>
+    <jetty.version>9.4.14.v20181114</jetty.version>
     <slf4j.version>1.6.4</slf4j.version>
     <installbuilder.executable.path>/Applications/BitRock InstallBuilder Enterprise
       15.1.0/bin/Builder.app/Contents/MacOS/installbuilder.sh
