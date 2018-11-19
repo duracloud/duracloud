@@ -143,7 +143,6 @@ public class SyncUIDriver {
             srv.start();
 
             srv.join();
-
         } catch (Exception e) {
             log.error("Error launching server: " + e.getMessage(), e);
         }

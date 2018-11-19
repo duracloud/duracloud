@@ -44,8 +44,7 @@
 
   <servlet>
     <servlet-name>sync</servlet-name>
-    <servlet-class>org.springframework.web.servlet.DispatcherServlet
-    </servlet-class>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
     <!-- since no contextConfigLocation is specified here as an init param, a dummy
     placeholder must live at WEB-INF/sync-servlet.xml.  If at some point we want to
     have the servlet initialize a context for web components, the annotation based config context
