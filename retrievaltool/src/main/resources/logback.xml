@@ -37,11 +37,10 @@
 
   <root level="INFO"/>
 
-  <logger name="org.duracloud.retrieval" level="${log.level}">
+  <logger name="org.duracloud.retrieval" level="${log.level:-INFO}">
     <appender-ref ref="SYNC_LOG"/>
-    <appender-ref ref="COMPLETE_LOG"/>
   </logger>
-  <logger name="org.duracloud" level="${log.level}">
+  <logger name="org.duracloud" level="${log.level:-INFO}">
     <appender-ref ref="COMPLETE_LOG"/>
   </logger>
 

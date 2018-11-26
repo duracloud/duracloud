@@ -24,7 +24,7 @@
       <pattern>%-6p %d{yyyy/MM/dd HH:mm:ss} [%t] \(%F:%L\) [%M\(\)] - %m%n</pattern>
     </encoder>
   </appender>
-  <logger name="org.duracloud" level="${log.level}">
+  <logger name="org.duracloud" level="${log.level:-WARN}">
     <appender-ref ref="DURACLOUD"/>
   </logger>
   <root level="WARN">
