@@ -73,7 +73,7 @@
     </encoder>
   </appender>
 
-  <logger name="org.duracloud" level="${log.level}">
+  <logger name="org.duracloud" level="${log.level:-WARN}">
     <appender-ref ref="DURACLOUD"/>
   </logger>
 

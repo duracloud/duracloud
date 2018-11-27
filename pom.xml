@@ -233,8 +233,6 @@
     <integrationTests>**/Test*.class</integrationTests>
     <instrumentedTests>**/*Test*__*.class</instrumentedTests>
     <innerClasses>**/*$*</innerClasses>
-    <log.level.default>WARN</log.level.default>
-    <log.level>${log.level.default}</log.level>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <duracloud.db.version>4.1.1</duracloud.db.version>
     <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
