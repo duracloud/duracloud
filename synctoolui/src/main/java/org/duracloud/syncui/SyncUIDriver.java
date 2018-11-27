@@ -65,6 +65,10 @@ public class SyncUIDriver {
         }
     }
 
+    /**
+     * Note: The embedded Jetty server setup below is based on the example configuration in the Eclipse documentation:
+     * https://www.eclipse.org/jetty/documentation/9.4.x/embedded-examples.html#embedded-webapp-jsp
+     */
     private static void launchServer(final String url,
                                      final CloseableHttpClient client) {
         try {
