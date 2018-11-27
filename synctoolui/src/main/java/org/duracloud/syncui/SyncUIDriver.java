@@ -20,6 +20,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.security.ProtectionDomain;
 import javax.imageio.ImageIO;
 import javax.swing.JDialog;
@@ -33,7 +34,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.duracloud.common.util.WaitUtil;
 import org.duracloud.syncui.config.SyncUIConfig;
+import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +65,10 @@ public class SyncUIDriver {
         }
     }
 
+    /**
+     * Note: The embedded Jetty server setup below is based on the example configuration in the Eclipse documentation:
+     * https://www.eclipse.org/jetty/documentation/9.4.x/embedded-examples.html#embedded-webapp-jsp
+     */
     private static void launchServer(final String url,
                                      final CloseableHttpClient client) {
         try {
@@ -85,16 +92,34 @@ public class SyncUIDriver {
             contextPath = SyncUIConfig.getContextPath();
             Server srv = new Server(port);
 
+            // Setup JMX
+            MBeanContainer mbContainer = new MBeanContainer(
+                    ManagementFactory.getPlatformMBeanServer() );
+            srv.addBean( mbContainer );
+
             ProtectionDomain protectionDomain =
                 org.duracloud.syncui.SyncUIDriver.class.getProtectionDomain();
             String warFile =
                 protectionDomain.getCodeSource().getLocation().toExternalForm();
+
             log.debug("warfile: {}", warFile);
-            final WebAppContext context = new WebAppContext();
+            WebAppContext context = new WebAppContext();
             context.setContextPath(contextPath);
-            context.setAttribute("extractWAR", Boolean.FALSE);
             context.setWar(warFile);
+            context.setExtractWAR(Boolean.TRUE);
+
+            Configuration.ClassList classlist = Configuration.ClassList
+                    .setServerDefault( srv );
+            classlist.addBefore(
+                    "org.eclipse.jetty.webapp.JettyWebXmlConfiguration",
+                    "org.eclipse.jetty.annotations.AnnotationConfiguration" );
+
+            context.setAttribute(
+                    "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
+                    ".*/[^/]*servlet-api-[^/]*\\.jar$|.*/javax.servlet.jsp.jstl-.*\\.jar$|.*/[^/]*taglibs.*\\.jar$" );
+
             srv.setHandler(context);
+
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -122,7 +147,6 @@ public class SyncUIDriver {
             srv.start();
 
             srv.join();
-
         } catch (Exception e) {
             log.error("Error launching server: " + e.getMessage(), e);
         }
