@@ -12,6 +12,7 @@ $.widget("ui.tagsviewer",
 	            
 				_init: function(){ 
 					$.ui.propertiesviewer.prototype._init.call(this); //call super init first
+					this._initializeDataContainer();
 				}, 
 				
 				_initializeDataContainer: function(){
