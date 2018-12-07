@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.duracloud.common.util.WaitUtil;
+import org.duracloud.common.retry.Retrier;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
@@ -104,17 +104,13 @@ public class ContentIterator implements Iterator<String> {
 
     private List<String> retryBuildContentList(String lastItem)
         throws ContentStoreException {
-        ContentStoreException lastException = null;
-        for (int i = 0; i <= maxRetries; i++) {
-            try {
+        try {
+            return new Retrier(maxRetries, 1000, 1).execute(() -> {
                 return buildContentList(lastItem);
-            } catch (ContentStoreException e) {
-                lastException = e;
-                log.warn(e.getMessage());
-                WaitUtil.wait(i);
-            }
+            });
+        } catch (Exception ex) {
+            throw new ContentStoreException(ex);
         }
-        throw lastException;
     }
 
     private List<String> buildContentList(String lastItem)

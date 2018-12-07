@@ -31,6 +31,7 @@ public class CachingContentStoreImplTest {
         contentStore = new CachingContentStoreImpl("http://example.org",
                                                    StorageProviderType.AMAZON_S3,
                                                    "store-id",
+                                                   false,
                                                    createMockRestHelper());
     }
 

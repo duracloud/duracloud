@@ -134,8 +134,8 @@ $(function(){
 		 * Binds the enter keyup event to the specified function.
 		 */
 		$.fn.bindEnterKey = function(func) {
-			$(this).bind('keyup', function(e){
-				if(e.keyCode==13){
+			$(this).bind('keydown', function(e){
+			    if(e.keyCode==13){
 		        	func(e);
 			    }
 			});		

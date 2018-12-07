@@ -32,6 +32,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
@@ -43,6 +44,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
 import org.duracloud.common.model.Credential;
@@ -61,11 +63,25 @@ public class RestHttpHelper {
 
     private CredentialsProvider credsProvider;
 
+    private int socketTimeoutMs = -1;
+
     public RestHttpHelper() {
         this(null);
     }
 
+    /**
+     * Constructor
+     * @param socketTimeoutMs A socket timeout of less than zero indicates "no timeout".
+     */
+    public RestHttpHelper(int socketTimeoutMs) {
+        this(null, socketTimeoutMs);
+    }
+
     public RestHttpHelper(Credential credential) {
+        this(credential, -1);
+    }
+
+    public RestHttpHelper(Credential credential, int socketTimeoutMs) {
         if (credential != null) {
             credsProvider = new BasicCredentialsProvider();
             credsProvider.setCredentials(
@@ -73,6 +89,8 @@ public class RestHttpHelper {
                 new UsernamePasswordCredentials(credential.getUsername(),
                                                 credential.getPassword()));
         }
+
+        this.socketTimeoutMs = socketTimeoutMs;
     }
 
     private enum Method {
@@ -278,10 +296,17 @@ public class RestHttpHelper {
 
         org.apache.http.HttpResponse response;
         if (null != credsProvider) {
-            CloseableHttpClient httpClient =
-                buildClient(HttpClients.custom()
-                                       .setDefaultCredentialsProvider(credsProvider),
-                            method);
+
+            HttpClientBuilder builder = HttpClients.custom()
+                       .setDefaultCredentialsProvider(credsProvider);
+
+            if (socketTimeoutMs > -1) {
+                BasicHttpClientConnectionManager cm = new BasicHttpClientConnectionManager();
+                cm.setSocketConfig(SocketConfig.custom().setSoTimeout(socketTimeoutMs).build());
+                builder.setConnectionManager(cm);
+            }
+
+            CloseableHttpClient httpClient = buildClient(builder, method);
 
             // Use preemptive basic auth
             URI requestUri = httpRequest.getURI();
@@ -293,7 +318,6 @@ public class RestHttpHelper {
             authCache.put(target, basicAuth);
             HttpClientContext localContext = HttpClientContext.create();
             localContext.setAuthCache(authCache);
-
             response = httpClient.execute(httpRequest, localContext);
         } else {
             CloseableHttpClient httpClient = buildClient(HttpClients.custom(), method);
@@ -314,6 +338,7 @@ public class RestHttpHelper {
         if (method.equals(Method.HEAD)) {
             builder.disableContentCompression();
         }
+
         return builder.build();
     }
 

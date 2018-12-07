@@ -37,7 +37,7 @@
       <MaxFileSize>20MB</MaxFileSize>
     </triggeringPolicy>
   </appender>
-  <logger name="org.duracloud.sync" level="INFO">
+  <logger name="org.duracloud.sync" level="${log.level:-INFO}">
     <appender-ref ref="SYNC_LOG"/>
   </logger>
 

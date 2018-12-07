@@ -129,7 +129,7 @@ public class StorageAccountProviderSimpleBindingImpl implements StorageAccountPr
     @Override
     public Element getElementFrom(StorageAccount acct,
                                   boolean includeCredentials,
-                                  boolean includeOptions) {
+                                  boolean includeHiddenOptions) {
 
         Element storageAcct = new Element("storageAcct");
         storageAcct.setAttribute("ownerId", "0");
@@ -164,18 +164,17 @@ public class StorageAccountProviderSimpleBindingImpl implements StorageAccountPr
             storageAcct.addContent(storageProviderCredential);
         }
 
-        if (includeOptions) {
-            Map<String, String> options = acct.getOptions();
-            if (null != options && !options.isEmpty()) {
-                Element storageProviderOptions = new Element(
-                    "storageProviderOptions");
-                storageAcct.addContent(storageProviderOptions);
+        Map<String, String> options = acct.getOptions();
+        if (null != options && !options.isEmpty()) {
+            Element storageProviderOptions = new Element(
+                "storageProviderOptions");
+            storageAcct.addContent(storageProviderOptions);
 
-                for (String key : options.keySet()) {
+            for (String key : options.keySet()) {
+                if (includeHiddenOptions || !StorageAccount.OPTS.valueOf(key).isHidden()) {
                     Element option = new Element("option");
                     option.setAttribute("name", key);
                     option.setAttribute("value", options.get(key));
-
                     storageProviderOptions.addContent(option);
                 }
             }

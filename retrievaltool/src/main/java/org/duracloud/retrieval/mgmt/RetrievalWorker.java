@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 import org.duracloud.chunk.util.ChunkUtil;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.ContentItem;
+import org.duracloud.common.retry.Retrier;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.retrieval.source.ContentStream;
@@ -80,8 +81,12 @@ public class RetrievalWorker implements Runnable {
     }
 
     public void run() {
-        statusManager.startingWork();
-        retrieveFile();
+        try {
+            statusManager.startingWork();
+            retrieveFile();
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
     public Map<String, String> retrieveFile() {
@@ -116,7 +121,7 @@ public class RetrievalWorker implements Runnable {
                 props = retrieveToFile(localFile, listener);
                 succeed(localFile.getAbsolutePath());
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logger.error("Exception retrieving remote file " +
                          contentItem.getContentId() + " as local file " +
                          localFile.getAbsolutePath() + ": " + e.getMessage(), e);
@@ -227,7 +232,13 @@ public class RetrievalWorker implements Runnable {
      */
     protected Map<String, String> retrieveToFile(File localFile, RetrievalListener listener) throws IOException {
 
-        contentStream = source.getSourceContent(contentItem, listener);
+        try {
+            contentStream = new Retrier(5, 4000, 3).execute(() -> {
+                return source.getSourceContent(contentItem, listener);
+            });
+        } catch (Exception ex) {
+            throw new IOException(ex);
+        }
 
         try (
             InputStream inStream = contentStream.getStream();

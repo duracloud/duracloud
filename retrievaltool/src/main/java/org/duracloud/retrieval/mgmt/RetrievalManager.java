@@ -14,6 +14,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.duracloud.common.model.ContentItem;
+import org.duracloud.common.retry.Retrier;
 import org.duracloud.retrieval.source.RetrievalSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,16 +72,26 @@ public class RetrievalManager implements Runnable {
      * Begins the content retrieval process
      */
     public void run() {
-        while (!complete) {
-            ContentItem contentItem = source.getNextContentItem();
-            if (contentItem == null) {
-                shutdown();
-                break;
+
+        try {
+            while (!complete) {
+
+                ContentItem contentItem = new Retrier(5, 4000, 2).execute(() -> {
+                    return source.getNextContentItem();
+                });
+
+                if (contentItem == null) {
+                    break;
+                }
+                while (!retrieveContent(contentItem)) {
+                    sleep(1000);
+                }
             }
 
-            while (!retrieveContent(contentItem)) {
-                sleep(1000);
-            }
+        } catch (Exception ex) {
+            logger.error("Failed to run to completion", ex);
+        } finally {
+            shutdown();
         }
     }
 

@@ -11,9 +11,10 @@
 						 [
 							<c:forEach var="storeOption" items="${contentStores}">
 							{
-							id: ${storeOption.storeId},
-							label: '<spring:message code="${fn:toLowerCase(storeOption.storageProviderType)}"/>',
-                            type: '${fn:toLowerCase(storeOption.storageProviderType)}'
+                            id: ${storeOption.storeId},
+                            label: '<spring:message code="${fn:toLowerCase(storeOption.storageProviderType)}"/>',
+                            type: '${fn:toLowerCase(storeOption.storageProviderType)}',
+                            writable: ${storeOption.writable}
 							},
 							</c:forEach>				
 						];

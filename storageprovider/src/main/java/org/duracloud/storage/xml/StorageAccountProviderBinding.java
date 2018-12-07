@@ -32,10 +32,11 @@ public interface StorageAccountProviderBinding {
      *
      * @param acct               from whence xml will be built
      * @param includeCredentials flag indicating inclusion of credentials in xml
+     * @param includeHiddenOptions flag indicating inclusion of hidden options in xml
      * @return xml element
      * @throws Exception
      */
     public Element getElementFrom(StorageAccount acct,
                                   boolean includeCredentials,
-                                  boolean includeOptions);
+                                  boolean includeHiddenOptions);
 }

@@ -11,6 +11,20 @@
 	margin:0 0 20px 20px;
 }
 
+#login-links
+{
+    float: right;
+    text-decoration: none;
+    margin-top: 10px;
+    margin-right: 12px;
+    font-size: 0.85em;
+}
+
+#login-links a
+{
+    text-decoration: none;
+}
+
 #dc-logo,
 #dc-app-title
 {
@@ -28,13 +42,13 @@
 {
 	background-image:url(../images/app_title_lg.png);
 	width:330px;
-	
+
 }
 
 #login-content,
 #login-footer
 {
-	
+
 	min-width:750px;
 	width:75%;
 
@@ -72,7 +86,7 @@
 	background-image:url(../images/btn_login.gif);
 	color:#fff !important;
 	height:28px;
-	line-height:25px;	
+	line-height:25px;
 }
 
 

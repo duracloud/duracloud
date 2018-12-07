@@ -318,7 +318,13 @@ $(function() {
     },
 
     _isReadOnlyStorageProvider : function() {
-      return !this._isPrimary() && !this._isRoot();
+      var that = this;
+      return !this._isRoot() && !this._isPrimary() &&
+        !storeProviders.filter(function(sp){
+                                    return sp.id == that._storeId;
+                                }).map(function(sp){
+                                    return sp.writable;
+                                })[0];
     },
 
     _isReadOnly : function(/* space or contentItem obj */obj) {

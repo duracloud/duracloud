@@ -5,7 +5,7 @@
   <groupId>org.duracloud</groupId>
   <artifactId>duracloud</artifactId>
   <packaging>pom</packaging>
-  <version>5.0.0</version>
+  <version>5.1.0</version>
   <name>DuraCloud</name>
   <description>Cloud-based digital content preservation system</description>
   <url>http://duracloud.org</url>
@@ -233,10 +233,8 @@
     <integrationTests>**/Test*.class</integrationTests>
     <instrumentedTests>**/*Test*__*.class</instrumentedTests>
     <innerClasses>**/*$*</innerClasses>
-    <log.level.default>WARN</log.level.default>
-    <log.level>${log.level.default}</log.level>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <duracloud.db.version>4.1.1</duracloud.db.version>
+    <duracloud.db.version>5.1.0</duracloud.db.version>
     <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
     <org.springframework.security.version>4.0.4.RELEASE</org.springframework.security.version>
     <org.springframework.webflow.version>2.4.2.RELEASE</org.springframework.webflow.version>
