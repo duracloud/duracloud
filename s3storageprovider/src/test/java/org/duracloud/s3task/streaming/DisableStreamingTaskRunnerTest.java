@@ -15,7 +15,7 @@ import static org.junit.Assert.fail;
 import java.util.Map;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.DisableStreamingTaskParameters;
 import org.duracloud.storage.provider.StorageProvider;
@@ -30,7 +30,7 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
 
     protected DisableStreamingTaskRunner createRunner(StorageProvider s3Provider,
                                                       S3StorageProvider unwrappedS3Provider,
-                                                      AmazonS3Client s3Client,
+                                                      AmazonS3 s3Client,
                                                       AmazonCloudFrontClient cfClient) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;

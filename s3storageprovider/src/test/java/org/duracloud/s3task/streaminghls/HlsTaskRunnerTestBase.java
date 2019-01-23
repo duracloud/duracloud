@@ -21,7 +21,7 @@ import com.amazonaws.services.cloudfront.model.ListDistributionsResult;
 import com.amazonaws.services.cloudfront.model.Origin;
 import com.amazonaws.services.cloudfront.model.Origins;
 import com.amazonaws.services.cloudfront.model.TrustedSigners;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StringDataStore;
 import org.duracloud.s3storage.StringDataStoreFactory;
@@ -38,7 +38,7 @@ public class HlsTaskRunnerTestBase {
 
     protected StorageProvider s3Provider;
     protected S3StorageProvider unwrappedS3Provider;
-    protected AmazonS3Client s3Client;
+    protected AmazonS3 s3Client;
     protected AmazonCloudFrontClient cfClient;
     protected StringDataStoreFactory dataStoreFactory;
     protected StringDataStore dataStore;
@@ -58,7 +58,7 @@ public class HlsTaskRunnerTestBase {
     public void setup() {
         s3Provider = EasyMock.createMock(StorageProvider.class);
         unwrappedS3Provider = EasyMock.createMock(S3StorageProvider.class);
-        s3Client = EasyMock.createMock(AmazonS3Client.class);
+        s3Client = EasyMock.createMock(AmazonS3.class);
         cfClient = EasyMock.createMock(AmazonCloudFrontClient.class);
         dataStoreFactory = EasyMock.createMock(StringDataStoreFactory.class);
         dataStore = EasyMock.createMock(StringDataStore.class);

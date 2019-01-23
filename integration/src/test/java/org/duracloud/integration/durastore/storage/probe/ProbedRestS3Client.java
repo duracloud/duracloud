@@ -15,8 +15,7 @@ import java.util.List;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AbstractAmazonS3;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.BucketLoggingConfiguration;
@@ -58,7 +57,7 @@ import org.duracloud.common.util.metrics.MetricsTable;
  *
  * @author Bill Branan
  */
-public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed {
+public class ProbedRestS3Client extends AbstractAmazonS3 implements MetricsProbed {
 
     private static final long serialVersionUID = 1L;
 
@@ -66,8 +65,8 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
 
     protected Metric metric = null;
 
-    public ProbedRestS3Client(AWSCredentials credentials) throws AmazonServiceException {
-        super(credentials);
+    public ProbedRestS3Client() throws AmazonServiceException {
+        super();
     }
 
     protected void startMetric(String methodName) {

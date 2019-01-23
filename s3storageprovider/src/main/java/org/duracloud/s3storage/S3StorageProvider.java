@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.amazonaws.AmazonClientException;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
@@ -85,7 +85,7 @@ public class S3StorageProvider extends StorageProviderBase {
     protected static final String HEADER_KEY_SUFFIX = "*";
 
     private String accessKeyId = null;
-    protected AmazonS3Client s3Client = null;
+    protected AmazonS3 s3Client = null;
 
     public S3StorageProvider(String accessKey, String secretKey) {
         this(S3ProviderUtil.getAmazonS3Client(accessKey, secretKey, null),
@@ -101,7 +101,7 @@ public class S3StorageProvider extends StorageProviderBase {
              options);
     }
 
-    public S3StorageProvider(AmazonS3Client s3Client,
+    public S3StorageProvider(AmazonS3 s3Client,
                              String accessKey,
                              Map<String, String> options) {
         this.accessKeyId = accessKey;

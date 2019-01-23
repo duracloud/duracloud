@@ -18,7 +18,8 @@ import java.util.Iterator;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.audit.AuditLogUtil;
 import org.duracloud.audit.reader.AuditLogReader;
@@ -122,7 +123,7 @@ public class AuditLogReaderImpl implements AuditLogReader {
 
     protected StorageProvider getStorageProvider() {
         AWSCredentials creds = new DefaultAWSCredentialsProviderChain().getCredentials();
-        AmazonS3Client s3client = new AmazonS3Client();
+        AmazonS3 s3client = AmazonS3ClientBuilder.standard().build();
         return new S3StorageProvider(s3client, creds.getAWSAccessKeyId(), null);
     }
 

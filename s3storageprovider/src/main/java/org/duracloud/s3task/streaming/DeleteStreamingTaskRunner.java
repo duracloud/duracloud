@@ -16,7 +16,7 @@ import com.amazonaws.services.cloudfront.model.GetStreamingDistributionConfigRes
 import com.amazonaws.services.cloudfront.model.GetStreamingDistributionRequest;
 import com.amazonaws.services.cloudfront.model.StreamingDistribution;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.DeleteStreamingTaskParameters;
@@ -39,7 +39,7 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
 
     public DeleteStreamingTaskRunner(StorageProvider s3Provider,
                                      S3StorageProvider unwrappedS3Provider,
-                                     AmazonS3Client s3Client,
+                                     AmazonS3 s3Client,
                                      AmazonCloudFrontClient cfClient) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
