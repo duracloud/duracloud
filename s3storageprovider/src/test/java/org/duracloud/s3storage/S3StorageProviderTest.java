@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.amazonaws.AmazonClientException;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
@@ -71,7 +71,7 @@ import org.junit.Test;
  */
 public class S3StorageProviderTest {
 
-    private AmazonS3Client s3Client;
+    private AmazonS3 s3Client;
     private InputStream contentStream;
 
     // Must be 20 char alphanum (and lowercase, to match bucket naming pattern)
@@ -96,7 +96,7 @@ public class S3StorageProviderTest {
     }
 
     private void setupS3Client() {
-        s3Client = createMock("AmazonS3Client", AmazonS3Client.class);
+        s3Client = createMock("AmazonS3", AmazonS3.class);
     }
 
     @Test

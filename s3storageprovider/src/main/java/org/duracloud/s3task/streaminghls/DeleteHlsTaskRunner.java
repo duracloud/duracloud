@@ -16,7 +16,7 @@ import com.amazonaws.services.cloudfront.model.DistributionSummary;
 import com.amazonaws.services.cloudfront.model.GetDistributionConfigRequest;
 import com.amazonaws.services.cloudfront.model.GetDistributionConfigResult;
 import com.amazonaws.services.cloudfront.model.GetDistributionRequest;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.DeleteStreamingTaskParameters;
@@ -41,7 +41,7 @@ public class DeleteHlsTaskRunner extends BaseHlsTaskRunner {
 
     public DeleteHlsTaskRunner(StorageProvider s3Provider,
                                S3StorageProvider unwrappedS3Provider,
-                               AmazonS3Client s3Client,
+                               AmazonS3 s3Client,
                                AmazonCloudFrontClient cfClient) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;

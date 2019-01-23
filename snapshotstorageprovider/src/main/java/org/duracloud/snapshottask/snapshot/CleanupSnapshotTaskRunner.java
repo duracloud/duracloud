@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.audit.task.AuditTask;
 import org.duracloud.audit.task.AuditTask.ActionType;
@@ -55,14 +55,14 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
     private static int EXPIRATION_DAYS = 1;
 
     private SnapshotStorageProvider unwrappedSnapshotProvider;
-    private AmazonS3Client s3Client;
+    private AmazonS3 s3Client;
     private TaskQueue auditTaskQueue;
     private ManifestStore manifestStore;
     private String account;
     private String storeId;
 
     public CleanupSnapshotTaskRunner(SnapshotStorageProvider unwrappedSnapshotProvider,
-                                     AmazonS3Client s3Client,
+                                     AmazonS3 s3Client,
                                      TaskQueue auditTaskQueue,
                                      ManifestStore manifestStore,
                                      String account,

@@ -13,7 +13,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import org.duracloud.glacierstorage.GlacierStorageProvider;
 import org.duracloud.storage.error.StorageStateException;
@@ -29,7 +29,7 @@ import org.junit.Test;
  */
 public class RestoreContentTaskRunnerTest {
 
-    private AmazonS3Client s3Client;
+    private AmazonS3 s3Client;
     private StorageProvider glacierProvider;
     private GlacierStorageProvider unwrappedGlacierProvider;
     private RestoreContentTaskRunner taskRunner;
@@ -39,7 +39,7 @@ public class RestoreContentTaskRunnerTest {
 
     @Before
     public void setup() {
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        s3Client = EasyMock.createMock("AmazonS3", AmazonS3.class);
         glacierProvider = EasyMock.createMock("StorageProvider",
                                               StorageProvider.class);
         unwrappedGlacierProvider =

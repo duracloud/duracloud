@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.Bucket;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -26,7 +26,7 @@ import org.junit.Test;
 public class SnapshotStorageProviderTest {
 
     private SnapshotStorageProvider provider;
-    private AmazonS3Client s3Client;
+    private AmazonS3 s3Client;
 
     // Must be 20 char alphanum (and lowercase, to match bucket naming pattern)
     private static final String accessKey = "abcdefghijklmnopqrst";
@@ -34,7 +34,7 @@ public class SnapshotStorageProviderTest {
 
     @Before
     public void setup() {
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        s3Client = EasyMock.createMock("AmazonS3", AmazonS3.class);
         provider = new TestableSnapshotStorageProvider(s3Client, accessKey, null);
     }
 
@@ -66,7 +66,7 @@ public class SnapshotStorageProviderTest {
     }
 
     private class TestableSnapshotStorageProvider extends SnapshotStorageProvider {
-        public TestableSnapshotStorageProvider(AmazonS3Client s3Client, String accessKey,
+        public TestableSnapshotStorageProvider(AmazonS3 s3Client, String accessKey,
                                                Map<String, String> options) {
             super(s3Client, accessKey, options);
         }

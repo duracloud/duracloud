@@ -19,7 +19,7 @@ import com.amazonaws.services.cloudfront.model.S3Origin;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionList;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
 import com.amazonaws.services.cloudfront.model.TrustedSigners;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -36,7 +36,7 @@ public class StreamingTaskRunnerTestBase {
 
     protected StorageProvider s3Provider;
     protected S3StorageProvider unwrappedS3Provider;
-    protected AmazonS3Client s3Client;
+    protected AmazonS3 s3Client;
     protected AmazonCloudFrontClient cfClient;
 
     protected String cfAccountId = "cf-account-id";
@@ -154,14 +154,14 @@ public class StreamingTaskRunnerTestBase {
         return provider;
     }
 
-    protected AmazonS3Client createMockS3ClientV1() throws Exception {
-        AmazonS3Client service = EasyMock.createMock(AmazonS3Client.class);
+    protected AmazonS3 createMockS3ClientV1() throws Exception {
+        AmazonS3 service = EasyMock.createMock(AmazonS3.class);
         EasyMock.replay(service);
         return service;
     }
 
-    protected AmazonS3Client createMockS3ClientV3() throws Exception {
-        AmazonS3Client service = EasyMock.createMock(AmazonS3Client.class);
+    protected AmazonS3 createMockS3ClientV3() throws Exception {
+        AmazonS3 service = EasyMock.createMock(AmazonS3.class);
 
         service.deleteBucketPolicy(EasyMock.isA(String.class));
         EasyMock.expectLastCall().once();
