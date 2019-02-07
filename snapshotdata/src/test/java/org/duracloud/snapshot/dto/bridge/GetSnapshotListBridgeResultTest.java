@@ -38,7 +38,7 @@ public class GetSnapshotListBridgeResultTest {
         verifySummary(result, "id-1", SnapshotStatus.SNAPSHOT_COMPLETE.name(), "desc-1", storeId, spaceId);
 
         SnapshotSummary summary2 =
-            new SnapshotSummary("id-2", SnapshotStatus.WAITING_FOR_DPN, "desc-2", storeId, spaceId);
+            new SnapshotSummary("id-2", SnapshotStatus.REPLICATING_TO_STORAGE, "desc-2", storeId, spaceId);
         summaries.add(summary2);
 
         result = new GetSnapshotListBridgeResult(summaries).serialize();

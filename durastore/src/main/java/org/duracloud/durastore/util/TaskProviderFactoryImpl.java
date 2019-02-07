@@ -19,7 +19,6 @@ import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StringDataStoreFactory;
 import org.duracloud.s3task.S3TaskProvider;
 import org.duracloud.snapshotstorage.ChronopolisStorageProvider;
-import org.duracloud.snapshotstorage.DpnStorageProvider;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.snapshottask.SnapshotTaskProvider;
 import org.duracloud.storage.domain.StorageAccount;
@@ -113,16 +112,9 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                                                    unwrappedGlacierProvider,
                                                    s3Client,
                                                    storageAccountId);
-        } else if (type.equals(StorageProviderType.DPN) ||
-                   type.equals(StorageProviderType.CHRONOPOLIS)) {
-            SnapshotStorageProvider unwrappedSnapshotProvider;
-            if (type.equals(StorageProviderType.DPN)) {
-                unwrappedSnapshotProvider =
-                    new DpnStorageProvider(username, password);
-            } else {
-                unwrappedSnapshotProvider =
-                    new ChronopolisStorageProvider(username, password);
-            }
+        } else if (type.equals(StorageProviderType.CHRONOPOLIS)) {
+            SnapshotStorageProvider unwrappedSnapshotProvider =
+                new ChronopolisStorageProvider(username, password);
             AmazonS3 s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
 

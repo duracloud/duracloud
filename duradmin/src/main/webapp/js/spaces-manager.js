@@ -8,7 +8,7 @@
 
 /**
  * Spaces Manager
- * 
+ *
  * @author Daniel Bernstein
  */
 
@@ -68,13 +68,14 @@ $(function() {
 
   /**
    * ERROR Constants
-   * 
+   *
    */
   SnapshotErrorMessage = {};
-  SnapshotErrorMessage.UNAVAILABLE = "DuraCloud is not currently able to connect to DPN; " +
-  		"some features may not be available at the moment. " +
+  SnapshotErrorMessage.UNAVAILABLE =
+        "DuraCloud is not currently able to connect to the snapshot store. " +
+  		"Some features may unavailable until the connection can be established. " +
   		"We apologize for the inconvenience.";
-  
+
   displaySnapshotErrorDialog = function(jqXHR){
     dc.displayErrorDialog(jqXHR, SnapshotErrorMessage.UNAVAILABLE,null, false);
   };
@@ -112,7 +113,7 @@ $(function() {
       if (contentId != null && contentId != undefined) {
         relative += "/" + encodeURIComponent(contentId);
       }
-      var snapshot = obj.snapshot; 
+      var snapshot = obj.snapshot;
       if (snapshot) {
         relative += "?snapshot=true";
       }
@@ -129,12 +130,12 @@ $(function() {
         if (index == -1) {
           return state;
         }
-        
+
         var search = location.search;
         var qmIndex = search.indexOf("?");
         if (qmIndex > -1) {
           if(search.substring(qmIndex).indexOf("snapshot=true") > 0){
-            state.snapshot=true; 
+            state.snapshot=true;
           }
         }
 
@@ -168,12 +169,12 @@ $(function() {
         var url = _buildUrl(data);
         var title = "DuraCloud";
         history.pushState(data, title, url);
-        //next two lines:  a trick to trigger a 
+        //next two lines:  a trick to trigger a
         //pushstate event.  Without the history.back()
         //call pushstate is not fired.
         history.pushState(data, title, url);
         history.back();
-        
+
 	      if ($.browser['msie']) {
           instance.change(data);
         }
@@ -181,7 +182,7 @@ $(function() {
 
       /**
        * Returns true if the change was handled.
-       * 
+       *
        * @param state
        * @returns {Boolean}
        */
@@ -200,7 +201,7 @@ $(function() {
       /**
        * Adds a change handler to the list of handlers. Handler functions are
        * processed in the order they were added.
-       * 
+       *
        * @param handler
        */
       addChangeHandler : function(handler) {
@@ -232,7 +233,7 @@ $(function() {
       var unpopped = ('state' in history);
       if (unpopped) {
         setTimeout(function() {
-          //without this line, firefox won't load 
+          //without this line, firefox won't load
           //the ui properly.
           $(window).trigger('popstate');
         });
@@ -288,7 +289,7 @@ $(function() {
     _isSnapshot : function(storeId) {
       var ischron = false;
       $.each(storeProviders, function(i, provider) {
-        if (storeId == provider.id && (provider.type == 'dpn' || provider.type == 'chronopolis')) {
+        if (storeId == provider.id && provider.type == 'chronopolis') {
           ischron = true;
           return false;
         }
@@ -574,7 +575,7 @@ $(function() {
       var that = this;
       // initialize the dialog proper
       var d = $("#copy-content-item-dialog");
-      
+
       d.dialog({
         autoOpen : true,
         show : 'blind',
@@ -598,7 +599,7 @@ $(function() {
           var destStoreIdField = $("#destStoreId", theOther);
           var contentIdField = $("#contentId", theOther);
           var spaceSelect = $("#spaceId", theOther);
-          
+
           var loadWriteableSpaces = function(storeId, spaceId) {
             spaceSelect.busySibling("Loading writable spaces...");
 	    spaceSelect.disable(true);
@@ -763,14 +764,14 @@ $(function() {
       $(document).bind("staleSpace", function(evt, state) {
         that._loadSpace(state);
       });
-      
+
       $(document).bind("reloadSpaceList", function(evt, state){
           state.forceRefresh = true;
           that.loadSpaces(state).always(function(){
               dc.done();
           });
       });
-      
+
       $(document).bind("navigateToSpace", function(evt, state){
         if(!state.storeId){
           state.storeId = that._storeId;
@@ -1156,7 +1157,7 @@ $(function() {
           return that._loadSpaceInternal(params, showDetail);
         }
       };
-      
+
       var deferred = $.Deferred();
       that.loadSpaces(params).then(function(){
           func().always(function() {
@@ -1164,7 +1165,7 @@ $(function() {
             deferred.resolve();
           });
       });
-      
+
       return deferred;
     },
 
@@ -1181,17 +1182,17 @@ $(function() {
         that._loadSnapshotContentItems(snapshot);
 
       }).error(function(jqXHR, textStatus, errorThrown) {
-      
+
         if (jqXHR.status == 404) {
           message = "snapshot " + params.spaceId + " does not exist.";
           this._detailManager.showEmpty();
-          dc.displayErrorDialog(jqXHR, 
+          dc.displayErrorDialog(jqXHR,
                                 message, null, false);
         } else{
           displaySnapshotErrorDialog(jqXHR);
         }
       });
-      
+
       return retrieveSnapshot;
 
     },
@@ -1255,7 +1256,7 @@ $(function() {
             that._detailManager.showContentItem(contentItem);
           },
         });
-        
+
         deferred.then(function(){
           that._contentItemListPane.contentitemlistpane("setCurrentById", dc.hexEncode(params.contentId));
         });
@@ -1342,11 +1343,11 @@ $(function() {
           }).error(function(jqXHR, textStatus, errorThrown) {
             displaySnapshotErrorDialog(jqXHR);
           }).always(function(){
-            that._spacesListPane.spaceslistpane("load", 
-                                                that._spacesArray, 
+            that._spacesListPane.spaceslistpane("load",
+                                                that._spacesArray,
                                                 storeId);
 
-            that._spacesListPane.spaceslistpane("setCurrentById", 
+            that._spacesListPane.spaceslistpane("setCurrentById",
                                                 optionalParams.spaceId);
 
           });
@@ -1538,11 +1539,11 @@ $(function() {
 
     addSpaceToList : function(space, dividerLabel) {
       var that = this;
-      if(dividerLabel == undefined && 
+      if(dividerLabel == undefined &&
           that._isSnapshot(that._storeId)){
         dividerLabel = this._spacesLabel;
       }
-      
+
       var disabled = this._isReadOnly(space);
       var node = $.fn.create("div");
       node.attr("id", space.spaceId).html(space.spaceId);
@@ -1550,11 +1551,11 @@ $(function() {
       if (space.snapshot == true) {
         node.addClass("snapshot");
       }
-      this._spacesList.selectablelist('addItem', 
-                                      node, 
-                                      space, 
-                                      false, 
-                                      disabled, 
+      this._spacesList.selectablelist('addItem',
+                                      node,
+                                      space,
+                                      false,
+                                      disabled,
                                       space.snapshot,
                                       dividerLabel);
     },
@@ -1586,7 +1587,7 @@ $(function() {
       if(snapshotProvider){
         that._spacesList.selectablelist("addDivider", this._spacesLabel);
       }
-      
+
       $.each(this._spaces, function(i, space) {
         if (!filter || space.spaceId.toLowerCase().indexOf(filter.toLowerCase()) > -1) {
 
@@ -1675,7 +1676,7 @@ $(function() {
     _toggleCheckAllContentItems : function(checked) {
       $("#check-all-content-items", this.element).attr("checked", checked);
     },
-    
+
     setCurrentById : function(contentId) {
       this._getList().selectablelist("setCurrentItemById", contentId, false);
     },
@@ -1829,8 +1830,8 @@ $(function() {
     _addContentItemToList : function(contentItem, readOnly) {
       var that = this, node, actions, content, deleteButton, copyButton;
       actions = $.fn.create("div");
-      copyButton = $("<button title='copy content item' class='copy-button icon-only'>" + 
-                     "<i class='pre copy'></i>" + 
+      copyButton = $("<button title='copy content item' class='copy-button icon-only'>" +
+                     "<i class='pre copy'></i>" +
                      "</button>")
                      .click(function(evt) {
                         evt.stopPropagation();
@@ -1842,7 +1843,7 @@ $(function() {
       }
 
       if (!readOnly) {
-        deleteButton = $("<button title='delete content item' class='delete-space-button icon-only'>" + 
+        deleteButton = $("<button title='delete content item' class='delete-space-button icon-only'>" +
                          "<i class='pre trash'></i>" + "</button>")
                          .click(function(evt) {
                            that._deleteContentItem(evt, contentItem);
@@ -2149,9 +2150,9 @@ $(function() {
         modal : true
       });
 
-      var xhr = dc.store.GetSnapshotContent(this._snapshot.storeId, 
-                                            this._snapshot.snapshotId, 
-                                            page, 
+      var xhr = dc.store.GetSnapshotContent(this._snapshot.storeId,
+                                            this._snapshot.snapshotId,
+                                            page,
                                             prefix)
       .success(function(data) {
         handler(data);
@@ -2256,8 +2257,8 @@ $(function() {
       if(this._getFilterText() != ''){
         totalCount = "?";
       }
-      
-      
+
+
       if (totalCount == 0) {
         statusTxt = "";
       } else {
@@ -2815,7 +2816,7 @@ $(function() {
       var tagsToBeRemoved = [];
 
       var mp = this._createPropertiesPane(data.properties);
-      
+
       $(mp).bind("dc-add", function(evt, future) {
         evt.stopPropagation();
         var value = future.value;
@@ -2886,7 +2887,7 @@ $(function() {
 
           params.contentItems = that._contentItems;
           that._bulkUpdateContentProperties(params);
-          
+
 
           d.dialog("close");
           dc.busy("Preparing to perform update...", {
@@ -3104,8 +3105,8 @@ $(function() {
       if (bitIntegrityReport) {
         var completionDate = bitIntegrityReport.completionDate;
         var result = bitIntegrityReport.result.toString().toLowerCase();
-        spaceProps.push([ "Last Health Check", "<div class='health-check " + result + "'>" + 
-                            completionDate + " - " + result + 
+        spaceProps.push([ "Last Health Check", "<div class='health-check " + result + "'>" +
+                            completionDate + " - " + result +
                             " <a id='report-viewer' href=''>[report]</a></div>" ]);
       }
 
@@ -3309,13 +3310,13 @@ $(function() {
       $.each(item.contentProperties, function(key, value) {
         props.push([ key, value ]);
       });
-     
+
       props.sort(function(a,b) {
          if (a[0] < b[0])
            return -1;
          else if (a[0] > b[0])
            return 1;
-         else 
+         else
            return 0;
       });
 
@@ -3348,23 +3349,23 @@ $(function() {
       }
       var props = [ [ "Description", snapshot.description ],
                     [ "Alternate Ids", snapshot.alternateIds.toString() ],
-                    [ "Snapshot Date", snapshotDate.toString() ], 
-                    [ "Source Host", snapshot.sourceHost ], 
-                    [ "Source Store", snapshot.sourceStoreId ], 
-                    [ "Source Space", snapshot.sourceSpaceId ], 
+                    [ "Snapshot Date", snapshotDate.toString() ],
+                    [ "Source Host", snapshot.sourceHost ],
+                    [ "Source Store", snapshot.sourceStoreId ],
+                    [ "Source Space", snapshot.sourceSpaceId ],
                     [ "Status", snapshot.status ],
                     [ "Preservation Network Member ID", snapshot.memberId],
                     [ "Content Item Count", snapshot.contentItemCount ],
                     [ "Total Size", dc.formatBytes(snapshot.totalSizeInBytes,true) ]
-                    
+
       ];
 
       this._loadProperties(props);
-      
+
       var shProps = [ this._getHistoryDataTableTemplate() ];
-      
+
       this._loadSnapshotHistoryPanel(shProps);
-      
+
       this._loadHistory(snapshot.sourceStoreId, snapshot.snapshotId);
 
       this._configureRestoreControls();
@@ -3374,9 +3375,9 @@ $(function() {
       var that = this;
 
       that._getMetadataLink().attr("href", dc.store.formatDownloadURL({storeId:this._storeId, spaceId:"x-snapshot-metadata", contentId: this._snapshot.snapshotId + ".zip"}, true));
-                              
+
       that._getMetadataLink().hide();
-      
+
       that._getRequestRestoreButton().hide();
 
       that._getRestoreButton().hide();
@@ -3386,9 +3387,9 @@ $(function() {
       if (that._snapshot.status != 'SNAPSHOT_COMPLETE') {
         return;
       }
-      
+
       that._getMetadataLink().show();
-      
+
       that._getRestoreButton().busySibling("Retrieving restore info...");
 
       return dc.store.GetSnapshotRestoreSpaceId({snapshotId:that._snapshot.snapshotId,
@@ -3476,35 +3477,35 @@ $(function() {
         HistoryManager.pushState(that._createUniqueStateObject(restoreSpace));
       }).show();
     },
-    
+
     _loadSnapshotHistoryPanel : function(
 	    /* array */properties) {
         var propertiesDiv = $(".detail-properties", this.element).first();
-        
+
         if (propertiesDiv.size() == 1) {
           propertiesDiv = $.fn.create("div").addClass("detail-properties");
           propertiesDiv.tabularexpandopanel({
-            title : "Snapshot History " + 
-                    "<a id='history-download'  href='" + 
-                    dc.store.formatSnapshotHistoryUrl(this._storeId, 
-                                                      this._snapshot.snapshotId, 
-                                                      -1, true) + 
+            title : "Snapshot History " +
+                    "<a id='history-download'  href='" +
+                    dc.store.formatSnapshotHistoryUrl(this._storeId,
+                                                      this._snapshot.snapshotId,
+                                                      -1, true) +
                     "'>Download</a>",
             data : properties
           });
           this._appendToCenter(propertiesDiv);
-          
+
           $("#history-download", propertiesDiv)
              .click(function(e){e.stopPropagation();});
-                                               
-         
+
+
         } else {
           $(propertiesDiv).tabularexpandopanel("setData", properties);
         }
-        
+
         return propertiesDiv;
     },
-    
+
     _getHistoryDataTableTemplate : function() {
     	var table = $.fn.create('table');
     	table.attr({ 'id': 'snapshot_history', 'data-order': '[[ 0, "desc" ]]', 'data-page-length': '10' });
@@ -3522,9 +3523,9 @@ $(function() {
     	table.append(tbody);
     	return table;
     },
-    
+
     _loadHistory : function(storeId, snapshotId) {
-    	
+
     	dc.store.GetSnapshotHistory(storeId, snapshotId, "0").success(function(data) {
     		$('#snapshot_history').dataTable( {
     			autoWidth: false,
@@ -3597,7 +3598,7 @@ $(function() {
 			          	  			else {
 			          	  				ret = data;
 			          	  			}
-		          	  			}		          	  			
+		          	  			}
 		          	  			catch(err) {
 		          	  				ret = data;
 		          	  			}
@@ -3744,9 +3745,9 @@ $(function() {
           $.each(deletedContentItems, function(i, ci) {
             $(document).trigger("contentItemDeleted", ci);
           });
-          
+
           HistoryManager.pushState(space);
-          
+
         },
       });
     },
@@ -3834,7 +3835,7 @@ $(function() {
 
       $(".download-content-item-button", this.element).attr("href", dc.store.formatDownloadURL(contentItem));
 
-      
+
       var deleteContentButton = $(".delete-content-item-button", this.element);
       deleteContentButton.unbind().click(function(evt) {
         that._deleteContentItem(evt, contentItem);
