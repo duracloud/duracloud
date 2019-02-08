@@ -24,7 +24,7 @@ import com.amazonaws.services.cloudfront.model.StreamingDistribution;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionConfig;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
 import com.amazonaws.services.cloudfront.model.TrustedSigners;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskParameters;
@@ -48,7 +48,7 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner {
 
     public EnableStreamingTaskRunner(StorageProvider s3Provider,
                                      S3StorageProvider unwrappedS3Provider,
-                                     AmazonS3Client s3Client,
+                                     AmazonS3 s3Client,
                                      AmazonCloudFrontClient cfClient,
                                      String cfAccountId) {
         this.s3Provider = s3Provider;

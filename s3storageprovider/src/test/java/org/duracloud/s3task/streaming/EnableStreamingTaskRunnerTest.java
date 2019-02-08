@@ -34,7 +34,7 @@ import com.amazonaws.services.cloudfront.model.ListStreamingDistributionsResult;
 import com.amazonaws.services.cloudfront.model.StreamingDistribution;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionConfig;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionList;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskParameters;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskResult;
@@ -53,7 +53,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
     protected EnableStreamingTaskRunner createRunner(StorageProvider s3Provider,
                                                      S3StorageProvider unwrappedS3Provider,
-                                                     AmazonS3Client s3Client,
+                                                     AmazonS3 s3Client,
                                                      AmazonCloudFrontClient cfClient,
                                                      String cfAccountId) {
         this.s3Provider = s3Provider;
@@ -199,8 +199,8 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         return cfClient;
     }
 
-    protected AmazonS3Client createMockS3ClientV3() throws Exception {
-        AmazonS3Client service = EasyMock.createMock(AmazonS3Client.class);
+    protected AmazonS3 createMockS3ClientV3() throws Exception {
+        AmazonS3 service = EasyMock.createMock(AmazonS3.class);
 
         service.setBucketPolicy(EasyMock.isA(String.class),
                                 EasyMock.isA(String.class));

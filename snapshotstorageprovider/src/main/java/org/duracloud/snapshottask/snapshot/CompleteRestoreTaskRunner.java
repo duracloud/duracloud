@@ -10,7 +10,7 @@ package org.duracloud.snapshottask.snapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.CompleteRestoreTaskParameters;
@@ -35,11 +35,11 @@ public class CompleteRestoreTaskRunner implements TaskRunner {
 
     private StorageProvider snapshotProvider;
     private SnapshotStorageProvider unwrappedSnapshotProvider;
-    private AmazonS3Client s3Client;
+    private AmazonS3 s3Client;
 
     public CompleteRestoreTaskRunner(StorageProvider snapshotProvider,
                                      SnapshotStorageProvider unwrappedSnapshotProvider,
-                                     AmazonS3Client s3Client) {
+                                     AmazonS3 s3Client) {
         this.snapshotProvider = snapshotProvider;
         this.unwrappedSnapshotProvider = unwrappedSnapshotProvider;
         this.s3Client = s3Client;

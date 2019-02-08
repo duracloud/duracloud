@@ -9,7 +9,7 @@ package org.duracloud.snapshotstorage;
 
 import java.util.Map;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StoragePolicy;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public abstract class SnapshotStorageProvider extends S3StorageProvider {
         super(accessKey, secretKey, options);
     }
 
-    public SnapshotStorageProvider(AmazonS3Client s3Client, String accessKey,
+    public SnapshotStorageProvider(AmazonS3 s3Client, String accessKey,
                                    Map<String, String> options) {
         super(s3Client, accessKey, options);
     }
