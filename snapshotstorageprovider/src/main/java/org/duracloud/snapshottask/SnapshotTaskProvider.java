@@ -7,7 +7,7 @@
  */
 package org.duracloud.snapshottask;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.mill.manifest.ManifestStore;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
@@ -36,7 +36,7 @@ public class SnapshotTaskProvider extends TaskProviderBase {
 
     public SnapshotTaskProvider(StorageProvider snapshotProvider,
                                 SnapshotStorageProvider unwrappedSnapshotProvider,
-                                AmazonS3Client s3Client,
+                                AmazonS3 s3Client,
                                 String dcHost,
                                 String dcPort,
                                 String dcStoreId,

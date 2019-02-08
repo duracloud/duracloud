@@ -15,8 +15,11 @@ import java.util.List;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AbstractAmazonS3;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.BucketLoggingConfiguration;
@@ -58,7 +61,7 @@ import org.duracloud.common.util.metrics.MetricsTable;
  *
  * @author Bill Branan
  */
-public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed {
+public class ProbedRestS3Client extends AbstractAmazonS3 implements AmazonS3, MetricsProbed {
 
     private static final long serialVersionUID = 1L;
 
@@ -66,8 +69,12 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
 
     protected Metric metric = null;
 
-    public ProbedRestS3Client(AWSCredentials credentials) throws AmazonServiceException {
-        super(credentials);
+    protected AmazonS3 s3Client;
+
+    public ProbedRestS3Client(BasicAWSCredentials credentials) throws AmazonServiceException {
+        this.s3Client = AmazonS3ClientBuilder.standard()
+            .withCredentials(new AWSStaticCredentialsProvider(credentials))
+            .build();
     }
 
     protected void startMetric(String methodName) {
@@ -104,7 +111,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
         throws AmazonClientException {
         startMetric("listNextBatchOfVersions");
         VersionListing result =
-            super.listNextBatchOfVersions(previousVersionListing);
+            s3Client.listNextBatchOfVersions(previousVersionListing);
         stopMetric("listNextBatchOfVersions");
         return result;
     }
@@ -113,7 +120,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public VersionListing listVersions(String bucketName, String prefix)
         throws AmazonClientException {
         startMetric("listVersions");
-        VersionListing result = super.listVersions(bucketName, prefix);
+        VersionListing result = s3Client.listVersions(bucketName, prefix);
         stopMetric("listVersions");
         return result;
     }
@@ -127,7 +134,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
                                        Integer maxKeys)
         throws AmazonClientException {
         startMetric("listVersions");
-        VersionListing result = super.listVersions(bucketName,
+        VersionListing result = s3Client.listVersions(bucketName,
                                                    prefix,
                                                    keyMarker,
                                                    versionIdMarker,
@@ -141,7 +148,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public VersionListing listVersions(ListVersionsRequest listVersionsRequest)
         throws AmazonClientException {
         startMetric("listVersions");
-        VersionListing result = super.listVersions(listVersionsRequest);
+        VersionListing result = s3Client.listVersions(listVersionsRequest);
         stopMetric("listVersions");
         return result;
     }
@@ -150,7 +157,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public ObjectListing listObjects(String bucketName)
         throws AmazonClientException {
         startMetric("listObjects");
-        ObjectListing result = super.listObjects(bucketName);
+        ObjectListing result = s3Client.listObjects(bucketName);
         stopMetric("listObjects");
         return result;
     }
@@ -159,7 +166,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public ObjectListing listObjects(String bucketName, String prefix)
         throws AmazonClientException {
         startMetric("listObjects");
-        ObjectListing result = super.listObjects(bucketName, prefix);
+        ObjectListing result = s3Client.listObjects(bucketName, prefix);
         stopMetric("listObjects");
         return result;
     }
@@ -168,7 +175,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public ObjectListing listObjects(ListObjectsRequest listObjectsRequest)
         throws AmazonClientException {
         startMetric("listObjects");
-        ObjectListing result = super.listObjects(listObjectsRequest);
+        ObjectListing result = s3Client.listObjects(listObjectsRequest);
         stopMetric("listObjects");
         return result;
     }
@@ -179,7 +186,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
         throws AmazonClientException {
         startMetric("listNextBatchOfObjects");
         ObjectListing result =
-            super.listNextBatchOfObjects(previousObjectListing);
+            s3Client.listNextBatchOfObjects(previousObjectListing);
         stopMetric("listNextBatchOfObjects");
         return result;
     }
@@ -188,7 +195,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public Owner getS3AccountOwner()
         throws AmazonClientException {
         startMetric("getS3AccountOwner");
-        Owner result = super.getS3AccountOwner();
+        Owner result = s3Client.getS3AccountOwner();
         stopMetric("getS3AccountOwner");
         return result;
     }
@@ -197,7 +204,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public List<Bucket> listBuckets(ListBucketsRequest listBucketsRequest)
         throws AmazonClientException {
         startMetric("listBuckets");
-        List<Bucket> result = super.listBuckets(listBucketsRequest);
+        List<Bucket> result = listBuckets(listBucketsRequest);
         stopMetric("listBuckets");
         return result;
     }
@@ -206,7 +213,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public List<Bucket> listBuckets()
         throws AmazonClientException {
         startMetric("listBuckets");
-        List<Bucket> result = super.listBuckets();
+        List<Bucket> result = s3Client.listBuckets();
         stopMetric("listBuckets");
         return result;
     }
@@ -215,7 +222,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public String getBucketLocation(String bucketName)
         throws AmazonClientException {
         startMetric("getBucketLocation");
-        String result = super.getBucketLocation(bucketName);
+        String result = s3Client.getBucketLocation(bucketName);
         stopMetric("getBucketLocation");
         return result;
     }
@@ -224,7 +231,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public Bucket createBucket(String bucketName)
         throws AmazonClientException {
         startMetric("createBucket");
-        Bucket result = super.createBucket(bucketName);
+        Bucket result = s3Client.createBucket(bucketName);
         stopMetric("createBucket");
         return result;
     }
@@ -233,7 +240,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public Bucket createBucket(String bucketName, Region region)
         throws AmazonClientException {
         startMetric("createBucket");
-        Bucket result = super.createBucket(bucketName, region);
+        Bucket result = s3Client.createBucket(bucketName, region);
         stopMetric("createBucket");
         return result;
     }
@@ -242,7 +249,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public Bucket createBucket(String bucketName, String region)
         throws AmazonClientException {
         startMetric("createBucket");
-        Bucket result = super.createBucket(bucketName, region);
+        Bucket result = s3Client.createBucket(bucketName, region);
         stopMetric("createBucket");
         return result;
     }
@@ -251,7 +258,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public Bucket createBucket(CreateBucketRequest createBucketRequest)
         throws AmazonClientException {
         startMetric("createBucket");
-        Bucket result = super.createBucket(createBucketRequest);
+        Bucket result = s3Client.createBucket(createBucketRequest);
         stopMetric("createBucket");
         return result;
     }
@@ -260,7 +267,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public AccessControlList getObjectAcl(String bucketName, String key)
         throws AmazonClientException {
         startMetric("getObjectAcl");
-        AccessControlList result = super.getObjectAcl(bucketName, key);
+        AccessControlList result = s3Client.getObjectAcl(bucketName, key);
         stopMetric("getObjectAcl");
         return result;
     }
@@ -271,7 +278,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
         throws AmazonClientException {
         startMetric("getObjectAcl");
         AccessControlList result =
-            super.getObjectAcl(bucketName, key, versionId);
+            s3Client.getObjectAcl(bucketName, key, versionId);
         stopMetric("getObjectAcl");
         return result;
     }
@@ -281,7 +288,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
                              AccessControlList acl)
         throws AmazonClientException {
         startMetric("setObjectAcl");
-        super.setObjectAcl(bucketName, key, acl);
+        s3Client.setObjectAcl(bucketName, key, acl);
         stopMetric("setObjectAcl");
     }
 
@@ -290,7 +297,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
                              CannedAccessControlList acl)
         throws AmazonClientException {
         startMetric("setObjectAcl");
-        super.setObjectAcl(bucketName, key, acl);
+        s3Client.setObjectAcl(bucketName, key, acl);
         stopMetric("setObjectAcl");
     }
 
@@ -299,7 +306,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
                              AccessControlList acl)
         throws AmazonClientException {
         startMetric("setObjectAcl");
-        super.setObjectAcl(bucketName, key, versionId, acl);
+        s3Client.setObjectAcl(bucketName, key, versionId, acl);
         stopMetric("setObjectAcl");
     }
 
@@ -308,7 +315,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
                              CannedAccessControlList acl)
         throws AmazonClientException {
         startMetric("setObjectAcl");
-        super.setObjectAcl(bucketName, key, versionId, acl);
+        s3Client.setObjectAcl(bucketName, key, versionId, acl);
         stopMetric("setObjectAcl");
     }
 
@@ -316,7 +323,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public AccessControlList getBucketAcl(String bucketName)
         throws AmazonClientException {
         startMetric("getBucketAcl");
-        AccessControlList result = super.getBucketAcl(bucketName);
+        AccessControlList result = s3Client.getBucketAcl(bucketName);
         stopMetric("getBucketAcl");
         return result;
     }
@@ -325,7 +332,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public void setBucketAcl(String bucketName, AccessControlList acl)
         throws AmazonClientException {
         startMetric("setBucketAcl");
-        super.setBucketAcl(bucketName, acl);
+        s3Client.setBucketAcl(bucketName, acl);
         stopMetric("setBucketAcl");
     }
 
@@ -333,7 +340,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public void setBucketAcl(String bucketName, CannedAccessControlList acl)
         throws AmazonClientException {
         startMetric("setBucketAcl");
-        super.setBucketAcl(bucketName, acl);
+        s3Client.setBucketAcl(bucketName, acl);
         stopMetric("setBucketAcl");
     }
 
@@ -341,7 +348,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public ObjectMetadata getObjectMetadata(String bucketName, String key)
         throws AmazonClientException {
         startMetric("getObjectMetadata");
-        ObjectMetadata result = super.getObjectMetadata(bucketName, key);
+        ObjectMetadata result = s3Client.getObjectMetadata(bucketName, key);
         stopMetric("getObjectMetadata");
         return result;
     }
@@ -352,7 +359,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
         throws AmazonClientException {
         startMetric("getObjectMetadata");
         ObjectMetadata result =
-            super.getObjectMetadata(getObjectMetadataRequest);
+            s3Client.getObjectMetadata(getObjectMetadataRequest);
         stopMetric("getObjectMetadata");
         return result;
     }
@@ -361,7 +368,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public S3Object getObject(String bucketName, String key)
         throws AmazonClientException {
         startMetric("getObject");
-        S3Object result = super.getObject(bucketName, key);
+        S3Object result = s3Client.getObject(bucketName, key);
         stopMetric("getObject");
         return result;
     }
@@ -370,7 +377,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public boolean doesBucketExist(String bucketName)
         throws AmazonClientException {
         startMetric("doesBucketExist");
-        boolean result = super.doesBucketExist(bucketName);
+        boolean result = s3Client.doesBucketExist(bucketName);
         stopMetric("doesBucketExist");
         return result;
     }
@@ -380,7 +387,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
                                          StorageClass newStorageClass)
         throws AmazonClientException {
         startMetric("changeObjectStorageClass");
-        super.changeObjectStorageClass(bucketName, key, newStorageClass);
+        s3Client.changeObjectStorageClass(bucketName, key, newStorageClass);
         stopMetric("changeObjectStorageClass");
     }
 
@@ -388,7 +395,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public S3Object getObject(GetObjectRequest getObjectRequest)
         throws AmazonClientException {
         startMetric("getObject");
-        S3Object result = super.getObject(getObjectRequest);
+        S3Object result = s3Client.getObject(getObjectRequest);
         stopMetric("getObject");
         return result;
     }
@@ -399,7 +406,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
         throws AmazonClientException {
         startMetric("getObject");
         ObjectMetadata result =
-            super.getObject(getObjectRequest, destinationFile);
+            s3Client.getObject(getObjectRequest, destinationFile);
         stopMetric("getObject");
         return result;
     }
@@ -408,7 +415,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public void deleteBucket(String bucketName)
         throws AmazonClientException {
         startMetric("deleteBucket");
-        super.deleteBucket(bucketName);
+        s3Client.deleteBucket(bucketName);
         stopMetric("deleteBucket");
     }
 
@@ -416,7 +423,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public void deleteBucket(DeleteBucketRequest deleteBucketRequest)
         throws AmazonClientException {
         startMetric("deleteBucket");
-        super.deleteBucket(deleteBucketRequest);
+        s3Client.deleteBucket(deleteBucketRequest);
         stopMetric("deleteBucket");
     }
 
@@ -424,7 +431,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public PutObjectResult putObject(String bucketName, String key, File file)
         throws AmazonClientException {
         startMetric("putObject");
-        PutObjectResult result = super.putObject(bucketName, key, file);
+        PutObjectResult result = s3Client.putObject(bucketName, key, file);
         stopMetric("putObject");
         return result;
     }
@@ -435,7 +442,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
         throws AmazonClientException {
         startMetric("putObject");
         PutObjectResult result =
-            super.putObject(bucketName, key, input, metadata);
+            s3Client.putObject(bucketName, key, input, metadata);
         stopMetric("putObject");
         return result;
     }
@@ -444,7 +451,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public PutObjectResult putObject(PutObjectRequest putObjectRequest)
         throws AmazonClientException {
         startMetric("putObject");
-        PutObjectResult result = super.putObject(putObjectRequest);
+        PutObjectResult result = s3Client.putObject(putObjectRequest);
         stopMetric("putObject");
         return result;
     }
@@ -456,7 +463,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
                                        String destinationKey)
         throws AmazonClientException {
         startMetric("copyObject");
-        CopyObjectResult result = super.copyObject(sourceBucketName,
+        CopyObjectResult result = s3Client.copyObject(sourceBucketName,
                                                    sourceKey,
                                                    destinationBucketName,
                                                    destinationKey);
@@ -468,7 +475,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public CopyObjectResult copyObject(CopyObjectRequest copyObjectRequest)
         throws AmazonClientException {
         startMetric("copyObject");
-        CopyObjectResult result = super.copyObject(copyObjectRequest);
+        CopyObjectResult result = s3Client.copyObject(copyObjectRequest);
         stopMetric("copyObject");
         return result;
     }
@@ -477,7 +484,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public void deleteObject(String bucketName, String key)
         throws AmazonClientException {
         startMetric("deleteObject");
-        super.deleteObject(bucketName, key);
+        s3Client.deleteObject(bucketName, key);
         stopMetric("deleteObject");
     }
 
@@ -485,7 +492,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public void deleteObject(DeleteObjectRequest deleteObjectRequest)
         throws AmazonClientException {
         startMetric("deleteObject");
-        super.deleteObject(deleteObjectRequest);
+        s3Client.deleteObject(deleteObjectRequest);
         stopMetric("deleteObject");
     }
 
@@ -493,7 +500,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public void deleteVersion(String bucketName, String key, String versionId)
         throws AmazonClientException {
         startMetric("deleteVersion");
-        super.deleteVersion(bucketName, key, versionId);
+        s3Client.deleteVersion(bucketName, key, versionId);
         stopMetric("deleteVersion");
     }
 
@@ -501,7 +508,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public void deleteVersion(DeleteVersionRequest deleteVersionRequest)
         throws AmazonClientException {
         startMetric("deleteVersion");
-        super.deleteVersion(deleteVersionRequest);
+        s3Client.deleteVersion(deleteVersionRequest);
         stopMetric("deleteVersion");
     }
 
@@ -510,7 +517,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
         SetBucketVersioningConfigurationRequest setBucketVersioningConfigurationRequest)
         throws AmazonClientException {
         startMetric("setBucketVersioningConfiguration");
-        super.setBucketVersioningConfiguration(setBucketVersioningConfigurationRequest);
+        s3Client.setBucketVersioningConfiguration(setBucketVersioningConfigurationRequest);
         stopMetric("setBucketVersioningConfiguration");
     }
 
@@ -520,7 +527,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
         throws AmazonClientException {
         startMetric("getBucketVersioningConfiguration");
         BucketVersioningConfiguration result =
-            super.getBucketVersioningConfiguration(bucketName);
+            s3Client.getBucketVersioningConfiguration(bucketName);
         stopMetric("getBucketVersioningConfiguration");
         return result;
     }
@@ -530,7 +537,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
                                                    BucketNotificationConfiguration bucketNotificationConfiguration)
         throws AmazonClientException {
         startMetric("setBucketNotificationConfiguration");
-        super.setBucketNotificationConfiguration(bucketName,
+        s3Client.setBucketNotificationConfiguration(bucketName,
                                                  bucketNotificationConfiguration);
         stopMetric("setBucketNotificationConfiguration");
     }
@@ -540,7 +547,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
         throws AmazonClientException {
         startMetric("getBucketNotificationConfiguration");
         BucketNotificationConfiguration result =
-            super.getBucketNotificationConfiguration(bucketName);
+            s3Client.getBucketNotificationConfiguration(bucketName);
         stopMetric("getBucketNotificationConfiguration");
         return result;
     }
@@ -550,7 +557,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
         throws AmazonClientException {
         startMetric("getBucketLoggingConfiguration");
         BucketLoggingConfiguration result =
-            super.getBucketLoggingConfiguration(bucketName);
+            s3Client.getBucketLoggingConfiguration(bucketName);
         stopMetric("getBucketLoggingConfiguration");
         return result;
     }
@@ -560,7 +567,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
         SetBucketLoggingConfigurationRequest setBucketLoggingConfigurationRequest)
         throws AmazonClientException {
         startMetric("setBucketLoggingConfiguration");
-        super.setBucketLoggingConfiguration(
+        s3Client.setBucketLoggingConfiguration(
             setBucketLoggingConfigurationRequest);
         stopMetric("setBucketLoggingConfiguration");
     }
@@ -569,7 +576,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public BucketPolicy getBucketPolicy(String bucketName)
         throws AmazonClientException {
         startMetric("getBucketPolicy");
-        BucketPolicy result = super.getBucketPolicy(bucketName);
+        BucketPolicy result = s3Client.getBucketPolicy(bucketName);
         stopMetric("getBucketPolicy");
         return result;
     }
@@ -578,7 +585,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public void setBucketPolicy(String bucketName, String policyText)
         throws AmazonClientException {
         startMetric("setBucketPolicy");
-        super.setBucketPolicy(bucketName, policyText);
+        s3Client.setBucketPolicy(bucketName, policyText);
         stopMetric("setBucketPolicy");
     }
 
@@ -586,7 +593,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public void deleteBucketPolicy(String bucketName)
         throws AmazonClientException {
         startMetric("deleteBucketPolicy");
-        super.deleteBucketPolicy(bucketName);
+        s3Client.deleteBucketPolicy(bucketName);
         stopMetric("deleteBucketPolicy");
     }
 
@@ -594,7 +601,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
     public URL generatePresignedUrl(String bucketName, String key, Date expiration)
         throws AmazonClientException {
         startMetric("generatePresignedUrl");
-        URL result = super.generatePresignedUrl(bucketName, key, expiration);
+        URL result = s3Client.generatePresignedUrl(bucketName, key, expiration);
         stopMetric("generatePresignedUrl");
         return result;
     }
@@ -605,7 +612,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
                                     com.amazonaws.HttpMethod method)
         throws AmazonClientException {
         startMetric("generatePresignedUrl");
-        URL result = super.generatePresignedUrl(bucketName, key, expiration, method);
+        URL result = s3Client.generatePresignedUrl(bucketName, key, expiration, method);
         stopMetric("generatePresignedUrl");
         return result;
     }
@@ -615,7 +622,7 @@ public class ProbedRestS3Client extends AmazonS3Client implements MetricsProbed 
         GeneratePresignedUrlRequest generatePresignedUrlRequest)
         throws AmazonClientException {
         startMetric("generatePresignedUrl");
-        URL result = super.generatePresignedUrl(generatePresignedUrlRequest);
+        URL result = s3Client.generatePresignedUrl(generatePresignedUrlRequest);
         stopMetric("generatePresignedUrl");
         return result;
     }

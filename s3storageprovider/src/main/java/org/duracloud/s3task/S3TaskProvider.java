@@ -8,7 +8,7 @@
 package org.duracloud.s3task;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storage.StringDataStoreFactory;
 import org.duracloud.s3task.storage.SetStoragePolicyTaskRunner;
@@ -36,7 +36,7 @@ public class S3TaskProvider extends TaskProviderBase {
 
     public S3TaskProvider(StorageProvider s3Provider,
                           S3StorageProvider unwrappedS3Provider,
-                          AmazonS3Client s3Client,
+                          AmazonS3 s3Client,
                           AmazonCloudFrontClient cfClient,
                           StringDataStoreFactory dataStoreFactory,
                           String cfAccountId,

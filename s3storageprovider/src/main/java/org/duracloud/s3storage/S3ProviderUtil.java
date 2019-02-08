@@ -14,10 +14,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.AmazonS3URI;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
@@ -32,17 +34,17 @@ import org.springframework.core.io.Resource;
  */
 public class S3ProviderUtil {
 
-    private static Map<String, AmazonS3Client> s3Clients = new HashMap<>();
+    private static Map<String, AmazonS3> s3Clients = new HashMap<>();
     private static Map<String, AmazonCloudFrontClient> cloudFrontClients = new HashMap<>();
 
     private S3ProviderUtil() {
         // Ensures no instances are made of this class, as there are only static members.
     }
 
-    public static AmazonS3Client getAmazonS3Client(String accessKey,
-                                                   String secretKey,
-                                                   Map<String, String> options) {
-        AmazonS3Client client = s3Clients.get(key(accessKey, secretKey));
+    public static AmazonS3 getAmazonS3Client(String accessKey,
+                                             String secretKey,
+                                             Map<String, String> options) {
+        AmazonS3 client = s3Clients.get(key(accessKey, secretKey));
         if (null == client) {
             Region region = null;
             if (options != null && options.get(StorageAccount.OPTS.AWS_REGION.name()) != null) {
@@ -59,17 +61,21 @@ public class S3ProviderUtil {
         return accessKey + secretKey;
     }
 
-    private static AmazonS3Client newS3Client(String accessKey,
-                                              String secretKey,
-                                              com.amazonaws.regions.Region region) {
-        BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey,
-                                                                     secretKey);
+    private static AmazonS3 newS3Client(String accessKey,
+                                        String secretKey,
+                                        com.amazonaws.regions.Region region) {
+        BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
         try {
-            AmazonS3Client amazonS3Client = new AmazonS3Client(awsCredentials);
+            String awsRegion = null;
             if (region != null) {
-                amazonS3Client.setRegion(region);
+                awsRegion = region.getName();
             }
-            return amazonS3Client;
+            AmazonS3 s3Client = AmazonS3ClientBuilder
+                .standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                .withRegion(awsRegion)
+                .build();
+            return s3Client;
         } catch (AmazonServiceException e) {
             String err = "Could not create connection to Amazon S3 due " +
                          "to error: " + e.getMessage();
@@ -137,7 +143,7 @@ public class S3ProviderUtil {
      * @throws IOException
      */
     public static Resource getS3ObjectByUrl(String s3Url) throws IOException {
-        AmazonS3Client client = new AmazonS3Client();
+        AmazonS3 client = AmazonS3ClientBuilder.standard().build();
         AmazonS3URI s3Uri = new AmazonS3URI(s3Url);
         S3Object s3Obj = client.getObject(new GetObjectRequest(s3Uri.getBucket(), s3Uri.getKey()));
         s3Obj.getObjectContent();

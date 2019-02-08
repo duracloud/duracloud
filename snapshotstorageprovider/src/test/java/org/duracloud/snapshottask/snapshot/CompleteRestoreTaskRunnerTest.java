@@ -9,7 +9,7 @@ package org.duracloud.snapshottask.snapshot;
 
 import static org.junit.Assert.assertEquals;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
@@ -27,7 +27,7 @@ public class CompleteRestoreTaskRunnerTest {
 
     private StorageProvider snapshotProvider;
     private SnapshotStorageProvider unwrappedSnapshotProvider;
-    private AmazonS3Client s3Client;
+    private AmazonS3 s3Client;
     private CompleteRestoreTaskRunner taskRunner;
 
     @Before
@@ -37,7 +37,7 @@ public class CompleteRestoreTaskRunnerTest {
         unwrappedSnapshotProvider =
             EasyMock.createMock("SnapshotStorageProvider",
                                 SnapshotStorageProvider.class);
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        s3Client = EasyMock.createMock("AmazonS3", AmazonS3.class);
         taskRunner = new CompleteRestoreTaskRunner(snapshotProvider,
                                                    unwrappedSnapshotProvider,
                                                    s3Client);

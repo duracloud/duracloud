@@ -10,7 +10,7 @@ package org.duracloud.durastore.util;
 import java.util.Map;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.glacierstorage.GlacierStorageProvider;
 import org.duracloud.glaciertask.GlacierTaskProvider;
 import org.duracloud.mill.manifest.ManifestStore;
@@ -81,7 +81,7 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
         if (type.equals(StorageProviderType.AMAZON_S3)) {
             S3StorageProvider unwrappedS3Provider =
                 new S3StorageProvider(username, password, account.getOptions());
-            AmazonS3Client s3Client =
+            AmazonS3 s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
             AmazonCloudFrontClient cfClient =
                 S3ProviderUtil.getAmazonCloudFrontClient(username, password);
@@ -107,7 +107,7 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
         } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
             GlacierStorageProvider unwrappedGlacierProvider =
                 new GlacierStorageProvider(username, password, account.getOptions());
-            AmazonS3Client s3Client =
+            AmazonS3 s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
             taskProvider = new GlacierTaskProvider(storageProvider,
                                                    unwrappedGlacierProvider,
@@ -123,7 +123,7 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                 unwrappedSnapshotProvider =
                     new ChronopolisStorageProvider(username, password);
             }
-            AmazonS3Client s3Client =
+            AmazonS3 s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
 
             Map<String, String> opts = account.getOptions();

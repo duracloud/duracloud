@@ -39,7 +39,7 @@ import com.amazonaws.services.cloudfront.model.Origins;
 import com.amazonaws.services.cloudfront.model.S3OriginConfig;
 import com.amazonaws.services.cloudfront.model.TrustedSigners;
 import com.amazonaws.services.cloudfront.model.ViewerProtocolPolicy;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.BucketCrossOriginConfiguration;
 import com.amazonaws.services.s3.model.CORSRule;
 import org.duracloud.StorageTaskConstants;
@@ -66,7 +66,7 @@ public class EnableHlsTaskRunner extends BaseHlsTaskRunner {
 
     public EnableHlsTaskRunner(StorageProvider s3Provider,
                                S3StorageProvider unwrappedS3Provider,
-                               AmazonS3Client s3Client,
+                               AmazonS3 s3Client,
                                AmazonCloudFrontClient cfClient,
                                String cfAccountId,
                                String dcHost) {

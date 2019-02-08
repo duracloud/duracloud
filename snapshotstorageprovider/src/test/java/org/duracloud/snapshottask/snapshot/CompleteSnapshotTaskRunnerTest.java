@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
@@ -27,7 +27,7 @@ public class CompleteSnapshotTaskRunnerTest {
 
     private StorageProvider snapshotProvider;
     private SnapshotStorageProvider unwrappedSnapshotProvider;
-    private AmazonS3Client s3Client;
+    private AmazonS3 s3Client;
     private CompleteSnapshotTaskRunner taskRunner;
 
     @Before
@@ -37,7 +37,7 @@ public class CompleteSnapshotTaskRunnerTest {
         unwrappedSnapshotProvider =
             EasyMock.createMock("SnapshotStorageProvider",
                                 SnapshotStorageProvider.class);
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        s3Client = EasyMock.createMock("AmazonS3", AmazonS3.class);
         taskRunner = new CompleteSnapshotTaskRunner(snapshotProvider,
                                                     unwrappedSnapshotProvider,
                                                     s3Client);

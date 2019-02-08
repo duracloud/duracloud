@@ -9,7 +9,7 @@ package org.duracloud.glacierstorage;
 
 import java.util.Map;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.s3storage.S3StorageProvider;
@@ -42,7 +42,7 @@ public class GlacierStorageProvider extends S3StorageProvider {
         super(accessKey, secretKey);
     }
 
-    public GlacierStorageProvider(AmazonS3Client s3Client, String accessKey) {
+    public GlacierStorageProvider(AmazonS3 s3Client, String accessKey) {
         super(s3Client, accessKey, null);
     }
 

@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
@@ -42,7 +42,7 @@ import org.junit.Test;
  */
 public class GlacierStorageProviderTest {
 
-    private AmazonS3Client s3Client;
+    private AmazonS3 s3Client;
 
     // Must be 20 char alphanum (and lowercase, to match bucket naming pattern)
     private static final String accessKey = "abcdefghijklmnopqrst";
@@ -55,7 +55,7 @@ public class GlacierStorageProviderTest {
 
     @Before
     public void setup() {
-        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        s3Client = EasyMock.createMock("AmazonS3", AmazonS3.class);
         glacierEx = new AmazonS3Exception("err msg");
         glacierEx.setErrorCode(GlacierStorageProvider.INVALID_OBJECT_STATE);
     }
