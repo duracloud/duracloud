@@ -16,9 +16,9 @@
                             type: '${fn:toLowerCase(storeOption.storageProviderType)}',
                             writable: ${storeOption.writable}
 							},
-							</c:forEach>				
+							</c:forEach>
 						];
-					
+
 					user = {
 					        username: '${user.username}',
 					        authorities: [
@@ -31,7 +31,7 @@
 
               <c:if test="${error != null}">
                   alert("<c:out value="${error}"/>");
-              </c:if>      
+              </c:if>
 			</script>
 
     <script
@@ -107,7 +107,7 @@
 			color: #FFF !important;
 		}
     </style>
-    
+
     <script type="text/javascript" src="${pageContext.request.contextPath}/jquery/plugins/jquery.datatables/jquery.dataTables.min.js"></script>
 
     <script
@@ -120,7 +120,7 @@
         padding: 2px;
         color: #fff;
       }
-      
+
       .hidden {
         display: none !important;
       }
@@ -279,7 +279,7 @@
             <h1>Space Detail</h1>
             <h3 class="object-name">Space Name Here</h3>
             <div class="button-bar">
-              <!-- 
+              <!--
                             <button class="featured add-content-item-button"><i class="pre plus"></i>Add One Item</button>
                             <a class="button featured bulk-add-content-item"><i class="pre plus"></i>Add Many Items</a>
 							 -->
@@ -294,13 +294,13 @@
               <a class=" download-manifest-button button" data-dropdown="#manifest-dropdown">
                 <i class="pre download" title="download manifest"></i>Manifest
               </a>
- 
+
             </div>
           </div>
           <div class="center"></div>
           <span class="object-id"></span>
         </div>
-        
+
                 <!-- Snapshot Detail Pane:  The div is invisible and used as a prototype for displaying specific snapshot details.-->
         <div
           id="snapshotDetailPane"
@@ -313,12 +313,12 @@
 
               <a id="restoreLink" class="button">View Restored Space</a>
               <a id="metadataLink" class="button"><i class="pre download"></i>Download Metadata</a>
-              <button 
+              <button
                 id="restoreButton"
                 class="featured">
                 <i class="pre copy"></i>Restore Snapshot
               </button>
-              <button 
+              <button
                 id="requestRestoreButton">
                 <i class="pre copy"></i>Request Restore
               </button>
@@ -328,7 +328,7 @@
           <div class="center"></div>
           <span class="object-id"></span>
         </div>
-        
+
         <div
           id="snapshotItemDetailPane"
           class="dc-detail-pane"
@@ -342,7 +342,7 @@
           <div class="center"></div>
           <span class="object-id"></span>
         </div>
-        
+
 
         <div
           id="genericDetailPane"
@@ -559,7 +559,7 @@
           title="Create Snapshot">
           <h1 class="dc-dialog-title">Create a snapshot</h1>
           <p class="hint">This action begins the process of transferring all of
-            the content in this space to DPN for preservation. Once the
+            the content in this space to snapshot storage. Once the
             Create button below is pressed, you will no longer be able to edit
             the contents of this space. You may optionally include a description
             of this snapshot, which will be preserved along with the snapshot
@@ -579,13 +579,13 @@
                     class="field"></textarea>
                   </li>
                 </ul>
-              </fieldset> 
+              </fieldset>
             </div>
             </form>
           </div>
         </div>
-        
-        
+
+
         <div
           id="edit-content-item-dialog"
           class="dialog"
@@ -736,14 +736,14 @@
           <div id="upload-list-wrapper">
               <div id="dnd-upload">
                 <div id="upload-option-divider">
-                   OR 
+                   OR
                 </div>
 
                 <div id="drop-target">
                   <span>
                     Optionally drop files here
                   </span>
-                </div> 
+                </div>
 
               </div>
 
@@ -759,7 +759,7 @@
     </tiles:insertDefinition>
   </tiles:putAttribute>
     <tiles:putAttribute name="footer-extensions">
-                 <!-- the dropdown plugin requires that dropdowns appear before the closing tag: 
+                 <!-- the dropdown plugin requires that dropdowns appear before the closing tag:
                        suboptimal yes: http://labs.abeautifulsite.net/jquery-dropdown/ -->
                  <div
                 id="manifest-dropdown"
@@ -769,7 +769,7 @@
                   <li><a id="manifest-bagit" href="">Bagit</a></li>
                 </ul>
               </div>
-    
+
     </tiles:putAttribute>
 </tiles:insertDefinition>
 

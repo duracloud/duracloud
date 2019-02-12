@@ -10,7 +10,7 @@ package org.duracloud.snapshot.dto;
 public enum SnapshotStatus {
     INITIALIZED,
     TRANSFERRING_FROM_DURACLOUD,
-    WAITING_FOR_DPN,
+    REPLICATING_TO_STORAGE,
     CLEANING_UP,
     SNAPSHOT_COMPLETE,
     FAILED_TO_TRANSFER_FROM_DURACLOUD,
