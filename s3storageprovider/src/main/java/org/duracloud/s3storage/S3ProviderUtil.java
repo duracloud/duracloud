@@ -8,6 +8,7 @@
 package org.duracloud.s3storage;
 
 import static org.duracloud.common.error.RetryFlaggableException.RETRY;
+import static org.duracloud.storage.domain.StorageAccount.OPTS.AWS_REGION;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -23,7 +24,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.AmazonS3URI;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.error.StorageException;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -47,9 +47,9 @@ public class S3ProviderUtil {
         AmazonS3 client = s3Clients.get(key(accessKey, secretKey));
         if (null == client) {
             Region region = null;
-            if (options != null && options.get(StorageAccount.OPTS.AWS_REGION.name()) != null) {
+            if (options != null && options.get(AWS_REGION.name()) != null) {
                 region = com.amazonaws.services.s3.model.Region.fromValue(
-                    options.get(StorageAccount.OPTS.AWS_REGION.name())).toAWSRegion();
+                    options.get(AWS_REGION.name())).toAWSRegion();
             }
             client = newS3Client(accessKey, secretKey, region);
             s3Clients.put(key(accessKey, secretKey), client);
@@ -63,12 +63,14 @@ public class S3ProviderUtil {
 
     private static AmazonS3 newS3Client(String accessKey,
                                         String secretKey,
-                                        com.amazonaws.regions.Region region) {
+                                        Region region) {
         BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
         try {
             String awsRegion = null;
             if (region != null) {
                 awsRegion = region.getName();
+            } else {
+                awsRegion = System.getProperty(AWS_REGION.name());
             }
             AmazonS3 s3Client = AmazonS3ClientBuilder
                 .standard()
