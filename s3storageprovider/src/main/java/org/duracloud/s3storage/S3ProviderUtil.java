@@ -44,7 +44,7 @@ public class S3ProviderUtil {
     public static AmazonS3 getAmazonS3Client(String accessKey,
                                              String secretKey,
                                              Map<String, String> options) {
-        AmazonS3 client = s3Clients.get(key(accessKey, secretKey));
+        AmazonS3 client = s3Clients.get(key(accessKey, secretKey, options));
         if (null == client) {
             Region region = null;
             if (options != null && options.get(AWS_REGION.name()) != null) {
@@ -52,13 +52,17 @@ public class S3ProviderUtil {
                     options.get(AWS_REGION.name())).toAWSRegion();
             }
             client = newS3Client(accessKey, secretKey, region);
-            s3Clients.put(key(accessKey, secretKey), client);
+            s3Clients.put(key(accessKey, secretKey, options), client);
         }
         return client;
     }
 
-    private static String key(String accessKey, String secretKey) {
-        return accessKey + secretKey;
+    private static String key(String accessKey, String secretKey, Map<String, String> options) {
+        String optionsHash = "";
+        if (null != options && options.size() > 0) {
+            optionsHash = Integer.toString(options.hashCode());
+        }
+        return accessKey + secretKey + optionsHash;
     }
 
     private static AmazonS3 newS3Client(String accessKey,
@@ -88,10 +92,10 @@ public class S3ProviderUtil {
     public static AmazonCloudFrontClient getAmazonCloudFrontClient(String accessKey,
                                                                    String secretKey) {
         AmazonCloudFrontClient client =
-            cloudFrontClients.get(key(accessKey, secretKey));
+            cloudFrontClients.get(key(accessKey, secretKey, null));
         if (null == client) {
             client = newAmazonCloudFrontClient(accessKey, secretKey);
-            cloudFrontClients.put(key(accessKey, secretKey), client);
+            cloudFrontClients.put(key(accessKey, secretKey, null), client);
         }
         return client;
     }
