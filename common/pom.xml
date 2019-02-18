@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>common</artifactId>
-  <version>5.1.0</version>
+  <version>6.0.0</version>
   <name>Common</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>5.1.0</version>
+    <version>6.0.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -114,14 +114,14 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
-      <version>9.3.7.v20160115</version>
+      <version>${jetty.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
-      <version>9.3.7.v20160115</version>
+      <version>${jetty.version}</version>
       <scope>test</scope>
     </dependency>
 

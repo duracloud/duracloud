@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.audit.task.AuditTask;
 import org.duracloud.audit.task.AuditTask.ActionType;
@@ -49,7 +49,7 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport {
 
     private StorageProvider snapshotProvider;
     private SnapshotStorageProvider unwrappedSnapshotProvider;
-    private AmazonS3Client s3Client;
+    private AmazonS3 s3Client;
     private CleanupSnapshotTaskRunner taskRunner;
     private TaskQueue auditQueue;
     private String storeId = "store-id";
@@ -63,7 +63,7 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport {
         unwrappedSnapshotProvider =
             createMock("SnapshotStorageProvider",
                        SnapshotStorageProvider.class);
-        s3Client = createMock("AmazonS3Client", AmazonS3Client.class);
+        s3Client = createMock("AmazonS3", AmazonS3.class);
         manifestStore = createMock("ManifestStore", ManifestStore.class);
         auditQueue = createMock("TaskQueue", TaskQueue.class);
         taskRunner =

@@ -140,7 +140,7 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
             // Create body for call to bridge app
             String snapshotBody = buildSnapshotBody(taskParams);
 
-            // Make call to DPN bridge ingest app to kick off transfer
+            // Make call to the bridge ingest app to kick off transfer
             callResult =
                 callBridge(createRestHelper(), snapshotURL, snapshotBody);
         } catch (Exception e) {

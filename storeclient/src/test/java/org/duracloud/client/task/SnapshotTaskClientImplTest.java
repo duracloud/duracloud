@@ -60,7 +60,7 @@ public class SnapshotTaskClientImplTest {
     private String memberId = "member-id";
     private int contentExpirationDays = 42;
     private String restoreId = "restore-id";
-    private RestoreStatus restoreStatus = RestoreStatus.WAITING_FOR_DPN;
+    private RestoreStatus restoreStatus = RestoreStatus.RETRIEVING_FROM_STORAGE;
     private String contentId = "content-id";
     private String propName = "prop-name";
     private String propValue = "prop-value";

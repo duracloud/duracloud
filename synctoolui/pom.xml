@@ -5,13 +5,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>synctoolui</artifactId>
   <packaging>war</packaging>
-  <version>5.1.0</version>
+  <version>6.0.0</version>
   <name>DuraCloud Sync Tool</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>5.1.0</version>
+    <version>6.0.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -23,8 +23,6 @@
     <skipUTs>false</skipUTs>
     <jetty.port>8888</jetty.port>
     <durcloud.defaultport>443</durcloud.defaultport>
-    <jetty.version>9.4.14.v20181114</jetty.version>
-    <slf4j.version>1.6.4</slf4j.version>
     <installbuilder.executable.path>/Applications/BitRock InstallBuilder Enterprise
       15.1.0/bin/Builder.app/Contents/MacOS/installbuilder.sh
     </installbuilder.executable.path>
@@ -75,7 +73,7 @@
         </executions>
       </plugin>
 
-      <!-- jsps need to be precompiled. otherwise the executable jar 
+      <!-- jsps need to be precompiled. otherwise the executable jar
       will choke on machines that are running on a JRE rather than JDK -->
       <plugin>
         <groupId>org.eclipse.jetty</groupId>
@@ -130,9 +128,9 @@
         </configuration>
         <executions>
           <execution>
-            <!-- This execution 'default-test' overrides the built-in default execution for the test phase. 
-                 Thus unit tests aren't run when you running integration tests. 
-                 It comes in handy when trying to debug a single integration test as you only need to attach 
+            <!-- This execution 'default-test' overrides the built-in default execution for the test phase.
+                 Thus unit tests aren't run when you running integration tests.
+                 It comes in handy when trying to debug a single integration test as you only need to attach
                  your debugger once. -->
             <id>default-test</id>
             <configuration>
@@ -538,10 +536,10 @@
                      in order to prevent it from being packed with the jre since
                      installbuilder does not optionally allow inclusion of files
                      using the <include /> directive.
-                     
-                     So I've placed a dummy java.xml file in src/main/install which 
+
+                     So I've placed a dummy java.xml file in src/main/install which
                      satisfies installbuilder.xml but prevents jre from being packaged
-                     
+
                       -->
                 <phase>verify</phase>
                 <goals>

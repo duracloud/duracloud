@@ -5,7 +5,7 @@
   <groupId>org.duracloud</groupId>
   <artifactId>duracloud</artifactId>
   <packaging>pom</packaging>
-  <version>5.1.0</version>
+  <version>6.0.0</version>
   <name>DuraCloud</name>
   <description>Cloud-based digital content preservation system</description>
   <url>http://duracloud.org</url>
@@ -234,7 +234,7 @@
     <instrumentedTests>**/*Test*__*.class</instrumentedTests>
     <innerClasses>**/*$*</innerClasses>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <duracloud.db.version>5.1.0</duracloud.db.version>
+    <duracloud.db.version>6.0.0</duracloud.db.version>
     <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
     <org.springframework.security.version>4.0.4.RELEASE</org.springframework.security.version>
     <org.springframework.webflow.version>2.4.2.RELEASE</org.springframework.webflow.version>
@@ -246,6 +246,7 @@
     <selenium.version>2.19.0</selenium.version>
     <slf4j.version>1.7.6</slf4j.version>
     <enforce-victims.rule.version>1.3.4</enforce-victims.rule.version>
+    <jetty.version>9.4.14.v20181114</jetty.version>
   </properties>
 
   <distributionManagement>
@@ -783,7 +784,7 @@
       <dependency>
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
-        <version>1.2.1</version>
+        <version>1.4</version>
       </dependency>
 
       <dependency>

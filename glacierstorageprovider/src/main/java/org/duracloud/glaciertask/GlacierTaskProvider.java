@@ -7,7 +7,7 @@
  */
 package org.duracloud.glaciertask;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.glacierstorage.GlacierStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProviderBase;
@@ -21,7 +21,7 @@ public class GlacierTaskProvider extends TaskProviderBase {
 
     public GlacierTaskProvider(StorageProvider glacierProvider,
                                GlacierStorageProvider unwrappedGlacierProvider,
-                               AmazonS3Client s3Client,
+                               AmazonS3 s3Client,
                                String storeId) {
         super(storeId);
         log = LoggerFactory.getLogger(GlacierTaskProvider.class);

@@ -9,7 +9,7 @@ package org.duracloud.snapshottask.snapshot;
 
 import java.util.HashMap;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
@@ -32,11 +32,11 @@ public class CompleteSnapshotTaskRunner implements TaskRunner {
 
     private StorageProvider snapshotProvider;
     private SnapshotStorageProvider unwrappedSnapshotProvider;
-    private AmazonS3Client s3Client;
+    private AmazonS3 s3Client;
 
     public CompleteSnapshotTaskRunner(StorageProvider snapshotProvider,
                                       SnapshotStorageProvider unwrappedSnapshotProvider,
-                                      AmazonS3Client s3Client) {
+                                      AmazonS3 s3Client) {
         this.snapshotProvider = snapshotProvider;
         this.unwrappedSnapshotProvider = unwrappedSnapshotProvider;
         this.s3Client = s3Client;

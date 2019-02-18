@@ -21,7 +21,7 @@ import com.amazonaws.services.cloudfront.model.GetDistributionConfigResult;
 import com.amazonaws.services.cloudfront.model.ListDistributionsRequest;
 import com.amazonaws.services.cloudfront.model.Origin;
 import com.amazonaws.services.cloudfront.model.UpdateDistributionRequest;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.s3storage.S3StorageProvider;
@@ -53,7 +53,7 @@ public abstract class BaseHlsTaskRunner implements TaskRunner {
 
     protected StorageProvider s3Provider;
     protected S3StorageProvider unwrappedS3Provider;
-    protected AmazonS3Client s3Client;
+    protected AmazonS3 s3Client;
     protected AmazonCloudFrontClient cfClient;
     protected String cfAccountId;
     protected String cfKeyId;

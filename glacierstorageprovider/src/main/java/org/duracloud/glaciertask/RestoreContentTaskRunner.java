@@ -7,7 +7,7 @@
  */
 package org.duracloud.glaciertask;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import org.duracloud.glacierstorage.GlacierStorageProvider;
 import org.duracloud.storage.error.StorageStateException;
@@ -28,11 +28,11 @@ public class RestoreContentTaskRunner implements TaskRunner {
 
     private StorageProvider glacierProvider;
     private GlacierStorageProvider unwrappedGlacierProvider;
-    private AmazonS3Client s3Client;
+    private AmazonS3 s3Client;
 
     public RestoreContentTaskRunner(StorageProvider glacierProvider,
                                     GlacierStorageProvider unwrappedGlacierProvider,
-                                    AmazonS3Client s3Client) {
+                                    AmazonS3 s3Client) {
         this.glacierProvider = glacierProvider;
         this.unwrappedGlacierProvider = unwrappedGlacierProvider;
         this.s3Client = s3Client;

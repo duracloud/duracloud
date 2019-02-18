@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>common-queue</artifactId>
-  <version>5.1.0</version>
+  <version>6.0.0</version>
   <name>Common Queue</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>5.1.0</version>
+    <version>6.0.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
