@@ -84,7 +84,7 @@ public class S3StorageProvider extends StorageProviderBase {
     protected static final String HEADER_VALUE_PREFIX = UTF_8 + "''";
     protected static final String HEADER_KEY_SUFFIX = "*";
 
-    private String accessKeyId = null;
+    protected String accessKeyId = null;
     protected AmazonS3 s3Client = null;
 
     public S3StorageProvider(String accessKey, String secretKey) {
@@ -132,6 +132,7 @@ public class S3StorageProvider extends StorageProviderBase {
         }
 
         // sort after the bucket prefix has been stripped off
+        // But the bucket prefix hasn't been stripped off???
         Collections.sort(spaces);
 
         return spaces.iterator();
@@ -248,7 +249,7 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
-    private Bucket createBucket(String spaceId) {
+    protected Bucket createBucket(String spaceId) {
         String bucketName = getNewBucketName(spaceId);
         try {
             Bucket bucket = s3Client.createBucket(bucketName);
@@ -429,7 +430,7 @@ public class S3StorageProvider extends StorageProviderBase {
         return String.valueOf(count) + suffix;
     }
 
-    private String getBucketCreationDate(String bucketName) {
+    protected String getBucketCreationDate(String bucketName) {
         Date created = null;
         try {
             List<Bucket> buckets = s3Client.listBuckets();

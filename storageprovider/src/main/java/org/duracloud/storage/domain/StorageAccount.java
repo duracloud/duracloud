@@ -25,6 +25,9 @@ public interface StorageAccount {
         CF_KEY_ID,
         CF_KEY_PATH,
         AWS_REGION,
+        // Swift
+        S3_ENDPOINT,
+        S3_SIGNER_TYPE,
         // iRODS below
         ZONE,
         PORT,

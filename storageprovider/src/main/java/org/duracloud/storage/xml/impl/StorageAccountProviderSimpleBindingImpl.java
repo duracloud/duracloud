@@ -40,6 +40,7 @@ public class StorageAccountProviderSimpleBindingImpl implements StorageAccountPr
 
     @Override
     public StorageAccount getAccountFromXml(Element xml) {
+        System.out.println(xml);
         StorageProviderType acctType = getStorageProviderType(xml);
         String storageAccountId = getAccountId(xml);
         boolean primary = getIsPrimary(xml);

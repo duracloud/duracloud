@@ -77,7 +77,7 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
             storageProviderFactory.getStorageProvider(storageAccountId);
 
         TaskProvider taskProvider;
-        if (type.equals(StorageProviderType.AMAZON_S3)) {
+        if (type.equals(StorageProviderType.AMAZON_S3) || type.equals(StorageProviderType.SWIFT_S3)) {
             S3StorageProvider unwrappedS3Provider =
                 new S3StorageProvider(username, password, account.getOptions());
             AmazonS3 s3Client =
