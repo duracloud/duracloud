@@ -375,7 +375,6 @@ public class ACLStorageProvider implements StorageProvider {
         targetProvider.setContentProperties(spaceId,
                                             contentId,
                                             contentProperties);
-        sendCacheChangedNotification();
     }
 
     @Override
