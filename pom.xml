@@ -312,6 +312,8 @@
         <configuration>
           <serverId>sonatype-releases</serverId>
           <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <!-- Ensures all artifacts are staged together in the same repo -->
+          <stagingProfileId>4f035a66af3dde</stagingProfileId>
           <autoReleaseAfterClose>true</autoReleaseAfterClose>
         </configuration>
       </plugin>
