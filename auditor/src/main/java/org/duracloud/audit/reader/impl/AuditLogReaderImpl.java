@@ -139,7 +139,7 @@ public class AuditLogReaderImpl implements AuditLogReader {
                  new BufferedReader(new InputStreamReader(
                      storageProvider.getContent(auditSpaceId, contentId).getContentStream()))) {
             if (count > 0) {
-                // skip header if not hte first file
+                // skip header if not the first file
                 reader.readLine();
             }
 

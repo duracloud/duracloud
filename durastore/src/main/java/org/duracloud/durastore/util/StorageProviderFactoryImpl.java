@@ -39,6 +39,7 @@ import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
 import org.duracloud.storage.util.StorageProviderFactory;
+import org.duracloud.swiftstorage.SwiftStorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,6 +211,10 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
             storageProvider = new S3StorageProvider(username,
                                                     password,
                                                     account.getOptions());
+        } else if (type.equals(StorageProviderType.SWIFT_S3)) {
+            storageProvider = new SwiftStorageProvider(username,
+                                                       password,
+                                                       account.getOptions());
         } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
             storageProvider = new GlacierStorageProvider(username,
                                                          password,
