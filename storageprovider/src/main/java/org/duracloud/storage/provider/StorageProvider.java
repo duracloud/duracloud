@@ -36,6 +36,9 @@ public interface StorageProvider {
     public static final String PROPERTIES_SPACE_ACL_GROUP = "acl-group-";
     public static final String PROPERTIES_SPACE_ACL_PUBLIC = "acl-group-public";
 
+    /* Name of Swift bucket where space properties are stored (when using S3+Swift) */
+    public static final String PROPERTIES_BUCKET = "space-properties";
+
     /* Content property names */
     public static final String PROPERTIES_CONTENT_MIMETYPE = "content-mimetype";
     public static final String PROPERTIES_CONTENT_SIZE = "content-size";

@@ -20,7 +20,7 @@ import org.duracloud.common.model.SimpleCredential;
 public class StorageProviderCredential {
 
     public static enum ProviderType {
-        AMAZON_S3, AMAZON_GLACIER
+        AMAZON_S3, SWIFT_S3, AMAZON_GLACIER
     }
 
     @XmlValue

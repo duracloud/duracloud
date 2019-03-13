@@ -50,7 +50,9 @@ public class JaxbJsonSerializerTest {
         sb.append("  \"rootCredential\" : { ");
         sb.append("      \"username\" : \"testuser\",");
         sb.append("      \"password\" : \"password\"");
-        sb.append("  }");
+        sb.append("  },  ");
+        sb.append("  \"swiftEndpoint\" : \"https://etc\",");
+        sb.append("  \"swiftSignerType\" : \"S3SignerType\"");
         sb.append("}");
 
         jsonTestConfig = sb.toString();
@@ -86,6 +88,8 @@ public class JaxbJsonSerializerTest {
         testConfig.setAdminCredential(new SimpleCredential("testuser", "password"));
         testConfig.setRootCredential(new SimpleCredential("testuser", "password"));
         testConfig.setUserCredential(new SimpleCredential("testuser", "password"));
+        testConfig.setSwiftEndpoint("https://etc");
+        testConfig.setSwiftSignerType("S3SignerType");
 
         String json = serializer.serialize(testConfig);
         // Verify that the resulting json matches the expected value, ignoring

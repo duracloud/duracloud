@@ -46,6 +46,12 @@ public class TestConfig {
     @XmlValue
     private SimpleCredential rootCredential = new SimpleCredential("root", "rpw");
 
+    @XmlValue
+    private String swiftEndpoint;
+
+    @XmlValue
+    private String swiftSignerType;
+
     public TestEndPoint getTestEndPoint() {
         return this.testEndPoint;
     }
@@ -61,6 +67,22 @@ public class TestConfig {
     public void setProviderCredentials(
         List<StorageProviderCredential> providerCredentials) {
         this.providerCredentials = providerCredentials;
+    }
+
+    public String getSwiftEndpoint() {
+        return swiftEndpoint;
+    }
+
+    public void setSwiftEndpoint(String endpoint) {
+        this.swiftEndpoint = endpoint;
+    }
+
+    public String getSwiftSignerType() {
+        return swiftSignerType;
+    }
+
+    public void setSwiftSignerType(String signer) {
+        this.swiftSignerType = signer;
     }
 
     public String getQueueName() {

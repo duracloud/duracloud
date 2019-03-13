@@ -321,6 +321,7 @@ $(function(){
 		var spNameMap = {};
 		spNameMap["AMAZON_S3"] = "Amazon S3";
 		spNameMap["AMAZON_GLACIER"] = "Amazon Glacier";
+                spNameMap["SWIFT_S3"] = "Swift S3";
 		spNameMap["CHRONOPOLIS"] = "Chronopolis";
 		spNameMap["IRODS"] = "iRODS";
 		dc.STORAGE_PROVIDER_KEY_MAP = spNameMap;

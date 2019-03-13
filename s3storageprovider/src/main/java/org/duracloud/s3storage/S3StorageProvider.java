@@ -75,16 +75,16 @@ public class S3StorageProvider extends StorageProviderBase {
     private final Logger log = LoggerFactory.getLogger(S3StorageProvider.class);
 
     protected static final int MAX_ITEM_COUNT = 1000;
-    private static final StorageClass DEFAULT_STORAGE_CLASS =
+    protected static final StorageClass DEFAULT_STORAGE_CLASS =
         StorageClass.Standard;
 
     private static final String UTF_8 = StandardCharsets.UTF_8.name();
-    protected static final String HIDDEN_SPACE_PREFIX = "hidden-";
+    public static final String HIDDEN_SPACE_PREFIX = "hidden-";
 
     protected static final String HEADER_VALUE_PREFIX = UTF_8 + "''";
     protected static final String HEADER_KEY_SUFFIX = "*";
 
-    private String accessKeyId = null;
+    protected String accessKeyId = null;
     protected AmazonS3 s3Client = null;
 
     public S3StorageProvider(String accessKey, String secretKey) {
@@ -248,7 +248,7 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
-    private Bucket createBucket(String spaceId) {
+    protected Bucket createBucket(String spaceId) {
         String bucketName = getNewBucketName(spaceId);
         try {
             Bucket bucket = s3Client.createBucket(bucketName);
@@ -267,7 +267,7 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
-    private String getHiddenBucketName(String spaceId) {
+    protected String getHiddenBucketName(String spaceId) {
         return HIDDEN_SPACE_PREFIX + getNewBucketName(spaceId);
     }
 
@@ -347,7 +347,7 @@ public class S3StorageProvider extends StorageProviderBase {
         return S3ProviderUtil.createNewBucketName(accessKeyId, spaceId);
     }
 
-    private String formattedDate(Date date) {
+    protected String formattedDate(Date date) {
         return DateUtil.convertToString(date.getTime());
     }
 
@@ -428,7 +428,7 @@ public class S3StorageProvider extends StorageProviderBase {
         return String.valueOf(count) + suffix;
     }
 
-    private String getBucketCreationDate(String bucketName) {
+    protected String getBucketCreationDate(String bucketName) {
         Date created = null;
         try {
             List<Bucket> buckets = s3Client.listBuckets();
@@ -493,7 +493,7 @@ public class S3StorageProvider extends StorageProviderBase {
      * Performs a replaceAll of one string value for another in all the values
      * of a map.
      */
-    private Map<String, String> replaceInMapValues(Map<String, String> map,
+    protected Map<String, String> replaceInMapValues(Map<String, String> map,
                                                    String oldVal,
                                                    String newVal) {
         for (String key : map.keySet()) {
@@ -950,7 +950,7 @@ public class S3StorageProvider extends StorageProviderBase {
         return contentProperties;
     }
 
-    private void throwIfContentNotExist(String bucketName, String contentId) {
+    protected void throwIfContentNotExist(String bucketName, String contentId) {
         try {
             s3Client.getObjectMetadata(bucketName, contentId);
         } catch (AmazonClientException e) {
@@ -973,9 +973,9 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
-    private void updateObjectProperties(String bucketName,
-                                        String contentId,
-                                        ObjectMetadata objMetadata) {
+    protected void updateObjectProperties(String bucketName,
+                                          String contentId,
+                                          ObjectMetadata objMetadata) {
         try {
             AccessControlList originalACL =
                 s3Client.getObjectAcl(bucketName, contentId);
@@ -1023,7 +1023,7 @@ public class S3StorageProvider extends StorageProviderBase {
         return super.getSpaceProperties(spaceId);
     }
 
-    private Map<String, String> prepContentProperties(ObjectMetadata objMetadata) {
+    protected Map<String, String> prepContentProperties(ObjectMetadata objMetadata) {
         Map<String, String> contentProperties = new HashMap<>();
 
         // Set the user properties

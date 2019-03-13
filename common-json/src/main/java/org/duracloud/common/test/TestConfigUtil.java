@@ -61,4 +61,16 @@ public class TestConfigUtil {
                               type.name());
     }
 
+    public String getSwiftEndpoint()
+        throws IOException {
+        TestConfig config = getTestConfig();
+        return config.getSwiftEndpoint();
+    }
+
+    public String getSwiftSignerType()
+        throws IOException {
+        TestConfig config = getTestConfig();
+        return config.getSwiftSignerType();
+    }
+
 }
