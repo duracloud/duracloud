@@ -25,6 +25,7 @@
     <intercept-url pattern="/jquery/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
     <intercept-url pattern="/favicon.ico" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
     <intercept-url pattern="/webstart/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+    <intercept-url pattern="/webjars/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
     <intercept-url pattern="/**" access="ROLE_USER"/>
     <form-login login-page="/" always-use-default-target="false" authentication-failure-url=""/>
     <anonymous/>

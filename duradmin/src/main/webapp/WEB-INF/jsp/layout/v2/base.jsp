@@ -31,8 +31,8 @@
     <script type="text/javascript"
         src="${pageContext.request.contextPath}/jquery/plugins/jquery.dropdown/jquery.dropdown.min.js"></script>
 
-	<script type="text/javascript"
-		src="${pageContext.request.contextPath}/jquery/plugins/jquery.layout.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/webjars/jqueryui-layout/1.4.0/jquery.layout.js"></script>
+
 	<script type="text/javascript"
 		src="${pageContext.request.contextPath}/jquery/plugins/jquery.ba-throttle-debounce.js"></script>
     <script type="text/javascript"
@@ -82,12 +82,13 @@
 			,   north__paneSelector:"#page-header"
 			,   resizable:   false
 			,   slidable:    false
-			,   spacing_open:			0			
-			,	togglerLength_open:		0			
+			,   spacing_open:			0
+			,	togglerLength_open:		0
 			,	togglerLength_closed:	-1
 			,	useStateCookie:		true
 			,   center__paneSelector: "#page-content"
 			,	center__onresize:	"centerLayout.resizeAll"
+			,   showErrorMessages:  false
 		});
 	});	
 	</script>

@@ -30,6 +30,8 @@
   </context:component-scan>
   <mvc:annotation-driven/>
 
+  <mvc:resources mapping="/webjars/**" location="/webjars/"/>
+
   <bean id="adminSpaceId" class="java.lang.String">
     <constructor-arg value="x-duracloud-admin"/>
   </bean>

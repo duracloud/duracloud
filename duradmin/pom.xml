@@ -91,16 +91,7 @@
                 <include>jquery.form.min.js</include>
               </includes>
             </overlay>
-
-            <overlay>
-              <groupId>org.duracloud</groupId>
-              <artifactId>jquery.layout</artifactId>
-              <type>zip</type>
-              <targetPath>${jquery.plugin.target.path}</targetPath>
-              <includes>
-                <include>jquery.layout.js</include>
-              </includes>
-            </overlay>
+            
             <overlay>
               <groupId>org.duracloud</groupId>
               <artifactId>jquery.validate</artifactId>
@@ -480,10 +471,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>jquery.layout</artifactId>
-      <type>zip</type>
-      <version>1.2.0</version>
+      <groupId>org.webjars</groupId>
+      <artifactId>jqueryui-layout</artifactId>
+      <version>1.4.0</version>
     </dependency>
 
     <dependency>
