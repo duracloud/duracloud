@@ -653,7 +653,8 @@ input.dc-check-all
 }
 
 .detail-pane > .north {
-	overflow: hidden;
+	overflow: auto;
+	overflow-x: auto;
 }
 
 .detail-pane th {
