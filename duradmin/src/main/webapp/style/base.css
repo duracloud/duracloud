@@ -653,8 +653,7 @@ input.dc-check-all
 }
 
 .detail-pane > .north {
-	overflow: auto;
-	overflow-x: auto;
+	overflow: hidden;
 }
 
 .detail-pane th {
@@ -1267,7 +1266,7 @@ table.dc-acls td:last-child {
 }
 
 .button-bar {
-	white-space: nowrap;
+	white-space: normal;
 }
 
 .object-name {
