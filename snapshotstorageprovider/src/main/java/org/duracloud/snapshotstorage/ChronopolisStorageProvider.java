@@ -26,10 +26,6 @@ public class ChronopolisStorageProvider extends SnapshotStorageProvider {
     private final Logger log =
         LoggerFactory.getLogger(ChronopolisStorageProvider.class);
 
-    public ChronopolisStorageProvider(String accessKey, String secretKey) {
-        super(accessKey, secretKey);
-    }
-
     public ChronopolisStorageProvider(String accessKey, String secretKey,
                                       Map<String, String> options) {
         super(accessKey, secretKey, options);

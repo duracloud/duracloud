@@ -9,6 +9,8 @@ package org.duracloud.snapshotstorage;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.HashMap;
+
 import org.duracloud.storage.domain.StorageProviderType;
 import org.junit.Test;
 
@@ -21,7 +23,7 @@ public class ChronopolisStorageProviderTest {
     @Test
     public void testGetStorageProviderType() {
         ChronopolisStorageProvider provider =
-            new ChronopolisStorageProvider("accessKey", "secretKey");
+            new ChronopolisStorageProvider("accessKey", "secretKey", new HashMap<>() );
         assertEquals(StorageProviderType.CHRONOPOLIS, provider.getStorageProviderType());
     }
 
