@@ -219,7 +219,7 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
                                                        password,
                                                        account.getOptions());
         } else if (type.equals(StorageProviderType.CHRONOPOLIS)) {
-            storageProvider = new ChronopolisStorageProvider(username, password);
+            storageProvider = new ChronopolisStorageProvider(username, password, account.getOptions());
         } else if (type.equals(StorageProviderType.TEST_RETRY)) {
             storageProvider = new MockRetryStorageProvider();
         } else if (type.equals(StorageProviderType.TEST_VERIFY_CREATE)) {

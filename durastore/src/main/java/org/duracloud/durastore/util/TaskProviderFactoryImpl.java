@@ -114,7 +114,7 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                                                    storageAccountId);
         } else if (type.equals(StorageProviderType.CHRONOPOLIS)) {
             SnapshotStorageProvider unwrappedSnapshotProvider =
-                new ChronopolisStorageProvider(username, password);
+                new ChronopolisStorageProvider(username, password, account.getOptions());
             AmazonS3 s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password, account.getOptions());
 
