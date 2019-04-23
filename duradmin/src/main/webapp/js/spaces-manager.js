@@ -2328,7 +2328,7 @@ $(function() {
   $.widget("ui.basedetailpane", $.extend({}, $.ui.basepane.prototype, {
     _layoutOptions : {
       north__paneSelector : ".north",
-      north__size : 100,
+      north__size : 115,
       center__paneSelector : ".center",
       resizable : false,
       slidable : false,
@@ -3814,7 +3814,7 @@ $(function() {
     _contentItem : null,
 
     _layoutOptions : $.extend(true, {}, $.ui.spacesdetail.prototype._layoutOptions, {
-      north__size : 150,
+      north__size : 165,
     }),
     _init : function() {
       $.ui.basedetailpane.prototype._init.call(this);
