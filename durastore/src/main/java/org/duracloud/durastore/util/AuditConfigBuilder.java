@@ -26,6 +26,11 @@ public class AuditConfigBuilder {
         DuracloudMill mill = millRepo.findAll().get(0);
         config.setAuditLogSpaceId(mill.getAuditLogSpaceId());
         config.setAuditQueueName(mill.getAuditQueue());
+        config.setAuditQueueType(mill.getAuditQueueType());
+        config.setRabbitmqHost(mill.getRabbitmqHost());
+        config.setRabbitmqExchange(mill.getRabbitmqExchange());
+        config.setRabbitmqUsername(mill.getRabbitmqUsername());
+        config.setRabbitmqPassword(mill.getRabbitmqPassword());
         return config;
     }
 

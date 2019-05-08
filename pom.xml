@@ -62,7 +62,7 @@
     <module>common-cache</module>
     <module>common-notification</module>
     <module>common-queue</module>
-    <module>common-sns</module>
+    <module>common-changenotifier</module>
     <module>common-aop</module>
     <module>storageprovider</module>
     <module>storeclient</module>
@@ -88,6 +88,7 @@
     <module>synctoolui</module>
     <module>retrievaltool</module>
     <module>integration</module>
+    <module>notification-spring</module>
   </modules>
 
   <profiles>
@@ -1392,6 +1393,12 @@
             <artifactId>commons-logging</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>com.rabbitmq</groupId>
+        <artifactId>amqp-client</artifactId>
+        <version>5.7.0</version>
       </dependency>
 
       <dependency>

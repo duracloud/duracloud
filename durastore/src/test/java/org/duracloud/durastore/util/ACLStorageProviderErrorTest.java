@@ -21,9 +21,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.duracloud.common.changenotifier.AccountChangeNotifier;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
-import org.duracloud.common.sns.AccountChangeNotifier;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.error.StorageException;

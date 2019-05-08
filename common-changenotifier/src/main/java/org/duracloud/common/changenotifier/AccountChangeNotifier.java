@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.common.sns;
+package org.duracloud.common.changenotifier;
 
 /**
  * Defines interface for notifying listeners of account change events.

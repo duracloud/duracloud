@@ -14,11 +14,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.duracloud.audit.provider.AuditStorageProvider;
+import org.duracloud.common.changenotifier.AccountChangeNotifier;
 import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.common.queue.aws.SQSTaskQueue;
 import org.duracloud.common.queue.noop.NoopTaskQueue;
+import org.duracloud.common.queue.rabbitmq.RabbitMQTaskQueue;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
-import org.duracloud.common.sns.AccountChangeNotifier;
 import org.duracloud.common.util.UserUtil;
 import org.duracloud.durastore.test.MockRetryStorageProvider;
 import org.duracloud.durastore.test.MockVerifyCreateStorageProvider;
@@ -137,7 +138,18 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
                 // If no queue name is defined, turn off auditing
                 this.auditQueue = new NoopTaskQueue();
             } else {
-                this.auditQueue = new SQSTaskQueue(queueName);
+                String queueType = auditConfig.getAuditQueueType();
+                if (queueType.equalsIgnoreCase("RABBITMQ")) {
+                    //RabbitMQ
+                    String host = auditConfig.getRabbitmqHost();
+                    String exchange = auditConfig.getRabbitmqExchange();
+                    String username = auditConfig.getRabbitmqUsername();
+                    String password = auditConfig.getRabbitmqPassword();
+                    this.auditQueue = new RabbitMQTaskQueue(host, exchange, username, password, queueName);
+                } else {
+                    //AWS - SQS
+                    this.auditQueue = new SQSTaskQueue(queueName);
+                }
             }
         }
     }

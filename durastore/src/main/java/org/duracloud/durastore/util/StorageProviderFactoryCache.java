@@ -11,10 +11,10 @@ import java.net.InetAddress;
 
 import org.duracloud.account.db.repo.DuracloudMillRepo;
 import org.duracloud.common.cache.AbstractAccountComponentCache;
+import org.duracloud.common.changenotifier.AccountChangeNotifier;
 import org.duracloud.common.event.AccountChangeEvent;
 import org.duracloud.common.event.AccountChangeEvent.EventType;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
-import org.duracloud.common.sns.AccountChangeNotifier;
 import org.duracloud.common.util.UserUtil;
 import org.duracloud.storage.domain.AuditConfig;
 import org.duracloud.storage.domain.StorageAccountManager;

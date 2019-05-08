@@ -13,9 +13,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
+import org.duracloud.common.changenotifier.AccountChangeNotifier;
 import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
-import org.duracloud.common.sns.AccountChangeNotifier;
 import org.duracloud.common.util.UserUtil;
 import org.duracloud.durastore.util.StorageProviderFactoryImpl;
 import org.duracloud.storage.domain.DatabaseConfig;

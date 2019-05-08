@@ -26,7 +26,7 @@
         class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
    -->
   <context:component-scan
-    base-package="org.duracloud.duradmin,org.duracloud.mill,org.duracloud.account,org.duracloud.common.sns">
+    base-package="org.duracloud.duradmin,org.duracloud.mill,org.duracloud.account,org.duracloud.common.changenotifier">
   </context:component-scan>
   <mvc:annotation-driven/>
 
