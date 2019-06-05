@@ -305,7 +305,6 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
-
     /**
      * Defines the storage policy for the primary S3 provider.
      * Subclasses can define different policy choices.
