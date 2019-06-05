@@ -141,7 +141,6 @@ public interface S3TaskClient {
     public DeleteStreamingTaskResult deleteHlsStreaming(String spaceId)
         throws ContentStoreException;
 
-
     /**
      * Returns a URL representing an HLS streamable resource.
      * @param spaceId the space ID that contains the content to be streamed
