@@ -7,12 +7,12 @@
  */
 package org.duracloud.integration.durastore.rest;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -65,7 +65,9 @@ public class TestStoreRest extends BaseRestTester {
         StorageAccountManager manager = createStorageAccountManager();
         StorageAccount primaryAcct = manager.getPrimaryStorageAccount();
         assertNotNull(primaryAcct);
-        assertEquals(StorageProviderType.AMAZON_S3, primaryAcct.getType());
+        List<StorageProviderType> storageProviderList =
+            Arrays.asList(StorageProviderType.values());
+        assertTrue(storageProviderList.contains(primaryAcct.getType()));
     }
 
     @Test

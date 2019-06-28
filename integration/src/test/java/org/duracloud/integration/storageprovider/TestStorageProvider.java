@@ -40,6 +40,7 @@ import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -51,7 +52,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class TestStorageProvider {
 
-    private static final Logger log =
+    protected static final Logger log =
         LoggerFactory.getLogger(TestStorageProvider.class);
 
     protected StorageProvider storageProvider;
@@ -71,6 +72,7 @@ public abstract class TestStorageProvider {
     @Before
     public void setup() {
         storageProvider = createStorageProvider();
+        Assume.assumeTrue(storageProvider != null);
     }
 
     @After

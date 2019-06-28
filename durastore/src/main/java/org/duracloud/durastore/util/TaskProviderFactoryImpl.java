@@ -29,6 +29,7 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProvider;
 import org.duracloud.storage.provider.TaskProviderFactory;
 import org.duracloud.storage.util.StorageProviderFactory;
+import org.duracloud.swifttask.SwiftTaskProvider;
 
 /**
  * Provides access to TaskProvider implementations
@@ -103,6 +104,8 @@ public class TaskProviderFactoryImpl extends ProviderFactoryBase
                                               cfKeyPath,
                                               storageAccountId,
                                               dcHost);
+        } else if (type.equals(StorageProviderType.SWIFT_S3)) {
+            taskProvider = new SwiftTaskProvider(storageAccountId);
         } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
             GlacierStorageProvider unwrappedGlacierProvider =
                 new GlacierStorageProvider(username, password, account.getOptions());
