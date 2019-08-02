@@ -1028,7 +1028,7 @@ public class ContentStoreImpl implements ContentStore {
                 // Do not included response body in error
             }
 
-            log.warn("Return code: {}; expected code: {}; responseBody={}",
+            log.debug("Return code: {}; expected code: {}; responseBody={}",
                      responseCode, expectedCode, errMsg);
 
             if (responseCode == HttpStatus.SC_NOT_FOUND) {
