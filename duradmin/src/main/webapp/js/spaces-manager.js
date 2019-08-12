@@ -1438,9 +1438,15 @@ $(function() {
     _initSpacesList : function() {
       var that = this;
       this._spacesList = $("#spaces-list", this.element);
-      this._spacesList.selectablelist({
-        selectable : true
-      });
+      if (this._isRoot()) {
+        this._spacesList.selectablelist({
+            selectable : true
+        });
+      } else {
+        this._spacesList.selectablelist({
+            selectable : false
+        });
+      }
 
       this._spacesList.bind("currentItemChanged", function(evt, state) {
         that._handleSpaceListStateChangedEvent(evt, state);
