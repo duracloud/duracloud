@@ -502,6 +502,37 @@
         </div>
 
         <div
+          id="delete-space-dialog"
+          class=""
+          title="Delete Space"
+          style="display: none">
+          <h1>Delete Space</h1>
+          <div class="hint">
+            <h2>Choosing to DELETE the space named <div id="spaceId" style="display: inline-block;font-weight: bold;"></div> will remove all files in the space. THIS ACTION CANNOT BE UNDONE!</h2>
+            <br/><br/>
+            <h2>Please type the name of the space below.</h2>
+          </div>
+          <form id="delete-space-form">
+            <input type="hidden" name="compareSpaceId" id="compareSpaceId" class="field" />
+            <div
+              id="form-fields"
+              class="form-fields">
+              <fieldset>
+                <ul>
+                  <li class="row clearfix first-of-type"><label
+                    for="spacename">Space Name</label><input
+                    type="text"
+                    name="spaceId"
+                    id="spaceId"
+                    class="field" />
+                  </li>
+                </ul>
+              </fieldset>
+            </div>
+          </form>
+        </div>
+
+        <div
           id="add-content-item-dialog"
           class="dialog"
           title="Add Content Item"
