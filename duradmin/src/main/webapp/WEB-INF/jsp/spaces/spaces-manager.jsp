@@ -508,7 +508,7 @@
           style="display: none">
           <h1>Delete Space</h1>
           <div class="hint">
-            <h2>Choosing to DELETE the space named <div id="spaceId" style="display: inline-block;font-weight: bold;"></div> will remove all files in the space. THIS ACTION CANNOT BE UNDONE!</h2>
+            <h2>Choosing to DELETE the space named <div id="spaceId" style="display: inline-block;font-weight: bold;"></div> will remove <div id="spaceItemCount" style="display: inline-block;font-weight: bold;"></div> file(s) in the space. THIS ACTION CANNOT BE UNDONE!</h2>
             <br/><br/>
             <h2>Please type the name of the space below.</h2>
           </div>
