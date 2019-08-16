@@ -3288,6 +3288,7 @@ $(function() {
       this._deleteSpaceDialog = $("#delete-space-dialog");
 
       this._deleteSpaceDialog.find("#spaceId").text(space.spaceId ? space.spaceId : "");
+      this._deleteSpaceDialog.find("#spaceItemCount").text((space.itemCount > 0) ? space.itemCount : "0");
       this._deleteSpaceDialog.find("input[name=compareSpaceId]").val(space.spaceId ? space.spaceId : "");
 
       this._deleteSpaceDialog.dialog({
