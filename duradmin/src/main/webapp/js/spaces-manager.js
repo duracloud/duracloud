@@ -3214,10 +3214,6 @@ $(function() {
           makePublicButton.hide();
         }
 
-        if( space.primaryStorageProvider && this._isAdmin() && !this._isSnapshot(this._storeId)){
-            this._loadStreamingPane(space);
-        }
-
         this._loadSnapshotPane(space);
 
         this._loadRestorePane(space);
@@ -3238,6 +3234,12 @@ $(function() {
       }
 
       this._loadHistoryPanel(space);
+
+      if (this._isAdmin()) {
+        if (space.primaryStorageProvider && this._isS3(space.storeId) && this._isAdmin() && !this._isSnapshot(this._storeId)) {
+            this._loadStreamingPane(space);
+        }
+      }
     },
 
     _getRestoreId : function(space) {
@@ -3288,6 +3290,16 @@ $(function() {
       });
     },
 
+   _isS3 : function(storeId) {
+      var iss3 = false;
+      $.each(storeProviders, function(i, provider) {
+        if (storeId == provider.id && provider.type == 'amazon_s3') {
+          iss3 = true;
+          return false;
+        }
+      });
+      return iss3;
+    },
   }));
 
   /**
