@@ -2996,9 +2996,12 @@ $(function() {
     _initPane : function() {
       var that = this;
 
-      // attach delete button listener
+      // remove the single space delete handler
       var deleteButton = $(".delete-space-button", this.element);
-      deleteButton.unbind().click(function(evt) {
+      deleteButton.die("click.single");
+
+      // attach delete button listener
+      deleteButton.unbind().live("click.multi", function(evt) {
         var confirmText = "Are you sure you want to delete multiple spaces?";
         var busyText = "Deleting spaces";
         var spaces = that._spaces;
@@ -3353,8 +3356,12 @@ $(function() {
         }
       });
 
+      // remove the multi space delete handler
+      var deleteButton = $(".delete-space-button", this.element);
+      deleteButton.die("click.multi");
+
       // launcher
-      $('.delete-space-button', this.element).live("click", function(evt) {
+      $('.delete-space-button', this.element).live("click.single", function(evt) {
         that._deleteSpaceDialog.dialog("open");
       });
 
