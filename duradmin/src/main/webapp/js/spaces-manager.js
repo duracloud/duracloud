@@ -729,7 +729,8 @@ $(function() {
       resizable : false,
       slidable : false,
       spacing_open : 0,
-      togglerLength_open : 0
+      togglerLength_open : 0,
+      enableCursorHotkey : false
     },
 
     _init : function() {
@@ -1383,9 +1384,9 @@ $(function() {
         north__slidable : false,
         north__spacing_open : 0,
         north__togglerLength_open : 0,
-        north__togglerLength_closed : 0
+        north__togglerLength_closed : 0,
+        enableCursorHotkey : false,
 
-        ,
         west__size : 800,
         west__minSize : 600,
         west__paneSelector : "#" + that._listBrowserId,
@@ -1399,6 +1400,7 @@ $(function() {
       });
 
       listBrowserLayout = $('#' + that._listBrowserId).layout({
+        enableCursorHotkey : false,
         west__size : 350,
         west__minSize : 260,
         west__paneSelector : "#" + that._spacesListViewId,
@@ -1422,7 +1424,8 @@ $(function() {
       resizable : false,
       slidable : false,
       spacing_open : 0,
-      togglerLength_open : 0
+      togglerLength_open : 0,
+      enableCursorHotkey : false
     },
 
     _spaces : [],
@@ -1661,7 +1664,8 @@ $(function() {
       resizable : false,
       slidable : false,
       spacing_open : 0,
-      togglerLength_open : 0
+      togglerLength_open : 0,
+      enableCursorHotkey : false
     },
     _spaceId : null,
     _init : function() {
@@ -2104,7 +2108,8 @@ $(function() {
       resizable : false,
       slidable : false,
       spacing_open : 0,
-      togglerLength_open : 0
+      togglerLength_open : 0,
+      enableCursorHotkey : false
     },
     _snapshot : null,
     _init : function() {
@@ -2350,8 +2355,8 @@ $(function() {
       resizable : false,
       slidable : false,
       spacing_open : 0,
-      togglerLength_open : 0
-
+      togglerLength_open : 0,
+      enableCursorHotkey : false
     },
 
     _init : function() {
