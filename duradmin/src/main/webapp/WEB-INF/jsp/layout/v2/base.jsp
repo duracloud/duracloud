@@ -88,6 +88,7 @@
 			,	useStateCookie:		true
 			,   center__paneSelector: "#page-content"
 			,	center__onresize:	"centerLayout.resizeAll"
+			,   enableCursorHotkey: false
 		});
 	});	
 	</script>
