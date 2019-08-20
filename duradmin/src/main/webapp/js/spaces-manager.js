@@ -1449,9 +1449,15 @@ $(function() {
     _initSpacesList : function() {
       var that = this;
       this._spacesList = $("#spaces-list", this.element);
-      this._spacesList.selectablelist({
-        selectable : true
-      });
+      if (this._isRoot()) {
+        this._spacesList.selectablelist({
+            selectable : true
+        });
+      } else {
+        this._spacesList.selectablelist({
+            selectable : false
+        });
+      }
 
       this._spacesList.bind("currentItemChanged", function(evt, state) {
         that._handleSpaceListStateChangedEvent(evt, state);
@@ -3001,9 +3007,12 @@ $(function() {
     _initPane : function() {
       var that = this;
 
-      // attach delete button listener
+      // remove the single space delete handler
       var deleteButton = $(".delete-space-button", this.element);
-      deleteButton.unbind().click(function(evt) {
+      deleteButton.die("click.single");
+
+      // attach delete button listener
+      deleteButton.unbind().live("click.multi", function(evt) {
         var confirmText = "Are you sure you want to delete multiple spaces?";
         var busyText = "Deleting spaces";
         var spaces = that._spaces;
@@ -3186,16 +3195,7 @@ $(function() {
       deleteSpaceButton.hide();
       if (!readOnly && this._isAdmin()) {
         deleteSpaceButton.show();
-
-        // attach delete button listener
-        deleteSpaceButton.click(function(evt) {
-          var deferred = that._deleteSpace(evt, space);
-          deferred.then(function() {
-            HistoryManager.pushState({
-              storeId : space.storeId
-            });
-          });
-        });
+        this._initDeleteSpaceDialog(space);
       }
 
       var downloadAuditButton = $(".download-audit-button", this.element);
@@ -3274,28 +3274,109 @@ $(function() {
       history.historypanel(options);
     },
 
-    _deleteSpace : function(evt, space) {
-      evt.stopPropagation();
-      if (!dc.confirm("Are you sure you want to delete \n" + space.spaceId + "?")) {
-        return;
+    _handleDeleteSpaceClick : function(space) {
+      var that = this;
+      if ($("#delete-space-form", this._deleteSpaceDialog).valid()) {
+        dc.store.DeleteSpace(space, {
+          begin : function() {
+            dc.busy("Deleting space...", {
+              modal : true
+            });
+          },
+          success : function() {
+            dc.done();
+            $(document).trigger("spaceDeleted", space);
+          },
+
+          failure : function(message) {
+            dc.done();
+            alert("failed to delete space!");
+          },
+        });
+        this._deleteSpaceDialog.dialog("close");
       }
+    },
 
-      return dc.store.DeleteSpace(space, {
-        begin : function() {
-          dc.busy("Deleting space...", {
-            modal : true
+    _initDeleteSpaceDialog : function(space) {
+      var that = this;
+      this._deleteSpaceDialog = $("#delete-space-dialog");
+
+      this._deleteSpaceDialog.find("#spaceId").text(space.spaceId ? space.spaceId : "");
+      this._deleteSpaceDialog.find("#spaceItemCount").text((space.itemCount > 0) ? space.itemCount : "0");
+      this._deleteSpaceDialog.find("input[name=compareSpaceId]").val(space.spaceId ? space.spaceId : "");
+
+      this._deleteSpaceDialog.dialog({
+        autoOpen : false,
+        show : 'blind',
+        hide : 'blind',
+        resizable : false,
+        height : 325,
+        closeOnEscape : true,
+        modal : true,
+        width : 500,
+        buttons : {
+          'Delete' : function(evt) {
+            that._handleDeleteSpaceClick(space);
+          },
+          Cancel : function(evt) {
+            validator.resetForm();
+            $(this).dialog('close');
+          }
+        },
+        close : function() {
+            validator.resetForm();
+        },
+        open : function(e) {
+          $("#delete-space-form").resetForm();
+          // wrapping in a
+          // setTimeout seems
+          // to be necessary
+          // to get this to
+          // run properly: the
+          // dialog must be
+          // visible before
+          // the focus can be
+          // set.
+          setTimeout(function() {
+            $("#delete-space-form #spaceId").focus();
           });
-        },
+        }
 
-        success : function() {
-          dc.done();
-          $(document).trigger("spaceDeleted", space);
-        },
+      });
 
-        failure : function(message) {
-          dc.done();
-          alert("failed to delete space!");
-        },
+      var validator = $("#delete-space-form").validate({
+          rules : {
+              spaceId: "required",
+              spaceId: {
+                  equalTo : "#compareSpaceId",
+              },
+          },
+          messages : {
+              spaceId: {
+                  equalTo: "Name does not match that of the space you want to delete."
+              }
+          }
+      });
+
+      // implements enter key behavior
+      $("#delete-space-form #spaceId").keypress(function(evt) {
+        if (evt.which == 13) {
+          evt.stopPropagation();
+          that._handleDeleteSpaceClick(space);
+          return false;
+        }
+      });
+
+      // remove the multi space delete handler
+      var deleteButton = $(".delete-space-button", this.element);
+      deleteButton.die("click.multi");
+
+      // launcher
+      $('.delete-space-button', this.element).live("click.single", function(evt) {
+        that._deleteSpaceDialog.dialog("open");
+      });
+
+      $('#delete-space-help-content').expandopanel({
       });
     },
   }));

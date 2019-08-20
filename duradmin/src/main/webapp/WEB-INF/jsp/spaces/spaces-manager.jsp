@@ -170,10 +170,17 @@
                   value=""
                   placeholder="filter"
                   type="text" />
-                </span> <input
+                </span>
+                <sec:authorize access="hasRole('ROLE_ROOT')">
+                  <c:set var="rootUser" value="rootUser" />
+                </sec:authorize>
+                <c:if test="${not empty rootUser}">
+                  <input
                   id="check-all-spaces"
                   class="dc-check-all"
-                  type="checkbox" /> <span
+                  type="checkbox" />
+                </c:if>
+                <span
                   id="space-list-status"
                   class="dc-status"
                   style="display: none"></span>
@@ -495,6 +502,37 @@
         </div>
 
         <div
+          id="delete-space-dialog"
+          class=""
+          title="Delete Space"
+          style="display: none">
+          <h1>Delete Space</h1>
+          <div class="hint">
+            <h2>Choosing to DELETE the space named <div id="spaceId" style="display: inline-block;font-weight: bold;"></div> will remove <div id="spaceItemCount" style="display: inline-block;font-weight: bold;"></div> file(s) in the space. THIS ACTION CANNOT BE UNDONE!</h2>
+            <br/><br/>
+            <h2>Please type the name of the space below.</h2>
+          </div>
+          <form id="delete-space-form">
+            <input type="hidden" name="compareSpaceId" id="compareSpaceId" class="field" />
+            <div
+              id="form-fields"
+              class="form-fields">
+              <fieldset>
+                <ul>
+                  <li class="row clearfix first-of-type"><label
+                    for="spacename">Space Name</label><input
+                    type="text"
+                    name="spaceId"
+                    id="spaceId"
+                    class="field" />
+                  </li>
+                </ul>
+              </fieldset>
+            </div>
+          </form>
+        </div>
+
+        <div
           id="add-content-item-dialog"
           class="dialog"
           title="Add Content Item"
@@ -635,9 +673,6 @@
               type="hidden"
               name="storeId"
               id="storeId" />
-            <sec:authorize access="hasRole('ROLE_ROOT')">
-              <c:set var="rootUser" value="rootUser" />
-            </sec:authorize>
             <c:if test="${fn:length(contentStores) == 1 or empty rootUser}">
               <input
                 type="hidden"
