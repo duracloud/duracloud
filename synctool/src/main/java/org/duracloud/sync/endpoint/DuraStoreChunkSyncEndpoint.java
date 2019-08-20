@@ -232,10 +232,12 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
                     chunkedContentIds.stream().forEach(content -> {
                         deleteContent(spaceId, content, store);
                     });
-                    log.info("Deleted manifest and all chunks associated with {}/{}",
+                    log.info("Deleted manifest and all chunks associated with {}/{} due " +
+                             "because the chunked file was replaced by an unchunked file with " +
+                             "the same name.",
                               spaceId, contentId);
                 } else {
-                    log.info("Checking for orphaned chunks associated with {}/{}",
+                    log.debug("Checking for orphaned chunks associated with {}/{}",
                              spaceId, contentId);
 
                     //resolve the set of the chunks in the manifest
@@ -266,7 +268,7 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
     private void deleteContent(String spaceId, String contentId, ContentStore store) {
         try {
             store.deleteContent(spaceId, contentId);
-            log.info("Deleted content  ({}/{})", spaceId, contentId);
+            log.debug("Deleted content  ({}/{})", spaceId, contentId);
         } catch (Exception ex) {
             final String message = MessageFormat.format(
                 "Failed to delete content ({0}/{1}) due to {2}. As this is a non-critical failure, processing will " +
