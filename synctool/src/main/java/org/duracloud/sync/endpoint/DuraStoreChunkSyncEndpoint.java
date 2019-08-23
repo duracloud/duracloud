@@ -22,7 +22,6 @@ import org.duracloud.chunk.manifest.ChunksManifestBean;
 import org.duracloud.chunk.util.ChunksManifestVerifier;
 import org.duracloud.chunk.writer.DuracloudContentWriter;
 import org.duracloud.client.ContentStore;
-import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
@@ -214,65 +213,64 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
                            properties);
 
         cleanup(contentId, syncFile, store, spaceId);
-
     }
 
-    private void cleanup(final String contentId, final MonitoredFile syncFile, final ContentStore store, final String spaceId) {
+    private void cleanup(final String contentId,
+                         final MonitoredFile syncFile,
+                         final ContentStore store,
+                         final String spaceId) {
         //clean up any orphaned chunks and / or obsolete unchunked files
         try {
-            new Retrier().execute(new Retriable() {
-                @Override
-                public Object retry() throws Exception {
-                    log.debug("checking for chunks, manifests, and/or unchunked files that should be removed : for {}/{}",
-                              spaceId, contentId);
-                    Iterator<String> chunkedContentIdIt = store.getSpaceContents(getSpaceId(), contentId + ".dura-");
-                    Set<String> chunkedContentIds = new HashSet<>();
-                    chunkedContentIdIt.forEachRemaining(id -> chunkedContentIds.add(id));
-                    //if there are chunks
-                    if (!chunkedContentIds.isEmpty()) {
-                        //clean up
-                        if (syncFile.length() <= chunkerOptions.getMaxChunkSize()) {
-                            log.info("A chunked version was replaced by an unchunked version of {}/{}",
-                                     spaceId, contentId);
+            new Retrier().execute(() -> {
+                log.debug("checking for chunks, manifests, and/or unchunked files that should be removed : for {}/{}",
+                          spaceId, contentId);
+                Iterator<String> chunkedContentIdIt = store.getSpaceContents(getSpaceId(), contentId + ".dura-");
+                Set<String> chunkedContentIds = new HashSet<>();
+                chunkedContentIdIt.forEachRemaining(id -> chunkedContentIds.add(id));
+                //if there are chunks
+                if (!chunkedContentIds.isEmpty()) {
+                    //clean up
+                    if (syncFile.length() <= chunkerOptions.getMaxChunkSize()) {
+                        log.info("A chunked version was replaced by an unchunked version of {}/{}",
+                                 spaceId, contentId);
 
-                            //if file is less than or equal to max chunk size
-                            //then we can expect the new file is unchunked
-                            //look for any chunked content matching path
-                            //delete all.
-                            chunkedContentIds.stream().forEach(content -> {
-                                deleteContent(spaceId, content, store);
-                            });
-                            log.info("Deleted manifest and all chunks associated with {}/{} due " +
-                                     "because the chunked file was replaced by an unchunked file with " +
-                                     "the same name.",
-                                     spaceId, contentId);
-                        } else {
-                            log.debug("Checking for orphaned chunks associated with {}/{}",
-                                      spaceId, contentId);
+                        //if file is less than or equal to max chunk size
+                        //then we can expect the new file is unchunked
+                        //look for any chunked content matching path
+                        //delete all.
+                        chunkedContentIds.stream().forEach(content -> {
+                            deleteContent(spaceId, content, store);
+                        });
+                        log.info("Deleted manifest and all chunks associated with {}/{} due " +
+                                 "because the chunked file was replaced by an unchunked file with " +
+                                 "the same name.",
+                                 spaceId, contentId);
+                    } else {
+                        log.debug("Checking for orphaned chunks associated with {}/{}",
+                                  spaceId, contentId);
 
-                            //resolve the set of the chunks in the manifest
-                            ChunksManifest manifest = getManifest(spaceId, contentId);
-                            Set<String> manifestChunks = new HashSet<>();
-                            manifest.getEntries().stream().forEach(entry -> manifestChunks.add(entry.getChunkId()));
-                            //for each chunk in storage, delete if not in the manifest.
-                            chunkedContentIds.stream()
-                                             .filter(chunkedContentId -> !chunkedContentId.endsWith(manifestSuffix))
-                                             .forEach(chunk -> {
-                                                 if (!manifestChunks.contains(chunk)) {
-                                                     log.debug("Chunk not found in manifest: deleting orphaned chunk ({}/{})",
-                                                               spaceId, chunk);
-                                                     deleteContent(spaceId, chunk, store);
-                                                 }
-                                             });
-                            //check for an unchunked version and remove it if happens to exist.
-                            if (store.contentExists(spaceId, contentId)) {
-                                deleteContent(spaceId, contentId, store);
-                            }
+                        //resolve the set of the chunks in the manifest
+                        ChunksManifest manifest = getManifest(spaceId, contentId);
+                        Set<String> manifestChunks = new HashSet<>();
+                        manifest.getEntries().stream().forEach(entry -> manifestChunks.add(entry.getChunkId()));
+                        //for each chunk in storage, delete if not in the manifest.
+                        chunkedContentIds.stream()
+                                         .filter(chunkedContentId -> !chunkedContentId.endsWith(manifestSuffix))
+                                         .forEach(chunk -> {
+                                             if (!manifestChunks.contains(chunk)) {
+                                                 log.debug("Chunk not found in manifest: deleting orphaned chunk ({}/{})",
+                                                           spaceId, chunk);
+                                                 deleteContent(spaceId, chunk, store);
+                                             }
+                                         });
+                        //check for an unchunked version and remove it if happens to exist.
+                        if (store.contentExists(spaceId, contentId)) {
+                            deleteContent(spaceId, contentId, store);
                         }
                     }
-
-                    return null;
                 }
+
+                return null;
             });
         } catch (Exception ex) {
             log.error(format("Cleanup failed for  ({0}/{1})",
@@ -285,9 +283,9 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
             store.deleteContent(spaceId, contentId);
             log.debug("Deleted content  ({}/{})", spaceId, contentId);
         } catch (Exception ex) {
-            final String message = format(
-                "Failed to delete content ({0}/{1}) due to {2}. As this is a non-critical failure, processing will " +
-                 "continue on.", spaceId, contentId, ex.getMessage());
+            final String message = format("Failed to delete content ({0}/{1}) due to {2}." +
+                                          " As this is a non-critical failure, processing will " +
+                                          "continue on.", spaceId, contentId, ex.getMessage());
             log.error(message, ex);
         }
     }
