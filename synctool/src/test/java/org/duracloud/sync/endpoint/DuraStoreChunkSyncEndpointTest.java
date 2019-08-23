@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -128,7 +129,7 @@ public class DuraStoreChunkSyncEndpointTest {
     }
 
     @Test
-    public void testAddUpdateFile() throws Exception {
+    public void testAddNewContent() throws Exception {
         String contentId = "contentId";
         String content = "content-file";
         File contentFile = File.createTempFile("content", "file.txt");
@@ -153,6 +154,64 @@ public class DuraStoreChunkSyncEndpointTest {
                                                 EasyMock.eq(checksum),
                                                 EasyMock.capture(propsCapture)))
                 .andReturn("");
+        EasyMock.expect(contentStore.getSpaceContents(spaceId, contentId + ".dura-")).andReturn(
+            new ArrayList<String>().iterator());
+
+        replayMocks();
+        setEndpoint();
+
+        MonitoredFile monitoredFile = new MonitoredFile(contentFile);
+        endpoint.addUpdateContent(contentId, monitoredFile);
+
+        Map<String, String> props = propsCapture.getValue();
+        assertNotNull(props);
+        String creator = props.get(StorageProvider.PROPERTIES_CONTENT_CREATOR);
+        assertEquals(username, creator);
+
+        FileUtils.deleteQuietly(contentFile);
+    }
+
+    @Test
+    public void testUpdateChunkedContentWithUnchunked() throws Exception {
+        String contentId = "contentId";
+        String content = "content-file";
+        File contentFile = File.createTempFile("content", "file.txt");
+        FileUtils.writeStringToFile(contentFile, content);
+        ChecksumUtil checksumUtil =
+            new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
+        String checksum = checksumUtil.generateChecksum(contentFile);
+
+        EasyMock.expect(contentStore.getSpaceContents(spaceId))
+                .andReturn(new ArrayList<String>().iterator());
+        EasyMock.expect(contentStore.getSpaceACLs(spaceId))
+                .andReturn(new HashMap<String, AclType>())
+                .anyTimes();
+
+        Capture<Map<String, String>> propsCapture =
+            new Capture<Map<String, String>>();
+        EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
+                                                EasyMock.eq(contentId),
+                                                EasyMock.isA(InputStream.class),
+                                                EasyMock.eq(contentFile.length()),
+                                                EasyMock.eq("application/octet-stream"),
+                                                EasyMock.eq(checksum),
+                                                EasyMock.capture(propsCapture)))
+                .andReturn("");
+
+        //return the chunk artifacts
+        List<String> chunkArtifacts = Arrays.asList(contentId + manifestSuffix,
+                                              contentId + chunkSuffix + "0000",
+                                              contentId + chunkSuffix + "0001");
+        EasyMock.expect(contentStore.getSpaceContents(spaceId, contentId + ".dura-")).andReturn(
+            chunkArtifacts.iterator());
+        chunkArtifacts.stream().forEach(chunkId -> {
+            try {
+                contentStore.deleteContent(spaceId, chunkId);
+                EasyMock.expectLastCall();
+            } catch (Exception ex) {
+                //do nothing
+            }
+        });
 
         replayMocks();
         setEndpoint();
@@ -242,6 +301,9 @@ public class DuraStoreChunkSyncEndpointTest {
                                                    EasyMock.isA(String.class)))
                 .andReturn(false)
                 .times(chunkCount * threadCount);
+
+        EasyMock.expect(contentStore.getSpaceContents(spaceId, contentId + ".dura-")).andReturn(
+            new ArrayList<String>().iterator()).times(threadCount);
 
         // setup file
         File contentFile = IOUtil.writeStreamToFile(new ByteArrayInputStream(new byte[fileSize]));
