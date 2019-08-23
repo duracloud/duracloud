@@ -241,7 +241,7 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
                         chunkedContentIds.stream().forEach(content -> {
                             deleteContent(spaceId, content, store);
                         });
-                        log.info("Deleted manifest and all chunks associated with {}/{} due " +
+                        log.info("Deleted manifest and all chunks associated with {}/{} " +
                                  "because the chunked file was replaced by an unchunked file with " +
                                  "the same name.",
                                  spaceId, contentId);
