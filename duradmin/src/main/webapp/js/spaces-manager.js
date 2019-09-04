@@ -111,7 +111,10 @@ $(function() {
 
       var contentId = obj.contentId;
       if (contentId != null && contentId != undefined) {
-        relative += "/" + encodeURIComponent(contentId);
+        contentIdString = encodeURIComponent(contentId);
+        // Decode %2F back to forward slash for content IDs that are paths
+        contentIdString = contentIdString.replace(/%2F/gi, '/');
+        relative += "/" + contentIdString;
       }
       var snapshot = obj.snapshot;
       if (snapshot) {
