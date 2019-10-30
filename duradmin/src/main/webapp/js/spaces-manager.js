@@ -3015,9 +3015,9 @@ $(function() {
     _initPane : function() {
       var that = this;
 
-      // remove the single space delete handler
+      // remove all delete space button listeners
       var deleteButton = $(".delete-space-button", this.element);
-      deleteButton.die("click.single");
+      deleteButton.die();
 
       // attach delete button listener
       deleteButton.unbind().live("click.multi", function(evt) {
@@ -3375,9 +3375,9 @@ $(function() {
         }
       });
 
-      // remove the multi space delete handler
+      // remove all delete space button listeners
       var deleteButton = $(".delete-space-button", this.element);
-      deleteButton.die("click.multi");
+      deleteButton.die();
 
       // launcher
       $('.delete-space-button', this.element).live("click.single", function(evt) {
