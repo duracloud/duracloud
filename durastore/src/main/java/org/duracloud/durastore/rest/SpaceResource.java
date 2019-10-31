@@ -16,6 +16,7 @@ import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.error.SpaceAlreadyExistsException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.IdUtil;
@@ -173,6 +174,8 @@ public class SpaceResource {
 
             waitForSpaceCreation(storage, spaceID);
             updateSpaceACLs(spaceID, userACLs, storeID);
+        } catch (SpaceAlreadyExistsException e) {
+            throw e;
         } catch (NotFoundException e) {
             throw new InvalidIdException(e.getMessage());
         } catch (Exception e) {
