@@ -327,13 +327,13 @@ public class S3StorageProvider extends StorageProviderBase {
     public void setSpaceLifecycle(String bucketName,
                                   BucketLifecycleConfiguration config) {
         boolean success = false;
-        int maxLoops = 6;
+        int maxLoops = 8;
         for (int loops = 0; !success && loops < maxLoops; loops++) {
             try {
                 s3Client.deleteBucketLifecycleConfiguration(bucketName);
                 s3Client.setBucketLifecycleConfiguration(bucketName, config);
                 success = true;
-            } catch (NotFoundException e) {
+            } catch (NotFoundException | AmazonS3Exception e) {
                 success = false;
                 wait(loops);
             }
@@ -342,7 +342,7 @@ public class S3StorageProvider extends StorageProviderBase {
         if (!success) {
             throw new StorageException(
                 "Lifecycle policy for bucket " + bucketName +
-                " could not be applied. The space cannot be found.", RETRY);
+                " could not be applied. The space cannot be found.");
         }
     }
 
@@ -776,7 +776,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
     protected void wait(int seconds) {
         try {
-            Thread.sleep(1000 * seconds);
+            Thread.sleep(2000 * seconds);
         } catch (InterruptedException e) {
             // End sleep on interruption
         }
