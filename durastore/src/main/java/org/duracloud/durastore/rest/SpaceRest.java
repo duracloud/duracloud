@@ -34,6 +34,7 @@ import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.storage.error.InvalidIdException;
+import org.duracloud.storage.error.SpaceAlreadyExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -258,9 +259,14 @@ public class SpaceRest extends BaseRest {
         throws ResourceException, InvalidIdException {
         Map<String, AclType> userACLs = getUserACLs();
 
-        spaceResource.addSpace(spaceID,
-                               userACLs,
-                               storeID);
+        try {
+            spaceResource.addSpace(spaceID,
+                                   userACLs,
+                                   storeID);
+        } catch (SpaceAlreadyExistsException e) {
+            log.info("Create space called on " + spaceID +
+                     " but space already exists. Space setup skipped.");
+        }
         URI location = uriInfo.getRequestUri();
         return Response.created(location).build();
     }

@@ -58,6 +58,7 @@ import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.error.SpaceAlreadyExistsException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
@@ -223,7 +224,9 @@ public class S3StorageProvider extends StorageProviderBase {
      */
     public void createSpace(String spaceId) {
         log.debug("createSpace(" + spaceId + ")");
-        throwIfSpaceExists(spaceId);
+        if (spaceExists(spaceId)) {
+            throw new SpaceAlreadyExistsException(spaceId);
+        }
 
         Bucket bucket = createBucket(spaceId);
 
@@ -324,13 +327,13 @@ public class S3StorageProvider extends StorageProviderBase {
     public void setSpaceLifecycle(String bucketName,
                                   BucketLifecycleConfiguration config) {
         boolean success = false;
-        int maxLoops = 6;
+        int maxLoops = 8;
         for (int loops = 0; !success && loops < maxLoops; loops++) {
             try {
                 s3Client.deleteBucketLifecycleConfiguration(bucketName);
                 s3Client.setBucketLifecycleConfiguration(bucketName, config);
                 success = true;
-            } catch (NotFoundException e) {
+            } catch (NotFoundException | AmazonS3Exception e) {
                 success = false;
                 wait(loops);
             }
@@ -378,8 +381,16 @@ public class S3StorageProvider extends StorageProviderBase {
 
         // Retrieve space properties from bucket tags
         Map<String, String> spaceProperties = new HashMap<>();
-        BucketTaggingConfiguration tagConfig =
-            s3Client.getBucketTaggingConfiguration(bucketName);
+
+        BucketTaggingConfiguration tagConfig;
+        try {
+            tagConfig = s3Client.getBucketTaggingConfiguration(bucketName);
+        } catch (AmazonClientException e) {
+            String err = "Could not get bucket tagging configuration in S3 bucket " +
+                         bucketName + " due to error: " + e.getMessage();
+            throw new StorageException(err, e, RETRY);
+        }
+
         if (null != tagConfig) {
             for (TagSet tagSet : tagConfig.getAllTagSets()) {
                 spaceProperties.putAll(tagSet.getAllTags());
@@ -486,7 +497,13 @@ public class S3StorageProvider extends StorageProviderBase {
         // Store properties
         BucketTaggingConfiguration tagConfig = new BucketTaggingConfiguration()
             .withTagSets(new TagSet(spaceProperties));
-        s3Client.setBucketTaggingConfiguration(bucketName, tagConfig);
+        try {
+            s3Client.setBucketTaggingConfiguration(bucketName, tagConfig);
+        } catch (AmazonClientException e) {
+            String err = "Could not update bucket tagging configuration in S3 bucket " +
+                         bucketName + " due to error: " + e.getMessage();
+            throw new StorageException(err, e, RETRY);
+        }
     }
 
     /*
@@ -759,7 +776,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
     protected void wait(int seconds) {
         try {
-            Thread.sleep(1000 * seconds);
+            Thread.sleep(2000 * seconds);
         } catch (InterruptedException e) {
             // End sleep on interruption
         }

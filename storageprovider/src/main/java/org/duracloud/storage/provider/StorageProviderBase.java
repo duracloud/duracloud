@@ -7,8 +7,6 @@
  */
 package org.duracloud.storage.provider;
 
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -251,13 +249,6 @@ public abstract class StorageProviderBase implements StorageProvider {
                 aclValues.append(aclValue).append(ACL_DELIM);
             }
             packedAcls.put(acl, aclValues.toString());
-        }
-    }
-
-    protected void throwIfSpaceExists(String spaceId) {
-        if (spaceExists(spaceId)) {
-            String msg = "Error: Space already exists: " + spaceId;
-            throw new StorageException(msg, NO_RETRY);
         }
     }
 
