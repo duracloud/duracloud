@@ -10,10 +10,8 @@ package org.duracloud.durastore.rest;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.mill.db.repo.JpaSpaceStatsRepo;
@@ -33,6 +31,8 @@ public class StorageStatsResource {
     protected static final Logger log = LoggerFactory.getLogger(SpaceResource.class);
 
     private JpaSpaceStatsRepo spaceStatsRepo;
+
+    final long ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 
     public static enum GroupBy {
         day,
@@ -103,36 +103,27 @@ public class StorageStatsResource {
         return dtos;
     }
 
-    public List<SpaceStatsDTO> getStorageProviderByDay(String account,
-                                                       String storeId,
-                                                       Date date) {
+    public List<SpaceStatsDTO> getStorageProviderByDay(final String account,
+                                                       final String storeId,
+                                                       final Date date) {
 
         //Set Range for the entire day
-        Calendar c = Calendar.getInstance();
-        c.setTimeZone(TimeZone.getTimeZone("UTC"));
-        c.setTimeInMillis(date.getTime());
-        c.set(Calendar.HOUR, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
+        final long time = date.getTime();
+        final long msSoFarToday = time % ONE_DAY_IN_MS;
+        final long msLeftToday = ONE_DAY_IN_MS - msSoFarToday;
+        final Date start = new Date(time - msSoFarToday);
+        //end date should be midnight of the next day
+        final Date end = new Date(time + msLeftToday);
 
-        Date start = c.getTime();
-
-        c.setTimeInMillis(date.getTime());
-        c.set(Calendar.HOUR, 23);
-        c.set(Calendar.MINUTE, 59);
-        c.set(Calendar.SECOND, 59);
-
-        Date end = c.getTime();
-
-        List<Object[]> list = this.spaceStatsRepo.getByAccountIdAndStoreIdAndDay(account, storeId, start, end);
-        List<SpaceStatsDTO> dtos = new ArrayList<>(list.size());
-        for (Object[] s : list) {
+        final List<Object[]> list = this.spaceStatsRepo.getByAccountIdAndStoreIdAndDay(account, storeId, start, end);
+        final List<SpaceStatsDTO> dtos = new ArrayList<>(list.size());
+        for (final Object[] s : list) {
             dtos.add(new SpaceStatsDTO(start,
-                                       s[1].toString(),
-                                       s[2].toString(),
-                                       s[3].toString(),
-                                       ((BigDecimal) s[4]).longValue(),
-                                       ((BigDecimal) s[5]).longValue()));
+                s[1].toString(),
+                s[2].toString(),
+                s[3].toString(),
+                ((BigDecimal) s[4]).longValue(),
+                ((BigDecimal) s[5]).longValue()));
         }
 
         return dtos;
