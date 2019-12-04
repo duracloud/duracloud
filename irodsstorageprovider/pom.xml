@@ -14,9 +14,9 @@
 
   <repositories>
     <repository>
-      <id>adapt-sonatype</id>
-      <name>ADAPT Project Repository</name>
-      <url>https://scm.umiacs.umd.edu/adapt/repository/maven-releases</url>
+      <id>ucsd-maven-repo</id>
+      <name>UCSD Maven Repository</name>
+      <url>https://lib-artifacts.ucsd.edu/artifactory/maven-release-local</url>
       <releases>
         <enabled>true</enabled>
       </releases>
