@@ -142,10 +142,13 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
                 if (queueType.equalsIgnoreCase("RABBITMQ")) {
                     //RabbitMQ
                     String host = auditConfig.getRabbitmqHost();
+                    Integer port = auditConfig.getRabbitmqPort();
+                    String vhost = auditConfig.getRabbitmqVhost();
                     String exchange = auditConfig.getRabbitmqExchange();
                     String username = auditConfig.getRabbitmqUsername();
                     String password = auditConfig.getRabbitmqPassword();
-                    this.auditQueue = new RabbitMQTaskQueue(host, exchange, username, password, queueName);
+                    log.info("Configuring Audit queue with host: {}, port: {}, vhost: {}, exchange: {}, queue: {}", host, port, vhost, exchange, queueName);
+                    this.auditQueue = new RabbitMQTaskQueue(host, port, vhost, exchange, username, password, queueName);
                 } else {
                     //AWS - SQS
                     this.auditQueue = new SQSTaskQueue(queueName);

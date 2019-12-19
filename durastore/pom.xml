@@ -53,7 +53,7 @@
                 <artifactItem>
                   <groupId>${project.groupId}</groupId>
                   <artifactId>${project.artifactId}</artifactId>
-                  <version>6.1.0-SNAPSHOT</version>
+                  <version>${project.version}</version>
                   <type>war</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
@@ -75,49 +75,49 @@
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common-aop</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common-db</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common-rest</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>security</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common-queue</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common-cache</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common-changenotifier</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
@@ -138,61 +138,67 @@
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>manifest</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>auditor</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>reportdata</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>storageprovider</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>s3storageprovider</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>swiftstorageprovider</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>storageproviderdata</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>storageproviderdata</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>glacierstorageprovider</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>irodsstorageprovider</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>snapshotstorageprovider</artifactId>
-      <version>6.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>

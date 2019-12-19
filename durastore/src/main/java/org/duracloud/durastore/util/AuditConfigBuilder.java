@@ -28,6 +28,8 @@ public class AuditConfigBuilder {
         config.setAuditQueueName(mill.getAuditQueue());
         config.setAuditQueueType(mill.getAuditQueueType());
         config.setRabbitmqHost(mill.getRabbitmqHost());
+        config.setRabbitmqPort(mill.getRabbitmqPort());
+        config.setRabbitmqVhost(mill.getRabbitmqVhost());
         config.setRabbitmqExchange(mill.getRabbitmqExchange());
         config.setRabbitmqUsername(mill.getRabbitmqUsername());
         config.setRabbitmqPassword(mill.getRabbitmqPassword());

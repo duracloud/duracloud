@@ -58,6 +58,8 @@ public class SubscriptionManagerConfig {
                 //RabbitMQ
                 subscriptionManager =
                     new RabbitMQSubscriptionManager(props.getRabbitmqHost(),
+                                                    props.getRabbitmqPort(),
+                                                    props.getRabbitmqVhost(),
                                                     props.getRabbitmqExchange(),
                                                     props.getRabbitmqUsername(),
                                                     props.getRabbitmqPassword(), queueName);

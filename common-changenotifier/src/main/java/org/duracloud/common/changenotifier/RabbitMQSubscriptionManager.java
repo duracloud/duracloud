@@ -23,6 +23,8 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
     private Logger log = LoggerFactory.getLogger(RabbitMQSubscriptionManager.class);
     private Channel mqChannel;
     private String mqHost;
+    private Integer mqPort;
+    private String mqVhost;
     private String queueName;
     private String queueUrl;
     private String mqUsername;
@@ -31,9 +33,12 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
     private String consumerName;
     private boolean initialized = false;
     private List<MessageListener> messageListeners = new ArrayList<>();
-    public RabbitMQSubscriptionManager(String host, String exchange, String username, String password,
+    public RabbitMQSubscriptionManager(String host, Integer port, String vhost,
+                                       String exchange, String username, String password,
                                        String queueName) {
         mqHost = host;
+        mqPort = port;
+        mqVhost = vhost;
         exchangeName = exchange;
         mqUsername = username;
         mqPassword = password;
@@ -57,16 +62,16 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
             ConnectionFactory factory = new ConnectionFactory();
             factory.setUsername(mqUsername);
             factory.setPassword(mqPassword);
-            factory.setVirtualHost("/");
+            factory.setVirtualHost(mqVhost);
             factory.setHost(mqHost);
-            factory.setPort(5672);
+            factory.setPort(mqPort);
             Connection conn = factory.newConnection();
             mqChannel = conn.createChannel();
             queueUrl = "RabbitMQ-" + conn.getAddress();
             mqChannel.queueDeclare(queueName, true, false, false, null);
             mqChannel.queueBind(queueName, exchangeName, queueName);
 
-            log.info("subscribing consumer {} to queue {} at URL {}", consumerName, queueName, queueUrl);
+            log.info("Subscribing consumer {} to queue {} on vhost {} at URL {}", consumerName, queueName, mqVhost, queueUrl);
             startConsumer();
 
         } catch (Exception ex) {
@@ -106,38 +111,38 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
                     @Override
                     public void handleCancel(String consumerTag) {
                         // consumer has been cancelled unexpectedly
-                        log.debug("consumer has been cancelled unexpectedly: " + consumerTag);
+                        log.debug("Consumer has been cancelled unexpectedly: " + consumerTag);
                     }
 
                     @Override
                     public void handleCancelOk(String consumerTag) {
                         // consumer has been cancelled explicitly
-                        log.info("consumer has been cancelled successfully: " + consumerTag);
+                        log.info("Consumer has been cancelled successfully: " + consumerTag);
                     }
 
                     @Override
                     public void handleShutdownSignal(String consumerTag, ShutdownSignalException sig) {
                        // either the channel or the underlying connection has been shut down.
-                        log.debug("either the channel or the underlying connection has been shut down for consumer {} because {}", consumerTag, sig.getReason().toString());
+                        log.debug("Either the channel or the underlying connection has been shut down for consumer {} because {}", consumerTag, sig.getReason().toString());
                         initialized = false;
                     }
 
                 });
 
         } catch (Exception e) {
-            log.debug("consumer failed to subscribe: " + e.getMessage(), e);
+            log.debug("Consumer failed to subscribe: " + e.getMessage(), e);
             initialized = false;
         }
 
     }
 
     private void dispatch(String message) {
-        log.debug("dispatching message {}", message);
+        log.debug("Dispatching message {}", message);
         for (MessageListener listener : messageListeners) {
             try {
                 listener.onMessage(message);
             } catch (Exception ex) {
-                log.error("failed to dispatch message " + message
+                log.error("Failed to dispatch message " + message
                           + " to "
                           + listener
                           + "due to "
@@ -150,32 +155,32 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
     private void cancelConsumer() {
         try {
             mqChannel.basicCancel(consumerName);
-            log.info("unsubscripbed consumer {}", consumerName);
+            log.info("Unsubscripbed consumer {}", consumerName);
         } catch (IOException e) {
-            log.info("error unsubscribing consumer {}", consumerName, e);
+            log.info("Error unsubscribing consumer {}", consumerName, e);
         }
     }
 
     private void deleteQueue() {
         try {
             mqChannel.queueDelete(queueName);
-            log.info("deleted queue {}", queueName);
+            log.info("Deleted queue {}", queueName);
         } catch (IOException e) {
-            log.info("error deleting queue {}", queueName, e);
+            log.info("Error deleting queue {}", queueName, e);
         }
     }
 
     @Override
     public void disconnect() {
         if (!this.initialized) {
-            throw new DuraCloudRuntimeException("this manager is already disconnected");
+            throw new DuraCloudRuntimeException("This manager is already disconnected");
         }
-        log.info("disconnecting");
-        log.info("unsubscribing {}", consumerName);
+        log.info("Disconnecting");
+        log.info("Unsubscribing {}", consumerName);
         cancelConsumer();
-        log.info("deleting queue {}", queueName);
+        log.info("Deleting queue {}", queueName);
         deleteQueue();
         this.initialized = false;
-        log.info("disconnection complete");
+        log.info("Disconnection complete");
     }
 }

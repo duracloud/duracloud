@@ -56,22 +56,22 @@ public class RabbitMQTaskQueue implements TaskQueue {
     /**
      * Creates RabbitMQ task queue, a RabbitMQ server is needed and a DIRECT exchange must be created and bound to the queue name provided (routing key must be the same as the queue name)
      */
-    public RabbitMQTaskQueue(String host, String exchange, String username, String password,  String queueName) {
+    public RabbitMQTaskQueue(String host, Integer port, String vhost, String exchange, String username, String password, String queueName) {
         try {
             this.exchangeName = exchange;
             ConnectionFactory factory = new ConnectionFactory();
             factory.setUsername(username);
             factory.setPassword(password);
-            factory.setVirtualHost("/");
+            factory.setVirtualHost(vhost);
             factory.setHost(host);
-            factory.setPort(5672);
+            factory.setPort(port);
             Connection conn = factory.newConnection();
             mqChannel = conn.createChannel();
             mqChannel.queueBind(queueName, exchangeName, queueName);
             queueUrl = "RabbitMQ-" + conn.getAddress();
             this.queueName = queueName;
         } catch (Exception ex) {
-            log.error("failed to estabilish connection to RabbitMQ with queue name {} and URL {} because {}", queueName, queueUrl, ex.getMessage());
+            log.error("Failed to estabilish connection to RabbitMQ with queue name {} and URL {} because {}", queueName, queueUrl, ex.getMessage());
             throw new DuraCloudRuntimeException(ex);
         }
     }
@@ -84,7 +84,7 @@ public class RabbitMQTaskQueue implements TaskQueue {
             queueUrl = "RabbitMQ-" + conn.getAddress();
             this.queueName = queueName;
         } catch (Exception ex) {
-            log.error("failed to estabilish connection to RabbitMQ with queue name {} and URL {} because {}", queueName, queueUrl, ex.getMessage());
+            log.error("Failed to estabilish connection to RabbitMQ with queue name {} and URL {} because {}", queueName, queueUrl, ex.getMessage());
             throw new DuraCloudRuntimeException(ex);
         }
     }

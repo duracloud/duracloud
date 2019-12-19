@@ -17,6 +17,8 @@ public class AuditConfig {
     private String auditLogSpaceId;
     private String auditQueueType;
     private String rabbitmqHost;
+    private Integer rabbitmqPort;
+    private String rabbitmqVhost;
     private String rabbitmqExchange;
     private String rabbitmqUsername;
     private String rabbitmqPassword;
@@ -57,6 +59,22 @@ public class AuditConfig {
 
     public void setRabbitmqHost(String rabbitmqHost) {
         this.rabbitmqHost = rabbitmqHost;
+    }
+
+    public Integer getRabbitmqPort() {
+        return rabbitmqPort;
+    }
+
+    public void setRabbitmqPort(Integer rabbitmqPort) {
+        this.rabbitmqPort = rabbitmqPort;
+    }
+
+    public String getRabbitmqVhost() {
+        return rabbitmqVhost;
+    }
+
+    public void setRabbitmqVhost(String rabbitmqVhost) {
+        this.rabbitmqVhost = rabbitmqVhost;
     }
 
     public String getRabbitmqExchange() {

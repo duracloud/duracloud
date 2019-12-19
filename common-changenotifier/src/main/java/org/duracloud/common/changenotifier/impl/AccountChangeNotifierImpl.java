@@ -37,6 +37,8 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
 
     private String rabbitmqExchange;
 
+    private String rabbitmqVhost;
+
     private String notifierType;
 
     private GlobalPropertiesRepo globalPropertiesRepo;
@@ -58,14 +60,15 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
         }
         log.info("Notifier-Type: {}", notifierType);
         if (notifierType.equalsIgnoreCase("RABBITMQ")) {
+            rabbitmqExchange = props.getRabbitmqExchange();
+            rabbitmqVhost = props.getRabbitmqVhost();
             ConnectionFactory factory = new ConnectionFactory();
             factory.setUsername(props.getRabbitmqUsername());
             factory.setPassword(props.getRabbitmqPassword());
-            factory.setVirtualHost("/");
+            factory.setVirtualHost(rabbitmqVhost);
             factory.setHost(props.getRabbitmqHost());
-            factory.setPort(5672);
-            rabbitmqExchange = props.getRabbitmqExchange();
-            log.info("RabbitMQ Host: {}, Exchange: {}", props.getRabbitmqHost(), rabbitmqExchange);
+            factory.setPort(props.getRabbitmqPort());
+            log.info("RabbitMQ Host: {}, Vhost: {}, Exchange: {}", props.getRabbitmqHost(), rabbitmqVhost, rabbitmqExchange);
             try {
                 Connection conn = factory.newConnection();
                 rabbitMqChannel = conn.createChannel();
@@ -105,7 +108,7 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
             if (notifierType.equalsIgnoreCase("RABBITMQ")) {
                 rabbitMqChannel
                     .basicPublish(rabbitmqExchange, "", null, AccountChangeEvent.serialize(event).getBytes());
-                log.info("published event via RabbitMQ, exchange={}, event={}", rabbitmqExchange, event);
+                log.info("published event via RabbitMQ, vhost={}, exchange={}, event={}", rabbitmqVhost, rabbitmqExchange, event);
             } else {
                 GlobalProperties props = globalPropertiesRepo.findAll().get(0);
                 this.snsClient.publish(props.getInstanceNotificationTopicArn(),
