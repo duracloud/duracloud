@@ -8,6 +8,7 @@
   <leftImage>${basedir}/src/main/install/duracloud-logo.png</leftImage>
   <splashImage>${basedir}/src/main/install/duracloud-logo.png</splashImage>
   <productDisplayIcon>${installdir}/duracloud-sync.ico</productDisplayIcon>
+  <osxPlatforms>osx-intel osx-x86_64</osxPlatforms>
   <componentList>
     <component>
       <name>default</name>
