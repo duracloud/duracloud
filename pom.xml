@@ -8,7 +8,7 @@
   <version>6.2.0-SNAPSHOT</version>
   <name>DuraCloud</name>
   <description>Cloud-based digital content preservation system</description>
-  <url>http://duracloud.org</url>
+  <url>https://duracloud.org</url>
 
   <prerequisites>
     <maven>3.0.0</maven>
@@ -33,13 +33,13 @@
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
     </license>
   </licenses>
 
   <organization>
-    <name>DuraSpace</name>
-    <url>http://www.duraspace.org</url>
+    <name>LYRASIS</name>
+    <url>https://lyrasis.org</url>
   </organization>
 
   <scm>
@@ -271,7 +271,7 @@
     <repository>
       <id>central</id>
       <name>Maven Repository Switchboard</name>
-      <url>http://repo1.maven.org/maven2</url>
+      <url>https://repo1.maven.org/maven2</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -527,7 +527,7 @@
         <executions>
           <execution>
             <id>verify-style</id>
-            <!-- Bind to verify so it runs after package & unit tests, but before install --> 
+            <!-- Bind to verify so it runs after package & unit tests, but before install -->
             <phase>verify</phase>
             <goals>
               <goal>check</goal>
