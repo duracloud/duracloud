@@ -1089,16 +1089,16 @@ public class ContentStoreImpl implements ContentStore {
         for (Header header : response.getResponseHeaders()) {
             String name = header.getName();
             if (!name.startsWith(HEADER_PREFIX)) {
-                if (name.equals(HttpHeaders.CONTENT_TYPE)) {
+                if (name.equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
                     headers.put(CONTENT_MIMETYPE, header.getValue());
-                } else if (name.equals(HttpHeaders.CONTENT_MD5) ||
-                    name.equals(HttpHeaders.ETAG)) {
+                } else if (name.equalsIgnoreCase(HttpHeaders.CONTENT_MD5) ||
+                    name.equalsIgnoreCase(HttpHeaders.ETAG)) {
                     headers.put(CONTENT_CHECKSUM, header.getValue());
-                } else if (name.equals(HttpHeaders.CONTENT_LENGTH)) {
+                } else if (name.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)) {
                     headers.put(CONTENT_SIZE, header.getValue());
-                } else if (name.equals(HttpHeaders.LAST_MODIFIED)) {
+                } else if (name.equalsIgnoreCase(HttpHeaders.LAST_MODIFIED)) {
                     headers.put(CONTENT_MODIFIED, header.getValue());
-                } else if (name.equals(CONTENT_ENCODING)) {
+                } else if (name.equalsIgnoreCase(CONTENT_ENCODING)) {
                     headers.put(CONTENT_ENCODING, header.getValue());
                 }
             }
@@ -1345,13 +1345,13 @@ public class ContentStoreImpl implements ContentStore {
             new BitIntegrityReportProperties();
         for (Header header : response.getResponseHeaders()) {
             String name = header.getName();
-            if (name.equals(HttpHeaders.BIT_INTEGRITY_REPORT_RESULT)) {
+            if (name.equalsIgnoreCase(HttpHeaders.BIT_INTEGRITY_REPORT_RESULT)) {
                 properties.setResult(BitIntegrityReportResult.valueOf(header.getValue()));
-            } else if (name.equals(HttpHeaders.BIT_INTEGRITY_REPORT_COMPLETION_DATE)) {
+            } else if (name.equalsIgnoreCase(HttpHeaders.BIT_INTEGRITY_REPORT_COMPLETION_DATE)) {
                 SimpleDateFormat format =
                     new SimpleDateFormat(DateFormat.DEFAULT_FORMAT.getPattern());
                 properties.setCompletionDate(format.parse(header.getValue()));
-            } else if (name.equals(HttpHeaders.CONTENT_LENGTH)) {
+            } else if (name.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)) {
                 properties.setSize(Long.valueOf(header.getValue()));
             }
         }
