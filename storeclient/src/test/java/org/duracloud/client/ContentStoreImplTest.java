@@ -526,8 +526,8 @@ public class ContentStoreImplTest {
         String fullURL = baseURL + "/" + spaceId + "/" + contentId + "?storeID=" + storeId;
         EasyMock.expect(response.getStatusCode()).andReturn(200);
 
-        Header[] headers =
-            new Header[] {new BasicHeader("Content-Type", "text/xml"),
+        Header[] headers = // Using lower case header key to ensure case does not matter
+            new Header[] {new BasicHeader("content-type", "text/xml"),
                           new BasicHeader("x-dura-meta-custom-property", "custom")};
         EasyMock.expect(response.getResponseHeaders())
                 .andReturn(headers).times(2);
