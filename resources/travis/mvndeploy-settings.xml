@@ -31,7 +31,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <installbuilder.executable.path>/opt/installbuilder-17.12.0/bin/builder</installbuilder.executable.path>
+        <installbuilder.executable.path>/opt/installbuilder-19.12.0/bin/builder</installbuilder.executable.path>
       </properties>
     </profile>
   </profiles>
