@@ -57,6 +57,12 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
+      <artifactId>swiftstorageprovider</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
       <artifactId>storeclient</artifactId>
       <version>${project.version}</version>
     </dependency>
