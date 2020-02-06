@@ -126,11 +126,10 @@ public class AuditLogReaderImpl implements AuditLogReader {
     }
 
     protected StorageProvider getStorageProvider() {
-        if (auditConfig.getAwsType().equals("SWIFT")) {
+        if (auditConfig.getSwiftEndpoint() != null) {
             Map<String, String> map = new HashMap<String, String>();
-            map.put(OPTS.AWS_REGION.name(), auditConfig.getAwsRegion());
-            map.put(OPTS.SWIFT_S3_ENDPOINT.name(), auditConfig.getAwsEndpoint());
-            map.put(OPTS.SWIFT_S3_SIGNER_TYPE.name(), auditConfig.getAwsSignerType());
+            map.put(OPTS.SWIFT_S3_ENDPOINT.name(), auditConfig.getSwiftEndpoint());
+            map.put(OPTS.SWIFT_S3_SIGNER_TYPE.name(), auditConfig.getSwiftSignerType());
             return new SwiftStorageProvider(auditConfig.getAwsAccessKey(), auditConfig.getAwsSecretKey(), map);
         } else {
             AWSCredentials creds = new DefaultAWSCredentialsProviderChain().getCredentials();

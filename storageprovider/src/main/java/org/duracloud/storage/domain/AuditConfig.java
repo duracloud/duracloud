@@ -14,7 +14,6 @@ package org.duracloud.storage.domain;
 public class AuditConfig {
 
     private String auditQueueName;
-    private String awsType;
     private String auditLogSpaceId;
     private String auditQueueType;
     private String rabbitmqHost;
@@ -25,9 +24,8 @@ public class AuditConfig {
     private String rabbitmqPassword;
     private String awsAccessKey;
     private String awsSecretKey;
-    private String awsRegion;
-    private String awsEndpoint;
-    private String awsSignerType;
+    private String swiftEndpoint;
+    private String swiftSignerType;
 
     public String getAuditQueueName() {
 
@@ -37,14 +35,6 @@ public class AuditConfig {
     public void setAuditQueueName(String auditQueueName) {
 
         this.auditQueueName = auditQueueName;
-    }
-
-    public String getAwsType() {
-        return awsType;
-    }
-
-    public void setAwsType(String awsType) {
-        this.awsType = awsType;
     }
 
     public String getAuditLogSpaceId() {
@@ -131,27 +121,19 @@ public class AuditConfig {
         this.awsSecretKey = awsSecretKey;
     }
 
-    public String getAwsRegion() {
-        return awsRegion;
+    public String getSwiftEndpoint() {
+        return swiftEndpoint;
     }
 
-    public void setAwsRegion(String awsRegion) {
-        this.awsRegion = awsRegion;
+    public void setSwiftEndpoint(String swiftEndpoint) {
+        this.swiftEndpoint = swiftEndpoint;
     }
 
-    public String getAwsEndpoint() {
-        return awsEndpoint;
+    public String getSwiftSignerType() {
+        return swiftSignerType;
     }
 
-    public void setAwsEndpoint(String awsEndpoint) {
-        this.awsEndpoint = awsEndpoint;
-    }
-
-    public String getAwsSignerType() {
-        return awsSignerType;
-    }
-
-    public void setAwsSignerType(String awsSignerType) {
-        this.awsSignerType = awsSignerType;
+    public void setSwiftSignerType(String swiftSignerType) {
+        this.swiftSignerType = swiftSignerType;
     }
 }
