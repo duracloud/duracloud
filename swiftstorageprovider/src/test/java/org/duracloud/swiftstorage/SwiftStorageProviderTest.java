@@ -5,6 +5,7 @@
  */
 package org.duracloud.swiftstorage;
 
+import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -12,6 +13,7 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,16 +23,21 @@ import java.util.List;
 import java.util.Map;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.CopyObjectResult;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
+import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
@@ -271,5 +278,50 @@ public class SwiftStorageProviderTest {
         assertNull(preppedProperties.get("x-openstack-request-id"));
 
         verify(s3Client, objectMetadata);
+    }
+
+    @Test
+    public void testExpireObject() {
+        setupS3Client();
+        String bucketName = truncateKey() + "." + spaceId;
+        Integer seconds = 600;
+
+        Bucket bucket = createMock(Bucket.class);
+        expect(bucket.getName()).andReturn(bucketName).anyTimes();
+
+        Map<String,Object> rawMetadata = new HashMap<>();
+        rawMetadata.put("X-Delete-After", seconds);
+
+        ObjectMetadata objectMetadata = createMock("ObjectMetadata", ObjectMetadata.class);
+        expect(s3Client.getObjectMetadata(
+               EasyMock.isA(String.class), EasyMock.isA(String.class))).andReturn(objectMetadata);
+        expect(objectMetadata.getRawMetadata()).andReturn(rawMetadata).anyTimes();
+        objectMetadata.setHeader("X-Delete-After", seconds);
+        EasyMock.expectLastCall();
+
+        AccessControlList originalACL = createMock("AccessControlList", AccessControlList.class);
+        expect(s3Client.getObjectAcl(bucketName, contentId)).andReturn(originalACL);
+
+        CopyObjectResult copyObjectResult = createMock("CopyObjectResult", CopyObjectResult.class);
+        Capture<CopyObjectRequest> capturedRequest = new Capture<CopyObjectRequest>();
+        expect(s3Client.copyObject(capture(capturedRequest))).andReturn(copyObjectResult);
+
+        SwiftStorageProvider provider = getProvider();
+
+        replay(s3Client, bucket, objectMetadata, originalACL, copyObjectResult);
+
+        ObjectMetadata resultMetadata = provider.expireObject(bucketName, contentId, seconds);
+
+        CopyObjectRequest copyRequest = capturedRequest.getValue();
+        assertEquals(bucketName, copyRequest.getDestinationBucketName());
+        assertEquals(contentId, copyRequest.getDestinationKey());
+        assertEquals(bucketName, copyRequest.getSourceBucketName());
+        assertEquals(contentId, copyRequest.getSourceKey());
+        assertEquals(originalACL, copyRequest.getAccessControlList());
+        assertTrue(copyRequest.getNewObjectMetadata().getRawMetadata().containsKey("X-Delete-After"));
+        assertTrue(resultMetadata.getRawMetadata().containsKey("X-Delete-After"));
+        assertEquals(resultMetadata, copyRequest.getNewObjectMetadata());
+
+        verify(s3Client, bucket, objectMetadata, originalACL, copyObjectResult);
     }
 }

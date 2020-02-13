@@ -139,7 +139,6 @@ public class SwiftStorageProvider extends S3StorageProvider {
 
         // Will throw if bucket does not exist
         String propsBucketName = getBucketName(PROPERTIES_BUCKET);
-        log.info("PropsBucketName {}", propsBucketName);
 
         Map<String, String> spaceProperties = new HashMap<>();
         String spacePropertiesString;
@@ -150,7 +149,6 @@ public class SwiftStorageProvider extends S3StorageProvider {
                 spacePropertiesString.substring(1, spacePropertiesString.length() - 1);
             String[] spacePropertiesList = spacePropertiesString.split(", ");
             for (String property : spacePropertiesList) {
-                log.info("Property {}", property);
                 String[] props = property.split("=");
                 spaceProperties.put(props[0], props[1]);
             }
@@ -191,7 +189,6 @@ public class SwiftStorageProvider extends S3StorageProvider {
         // By calling this _after_ we have requested the space properties,
         // we ensure that the metadata bucket exists.
         String metadataBucketName = getBucketName(PROPERTIES_BUCKET);
-        log.info("METADATA BUCKETNAME {} ", metadataBucketName);
 
         // Set creation date
         String creationDate = originalProperties.get(PROPERTIES_SPACE_CREATED);
@@ -352,11 +349,13 @@ public class SwiftStorageProvider extends S3StorageProvider {
      * @param contentId
      * @param seconds
      */
-    public void expireObject(String bucketName, String contentId, Integer seconds) {
-        log.info("Set X-Delete-After. Bucket {} ContentId {} Seconds {}", bucketName, contentId, seconds);
+    public ObjectMetadata expireObject(String bucketName, String contentId, Integer seconds) {
+        log.debug("Expiring object {} in {} after {} seconds.", contentId, bucketName, seconds);
         ObjectMetadata objMetadata = getObjectDetails(bucketName, contentId, true);
         objMetadata.setHeader("X-Delete-After", seconds);
         updateObjectProperties(bucketName, contentId, objMetadata);
+
+        return objMetadata;
     }
 
     private ObjectMetadata getObjectDetails(String bucketName, String contentId, boolean retry) {
