@@ -236,7 +236,7 @@
     <innerClasses>**/*$*</innerClasses>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <duracloud.db.version>6.1.0</duracloud.db.version>
-    <duraspace-codestyle.version>1.0.0</duraspace-codestyle.version>
+    <duraspace-codestyle.version>1.0.1</duraspace-codestyle.version>
     <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
     <org.springframework.security.version>4.0.4.RELEASE</org.springframework.security.version>
     <org.springframework.webflow.version>2.4.2.RELEASE</org.springframework.webflow.version>

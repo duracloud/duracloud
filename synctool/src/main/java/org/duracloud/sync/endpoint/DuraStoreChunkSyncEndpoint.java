@@ -258,8 +258,9 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
                                          .filter(chunkedContentId -> !chunkedContentId.endsWith(manifestSuffix))
                                          .forEach(chunk -> {
                                              if (!manifestChunks.contains(chunk)) {
-                                                 log.debug("Chunk not found in manifest: deleting orphaned chunk ({}/{})",
-                                                           spaceId, chunk);
+                                                 log.debug(
+                                                     "Chunk not found in manifest: deleting orphaned chunk ({}/{})",
+                                                     spaceId, chunk);
                                                  deleteContent(spaceId, chunk, store);
                                              }
                                          });

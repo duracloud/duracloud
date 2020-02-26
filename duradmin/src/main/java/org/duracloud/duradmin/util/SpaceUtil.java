@@ -167,7 +167,7 @@ public class SpaceUtil {
         return properties;
     }
 
-    public static void  streamContent(ContentStore store, HttpServletResponse response, String spaceId, String contentId)
+    public static void streamContent(ContentStore store, HttpServletResponse response, String spaceId, String contentId)
         throws ContentStoreException, IOException {
         Content c = store.getContent(spaceId, contentId);
         Map<String, String> m = store.getContentProperties(spaceId, contentId);

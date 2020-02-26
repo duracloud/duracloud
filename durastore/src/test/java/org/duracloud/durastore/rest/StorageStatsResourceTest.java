@@ -45,7 +45,8 @@ public class StorageStatsResourceTest {
         final Capture<Date> captureStart = Capture.newInstance();
         final Capture<Date> captureEnd = Capture.newInstance();
 
-        expect(spaceStatsRepo.getByAccountIdAndStoreIdAndDay(eq(accountId), eq(storeId), capture(captureStart), capture(captureEnd))).andReturn(new ArrayList<>());
+        expect(spaceStatsRepo.getByAccountIdAndStoreIdAndDay(eq(accountId), eq(storeId), capture(captureStart),
+                                                             capture(captureEnd))).andReturn(new ArrayList<>());
 
         replay(spaceStatsRepo);
         final StorageStatsResource resource = new StorageStatsResource(spaceStatsRepo);
@@ -54,9 +55,12 @@ public class StorageStatsResourceTest {
 
         final Date start = captureStart.getValue();
         final Date end = captureEnd.getValue();
-        //assertEquals("Start date should be 00:00:00 GMT of the same day as input date", "2019-12-31 00:00:00 UTC", format.print(start.getTime()));
-        assertEquals("Start date should be 00:00:00 GMT of the next day as input date", "2019-12-31 00:00:00 UTC", format.print(start.getTime()));
-        assertEquals("End date should be 00:00:00 GMT of the next day as input date", "2020-01-01 00:00:00 UTC", format.print(end.getTime()));
+        //assertEquals("Start date should be 00:00:00 GMT of the same day as input date", "2019-12-31 00:00:00 UTC",
+        // format.print(start.getTime()));
+        assertEquals("Start date should be 00:00:00 GMT of the next day as input date", "2019-12-31 00:00:00 UTC",
+                     format.print(start.getTime()));
+        assertEquals("End date should be 00:00:00 GMT of the next day as input date", "2020-01-01 00:00:00 UTC",
+                     format.print(end.getTime()));
 
     }
 }
