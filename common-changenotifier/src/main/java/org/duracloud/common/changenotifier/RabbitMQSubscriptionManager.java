@@ -71,7 +71,8 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
             mqChannel.queueDeclare(queueName, true, false, false, null);
             mqChannel.queueBind(queueName, exchangeName, queueName);
 
-            log.info("Subscribing consumer {} to queue {} on vhost {} at URL {}", consumerName, queueName, mqVhost, queueUrl);
+            log.info("Subscribing consumer {} to queue {} on vhost {} at URL {}",
+                     consumerName, queueName, mqVhost, queueUrl);
             startConsumer();
 
         } catch (Exception ex) {
@@ -123,7 +124,8 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
                     @Override
                     public void handleShutdownSignal(String consumerTag, ShutdownSignalException sig) {
                        // either the channel or the underlying connection has been shut down.
-                        log.debug("Either the channel or the underlying connection has been shut down for consumer {} because {}", consumerTag, sig.getReason().toString());
+                        log.debug("Either the channel or the underlying connection has been shut down" +
+                                  " for consumer {} because {}", consumerTag, sig.getReason().toString());
                         initialized = false;
                     }
 

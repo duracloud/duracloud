@@ -147,7 +147,8 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
                     String exchange = auditConfig.getRabbitmqExchange();
                     String username = auditConfig.getRabbitmqUsername();
                     String password = auditConfig.getRabbitmqPassword();
-                    log.info("Configuring Audit queue with host: {}, port: {}, vhost: {}, exchange: {}, queue: {}", host, port, vhost, exchange, queueName);
+                    log.info("Configuring Audit queue with host: {}, port: {}, vhost: {}, exchange: {}, queue: {}",
+                             host, port, vhost, exchange, queueName);
                     this.auditQueue = new RabbitMQTaskQueue(host, port, vhost, exchange, username, password, queueName);
                 } else {
                     //AWS - SQS

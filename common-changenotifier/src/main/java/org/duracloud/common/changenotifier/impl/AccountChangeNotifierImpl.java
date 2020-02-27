@@ -68,7 +68,8 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
             factory.setVirtualHost(rabbitmqVhost);
             factory.setHost(props.getRabbitmqHost());
             factory.setPort(props.getRabbitmqPort());
-            log.info("RabbitMQ Host: {}, Vhost: {}, Exchange: {}", props.getRabbitmqHost(), rabbitmqVhost, rabbitmqExchange);
+            log.info("RabbitMQ Host: {}, Vhost: {}, Exchange: {}", props.getRabbitmqHost(),
+                     rabbitmqVhost, rabbitmqExchange);
             try {
                 Connection conn = factory.newConnection();
                 rabbitMqChannel = conn.createChannel();
@@ -106,9 +107,10 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
         try {
             log.debug("publishing event={}", event);
             if (notifierType.equalsIgnoreCase("RABBITMQ")) {
-                rabbitMqChannel
-                    .basicPublish(rabbitmqExchange, "", null, AccountChangeEvent.serialize(event).getBytes());
-                log.info("published event via RabbitMQ, vhost={}, exchange={}, event={}", rabbitmqVhost, rabbitmqExchange, event);
+                rabbitMqChannel.basicPublish(rabbitmqExchange, "", null,
+                                             AccountChangeEvent.serialize(event).getBytes());
+                log.info("published event via RabbitMQ, vhost={}, exchange={}, event={}",
+                         rabbitmqVhost, rabbitmqExchange, event);
             } else {
                 GlobalProperties props = globalPropertiesRepo.findAll().get(0);
                 this.snsClient.publish(props.getInstanceNotificationTopicArn(),

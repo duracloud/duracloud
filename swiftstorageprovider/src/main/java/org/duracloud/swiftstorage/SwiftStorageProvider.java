@@ -269,7 +269,8 @@ public class SwiftStorageProvider extends S3StorageProvider {
             }
             // Remove User Response headers that are also in RawMetadata
             // Swift metadata are non-standard HTTP headers so DuraCloud views them as "User" metadata
-            if (userProperties.keySet().contains(metaName + HEADER_KEY_SUFFIX) && contentProperties.containsKey(metaName)) {
+            if (userProperties.keySet()
+                              .contains(metaName + HEADER_KEY_SUFFIX) && contentProperties.containsKey(metaName)) {
                 contentProperties.remove(metaName);
             }
         }

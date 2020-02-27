@@ -57,7 +57,8 @@ public class RabbitMQTaskQueueTest extends EasyMockSupport {
         expect(connection.createChannel()).andReturn(channel);
         expect(channel.queueBind(queueName, exchange, queueName)).andReturn(new AMQImpl.Queue.BindOk());
         expect(connection.getAddress()).andReturn(address);
-        channel.basicPublish(anyObject(String.class), anyObject(String.class), anyObject(null), anyObject(byte[].class));
+        channel.basicPublish(anyObject(String.class), anyObject(String.class),
+                             anyObject(null), anyObject(byte[].class));
         expectLastCall().anyTimes();
     }
 
