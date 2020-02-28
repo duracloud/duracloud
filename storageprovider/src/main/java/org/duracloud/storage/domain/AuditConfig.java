@@ -22,10 +22,6 @@ public class AuditConfig {
     private String rabbitmqExchange;
     private String rabbitmqUsername;
     private String rabbitmqPassword;
-    private String awsAccessKey;
-    private String awsSecretKey;
-    private String swiftEndpoint;
-    private String swiftSignerType;
 
     public String getAuditQueueName() {
 
@@ -103,37 +99,5 @@ public class AuditConfig {
 
     public void setRabbitmqPassword(String rabbitmqPassword) {
         this.rabbitmqPassword = rabbitmqPassword;
-    }
-
-    public String getAwsAccessKey() {
-        return awsAccessKey;
-    }
-
-    public void setAwsAccessKey(String awsAccessKey) {
-        this.awsAccessKey = awsAccessKey;
-    }
-
-    public String getAwsSecretKey() {
-        return awsSecretKey;
-    }
-
-    public void setAwsSecretKey(String awsSecretKey) {
-        this.awsSecretKey = awsSecretKey;
-    }
-
-    public String getSwiftEndpoint() {
-        return swiftEndpoint;
-    }
-
-    public void setSwiftEndpoint(String swiftEndpoint) {
-        this.swiftEndpoint = swiftEndpoint;
-    }
-
-    public String getSwiftSignerType() {
-        return swiftSignerType;
-    }
-
-    public void setSwiftSignerType(String swiftSignerType) {
-        this.swiftSignerType = swiftSignerType;
     }
 }

@@ -33,10 +33,6 @@ public class AuditConfigBuilder {
         config.setRabbitmqExchange(mill.getRabbitmqExchange());
         config.setRabbitmqUsername(mill.getRabbitmqUsername());
         config.setRabbitmqPassword(mill.getRabbitmqPassword());
-        config.setAwsAccessKey(mill.getAwsAccessKey());
-        config.setAwsSecretKey(mill.getAwsSecretKey());
-        config.setSwiftEndpoint(mill.getSwiftEndpoint());
-        config.setSwiftSignerType(mill.getSwiftSignerType());
         return config;
     }
 

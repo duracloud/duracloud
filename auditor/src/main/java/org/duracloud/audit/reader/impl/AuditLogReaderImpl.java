@@ -27,6 +27,7 @@ import org.duracloud.audit.AuditLogUtil;
 import org.duracloud.audit.reader.AuditLogReader;
 import org.duracloud.audit.reader.AuditLogReaderException;
 import org.duracloud.audit.reader.AuditLogReaderNotEnabledException;
+import org.duracloud.common.util.DuracloudConfigBean;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.domain.AuditConfig;
@@ -36,6 +37,7 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.swiftstorage.SwiftStorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Daniel Bernstein
@@ -48,6 +50,9 @@ public class AuditLogReaderImpl implements AuditLogReader {
     private AuditConfig auditConfig;
 
     private StorageProvider storageProvider;
+
+    @Autowired
+    private DuracloudConfigBean duracloudConfigBean;
 
     public AuditLogReaderImpl() {
     }
@@ -128,9 +133,11 @@ public class AuditLogReaderImpl implements AuditLogReader {
     protected StorageProvider getStorageProvider() {
         if (duracloudConfigBean.getSwiftEndpoint() != null) {
             Map<String, String> map = new HashMap<String, String>();
-            map.put(OPTS.SWIFT_S3_ENDPOINT.name(), auditConfig.getSwiftEndpoint());
-            map.put(OPTS.SWIFT_S3_SIGNER_TYPE.name(), auditConfig.getSwiftSignerType());
-            return new SwiftStorageProvider(auditConfig.getAwsAccessKey(), auditConfig.getAwsSecretKey(), map);
+            map.put(OPTS.SWIFT_S3_ENDPOINT.name(), duracloudConfigBean.getSwiftEndpoint());
+            map.put(OPTS.SWIFT_S3_SIGNER_TYPE.name(), duracloudConfigBean.getSwiftSignerType());
+            return new SwiftStorageProvider(
+                duracloudConfigBean.getSwiftAccessKey(), duracloudConfigBean.getSwiftSecretKey(), map
+            );
         } else {
             AWSCredentials creds = new DefaultAWSCredentialsProviderChain().getCredentials();
             AmazonS3 s3client = AmazonS3ClientBuilder.standard().build();
