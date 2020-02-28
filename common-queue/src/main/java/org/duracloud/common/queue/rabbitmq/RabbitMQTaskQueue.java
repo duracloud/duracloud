@@ -99,7 +99,7 @@ public class RabbitMQTaskQueue implements TaskQueue {
         return this.queueName;
     }
 
-    protected Task marshallTask(byte[] msgBody, long deliveryTag, String routingKey, String exhcange) {
+    protected Task marshallTask(byte[] msgBody, long deliveryTag, String routingKey, String exchange) {
         Properties props = new Properties();
         Task task = null;
         String msg = new String(msgBody);
@@ -117,7 +117,7 @@ public class RabbitMQTaskQueue implements TaskQueue {
                 }
                 task.addProperty(MsgProp.DELIVERY_TAG.name(), String.valueOf(deliveryTag));
                 task.addProperty(MsgProp.ROUTING_KEY.name(), routingKey);
-                task.addProperty(MsgProp.EXCHANGE.name(), exhcange);
+                task.addProperty(MsgProp.EXCHANGE.name(), exchange);
             } else {
                 log.error("RabbitMQ message from queue: " + queueName + " at " + queueUrl +
                           ", does not contain a 'task type'");

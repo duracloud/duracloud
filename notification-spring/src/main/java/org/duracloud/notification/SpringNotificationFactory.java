@@ -57,7 +57,7 @@ public class SpringNotificationFactory implements NotificationFactory {
             //Test the connection
             emailService.testConnection();
             log.debug(
-                "Emial connection test passed: email service with Sprint email client connected to {}, Port: {}, " +
+                "Email connection test passed: email service with Sprint email client connected to {}, Port: {}, " +
                 "User: {}.",
                 host, port, username);
 
