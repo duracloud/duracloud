@@ -41,31 +41,35 @@ public class SpringNotificationFactory implements NotificationFactory {
 
     @Override
     public void initialize(String username, String password) {
+        String logUserMsg = "{}";
         emailService = new JavaMailSenderImpl();
         Properties mailProperties = new Properties();
-        mailProperties.put("mail.smtp.auth", "true");
+        if (!username.isEmpty()) {
+            mailProperties.put("mail.smtp.auth", "true");
+            emailService.setUsername(username.trim());
+            emailService.setPassword(password.trim());
+            logUserMsg = ", User: {}";
+        }
         mailProperties.put("mail.smtp.starttls.enable", "true");
         mailProperties.put("mail.smtp.starttls.required", "true");
         emailService.setJavaMailProperties(mailProperties);
         emailService.setProtocol("smtp");
         emailService.setHost(host.trim());
         emailService.setPort(port);
-        emailService.setUsername(username.trim());
-        emailService.setPassword(password.trim());
 
         try {
             //Test the connection
             emailService.testConnection();
             log.debug(
-                "Email connection test passed: email service with Sprint email client connected to {}, Port: {}, " +
-                "User: {}.",
+                "Email connection test passed: SMTP client connected to {}, Port: {}" + logUserMsg,
                 host, port, username);
 
         } catch (MessagingException ex) {
-            log.error("Email connection test failed when connecting to {}, Port: {}, User: {}, because {}", host, port,
-                      username, ex.getMessage());
+            log.error(
+                "Email connection test failed when connecting to {}, Port: {}" +
+                logUserMsg + ", because {}", host, port,
+                username, ex.getMessage());
         }
-
     }
 
     @Override
