@@ -1,3 +1,10 @@
+/*
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
+ */
 package org.duracloud.common.changenotifier;
 
 import java.io.IOException;
@@ -16,9 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Handles connections to and interactions with RabbitMQ
+ *
  * @author Shibo Liu
+ * Feb 29, 2020
  */
-
 public class RabbitMQSubscriptionManager implements SubscriptionManager {
     private Logger log = LoggerFactory.getLogger(RabbitMQSubscriptionManager.class);
     private Channel mqChannel;

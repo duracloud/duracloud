@@ -12,8 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author Andrew Woods
- * Date: 3/11/11
+ * @author Shibo Liu
+ * Date: Feb 29, 2020
  */
 public class SpringNotificationFactoryTest {
 
