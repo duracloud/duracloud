@@ -244,6 +244,7 @@ public class SwiftStorageProvider extends S3StorageProvider {
 
         // Set the user properties
         Map<String, String> userProperties = objMetadata.getUserMetadata();
+
         for (String metaName : userProperties.keySet()) {
             String metaValue = userProperties.get(metaName);
             if (metaName.trim().equalsIgnoreCase("tags") ||
@@ -262,6 +263,9 @@ public class SwiftStorageProvider extends S3StorageProvider {
             try {
                 if (!isSwiftMetadata(metaName)) {
                     Object metaValue = responseMeta.get(metaName);
+                    if (metaName.trim().equalsIgnoreCase(Headers.ETAG)) {
+                        metaName = Headers.ETAG;
+                    }
                     contentProperties.put(metaName, String.valueOf(metaValue));
                 }
             } catch (IllegalArgumentException e) {
