@@ -21,14 +21,13 @@ import org.springframework.mail.javamail.MimeMessageHelper;
  * @author Shibo Liu
  * Date: 07/03/19
  */
-public class SpringEmailer implements Emailer {
+public class SMTPEmailer implements Emailer {
 
-    private static final Logger log = LoggerFactory.getLogger(
-        SpringEmailer.class);
+    private static final Logger log = LoggerFactory.getLogger(SMTPEmailer.class);
     private JavaMailSenderImpl emailService;
     private String fromAddress;
 
-    public SpringEmailer(JavaMailSenderImpl emailService,
+    public SMTPEmailer(JavaMailSenderImpl emailService,
                          String fromAddress) {
         this.emailService = emailService;
         this.fromAddress = fromAddress;

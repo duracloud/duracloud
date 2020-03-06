@@ -24,7 +24,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
  * @author Andy Foster
  * Date: 2020.02.12
  */
-public class SpringEmailerTest extends EasyMockSupport {
+public class SMTPEmailerTest extends EasyMockSupport {
 
     private String fromAddressString = "from@address.com";
     private Address fromAddress;
@@ -63,7 +63,7 @@ public class SpringEmailerTest extends EasyMockSupport {
         mimeMessage.setText("body text");
         replayAll();
 
-        SpringEmailer emailer = new SpringEmailer(mailSender, fromAddressString);
+        SMTPEmailer emailer = new SMTPEmailer(mailSender, fromAddressString);
 
         String subject = "subject";
         String body = "body text";
@@ -79,7 +79,7 @@ public class SpringEmailerTest extends EasyMockSupport {
         mimeMessage.setContent("body text", "text/html");
         replayAll();
 
-        SpringEmailer emailer = new SpringEmailer(mailSender, fromAddressString);
+        SMTPEmailer emailer = new SMTPEmailer(mailSender, fromAddressString);
 
         String subject = "subject";
         String body = "body text";

@@ -15,19 +15,19 @@ import org.junit.Test;
  * @author Shibo Liu
  * Date: Feb 29, 2020
  */
-public class SpringNotificationFactoryTest {
+public class SMTPNotificationFactoryTest {
 
-    private SpringNotificationFactory factory;
+    private SMTPNotificationFactory factory;
 
     @Before
     public void setUp() throws Exception {
-        factory = new SpringNotificationFactory("test-host", 100);
+        factory = new SMTPNotificationFactory("test-host", 100);
         factory.initialize("accessKey", "secretAccessKey");
     }
 
     @Test
     public void testCreateEmailer() throws Exception {
-        SpringNotificationFactory emailerFactory = new SpringNotificationFactory("test-host", 100);
+        SMTPNotificationFactory emailerFactory = new SMTPNotificationFactory("test-host", 100);
 
         String from = "a@g.com";
 

@@ -54,6 +54,7 @@
     <module>common-cli</module>
     <module>notification</module>
     <module>notification-amazon</module>
+    <module>notification-smtp</module>
     <module>common-db</module>
     <module>common-rest</module>
     <module>common-xml</module>
@@ -88,7 +89,6 @@
     <module>synctoolui</module>
     <module>retrievaltool</module>
     <module>integration</module>
-    <module>notification-spring</module>
   </modules>
 
   <profiles>

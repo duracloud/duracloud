@@ -24,17 +24,16 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
  * @author Shibo Liu
  * Date: 07/03/19
  */
-public class SpringNotificationFactory implements NotificationFactory {
+public class SMTPNotificationFactory implements NotificationFactory {
 
-    private static final Logger log = LoggerFactory.getLogger(
-        SpringNotificationFactory.class);
+    private static final Logger log = LoggerFactory.getLogger(SMTPNotificationFactory.class);
 
     private JavaMailSenderImpl emailService;
     private Map<String, Emailer> emailerMap = new HashMap<String, Emailer>();
     private String host;
     private Integer port;
 
-    public SpringNotificationFactory(String host, Integer port) {
+    public SMTPNotificationFactory(String host, Integer port) {
         this.host = host;
         this.port = port;
     }
@@ -89,7 +88,7 @@ public class SpringNotificationFactory implements NotificationFactory {
 
         Emailer emailer = emailerMap.get(fromAddress);
         if (null == emailer) {
-            emailer = new SpringEmailer(emailService, fromAddress);
+            emailer = new SMTPEmailer(emailService, fromAddress);
             emailerMap.put(fromAddress, emailer);
         }
 
