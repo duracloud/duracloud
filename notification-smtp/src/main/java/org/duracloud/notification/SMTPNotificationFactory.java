@@ -40,14 +40,14 @@ public class SMTPNotificationFactory implements NotificationFactory {
 
     @Override
     public void initialize(String username, String password) {
-        String logUserMsg = "{}";
+        String logUserMsg = "";
         emailService = new JavaMailSenderImpl();
         Properties mailProperties = new Properties();
-        if (!username.isEmpty()) {
+        if (username != null && !username.isEmpty()) {
             mailProperties.put("mail.smtp.auth", "true");
             emailService.setUsername(username.trim());
             emailService.setPassword(password.trim());
-            logUserMsg = ", User: {}";
+            logUserMsg = ", User: " + username;
         }
         mailProperties.put("mail.smtp.starttls.enable", "true");
         mailProperties.put("mail.smtp.starttls.required", "true");
@@ -60,14 +60,13 @@ public class SMTPNotificationFactory implements NotificationFactory {
             //Test the connection
             emailService.testConnection();
             log.debug(
-                "Email connection test passed: SMTP client connected to {}, Port: {}" + logUserMsg,
-                host, port, username);
+                "Email connection test passed: SMTP client connected to {}, Port: {}" +
+                logUserMsg, host, port);
 
         } catch (MessagingException ex) {
             log.error(
                 "Email connection test failed when connecting to {}, Port: {}" +
-                logUserMsg + ", because {}", host, port,
-                username, ex.getMessage());
+                logUserMsg + ", because {}", host, port, ex.getMessage());
         }
     }
 
