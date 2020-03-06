@@ -8,6 +8,8 @@
 package org.duracloud.common.changenotifier;
 
 /**
+ * Defines the interface that manages subscriptions for SNS or RabbitMQ
+ *
  * @author Shibo Liu
  * Feb 29, 2020
  */
