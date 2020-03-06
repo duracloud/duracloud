@@ -121,7 +121,7 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
                     @Override
                     public void handleCancel(String consumerTag) {
                         // consumer has been cancelled unexpectedly
-                        log.debug("Consumer has been cancelled unexpectedly: " + consumerTag);
+                        log.warn("Consumer has been cancelled unexpectedly: " + consumerTag);
                     }
 
                     @Override
@@ -133,7 +133,7 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
                     @Override
                     public void handleShutdownSignal(String consumerTag, ShutdownSignalException sig) {
                        // either the channel or the underlying connection has been shut down.
-                        log.debug("Either the channel or the underlying connection has been shut down" +
+                        log.warn("Either the channel or the underlying connection has been shut down" +
                                   " for consumer {} because {}", consumerTag, sig.getReason().toString());
                         initialized = false;
                     }
@@ -141,7 +141,7 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
                 });
 
         } catch (Exception e) {
-            log.debug("Consumer failed to subscribe: " + e.getMessage(), e);
+            log.error("Consumer failed to subscribe: " + e.getMessage(), e);
             initialized = false;
         }
 
@@ -168,7 +168,7 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
             mqChannel.basicCancel(consumerName);
             log.info("Unsubscripbed consumer {}", consumerName);
         } catch (IOException e) {
-            log.info("Error unsubscribing consumer {}", consumerName, e);
+            log.error("Error unsubscribing consumer {}", consumerName, e);
         }
     }
 
@@ -177,7 +177,7 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
             mqChannel.queueDelete(queueName);
             log.info("Deleted queue {}", queueName);
         } catch (IOException e) {
-            log.info("Error deleting queue {}", queueName, e);
+            log.error("Error deleting queue {}", queueName, e);
         }
     }
 
