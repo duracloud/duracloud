@@ -89,7 +89,6 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
 
     @Override
     public void accountChanged(String account) {
-
         publish(AccountChangeEvent.EventType.ACCOUNT_CHANGED, account);
     }
 
@@ -136,13 +135,11 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
 
     @Override
     public void rootUsersChanged() {
-
         publish(EventType.ALL_ACCOUNTS_CHANGED, null);
     }
 
     @Override
     public void storageProviderCacheOnNodeChanged(String account) {
-
         publish(EventType.STORAGE_PROVIDER_CACHE_ON_NODE_CHANGED, account);
     }
 }

@@ -76,13 +76,13 @@ public class SpringNotificationFactory implements NotificationFactory {
     public Emailer getEmailer(String fromAddress) {
         if (null == fromAddress ||
             !EmailValidator.getInstance().isValid(fromAddress)) {
-            String msg = "fromAddress not valid notification: " + fromAddress;
+            String msg = "fromAddress " + fromAddress + " is not valid. Email notification service NOT initialized.";
             log.error(msg);
             throw new IllegalArgumentException(msg);
         }
 
         if (null == emailService) {
-            String msg = "Emailer service !initialized.";
+            String msg = "emailService is null. Email notification service NOT initialized.";
             log.error(msg);
             throw new DuraCloudRuntimeException(msg);
         }

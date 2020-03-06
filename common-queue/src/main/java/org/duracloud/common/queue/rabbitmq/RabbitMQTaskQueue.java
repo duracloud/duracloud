@@ -95,7 +95,6 @@ public class RabbitMQTaskQueue implements TaskQueue {
 
     @Override
     public String getName() {
-
         return this.queueName;
     }
 
