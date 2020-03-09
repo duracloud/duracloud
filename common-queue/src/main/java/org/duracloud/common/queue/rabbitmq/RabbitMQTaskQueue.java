@@ -240,7 +240,6 @@ public class RabbitMQTaskQueue implements TaskQueue {
                         , queueName, queueUrl, deliveryTag
                         , DurationFormatUtils.formatDuration(preworkQueueTime, "HH:mm:ss,SSS"));
                     Task task = marshallTask(body, deliveryTag, routingKey, exchange);
-                    task.setVisibilityTimeout(visibilityTimeout);
                     return task;
                 }
             } catch (Exception ex) {

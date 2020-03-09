@@ -28,6 +28,7 @@ import org.duracloud.common.changenotifier.MessageListener;
 import org.duracloud.common.changenotifier.RabbitMQSubscriptionManager;
 import org.duracloud.common.changenotifier.SnsSubscriptionManager;
 import org.duracloud.common.changenotifier.SubscriptionManager;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.event.AccountChangeEvent;
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public class SubscriptionManagerConfig {
 
             SubscriptionManager subscriptionManager;
 
-            if (props.getNotifierType().equalsIgnoreCase("RABBITMQ")) {
+            if (props.getNotifierType().equalsIgnoreCase(Constants.RABBITMQ)) {
                 //RabbitMQ
                 subscriptionManager =
                     new RabbitMQSubscriptionManager(props.getRabbitmqHost(),

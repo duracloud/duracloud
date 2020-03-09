@@ -78,4 +78,13 @@ public class Constants {
      */
     public static final String HIDDEN_COOKIE_SPACE = "signedcookies";
 
+    /**
+     * Strings used for setting and comparing config.
+     */
+    public static final String RABBITMQ = "RabbitMQ";
+    public static final String SMTP = "SMTP";
+    public static final String SES = "SES";
+    public static final String SQS = "SQS";
+    public static final String SNS = "SNS";
+
 }

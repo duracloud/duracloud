@@ -18,6 +18,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import org.duracloud.account.db.model.GlobalProperties;
 import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.changenotifier.AccountChangeNotifier;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.event.AccountChangeEvent;
 import org.duracloud.common.event.AccountChangeEvent.EventType;
 import org.slf4j.Logger;
@@ -59,7 +60,7 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
             notifierType = "AWS";
         }
         log.info("Notifier-Type: {}", notifierType);
-        if (notifierType.equalsIgnoreCase("RABBITMQ")) {
+        if (notifierType.equalsIgnoreCase(Constants.RABBITMQ)) {
             rabbitmqExchange = props.getRabbitmqExchange();
             rabbitmqVhost = props.getRabbitmqVhost();
             ConnectionFactory factory = new ConnectionFactory();
@@ -105,7 +106,7 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
 
         try {
             log.debug("publishing event={}", event);
-            if (notifierType.equalsIgnoreCase("RABBITMQ")) {
+            if (notifierType.equalsIgnoreCase(Constants.RABBITMQ)) {
                 rabbitMqChannel.basicPublish(rabbitmqExchange, "", null,
                                              AccountChangeEvent.serialize(event).getBytes());
                 log.info("published event via RabbitMQ, vhost={}, exchange={}, event={}",
