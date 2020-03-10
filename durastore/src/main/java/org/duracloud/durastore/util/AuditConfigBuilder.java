@@ -9,6 +9,7 @@ package org.duracloud.durastore.util;
 
 import org.duracloud.account.db.model.DuracloudMill;
 import org.duracloud.account.db.repo.DuracloudMillRepo;
+import org.duracloud.common.queue.QueueType;
 import org.duracloud.storage.domain.AuditConfig;
 
 /**
@@ -26,7 +27,7 @@ public class AuditConfigBuilder {
         DuracloudMill mill = millRepo.findAll().get(0);
         config.setAuditLogSpaceId(mill.getAuditLogSpaceId());
         config.setAuditQueueName(mill.getAuditQueue());
-        config.setAuditQueueType(mill.getAuditQueueType());
+        config.setQueueType(QueueType.fromString(mill.getQueueType()));
         config.setRabbitmqHost(mill.getRabbitmqHost());
         config.setRabbitmqPort(mill.getRabbitmqPort());
         config.setRabbitmqVhost(mill.getRabbitmqVhost());

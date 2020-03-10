@@ -18,7 +18,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import org.duracloud.account.db.model.GlobalProperties;
 import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.changenotifier.AccountChangeNotifier;
-import org.duracloud.common.constant.Constants;
+import org.duracloud.common.changenotifier.NotifierType;
 import org.duracloud.common.event.AccountChangeEvent;
 import org.duracloud.common.event.AccountChangeEvent.EventType;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
 
     private String rabbitmqVhost;
 
-    private String notifierType;
+    private NotifierType notifierType;
 
     private GlobalPropertiesRepo globalPropertiesRepo;
 
@@ -55,12 +55,12 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
         GlobalProperties props = null;
         try {
             props = globalPropertiesRepo.findAll().get(0);
-            notifierType = props.getNotifierType();
+            notifierType = NotifierType.fromString(props.getNotifierType());
         } catch (Exception e) {
-            notifierType = "AWS";
+            notifierType = NotifierType.SNS;
         }
-        log.info("Notifier-Type: {}", notifierType);
-        if (notifierType.equalsIgnoreCase(Constants.RABBITMQ)) {
+        log.info("Notifier-Type: {}", notifierType.toString());
+        if (notifierType == NotifierType.RABBITMQ) {
             rabbitmqExchange = props.getRabbitmqExchange();
             rabbitmqVhost = props.getRabbitmqVhost();
             ConnectionFactory factory = new ConnectionFactory();
@@ -78,7 +78,7 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
                 log.error("Failed to connect to RabbitMQ because: " + e.getMessage(), e);
             }
         } else {
-            //Default AWS Client
+            // Default SNS Client
             log.info("Initiate default SNS client");
             try {
                 this.snsClient = AmazonSNSClientBuilder.defaultClient();
@@ -106,7 +106,7 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
 
         try {
             log.debug("publishing event={}", event);
-            if (notifierType.equalsIgnoreCase(Constants.RABBITMQ)) {
+            if (notifierType == NotifierType.RABBITMQ) {
                 rabbitMqChannel.basicPublish(rabbitmqExchange, "", null,
                                              AccountChangeEvent.serialize(event).getBytes());
                 log.info("published event via RabbitMQ, vhost={}, exchange={}, event={}",

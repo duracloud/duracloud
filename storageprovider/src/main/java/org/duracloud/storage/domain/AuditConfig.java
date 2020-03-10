@@ -7,6 +7,8 @@
  */
 package org.duracloud.storage.domain;
 
+import org.duracloud.common.queue.QueueType;
+
 /**
  * @author Bill Branan
  * Date: 3/18/14
@@ -15,7 +17,7 @@ public class AuditConfig {
 
     private String auditQueueName;
     private String auditLogSpaceId;
-    private String auditQueueType;
+    private QueueType queueType;
     private String rabbitmqHost;
     private Integer rabbitmqPort;
     private String rabbitmqVhost;
@@ -24,33 +26,27 @@ public class AuditConfig {
     private String rabbitmqPassword;
 
     public String getAuditQueueName() {
-
         return auditQueueName;
     }
 
     public void setAuditQueueName(String auditQueueName) {
-
         this.auditQueueName = auditQueueName;
     }
 
     public String getAuditLogSpaceId() {
-
         return auditLogSpaceId;
     }
 
     public void setAuditLogSpaceId(String auditLogSpaceId) {
-
         this.auditLogSpaceId = auditLogSpaceId;
     }
 
-    public String getAuditQueueType() {
-
-        return auditQueueType;
+    public QueueType getQueueType() {
+        return queueType;
     }
 
-    public void setAuditQueueType(String auditQueueType) {
-
-        this.auditQueueType = auditQueueType;
+    public void setQueueType(QueueType queueType) {
+        this.queueType = queueType;
     }
 
     public String getRabbitmqHost() {
