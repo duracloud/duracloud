@@ -44,7 +44,7 @@ public class RabbitMQTaskQueue implements TaskQueue {
 
     private Channel mqChannel;
     private String queueName;
-    private Integer visibilityTimeout = 100000;  // No such thing in RabbitmQ
+    private Integer visibilityTimeout = -1;  // No such thing in RabbitmQ
     private Integer unAcknowlededMesageCount = 0;
     private String queueUrl;
     private String exchangeName;
