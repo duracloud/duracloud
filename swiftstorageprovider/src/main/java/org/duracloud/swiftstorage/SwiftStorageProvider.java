@@ -31,6 +31,7 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.apache.commons.lang.StringUtils;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
@@ -357,7 +358,7 @@ public class SwiftStorageProvider extends S3StorageProvider {
     public ObjectMetadata expireObject(String bucketName, String contentId, Integer seconds) {
         log.debug("Expiring object {} in {} after {} seconds.", contentId, bucketName, seconds);
         ObjectMetadata objMetadata = getObjectDetails(bucketName, contentId, true);
-        objMetadata.setHeader("X-Delete-After", seconds);
+        objMetadata.setHeader(Constants.SWIFT_EXPIRE_OBJECT_HEADER, seconds);
         updateObjectProperties(bucketName, contentId, objMetadata);
 
         return objMetadata;

@@ -34,6 +34,7 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import org.apache.commons.lang.StringUtils;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
@@ -290,13 +291,13 @@ public class SwiftStorageProviderTest {
         expect(bucket.getName()).andReturn(bucketName).anyTimes();
 
         Map<String,Object> rawMetadata = new HashMap<>();
-        rawMetadata.put("X-Delete-After", seconds);
+        rawMetadata.put(Constants.SWIFT_EXPIRE_OBJECT_HEADER, seconds);
 
         ObjectMetadata objectMetadata = createMock("ObjectMetadata", ObjectMetadata.class);
         expect(s3Client.getObjectMetadata(
                EasyMock.isA(String.class), EasyMock.isA(String.class))).andReturn(objectMetadata);
         expect(objectMetadata.getRawMetadata()).andReturn(rawMetadata).anyTimes();
-        objectMetadata.setHeader("X-Delete-After", seconds);
+        objectMetadata.setHeader(Constants.SWIFT_EXPIRE_OBJECT_HEADER, seconds);
         EasyMock.expectLastCall();
 
         AccessControlList originalACL = createMock("AccessControlList", AccessControlList.class);
@@ -318,8 +319,9 @@ public class SwiftStorageProviderTest {
         assertEquals(bucketName, copyRequest.getSourceBucketName());
         assertEquals(contentId, copyRequest.getSourceKey());
         assertEquals(originalACL, copyRequest.getAccessControlList());
-        assertTrue(copyRequest.getNewObjectMetadata().getRawMetadata().containsKey("X-Delete-After"));
-        assertTrue(resultMetadata.getRawMetadata().containsKey("X-Delete-After"));
+        assertTrue(copyRequest.getNewObjectMetadata().getRawMetadata().
+                containsKey(Constants.SWIFT_EXPIRE_OBJECT_HEADER));
+        assertTrue(resultMetadata.getRawMetadata().containsKey(Constants.SWIFT_EXPIRE_OBJECT_HEADER));
         assertEquals(resultMetadata, copyRequest.getNewObjectMetadata());
 
         verify(s3Client, bucket, objectMetadata, originalACL, copyObjectResult);
