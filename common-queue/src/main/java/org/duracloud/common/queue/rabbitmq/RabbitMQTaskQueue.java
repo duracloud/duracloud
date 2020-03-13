@@ -70,7 +70,7 @@ public class RabbitMQTaskQueue implements TaskQueue {
             Connection conn = factory.newConnection();
             mqChannel = conn.createChannel();
             mqChannel.queueBind(queueName, exchangeName, queueName);
-            queueUrl = "RabbitMQ-" + conn.getAddress();
+            queueUrl = "(RabbitMQ) " + conn.getAddress();
             this.queueName = queueName;
         } catch (Exception ex) {
             log.error("Failed to estabilish connection to RabbitMQ with queue name {} and URL {} because {}",
@@ -84,7 +84,7 @@ public class RabbitMQTaskQueue implements TaskQueue {
             this.exchangeName = exchange;
             mqChannel = conn.createChannel();
             mqChannel.queueBind(queueName, exchange, queueName);
-            queueUrl = "RabbitMQ-" + conn.getAddress();
+            queueUrl = "(RabbitMQ) " + conn.getAddress();
             this.queueName = queueName;
         } catch (Exception ex) {
             log.error("Failed to estabilish connection to RabbitMQ with queue name {} and URL {} because {}",

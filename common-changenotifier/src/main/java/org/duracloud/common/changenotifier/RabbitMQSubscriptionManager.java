@@ -76,7 +76,7 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
             factory.setPort(mqPort);
             Connection conn = factory.newConnection();
             mqChannel = conn.createChannel();
-            queueUrl = "RabbitMQ-" + conn.getAddress();
+            queueUrl = "(RabbitMQ) " + conn.getAddress();
             mqChannel.queueDeclare(queueName, true, false, false, null);
             mqChannel.queueBind(queueName, exchangeName, queueName);
 
