@@ -3,9 +3,9 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
-  <artifactId>common-sns</artifactId>
+  <artifactId>common-changenotifier</artifactId>
   <version>6.2.0-SNAPSHOT</version>
-  <name>Common SNS</name>
+  <name>Common Change-Notifier</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
@@ -64,6 +64,13 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>com.rabbitmq</groupId>
+      <artifactId>amqp-client</artifactId>
+      <version>5.7.0</version>
+    </dependency>
+
   </dependencies>
 
 </project>

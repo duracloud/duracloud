@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.common.sns;
+package org.duracloud.common.changenotifier;
 
 import com.amazonaws.services.sqs.model.Message;
 
@@ -14,4 +14,6 @@ import com.amazonaws.services.sqs.model.Message;
  */
 public interface MessageListener {
     void onMessage(Message message);
+
+    void onMessage(String message);
 }

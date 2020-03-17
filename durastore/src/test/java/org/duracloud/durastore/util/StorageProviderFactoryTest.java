@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.duracloud.common.changenotifier.AccountChangeNotifier;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
-import org.duracloud.common.sns.AccountChangeNotifier;
 import org.duracloud.common.util.UserUtil;
 import org.duracloud.storage.domain.DatabaseConfig;
 import org.duracloud.storage.domain.DuraStoreInitConfig;

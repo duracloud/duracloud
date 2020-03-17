@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.common.sns;
+package org.duracloud.common.changenotifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Daniel Bernstein
  */
-public class SnsSubscriptionManager {
+public class SnsSubscriptionManager implements SubscriptionManager {
     private Logger log = LoggerFactory.getLogger(SnsSubscriptionManager.class);
 
     private AmazonSQS sqsClient;
@@ -54,10 +54,12 @@ public class SnsSubscriptionManager {
         this.snsClient = snsClient;
     }
 
+    @Override
     public void addListener(MessageListener listener) {
         this.messageListeners.add(listener);
     }
 
+    @Override
     public synchronized void connect() {
         if (initialized) {
             throw new DuraCloudRuntimeException("this manager is already connected");
@@ -170,6 +172,7 @@ public class SnsSubscriptionManager {
         }
     }
 
+    @Override
     public void disconnect() {
         if (!this.initialized) {
             throw new DuraCloudRuntimeException("this manager is already disconnected");

@@ -17,6 +17,7 @@ import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_COUNT;
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_CREATED;
 
+import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +31,8 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.apache.commons.lang.StringUtils;
+import org.duracloud.common.constant.Constants;
+import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -242,21 +245,38 @@ public class SwiftStorageProvider extends S3StorageProvider {
 
         // Set the user properties
         Map<String, String> userProperties = objMetadata.getUserMetadata();
+
         for (String metaName : userProperties.keySet()) {
             String metaValue = userProperties.get(metaName);
+            if (metaName.trim().equalsIgnoreCase("tags") ||
+                metaName.trim().equalsIgnoreCase("tags" + HEADER_KEY_SUFFIX) ||
+                metaName.trim().equalsIgnoreCase(PROPERTIES_CONTENT_MIMETYPE) ||
+                metaName.trim().equalsIgnoreCase(PROPERTIES_CONTENT_MIMETYPE + HEADER_KEY_SUFFIX)) {
+                metaName = metaName.toLowerCase();
+            }
             contentProperties.put(getWithSpace(decodeHeaderKey(metaName)), decodeHeaderValue(metaValue));
-
         }
 
         // Set the response metadata
         Map<String, Object> responseMeta = objMetadata.getRawMetadata();
         for (String metaName : responseMeta.keySet()) {
             // Don't include Swift response headers
-            if (!isSwiftMetadata(metaName)) {
-                Object metaValue = responseMeta.get(metaName);
-                if (metaValue instanceof String) {
-                    contentProperties.put(metaName, (String) metaValue);
+            try {
+                if (!isSwiftMetadata(metaName)) {
+                    Object metaValue = responseMeta.get(metaName);
+                    if (metaName.trim().equalsIgnoreCase(Headers.ETAG)) {
+                        metaName = Headers.ETAG;
+                    }
+                    contentProperties.put(metaName, String.valueOf(metaValue));
                 }
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+            // Remove User Response headers that are also in RawMetadata
+            // Swift metadata are non-standard HTTP headers so DuraCloud views them as "User" metadata
+            if (userProperties.keySet()
+                              .contains(metaName + HEADER_KEY_SUFFIX) && contentProperties.containsKey(metaName)) {
+                contentProperties.remove(metaName);
             }
         }
 
@@ -306,7 +326,53 @@ public class SwiftStorageProvider extends S3StorageProvider {
         return StringUtils.left(accessKey, 20);
     }
 
+    /**
+     * Return true iff metaName is NOT a standard HTTP Header
+     * @param metaName
+     * @return
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
     private boolean isSwiftMetadata(String metaName) {
-        return metaName.equalsIgnoreCase("x-openstack-request-id") || metaName.equalsIgnoreCase("x-trans-id");
+        Field[] httpFields = HttpHeaders.class.getFields();
+        for (Field f : httpFields) {
+            String fieldName = null;
+            try {
+                fieldName = (String) f.get(httpFields);
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            if (metaName.equalsIgnoreCase(fieldName)) {
+                return false;
+            }
+        }
+        return true;
     }
+
+    /**
+     * Add expire header for object in Swift.
+     * @param bucketName
+     * @param contentId
+     * @param seconds
+     */
+    public ObjectMetadata expireObject(String bucketName, String contentId, Integer seconds) {
+        log.debug("Expiring object {} in {} after {} seconds.", contentId, bucketName, seconds);
+        ObjectMetadata objMetadata = getObjectDetails(bucketName, contentId, true);
+        objMetadata.setHeader(Constants.SWIFT_EXPIRE_OBJECT_HEADER, seconds);
+        updateObjectProperties(bucketName, contentId, objMetadata);
+
+        return objMetadata;
+    }
+
+    private ObjectMetadata getObjectDetails(String bucketName, String contentId, boolean retry) {
+        try {
+            return s3Client.getObjectMetadata(bucketName, contentId);
+        } catch (AmazonClientException e) {
+            throwIfContentNotExist(bucketName, contentId);
+            String err = "Could not get details for content " + contentId + " in Swift container " + bucketName
+                + " due to error: " + e.getMessage();
+            throw new StorageException(err, e, retry);
+        }
+    }
+
 }

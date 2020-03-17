@@ -6,7 +6,7 @@
  *     http://duracloud.org/license/
  */
 
-package org.duracloud.common.sns.config;
+package org.duracloud.common.changenotifier.config;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -24,10 +24,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.duracloud.account.db.model.GlobalProperties;
 import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.cache.AccountComponentCache;
+import org.duracloud.common.changenotifier.MessageListener;
+import org.duracloud.common.changenotifier.NotifierType;
+import org.duracloud.common.changenotifier.RabbitMQSubscriptionManager;
+import org.duracloud.common.changenotifier.SnsSubscriptionManager;
+import org.duracloud.common.changenotifier.SubscriptionManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.event.AccountChangeEvent;
-import org.duracloud.common.sns.MessageListener;
-import org.duracloud.common.sns.SnsSubscriptionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -37,22 +40,41 @@ import org.springframework.context.annotation.Configuration;
  * @author Daniel Bernstein
  */
 @Configuration
-public class SnsSubscriptionManagerConfig {
-    private Logger log = LoggerFactory.getLogger(SnsSubscriptionManagerConfig.class);
+public class SubscriptionManagerConfig {
+    private Logger log = LoggerFactory.getLogger(SubscriptionManagerConfig.class);
 
     @Bean(destroyMethod = "disconnect", initMethod = "connect")
-    public SnsSubscriptionManager snsSubscriptionManager(GlobalPropertiesRepo globalPropertiesRepo,
-                                                         final List<AccountComponentCache<?>> componentCaches,
-                                                         String appName) {
+    public SubscriptionManager subscriptionManager(GlobalPropertiesRepo globalPropertiesRepo,
+                                                   final List<AccountComponentCache<?>> componentCaches,
+                                                   String appName) {
         try {
 
             GlobalProperties props = globalPropertiesRepo.findAll().get(0);
             String queueName = "node-queue-" + appName + "-" +
                                Inet4Address.getLocalHost().getHostName().replace(".", "_");
-            SnsSubscriptionManager subscriptionManager =
-                new SnsSubscriptionManager(AmazonSQSClientBuilder.defaultClient(),
-                                           AmazonSNSClientBuilder.defaultClient(),
-                                           props.getInstanceNotificationTopicArn(), queueName);
+
+            SubscriptionManager subscriptionManager;
+
+            NotifierType notifierType = NotifierType.fromString(props.getNotifierType());
+
+            if (notifierType == NotifierType.RABBITMQ) {
+                //RabbitMQ
+                subscriptionManager =
+                    new RabbitMQSubscriptionManager(props.getRabbitmqHost(),
+                                                    props.getRabbitmqPort(),
+                                                    props.getRabbitmqVhost(),
+                                                    props.getRabbitmqExchange(),
+                                                    props.getRabbitmqUsername(),
+                                                    props.getRabbitmqPassword(),
+                                                    queueName);
+            } else {
+                //SNS
+                subscriptionManager =
+                    new SnsSubscriptionManager(AmazonSQSClientBuilder.defaultClient(),
+                                               AmazonSNSClientBuilder.defaultClient(),
+                                               props.getInstanceNotificationTopicArn(),
+                                               queueName);
+            }
 
             subscriptionManager.addListener(new MessageListener() {
                 @Override
@@ -72,6 +94,19 @@ public class SnsSubscriptionManagerConfig {
                             cache.onEvent(event);
                         }
                     } catch (IOException e) {
+                        log.warn("unable to dispatch message: " + message + " : " + e.getMessage(), e);
+                    }
+                }
+
+                @Override
+                public void onMessage(String message) {
+                    log.info("message received: " + message);
+                    try {
+                        AccountChangeEvent event = AccountChangeEvent.deserialize(message);
+                        for (AccountComponentCache<?> cache : componentCaches) {
+                            cache.onEvent(event);
+                        }
+                    } catch (Exception e) {
                         log.warn("unable to dispatch message: " + message + " : " + e.getMessage(), e);
                     }
                 }

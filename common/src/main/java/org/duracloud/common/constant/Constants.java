@@ -78,4 +78,8 @@ public class Constants {
      */
     public static final String HIDDEN_COOKIE_SPACE = "signedcookies";
 
+    /**
+     * Header used to expire objects in Swift.
+     */
+    public static final String SWIFT_EXPIRE_OBJECT_HEADER = "X-Delete-After";
 }

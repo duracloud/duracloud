@@ -202,7 +202,7 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>common-sns</artifactId>
+      <artifactId>common-changenotifier</artifactId>
       <version>${project.version}</version>
     </dependency>
 

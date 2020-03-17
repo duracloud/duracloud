@@ -54,6 +54,7 @@
     <module>common-cli</module>
     <module>notification</module>
     <module>notification-amazon</module>
+    <module>notification-smtp</module>
     <module>common-db</module>
     <module>common-rest</module>
     <module>common-xml</module>
@@ -62,7 +63,7 @@
     <module>common-cache</module>
     <module>common-notification</module>
     <module>common-queue</module>
-    <module>common-sns</module>
+    <module>common-changenotifier</module>
     <module>common-aop</module>
     <module>storageprovider</module>
     <module>storeclient</module>
@@ -235,7 +236,7 @@
     <instrumentedTests>**/*Test*__*.class</instrumentedTests>
     <innerClasses>**/*$*</innerClasses>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <duracloud.db.version>6.1.0</duracloud.db.version>
+    <duracloud.db.version>6.2.0-SNAPSHOT</duracloud.db.version>
     <duraspace-codestyle.version>1.0.1</duraspace-codestyle.version>
     <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
     <org.springframework.security.version>4.0.4.RELEASE</org.springframework.security.version>
@@ -1392,6 +1393,12 @@
             <artifactId>commons-logging</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>com.rabbitmq</groupId>
+        <artifactId>amqp-client</artifactId>
+        <version>5.7.0</version>
       </dependency>
 
       <dependency>

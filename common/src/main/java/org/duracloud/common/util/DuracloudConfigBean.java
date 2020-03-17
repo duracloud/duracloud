@@ -58,4 +58,24 @@ public class DuracloudConfigBean {
         return amaUrl;
     }
 
+    public String getSwiftAccessKey() {
+        return env.getProperty("swift.accessKey");
+    }
+
+    public String getSwiftSecretKey() {
+        return env.getProperty("swift.secretKey");
+    }
+
+    public String getSwiftEndpoint() {
+        return env.getProperty("swift.endpoint");
+    }
+
+    public String getSwiftSignerType() {
+        String signer = env.getProperty("swift.signerType");
+        if (signer.isEmpty()) {
+            return null;
+        }
+        return signer;
+    }
+
 }
