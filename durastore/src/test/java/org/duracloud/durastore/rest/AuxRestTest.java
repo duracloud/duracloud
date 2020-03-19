@@ -14,7 +14,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
