@@ -10,10 +10,6 @@
   <description>Cloud-based digital content preservation system</description>
   <url>https://duracloud.org</url>
 
-  <prerequisites>
-    <maven>3.0.0</maven>
-  </prerequisites>
-
   <inceptionYear>2009</inceptionYear>
 
   <developers>
@@ -248,7 +244,6 @@
     <tiles.version>2.2.2</tiles.version>
     <selenium.version>2.19.0</selenium.version>
     <slf4j.version>1.7.6</slf4j.version>
-    <enforce-victims.rule.version>1.3.4</enforce-victims.rule.version>
     <jetty.version>9.4.14.v20181114</jetty.version>
   </properties>
 
@@ -451,15 +446,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.4</version>
-        <dependencies>
-          <dependency>
-            <groupId>com.redhat.victims</groupId>
-            <artifactId>enforce-victims-rule</artifactId>
-            <version>${enforce-victims.rule.version}</version>
-            <type>jar</type>
-          </dependency>
-        </dependencies>
+        <version>3.0.0-M3</version>
         <executions>
           <execution>
             <goals>
@@ -476,21 +463,9 @@
                     <exclude>com.springsource.org.apache.commons.logging</exclude>
                   </excludes>
                 </bannedDependencies>
-              </rules>
-            </configuration>
-          </execution>
-          <execution>
-            <id>enforce-victims-rule</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <rule implementation="com.redhat.victims.VictimsRule">
-                  <metadata>fatal</metadata>
-                  <fingerprint>fatal</fingerprint>
-                  <updates>weekly</updates>
-                </rule>
+                <requireMavenVersion>
+                  <version>[3.5.0,4.0.0)</version>
+                </requireMavenVersion>
               </rules>
             </configuration>
           </execution>
