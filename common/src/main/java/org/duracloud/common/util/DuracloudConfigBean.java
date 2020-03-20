@@ -8,7 +8,6 @@
 package org.duracloud.common.util;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.springframework.core.env.Environment;
 
 /**

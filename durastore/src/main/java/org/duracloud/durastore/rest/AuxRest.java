@@ -9,7 +9,6 @@ package org.duracloud.durastore.rest;
 
 import java.util.ArrayList;
 import java.util.Map;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

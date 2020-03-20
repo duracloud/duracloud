@@ -32,7 +32,6 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.util.DateUtil;
