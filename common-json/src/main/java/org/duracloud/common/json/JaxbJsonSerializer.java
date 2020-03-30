@@ -10,10 +10,10 @@ package org.duracloud.common.json;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import org.codehaus.jackson.map.AnnotationIntrospector;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 
 /**
  * Handles serialization and deserialization of objects JSON objects into
@@ -38,14 +38,14 @@ public class JaxbJsonSerializer<T> {
 
         // Create mapper
         mapper = new ObjectMapper();
-        mapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         // Use JAX-B annotations
         AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
         mapper.getDeserializationConfig()
-              .withAnnotationIntrospector(introspector);
+              .withInsertedAnnotationIntrospector(introspector);
         mapper.getSerializationConfig()
-              .withAnnotationIntrospector(introspector);
+              .withInsertedAnnotationIntrospector(introspector);
     }
 
     public String serialize(T object) throws IOException {
