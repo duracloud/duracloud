@@ -29,7 +29,7 @@
               
             </div>
             <div class="body">
-              <table id="directories" border="1">
+              <table id="directories">
                 <thead>
                     <tr>
                         <th>Directory</th>
