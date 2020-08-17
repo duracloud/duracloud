@@ -530,10 +530,6 @@ div.green-check {
   padding-left: 20px;
 }
 
-#directories td:last-child{
-  text-align: right;
-}
-
 /*user feedback classes*/
 .message-holder {
 	position: fixed;

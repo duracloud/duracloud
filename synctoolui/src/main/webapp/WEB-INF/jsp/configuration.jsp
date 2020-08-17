@@ -29,7 +29,13 @@
               
             </div>
             <div class="body">
-              <table id="directories" >
+              <table id="directories" border="1">
+                <thead>
+                    <tr>
+                        <th>Directory</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
                 <tbody>
                   <c:choose>
                     <c:when test="${not empty directoryConfigs}">
@@ -80,24 +86,32 @@
             </div>
             <div class="body">
               <table>
-                <tr>
-                  <td><spring:message code="host"/></td>
-                  <td>${duracloudConfiguration.host}</td>
-                </tr>
-                <c:if test="${not duracloudConfiguration.defaultPort}">
-                  <tr>
-                    <td><spring:message code="port"/></td>
-                    <td>${duracloudConfiguration.port}</td>
-                  </tr>
-                </c:if>
-                <tr>
-                  <td><spring:message code="username"/></td>
-                  <td>${duracloudConfiguration.username}</td>
-                </tr>
-                <tr>
-                  <td><spring:message code="spaceId"/></td>
-                  <td>${duracloudConfiguration.spaceId}</td>
-                </tr>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                      <td><spring:message code="host"/></td>
+                      <td>${duracloudConfiguration.host}</td>
+                    </tr>
+                    <c:if test="${not duracloudConfiguration.defaultPort}">
+                      <tr>
+                        <td><spring:message code="port"/></td>
+                        <td>${duracloudConfiguration.port}</td>
+                      </tr>
+                    </c:if>
+                    <tr>
+                      <td><spring:message code="username"/></td>
+                      <td>${duracloudConfiguration.username}</td>
+                    </tr>
+                    <tr>
+                      <td><spring:message code="spaceId"/></td>
+                      <td>${duracloudConfiguration.spaceId}</td>
+                    </tr>
+                </tbody>
               </table>
             </div>
           </div>
