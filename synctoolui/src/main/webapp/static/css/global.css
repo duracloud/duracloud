@@ -193,7 +193,7 @@ ul.global-errors, input.error  {
 }
 
 div.section > div.header {
-	background-color: #999;
+	background-color: #737373;
 	height: 20px;
 	border-radius: 5px 5px 0px 0px;
 	color: #FFF;
@@ -248,7 +248,7 @@ ul.button-bar li {
 
 #recent-activity, #active-syncs-table{
 	height: 100px;
-	border: 1px solid #999;
+	border: 1px solid #737373;
 	overflow-y:auto;
 }
 
