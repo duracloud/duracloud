@@ -23,7 +23,9 @@
               </span>
               <ul class="button-bar">
                 <li>
-                  <a id="add" class="button">Add</a>
+                  <a id="add" class="button">
+                    <spring:message code="add"/>
+                  </a>
                 </li>
               </ul>
               
