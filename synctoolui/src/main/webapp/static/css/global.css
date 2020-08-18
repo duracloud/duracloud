@@ -46,8 +46,8 @@ a.button:hover, button:hover {
 }
 
 a.button[disabled], button[disabled] {
-  background-color: #777; 
-  color: #EEE;
+  background-color: #595959;
+  color: #FFF;
 }
 
 a.button[disabled]:hover, button[disabled]:hover {
@@ -322,6 +322,7 @@ ul.button-bar li {
 }
 
 #status-indicator > div:last-child {
+    color: #000;
 	text-align: right;
 }
 
