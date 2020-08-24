@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="UTF-8" %>
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="UTF-8"  %>
 <%@ page session="false"%>
 <%@include file="/WEB-INF/jsp/include.jsp" %>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <!-- 
 	created by Daniel Bernstein and CH
  -->
