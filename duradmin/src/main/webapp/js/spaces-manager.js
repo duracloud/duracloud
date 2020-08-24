@@ -1855,7 +1855,7 @@ $(function() {
       var that = this, node, actions, content, deleteButton, copyButton;
       actions = $.fn.create("div");
       copyButton = $("<button title='copy content item' class='copy-button icon-only'>" +
-                     "<i class='pre copy'></i>" +
+                     "<i class='pre copy'>Copy</i>" +
                      "</button>")
                      .click(function(evt) {
                         evt.stopPropagation();
@@ -1868,7 +1868,7 @@ $(function() {
 
       if (!readOnly) {
         deleteButton = $("<button title='delete content item' class='delete-space-button icon-only'>" +
-                         "<i class='pre trash'></i>" + "</button>")
+                         "<i class='pre trash'>Delete</i>" + "</button>")
                          .click(function(evt) {
                            that._deleteContentItem(evt, contentItem);
                          });

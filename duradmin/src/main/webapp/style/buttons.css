@@ -193,7 +193,10 @@ span.switch i.post
 	padding-right:5px;
 }
 
-.icon-only .pre { margin-right:0; }
+.icon-only .pre {
+    margin-right:0;
+    color: transparent;
+}
 
 
 /* SWTICHES *****************************************************/
