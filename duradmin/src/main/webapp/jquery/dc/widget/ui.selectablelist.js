@@ -357,6 +357,7 @@ $.widget("ui.selectablelist",{
 
       if (this.options.selectable && !(selectionDisabled && noIndent)) {
         var checkbox = $("<input type='checkbox'/>");
+        checkbox.attr("aria-labelledby", item.attr("id"));
         //checkbox holder serves to create a clickable
         //buffer zone around the checkbox in order to
         //make it easier for the user to check.
