@@ -16,6 +16,7 @@ $.widget("ui.propertiesviewer",
 				if(form.children().length == 0){
 					form = $(document.createElement("form"));
 					var table = $(document.createElement("table"));
+					table.attr("role", "presentation");
 					form.append(table);
 					this.getContent().prepend(form);
 					
