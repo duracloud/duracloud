@@ -523,10 +523,10 @@
               <fieldset>
                 <ul>
                   <li class="row clearfix first-of-type"><label
-                    for="spacename">Space Name</label><input
+                    for="spaceName">Space Name</label><input
                     type="text"
                     name="spaceId"
-                    id="spaceId"
+                    id="spaceName"
                     class="field" />
                   </li>
                 </ul>
@@ -566,14 +566,14 @@
                     for="contentId">Item Id</label><input
                     type="text"
                     name="contentId"
-                    id="contentId"
+                    id="addContentId"
                     class="field" />
                   </li>
-                  <li class="row clearfix"><label for="contentMimetype">Mime
+                  <li class="row clearfix"><label for="addContentMimetype">Mime
                       Type</label><input
                     type="text"
                     name="contentMimetype"
-                    id="contentMimetype"
+                    id="addContentMimetype"
                     class="field" />
                   </li>
                   <li class="row clearfix"><label for="file">File</label><input
@@ -613,7 +613,7 @@
 
               <fieldset>
                 <ul>
-                  <li class="row clearfix"><label for="mimetype">Description</label>
+                  <li class="row clearfix"><label for="description">Description</label>
                   <textarea cols="50" rows="5"
                     name="description"
                     id="description"
@@ -650,11 +650,11 @@
               <fieldset>
 
                 <ul>
-                  <li class="row clearfix"><label for="mimetype">Mime
+                  <li class="row clearfix"><label for="editContentMimetype">Mime
                       Type</label><input
                     type="text"
                     name="contentMimetype"
-                    id="contentMimetype"
+                    id="editContentMimetype"
                     class="field" />
                   </li>
                 </ul>
@@ -704,15 +704,15 @@
                     </select></li>
                   </c:if>
 
-                  <li class="row clearfix"><label for="spaceId">Space</label>
+                  <li class="row clearfix"><label for="copySpaceId">Space</label>
                     <select
-                    id="spaceId"
+                    id="copySpaceId"
                     name="spaceId"></select></li>
-                  <li class="row clearfix"><label for="contentId">Content
+                  <li class="row clearfix"><label for="copyContentId">Content
                       Name</label> <input
                     type="text"
                     name="contentId"
-                    id="contentId"
+                    id="copyContentId"
                     class="field"
                     style="width: 325px" /></li>
                   <li class="row clearfix"><label for="deleteAfterCopy">Delete
