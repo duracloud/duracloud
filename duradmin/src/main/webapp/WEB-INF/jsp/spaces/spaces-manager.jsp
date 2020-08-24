@@ -487,7 +487,7 @@
                     for="spacename">Space ID</label><input
                     type="text"
                     name="spaceId"
-                    id="spaceId"
+                    id="spacename"
                     class="field" />
                   </li>
                   <li class="row clearfix"><label for="publicFlag">Public
@@ -563,7 +563,7 @@
               <fieldset>
                 <ul>
                   <li class="row clearfix first-of-type"><label
-                    for="contentId">Item Id</label><input
+                    for="addContentId">Item Id</label><input
                     type="text"
                     name="contentId"
                     id="addContentId"
