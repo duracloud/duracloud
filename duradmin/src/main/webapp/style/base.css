@@ -1277,6 +1277,7 @@ table.dc-acls td:last-child {
 
 .object-name {
 	white-space: nowrap;
+	margin-bottom: 10px !important;
 }
 
 button#enable-streaming {

@@ -1404,7 +1404,7 @@ $(function() {
 
       listBrowserLayout = $('#' + that._listBrowserId).layout({
         enableCursorHotkey : false,
-        west__size : 350,
+        west__size : 290,
         west__minSize : 260,
         west__paneSelector : "#" + that._spacesListViewId,
         center__paneSelector : "#" + that._contentItemListViewId,

@@ -221,7 +221,7 @@
                 <h2>Content Items</h2>
               </div>
               <div class="header-section">
-                <span class="float-r"> <input
+                <span class="float-r"><label for="content-item-filter">Prefix</label> <input
                   id="content-item-filter"
                   class="dc-item-list-filter"
                   value=""
@@ -229,7 +229,7 @@
                   type="text" /> </span> <input
                   id="check-all-content-items"
                   class="dc-check-all"
-                  type="checkbox" /> <span
+                  type="checkbox" /> <label for="check-all-content-items">Check all</label> | <span
                   id="content-item-list-status"
                   class="dc-status"></span> <span
                   id="content-item-list-controls"
