@@ -156,7 +156,7 @@ body > #page-header
 
 .list-browser
 {
-	background:#6e6e6e url(../images/bg_list_browser_header.gif) no-repeat top right;
+	background:#4F4F4F no-repeat top right;
 }
 
 .ui-layout-pane-west
@@ -166,7 +166,7 @@ body > #page-header
 
 .dc-item-list-filter
 {
-	background-color:#6E6E6E;
+	background-color:#4F4F4F;
 	border:1px solid #999;
 	color:#ccc;
 	font-style:italic;
@@ -179,7 +179,7 @@ body > #page-header
 	background-color:#cbcbcb;
 	border:1px solid #595959;
 	border-top-color:#333;
-	border-bottom-color:#6e6e6e;
+	border-bottom-color:#4F4F4F;
 	color:#000;
 	min-width:250px !important;
 	overflow:auto;
@@ -291,7 +291,7 @@ body > #page-header
 
 #spaces-list-view-resizer
 {
-	background-color:#6e6e6e;
+	background-color:#4F4F4F;
 	border-top:1px solid #828282;
 }
 
@@ -670,7 +670,7 @@ input.dc-check-all
 
 h2,.footer-prompt
 {
-    color:#999999;
+    color:#F0F0F0;
 }
 
 .footer-prompt {
@@ -711,7 +711,7 @@ h2,.footer-prompt
 {
 	background:url(../images/bg_segment_header.gif) repeat-x top left;
 	border-bottom:1px solid #333;
-	color:#999;
+	color:#DBDBDB;
 	cursor:pointer;
 	font-size:13px;
 	height:28px;
