@@ -2368,7 +2368,7 @@ $(function() {
     },
 
     _setObjectName : function(name) {
-      $(".object-name", this.element).empty().prepend(name).attr("title", name);
+      $(".object-name", this.element).empty().prepend(name);
     },
 
     _getStoreId : function() {

@@ -286,7 +286,7 @@
           style="display: none">
           <div class="north header">
             <h1>Space Detail</h1>
-            <h3 class="object-name">Space Name Here</h3>
+            <h2 class="object-name">Space Name Here</h2>
             <div class="button-bar">
               <!--
                             <button class="featured add-content-item-button"><i class="pre plus"></i>Add One Item</button>
