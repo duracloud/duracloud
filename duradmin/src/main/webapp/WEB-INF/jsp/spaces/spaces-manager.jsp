@@ -181,6 +181,7 @@
                   id="check-all-spaces"
                   class="dc-check-all"
                   type="checkbox" />
+                  <label for="check-all-spaces">Check all</label>
                 </c:if>
                 <span
                   id="space-list-status"
