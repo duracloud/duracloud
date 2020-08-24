@@ -418,12 +418,12 @@
           style="display: none">
           <div class="north header">
             <h1>Content Detail</h1>
-            <h3>
+            <h2>
               <a
                 class="durastore-link"
                 title="Links directly to content in DuraStore. This link will be publicly available only when the space is 'Open'.">
                 <span class="object-name">Object Name here</span> </a>
-            </h3>
+            </h2>
             <div
               class="mime-type"
               id="mime-image">
