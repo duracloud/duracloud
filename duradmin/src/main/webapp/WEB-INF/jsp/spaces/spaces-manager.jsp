@@ -164,7 +164,9 @@
                 <h2>Spaces</h2>
               </div>
               <div class="header-section">
-                <span class="float-r"><input
+                <span class="float-r">
+                <label for="space-filter">Filter</label>
+                <input
                   id="space-filter"
                   class="dc-item-list-filter "
                   value=""
