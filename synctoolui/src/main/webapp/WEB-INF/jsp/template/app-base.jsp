@@ -20,7 +20,7 @@
   </div>
 
   <div id="header">
-    <div id="logo">SYNC TOOL</div>
+    <div id="logo"><img src="${pageContext.request.contextPath }/static/image/logo_top_duracloud.png" alt="DURACLOUD"/>SYNC TOOL</div>
     <tiles:insertAttribute name="subHeader" />
   </div>
 

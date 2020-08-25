@@ -138,8 +138,7 @@ ul.global-errors, input.error  {
 }
 
 #logo {
-	background: url("../image/logo_top_duracloud.png") no-repeat;
-	padding: 25px 0px 10px 110px; 
+	padding: 25px 0px 10px 110px;
 	font-size: 18px;
 	font-weight:bold;
 		
