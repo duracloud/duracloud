@@ -18,6 +18,7 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.sync.SyncToolInitializer;
 import org.duracloud.syncoptimize.config.SyncOptimizeConfig;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
@@ -39,7 +40,7 @@ public class SyncTesterTest {
             EasyMock.createMock(SyncToolInitializer.class);
         ContentStore contentStore = EasyMock.createMock(ContentStore.class);
 
-        Capture<String[]> syncConfig = new Capture<>();
+        Capture<String[]> syncConfig = Capture.newInstance(CaptureType.FIRST);
         syncTool.runSyncTool(EasyMock.capture(syncConfig));
         EasyMock.expectLastCall().once();
 

@@ -18,6 +18,7 @@ import org.apache.commons.io.FileUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.ChecksumUtil;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -80,7 +81,8 @@ public class DuraStoreSyncEndpointTest {
             new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
         String checksum = checksumUtil.generateChecksum(contentFile);
 
-        Capture<Map<String, String>> propsCapture = new Capture<>();
+        Capture<Map<String, String>> propsCapture =
+            Capture.newInstance(CaptureType.FIRST);
         EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
                                                 EasyMock.eq(contentId),
                                                 EasyMock.isA(InputStream.class),

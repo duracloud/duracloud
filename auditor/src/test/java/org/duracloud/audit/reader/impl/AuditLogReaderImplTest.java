@@ -10,6 +10,7 @@ package org.duracloud.audit.reader.impl;
 import static org.easymock.EasyMock.anyInt;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -233,6 +234,9 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         expect(is.read(isA(byte[].class), anyInt(), anyInt())).andThrow(new IOException("test"));
         expect(storageProvider.getContent(eq(globalAuditSpaceId), eq(prefix + "/" + contentId)))
             .andReturn(retrievedContent);
+
+        is.close();
+        expectLastCall();
     }
 
     protected AuditLogReaderImpl createAuditLogReader(final StorageProvider storageProvider, AuditConfig config) {

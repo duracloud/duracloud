@@ -28,6 +28,7 @@ import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -117,7 +118,7 @@ public class RestoreSnapshotTaskRunnerTest {
     public void testSetRestoreSpaceUserPermissions() {
         String spaceId = "space-id";
 
-        Capture<Map<String, AclType>> spaceACLsCapture = new Capture<>();
+        Capture<Map<String, AclType>> spaceACLsCapture = Capture.newInstance(CaptureType.FIRST);
         snapshotProvider.setSpaceACLs(EasyMock.eq(spaceId),
                                       EasyMock.capture(spaceACLsCapture));
 
@@ -191,7 +192,7 @@ public class RestoreSnapshotTaskRunnerTest {
         EasyMock.expect(snapshotProvider.getSpaceProperties(restoreSpaceId))
                 .andReturn(spaceProps);
 
-        Capture<Map<String, String>> propsCapture = new Capture<>();
+        Capture<Map<String, String>> propsCapture = Capture.newInstance(CaptureType.FIRST);
         unwrappedSnapshotProvider.setNewSpaceProperties(EasyMock.eq(restoreSpaceId),
                                                         EasyMock.capture(propsCapture));
         EasyMock.expectLastCall().once();

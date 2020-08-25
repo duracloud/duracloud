@@ -24,6 +24,7 @@ import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.easymock.IExpectationSetters;
 import org.junit.After;
@@ -79,7 +80,7 @@ public class StreamingTaskRunnerTestBase {
             .andReturn(bucketName)
             .anyTimes();
 
-        spacePropsCapture = new Capture<>();
+        spacePropsCapture = Capture.newInstance(CaptureType.FIRST);
         provider.setNewSpaceProperties(EasyMock.eq(spaceId),
                                        EasyMock.capture(spacePropsCapture));
         EasyMock.expectLastCall().once();

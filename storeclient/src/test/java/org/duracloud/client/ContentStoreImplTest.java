@@ -48,6 +48,7 @@ import org.duracloud.reportdata.storage.SpaceStatsDTO;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
@@ -286,7 +287,8 @@ public class ContentStoreImplTest {
         String checksum = "checksum";
         String mime = "text/plain";
         String encoding = "encoding";
-        Capture<Map<String, String>> headersCapture = new Capture<>();
+        Capture<Map<String, String>> headersCapture =
+            Capture.newInstance(CaptureType.FIRST);
         mockSuccessfulAddContent(headersCapture, checksum, mime, content);
         Map<String,String> props = new HashMap<>();
         props.put("Content-Encoding", encoding);
@@ -304,7 +306,8 @@ public class ContentStoreImplTest {
         Map<String,String> props = new HashMap<>();
         props.put("Content-Encoding", encoding);
 
-        Capture<Map<String, String>> headersCapture = new Capture<>();
+        Capture<Map<String, String>> headersCapture =
+            Capture.newInstance(CaptureType.FIRST);
         mockSuccessfulAddContent(headersCapture, checksum, mime, content);
 
         contentStore.addContent(spaceId, contentId, content, 7,
@@ -313,7 +316,8 @@ public class ContentStoreImplTest {
 
     @Test
     public void testAddContentReturnsInvalidChecksum() throws Exception {
-        Capture<Map<String, String>> headersCapture = new Capture<>();
+        Capture<Map<String, String>> headersCapture =
+            Capture.newInstance(CaptureType.FIRST);
         String checksum = "checksum";
         String outputChecksum = "badChecksum";
         String mime = "text/plain";
@@ -501,7 +505,8 @@ public class ContentStoreImplTest {
 
     @Test
     public void testSetContentProperties() throws Exception {
-        Capture<Map<String, String>> headersCapture = new Capture<>();
+        Capture<Map<String, String>> headersCapture =
+            Capture.newInstance(CaptureType.FIRST);
         String fullURL = baseURL + "/" + spaceId + "/" + contentId + "?storeID=" + storeId;
         EasyMock.expect(response.getStatusCode()).andReturn(200);
         EasyMock.expect(restHelper.post(eq(fullURL),
@@ -693,7 +698,8 @@ public class ContentStoreImplTest {
 
         String fullURL =
             baseURL + "/" + destSpaceId + "/" + destContentId + "?storeID=" + destStoreId;
-        Capture<Map<String, String>> capturedHeaders = new Capture<>();
+        Capture<Map<String, String>> capturedHeaders =
+            Capture.newInstance(CaptureType.FIRST);
         EasyMock.expect(restHelper.put(eq(fullURL),
                                        EasyMock.<String>isNull(),
                                        capture(capturedHeaders)))
@@ -718,7 +724,7 @@ public class ContentStoreImplTest {
         String fullURL =
             baseURL + "/" + destSpaceId + "/" + destContentId + "?storeID=" + destStoreId;
         Capture<Map<String, String>> capturedHeaders =
-            new Capture<Map<String, String>>();
+            Capture.newInstance(CaptureType.FIRST);
         EasyMock.expect(restHelper.put(eq(fullURL),
                                        EasyMock.<String>isNull(),
                                        capture(capturedHeaders)))
@@ -846,7 +852,7 @@ public class ContentStoreImplTest {
         Header header = EasyMock.createMock(Header.class);
         String fullURL = baseURL + "/acl/" + spaceId + "?storeID=" + storeId;
         Capture<Map<String, String>> capturedHeaders =
-            new Capture<Map<String, String>>();
+            Capture.newInstance(CaptureType.FIRST);
         EasyMock.expect(restHelper.post(eq(fullURL),
                                         EasyMock.<String>isNull(),
                                         capture(capturedHeaders)))

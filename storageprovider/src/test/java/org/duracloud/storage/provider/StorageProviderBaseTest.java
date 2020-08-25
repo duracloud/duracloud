@@ -21,6 +21,7 @@ import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
@@ -111,7 +112,8 @@ public class StorageProviderBaseTest {
         EasyMock.expect(providerMock.getAllSpaceProperties(spaceId))
                 .andReturn(spaceProps);
 
-        Capture<Map<String, String>> propsSetCapture = new Capture<>();
+        Capture<Map<String, String>> propsSetCapture =
+            Capture.newInstance(CaptureType.FIRST);
         providerMock.doSetSpaceProperties(EasyMock.eq(spaceId),
                                           EasyMock.capture(propsSetCapture));
         EasyMock.expectLastCall().once();
@@ -153,7 +155,8 @@ public class StorageProviderBaseTest {
 
     @Test
     public void testSetNewSpacePropertiesNewACLs() {
-        Capture<Map<String, String>> propsSetCapture = new Capture<>();
+        Capture<Map<String, String>> propsSetCapture =
+            Capture.newInstance(CaptureType.FIRST);
         providerMock.doSetSpaceProperties(EasyMock.eq(spaceId),
                                           EasyMock.capture(propsSetCapture));
         EasyMock.expectLastCall().once();
@@ -229,7 +232,8 @@ public class StorageProviderBaseTest {
         newProps.put(aclGroupPrefix + groupWrite0, AclType.WRITE);
         newProps.put(aclGroupPrefix + groupWrite1, AclType.WRITE);
 
-        Capture<Map<String, String>> propsSetCapture = new Capture<>();
+        Capture<Map<String, String>> propsSetCapture =
+            Capture.newInstance(CaptureType.FIRST);
         providerMock.doSetSpaceProperties(EasyMock.eq(spaceId),
                                           EasyMock.capture(propsSetCapture));
         EasyMock.expectLastCall().once();
@@ -288,7 +292,8 @@ public class StorageProviderBaseTest {
 
         Map<String, AclType> newProps = new HashMap<>();
 
-        Capture<Map<String, String>> propsSetCapture = new Capture<>();
+        Capture<Map<String, String>> propsSetCapture =
+            Capture.newInstance(CaptureType.FIRST);
         providerMock.doSetSpaceProperties(EasyMock.eq(spaceId),
                                           EasyMock.capture(propsSetCapture));
         EasyMock.expectLastCall().once();

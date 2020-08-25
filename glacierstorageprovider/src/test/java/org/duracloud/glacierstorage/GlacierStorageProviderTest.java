@@ -31,6 +31,7 @@ import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageStateException;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -99,7 +100,8 @@ public class GlacierStorageProviderTest {
         s3Client.deleteBucketLifecycleConfiguration(EasyMock.isA(String.class));
         EasyMock.expectLastCall().once();
 
-        Capture<BucketLifecycleConfiguration> lcConfigCap = new Capture<>();
+        Capture<BucketLifecycleConfiguration> lcConfigCap =
+            Capture.newInstance(CaptureType.FIRST);
         s3Client.setBucketLifecycleConfiguration(EasyMock.isA(String.class),
                                                  EasyMock.capture(lcConfigCap));
         EasyMock.expectLastCall().once();

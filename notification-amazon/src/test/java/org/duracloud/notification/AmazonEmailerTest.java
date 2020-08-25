@@ -13,6 +13,7 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.model.Message;
 import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
@@ -100,7 +101,7 @@ public class AmazonEmailerTest {
     }
 
     private Capture createSendMockExpectation() {
-        Capture<SendEmailRequest> capturedRequest = new Capture<SendEmailRequest>();
+        Capture<SendEmailRequest> capturedRequest = Capture.newInstance(CaptureType.FIRST);
         EasyMock.expect(emailService.sendEmail(EasyMock.capture(capturedRequest)))
                 .andReturn(null);
 

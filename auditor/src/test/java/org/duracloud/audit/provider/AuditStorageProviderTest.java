@@ -25,6 +25,7 @@ import org.duracloud.common.util.UserUtil;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockRunner;
 import org.easymock.EasyMockSupport;
@@ -210,7 +211,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     // Test audit methods
 
     private Capture<Task> mockAuditCall() {
-        Capture<Task> auditTaskCapture = new Capture<>();
+        Capture<Task> auditTaskCapture = Capture.newInstance(CaptureType.FIRST);
         taskQueue.put(EasyMock.capture(auditTaskCapture));
         EasyMock.expectLastCall().once();
         return auditTaskCapture;
@@ -218,7 +219,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
 
     private Capture<Task> mockReadLogCall() throws Exception {
         EasyMock.expect(userUtil.getCurrentUsername()).andReturn(user);
-        Capture<Task> logCapture = new Capture<>();
+        Capture<Task> logCapture = Capture.newInstance(CaptureType.FIRST);
         readLogger.log(EasyMock.capture(logCapture));
         EasyMock.expectLastCall().once();
         return logCapture;
@@ -226,7 +227,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
 
     private Capture<Task> mockWriteLogCall() throws Exception {
         EasyMock.expect(userUtil.getCurrentUsername()).andReturn(user);
-        Capture<Task> logCapture = new Capture<>();
+        Capture<Task> logCapture = Capture.newInstance(CaptureType.FIRST);
         writeLogger.log(EasyMock.capture(logCapture));
         EasyMock.expectLastCall().once();
         return logCapture;
