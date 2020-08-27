@@ -30,6 +30,7 @@
         <configuration>
           <schemaDirectory>src/main/resources</schemaDirectory>
           <outputJar>target/${project.artifactId}-xmlbeans-${project.version}.jar</outputJar>
+          <javaSource>1.8</javaSource>
         </configuration>
       </plugin>
     </plugins>

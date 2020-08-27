@@ -23,6 +23,7 @@ import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
@@ -216,8 +217,8 @@ public class ContentResourceImplTest {
         Map<String, String> props = new HashMap<String, String>();
         props.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, "12345");
         props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, "1000");
-        Capture<Map<String, String>> userProps = new Capture<>();
-        Capture<String> finalMimeType = new Capture<>();
+        Capture<Map<String, String>> userProps = Capture.newInstance(CaptureType.FIRST);
+        Capture<String> finalMimeType = Capture.newInstance(CaptureType.FIRST);
 
         EasyMock.expect(this.storageProvider.addContent(EasyMock.isA(String.class),
                                                         EasyMock.isA(String.class),

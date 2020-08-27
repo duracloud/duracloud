@@ -14,6 +14,7 @@ import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -67,7 +68,7 @@ public class CompleteRestoreTaskRunnerTest {
         EasyMock.expect(unwrappedSnapshotProvider.getBucketName(spaceId))
                 .andReturn(bucketName);
         Capture<BucketLifecycleConfiguration> lifecycleConfigCapture =
-            new Capture<>();
+            Capture.newInstance(CaptureType.FIRST);
         s3Client.setBucketLifecycleConfiguration(EasyMock.eq(bucketName),
                                                  EasyMock.capture(
                                                      lifecycleConfigCapture));

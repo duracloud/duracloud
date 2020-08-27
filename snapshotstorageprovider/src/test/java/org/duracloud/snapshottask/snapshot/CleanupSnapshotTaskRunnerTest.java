@@ -33,6 +33,7 @@ import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMockSupport;
 import org.junit.After;
 import org.junit.Before;
@@ -94,7 +95,7 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport {
         expect(unwrappedSnapshotProvider.getBucketName(spaceId))
             .andReturn(bucketName);
         Capture<BucketLifecycleConfiguration> lifecycleConfigCapture =
-            new Capture<>();
+            Capture.newInstance(CaptureType.FIRST);
         s3Client.setBucketLifecycleConfiguration(eq(bucketName),
                                                  capture(
                                                      lifecycleConfigCapture));
@@ -113,7 +114,7 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport {
 
         expect(manifestStore.getItems(account, storeId, spaceId)).andReturn(it);
 
-        Capture<Set<Task>> taskCapture = new Capture<>();
+        Capture<Set<Task>> taskCapture = Capture.newInstance(CaptureType.FIRST);
 
         expect(unwrappedSnapshotProvider.getStorageProviderType())
             .andReturn(StorageProviderType.AMAZON_S3);

@@ -40,6 +40,7 @@ import org.duracloud.s3storageprovider.dto.EnableStreamingTaskParameters;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskResult;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
@@ -179,7 +180,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         CreateStreamingDistributionResult createDistResult =
             new CreateStreamingDistributionResult()
                 .withStreamingDistribution(dist);
-        createDistRequestCapture = new Capture<>();
+        createDistRequestCapture = Capture.newInstance(CaptureType.FIRST);
         EasyMock
             .expect(cfClient.createStreamingDistribution(
                 EasyMock.capture(createDistRequestCapture)))

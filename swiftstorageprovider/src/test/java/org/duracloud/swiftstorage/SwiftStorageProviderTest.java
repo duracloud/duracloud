@@ -38,6 +38,7 @@ import org.duracloud.common.util.DateUtil;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
@@ -303,7 +304,7 @@ public class SwiftStorageProviderTest {
         expect(s3Client.getObjectAcl(bucketName, contentId)).andReturn(originalACL);
 
         CopyObjectResult copyObjectResult = createMock("CopyObjectResult", CopyObjectResult.class);
-        Capture<CopyObjectRequest> capturedRequest = new Capture<CopyObjectRequest>();
+        Capture<CopyObjectRequest> capturedRequest = Capture.newInstance(CaptureType.FIRST);
         expect(s3Client.copyObject(capture(capturedRequest))).andReturn(copyObjectResult);
 
         SwiftStorageProvider provider = getProvider();

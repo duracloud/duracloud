@@ -59,6 +59,7 @@ import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.easymock.IExpectationSetters;
 import org.junit.After;
@@ -298,7 +299,8 @@ public class S3StorageProviderTest {
         expect(result.getETag()).andReturn(checksum);
         replay(result);
 
-        Capture<PutObjectRequest> capturedRequest = new Capture<>();
+        Capture<PutObjectRequest> capturedRequest =
+            Capture.newInstance(CaptureType.FIRST);
         expect(s3Client.putObject(capture(capturedRequest)))
                 .andReturn(result);
 
@@ -337,7 +339,8 @@ public class S3StorageProviderTest {
                 .andReturn(objectMetadata)
                 .times(2);
 
-        Capture<PutObjectRequest> capturedRequest = new Capture<>();
+        Capture<PutObjectRequest> capturedRequest =
+            Capture.newInstance(CaptureType.FIRST);
         expect(s3Client.putObject(capture(capturedRequest)))
                 .andReturn(result);
 
@@ -355,7 +358,7 @@ public class S3StorageProviderTest {
         expect(result.getETag()).andReturn("invalid-checksum-value");
         replay(result);
 
-        Capture<PutObjectRequest> capturedRequest = new Capture<>();
+        Capture<PutObjectRequest> capturedRequest = Capture.newInstance(CaptureType.FIRST);
         expect(s3Client.putObject(capture(capturedRequest)))
                 .andReturn(result);
 
@@ -452,7 +455,7 @@ public class S3StorageProviderTest {
         replay(result);
 
         Capture<CopyObjectRequest> capturedRequest =
-            new Capture<CopyObjectRequest>();
+            Capture.newInstance(CaptureType.FIRST);
         expect(s3Client.copyObject(capture(capturedRequest)))
                 .andReturn(result);
 
@@ -612,7 +615,8 @@ public class S3StorageProviderTest {
         expect(
             s3Client.getBucketTaggingConfiguration(EasyMock.isA(String.class)))
                 .andThrow(new NotFoundException(spaceId));
-        Capture<BucketTaggingConfiguration> tagConfigCap = new Capture<>();
+        Capture<BucketTaggingConfiguration> tagConfigCap =
+            Capture.newInstance(CaptureType.FIRST);
         s3Client.setBucketTaggingConfiguration(EasyMock.isA(String.class),
                                                capture(tagConfigCap));
         EasyMock.expectLastCall().once();
@@ -674,7 +678,8 @@ public class S3StorageProviderTest {
 
         s3Client.deleteBucketLifecycleConfiguration(bucketName);
         EasyMock.expectLastCall().once();
-        Capture<BucketLifecycleConfiguration> lifecycleConfigCapture = new Capture<>();
+        Capture<BucketLifecycleConfiguration> lifecycleConfigCapture =
+            Capture.newInstance(CaptureType.FIRST);
         s3Client.setBucketLifecycleConfiguration(eq(bucketName),
                                                  capture(lifecycleConfigCapture));
         EasyMock.expectLastCall().once();

@@ -37,6 +37,7 @@ import org.duracloud.common.util.OperationTimer;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.After;
@@ -145,7 +146,7 @@ public class DuraStoreChunkSyncEndpointTest {
                 .anyTimes();
 
         Capture<Map<String, String>> propsCapture =
-            new Capture<Map<String, String>>();
+            Capture.newInstance(CaptureType.FIRST);
         EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
                                                 EasyMock.eq(contentId),
                                                 EasyMock.isA(InputStream.class),
@@ -188,7 +189,7 @@ public class DuraStoreChunkSyncEndpointTest {
                 .anyTimes();
 
         Capture<Map<String, String>> propsCapture =
-            new Capture<Map<String, String>>();
+            Capture.newInstance(CaptureType.FIRST);
         EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
                                                 EasyMock.eq(contentId),
                                                 EasyMock.isA(InputStream.class),
