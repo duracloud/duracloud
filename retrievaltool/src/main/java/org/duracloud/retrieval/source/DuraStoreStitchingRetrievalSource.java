@@ -7,6 +7,7 @@
  */
 package org.duracloud.retrieval.source;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.duracloud.chunk.manifest.ChunksManifest;
@@ -15,11 +16,14 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.domain.Content;
+import org.duracloud.error.ContentStoreException;
 import org.duracloud.retrieval.mgmt.RetrievalListener;
 import org.duracloud.stitch.FileStitcher;
 import org.duracloud.stitch.FileStitcherListener;
 import org.duracloud.stitch.datasource.impl.DuraStoreDataSource;
+import org.duracloud.stitch.error.DataSourceException;
 import org.duracloud.stitch.error.InvalidManifestException;
+import org.duracloud.stitch.error.MissingContentException;
 import org.duracloud.stitch.impl.FileStitcherImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +88,6 @@ public class DuraStoreStitchingRetrievalSource extends DuraStoreRetrievalSource 
     @Override
     protected Content doGetContent(ContentItem item, RetrievalListener listener) {
         log.debug("enter doGetContent: {}", item);
-
         if (null != item && chunkUtil.isChunk(item.getContentId())) {
             StringBuilder msg = new StringBuilder();
             msg.append("Unexpected content item: ");
@@ -114,10 +117,26 @@ public class DuraStoreStitchingRetrievalSource extends DuraStoreRetrievalSource 
                     }
                 }
             };
-
             return stitcher.getContentFromManifest(item.getSpaceId(),
                                                    item.getContentId(),
                                                    fileStitcherListener);
+        } catch (DataSourceException dse) {
+            try {
+                if (contentStore.contentExists(item.getSpaceId(), item.getContentId())) {
+                    throw dse;
+                } else {
+                    StringBuilder msg = new StringBuilder();
+                    msg.append("The item does not exist in the space: ");
+                    msg.append(item);
+                    msg.append(dse.getMessage());
+
+                    log.error(msg.toString());
+
+                    throw new MissingContentException(msg.toString(), dse);
+                }
+            } catch (ContentStoreException e) {
+                throw dse;
+            }
         } catch (InvalidManifestException e) {
             StringBuilder msg = new StringBuilder();
             msg.append("Unable to get content for ");

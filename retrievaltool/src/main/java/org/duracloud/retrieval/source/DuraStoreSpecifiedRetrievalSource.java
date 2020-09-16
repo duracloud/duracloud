@@ -17,6 +17,7 @@ import org.duracloud.common.model.ContentItem;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.retrieval.mgmt.RetrievalListener;
+import org.duracloud.stitch.error.MissingContentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +70,7 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
         try {
             return contentStore.getContent(item.getSpaceId(),
                                            item.getContentId());
-        } catch (ContentStoreException e) {
+        } catch (ContentStoreException cse) {
             log.info("Error retrieving content ID: " + item.getContentId() +
                      ".  Trying to get this content again by checking for " +
                      "a chunk manifest for this content ID.");
@@ -77,7 +78,11 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
             // for the passed in ContentItem to this method.
             ContentItem manifestItem = new ContentItem(item.getSpaceId(),
                                                        item.getContentId() + ChunksManifest.manifestSuffix);
-            return doGetContentFromManifest(manifestItem, listener);
+            try {
+                return doGetContentFromManifest(manifestItem, listener);
+            } catch (MissingContentException mse) {
+                throw mse;
+            }
         }
     }
 }
