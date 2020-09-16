@@ -88,6 +88,7 @@ public class DuraStoreStitchingRetrievalSource extends DuraStoreRetrievalSource 
     @Override
     protected Content doGetContent(ContentItem item, RetrievalListener listener) {
         log.debug("enter doGetContent: {}", item);
+
         if (null != item && chunkUtil.isChunk(item.getContentId())) {
             StringBuilder msg = new StringBuilder();
             msg.append("Unexpected content item: ");
@@ -117,6 +118,7 @@ public class DuraStoreStitchingRetrievalSource extends DuraStoreRetrievalSource 
                     }
                 }
             };
+
             return stitcher.getContentFromManifest(item.getSpaceId(),
                                                    item.getContentId(),
                                                    fileStitcherListener);
