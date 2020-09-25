@@ -391,7 +391,7 @@ ul.dc-user-config > li:last-child {
 
 .footer .sep
 {
-	color:#47c1ff;
+	color:#272727;
 }
 
 .hint
@@ -612,8 +612,8 @@ input.dc-check-all
 .outer,
 .outer a
 {
-	color:#4c4c4c;
-	font-size:11px;
+	color:#2c2c2c;
+	font-size:14px;
 }
 
 .outer .icon-link:hover
@@ -918,7 +918,7 @@ span.label,
 
 .provider-widget li a
 {
-	color:#56ffff;
+	color:#ffffff;
 	cursor:pointer;
 	display:block;
 	font-size:11px;
