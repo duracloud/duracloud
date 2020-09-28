@@ -95,7 +95,9 @@ public class StatusManager {
         return failed;
     }
 
-    public long getMissing() { return missing; }
+    public long getMissing() {
+        return missing;
+    }
 
     public void setVersion(String version) {
         this.version = version;

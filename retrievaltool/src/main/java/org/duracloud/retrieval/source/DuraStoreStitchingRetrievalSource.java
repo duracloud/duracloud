@@ -7,7 +7,6 @@
  */
 package org.duracloud.retrieval.source;
 
-import java.text.MessageFormat;
 import java.util.List;
 
 import org.duracloud.chunk.manifest.ChunksManifest;
