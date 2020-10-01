@@ -46,8 +46,8 @@ a.button:hover, button:hover {
 }
 
 a.button[disabled], button[disabled] {
-  background-color: #777; 
-  color: #EEE;
+  background-color: #595959;
+  color: #FFF;
 }
 
 a.button[disabled]:hover, button[disabled]:hover {
@@ -138,8 +138,7 @@ ul.global-errors, input.error  {
 }
 
 #logo {
-	background: url("../image/logo_top_duracloud.png") no-repeat;
-	padding: 25px 0px 10px 110px; 
+	padding: 0px 10px 10px 0px;
 	font-size: 18px;
 	font-weight:bold;
 		
@@ -193,7 +192,7 @@ ul.global-errors, input.error  {
 }
 
 div.section > div.header {
-	background-color: #999;
+	background-color: #737373;
 	height: 20px;
 	border-radius: 5px 5px 0px 0px;
 	color: #FFF;
@@ -248,7 +247,7 @@ ul.button-bar li {
 
 #recent-activity, #active-syncs-table{
 	height: 100px;
-	border: 1px solid #999;
+	border: 1px solid #737373;
 	overflow-y:auto;
 }
 
@@ -322,6 +321,7 @@ ul.button-bar li {
 }
 
 #status-indicator > div:last-child {
+    color: #000;
 	text-align: right;
 }
 

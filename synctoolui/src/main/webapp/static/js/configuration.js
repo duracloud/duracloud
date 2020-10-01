@@ -57,7 +57,6 @@ $(function() {
                         },
                         position : "top",
                         autoOpen : false,
-                        closeText : "",
                         width : "500px"
 
                     });
@@ -101,7 +100,6 @@ $(function() {
                 },
                 position : "top",
                 autoOpen : false,
-                closeText : "",
                 width : "500px"
 
             });
@@ -138,7 +136,6 @@ $(function() {
                         },
                         position : "top",
                         autoOpen : false,
-                        closeText : "",
                         width : "500px"
 
                     });

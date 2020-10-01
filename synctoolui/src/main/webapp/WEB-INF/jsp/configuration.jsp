@@ -23,13 +23,15 @@
               </span>
               <ul class="button-bar">
                 <li>
-                  <a id="add" class="button">Add</a>
+                  <a id="add" class="button">
+                    <spring:message code="add"/>
+                  </a>
                 </li>
               </ul>
               
             </div>
             <div class="body">
-              <table id="directories" >
+              <table id="directories" role="presentation">
                 <tbody>
                   <c:choose>
                     <c:when test="${not empty directoryConfigs}">
@@ -79,7 +81,7 @@
 
             </div>
             <div class="body">
-              <table>
+              <table role="presentation">
                 <tr>
                   <td><spring:message code="host"/></td>
                   <td>${duracloudConfiguration.host}</td>
@@ -152,14 +154,14 @@
                   modelAttribute="prefixForm"
                   action="${pageContext.request.contextPath}/configuration/prefix">
 
-                    <label >Optionally specify a prefix that is added to the beginning of
+                    <label for="prefix">Optionally specify a prefix that is added to the beginning of
                                 the ID of each content item that is stored
                                 in DuraCloud. For example, a prefix value
                                 of 'a/b/c/' with a content item whose path
                                 is 'dir1/file.txt' would result in the
                                 file stored in DuraCloud as
-                                'a/b/c/dir1/file.txt </label>
-                    <form:input  size="50%" placeholder="your/directory/path/here" path="prefix"/>
+                                'a/b/c/dir1/file.txt'</label>
+                    <form:input size="50%" placeholder="your/directory/path/here" path="prefix"/>
                 </form:form>
               </fieldset>
               <fieldset>
@@ -169,7 +171,7 @@
                   modelAttribute="maxFileSizeForm"
                   action="${pageContext.request.contextPath}/configuration/max-file-size">
 
-                    <label >The maximum size of a stored file in GB.</label>
+                    <label for="maxFileSizeInGB">The maximum size of a stored file in GB.</label>
                     <form:select path="maxFileSizeInGB">
                         <c:forEach items="${maxFileSizeForm.values}" var="val">
                             <form:option value="${val}">${val} GB</form:option>
