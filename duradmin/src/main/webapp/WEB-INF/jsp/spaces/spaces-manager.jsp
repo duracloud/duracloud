@@ -165,8 +165,8 @@
               </div>
               <div class="header-section">
                 <span class="float-r">
-                <label for="space-filter">Filter</label>
                 <input
+                  aria-label="Filter"
                   id="space-filter"
                   class="dc-item-list-filter "
                   value=""
@@ -221,14 +221,16 @@
                 <h2>Content Items</h2>
               </div>
               <div class="header-section">
-                <span class="float-r"><label for="content-item-filter">Prefix</label> <input
+                <input
                   id="content-item-filter"
+                  aria-label="Prefix"
                   class="dc-item-list-filter"
                   value=""
                   placeholder="type prefix"
                   type="text" /> </span> <input
                   id="check-all-content-items"
                   class="dc-check-all"
+
                   type="checkbox" /> <label for="check-all-content-items">Check all</label> | <span
                   id="content-item-list-status"
                   class="dc-status"></span> <span

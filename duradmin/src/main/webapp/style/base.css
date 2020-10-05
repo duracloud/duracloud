@@ -172,6 +172,7 @@ body > #page-header
 	font-style:italic;
 	padding:2px;
 	width:143px;
+	float: right;
 }
 
 .dc-item-list-wrapper
@@ -234,6 +235,10 @@ body > #page-header
 	width:130px;
 }
 
+#space-filter {
+    width: 100px;
+}
+
 .item-scroll-action:hover {
 	color:#EEE;
 	font-weight:bold;
@@ -292,7 +297,6 @@ body > #page-header
 #spaces-list-view-resizer
 {
 	background-color:#4F4F4F;
-	border-top:1px solid #828282;
 }
 
 #list-browser-resizer
