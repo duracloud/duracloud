@@ -123,10 +123,6 @@ public class RetrievalWorker implements Runnable {
                 succeed(localFile.getAbsolutePath());
             }
         } catch (MissingContentException mce) {
-            logger.error("The remote file " +
-                         contentItem.getContentId() + " does not exist." +
-                         localFile.getAbsolutePath() + ": " + mce.getMessage(), mce);
-
             missing(mce.getMessage());
             throw mce;
         } catch (Throwable e) {

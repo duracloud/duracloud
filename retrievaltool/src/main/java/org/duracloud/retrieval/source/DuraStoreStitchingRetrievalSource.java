@@ -131,8 +131,6 @@ public class DuraStoreStitchingRetrievalSource extends DuraStoreRetrievalSource 
                     msg.append(item);
                     msg.append(dse.getMessage());
 
-                    log.error(msg.toString());
-
                     throw new MissingContentException(msg.toString(), dse);
                 }
             } catch (ContentStoreException e) {
