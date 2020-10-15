@@ -28,6 +28,7 @@ public class CSVFileOutputWriter implements OutputWriter {
 
     protected static final String SUCCESS = "success";
     protected static final String FAILURE = "failure";
+    protected static final String MISSING = "missing";
     protected static final String OUTPUT_PREFIX = "retrieval-tool-output-";
 
     private PrintWriter writer;
@@ -81,6 +82,22 @@ public class CSVFileOutputWriter implements OutputWriter {
         result.append(quote(contentItem.getContentId())).append(",");
         result.append("none").append(",");
         result.append(quote(error)).append(",");
+        result.append(attempts).append(",");
+        result.append(DATE_FORMAT.format(new Date()));
+        writer.println(result.toString());
+        writer.flush();
+    }
+
+    @Override
+    public void writeMissing(ContentItem contentItem,
+                             String message,
+                             int attempts) {
+        StringBuilder result = new StringBuilder();
+        result.append(MISSING).append(",");
+        result.append(contentItem.getSpaceId()).append(",");
+        result.append(quote(contentItem.getContentId())).append(",");
+        result.append("none").append(",");
+        result.append(quote(message)).append(",");
         result.append(attempts).append(",");
         result.append(DATE_FORMAT.format(new Date()));
         writer.println(result.toString());

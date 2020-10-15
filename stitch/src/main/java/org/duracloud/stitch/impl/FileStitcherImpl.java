@@ -27,6 +27,7 @@ import org.duracloud.domain.Content;
 import org.duracloud.stitch.FileStitcher;
 import org.duracloud.stitch.FileStitcherListener;
 import org.duracloud.stitch.datasource.DataSource;
+import org.duracloud.stitch.error.DataSourceException;
 import org.duracloud.stitch.error.InvalidManifestException;
 import org.duracloud.stitch.stream.MultiContentInputStream;
 import org.duracloud.stitch.stream.MultiContentInputStreamListener;
@@ -51,7 +52,7 @@ public class FileStitcherImpl implements FileStitcher {
 
     @Override
     public Content getContentFromManifest(String spaceId, String contentId, FileStitcherListener listener)
-        throws InvalidManifestException {
+        throws InvalidManifestException, DataSourceException {
         log.debug("getContentFromManifest({}, {})", spaceId, contentId);
 
         // verify contentId corresponds to the manifest naming convention.

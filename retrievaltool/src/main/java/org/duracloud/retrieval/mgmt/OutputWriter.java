@@ -31,6 +31,10 @@ public interface OutputWriter {
                              String error,
                              int attempts);
 
+    public void writeMissing(ContentItem contentItem,
+                             String message,
+                             int attempts);
+
     public void close();
 
 }

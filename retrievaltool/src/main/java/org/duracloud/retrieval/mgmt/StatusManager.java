@@ -26,6 +26,7 @@ public class StatusManager {
     private long noChange;
     private long succeeded;
     private long failed;
+    private long missing;
     private String startTime;
     private String version;
 
@@ -50,6 +51,7 @@ public class StatusManager {
         noChange = 0;
         succeeded = 0;
         failed = 0;
+        missing = 0;
         startTime = DATE_FORMAT.format(new Date());
     }
 
@@ -72,6 +74,11 @@ public class StatusManager {
         inWork--;
     }
 
+    public synchronized void missingCompletion() {
+        missing++;
+        inWork--;
+    }
+
     public long getInWork() {
         return inWork;
     }
@@ -86,6 +93,10 @@ public class StatusManager {
 
     public long getFailed() {
         return failed;
+    }
+
+    public long getMissing() {
+        return missing;
     }
 
     public void setVersion(String version) {
@@ -104,6 +115,7 @@ public class StatusManager {
         status.append("Successful Retrievals: " + getSucceeded() + "\n");
         status.append("No Change Needed: " + getNoChange() + "\n");
         status.append("Failed Retrievals: " + getFailed() + "\n");
+        status.append("Missing files: " + getMissing() + "\n");
         status.append("--------------------------------------\n");
         return status.toString();
     }

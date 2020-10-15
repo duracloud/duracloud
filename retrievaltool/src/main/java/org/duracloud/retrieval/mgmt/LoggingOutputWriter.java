@@ -22,6 +22,7 @@ public class LoggingOutputWriter implements OutputWriter {
 
     protected static final String SUCCESS = "RETRIEVED";
     protected static final String FAILURE = "FAILED";
+    protected static final String MISSING = "MISSING";
 
     @Override
     public void writeSuccess(ContentItem contentItem, String localFilePath,
@@ -40,6 +41,13 @@ public class LoggingOutputWriter implements OutputWriter {
         log.info(format(new Object[] {
             FAILURE, contentItem.getSpaceId(), contentItem.getContentId(),
             "attempts:" + attempts, "error:" + error}));
+    }
+
+    @Override
+    public void writeMissing(ContentItem contentItem, String message, int attempts) {
+        log.info(format(new Object[] {
+            MISSING, contentItem.getSpaceId(), contentItem.getContentId(),
+            "attempts:" + attempts, "message:" + message}));
     }
 
     @Override
