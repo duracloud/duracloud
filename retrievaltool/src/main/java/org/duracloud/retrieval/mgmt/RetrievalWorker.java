@@ -124,7 +124,6 @@ public class RetrievalWorker implements Runnable {
             }
         } catch (MissingContentException mce) {
             missing(mce.getMessage());
-            throw mce;
         } catch (Throwable e) {
             logger.error("Exception retrieving remote file " +
                          contentItem.getContentId() + " as local file " +
@@ -344,16 +343,14 @@ public class RetrievalWorker implements Runnable {
                        " after " + attempts +
                        " attempts. Last error message was: " + errMsg;
         logger.error(error);
-        System.err.println(error);
         outWriter.writeFailure(contentItem, error, attempts);
         statusManager.failedCompletion();
     }
 
     protected void missing(String msg) {
         String message = "Unable to retrieve " + contentItem.toString() +
-                       " because it doesn't exist in the space.";
-        logger.warn(message);
-        System.err.println(message);
+                         " because it doesn't exist in the space.";
+        logger.error(message);
         outWriter.writeMissing(contentItem, message, attempts);
         statusManager.missingCompletion();
     }
