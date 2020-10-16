@@ -180,8 +180,8 @@
                   <input
                   id="check-all-spaces"
                   class="dc-check-all"
-                  type="checkbox" />
-                  <label for="check-all-spaces">Check all</label>
+                  type="checkbox"
+                  aria-label="Check all"/>
                 </c:if>
                 <span
                   id="space-list-status"
@@ -231,7 +231,7 @@
                   id="check-all-content-items"
                   class="dc-check-all"
 
-                  type="checkbox" /> <label for="check-all-content-items">Check all</label> | <span
+                  type="checkbox" aria-label="Check all" /> <span
                   id="content-item-list-status"
                   class="dc-status"></span> <span
                   id="content-item-list-controls"
