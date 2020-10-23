@@ -8,7 +8,7 @@ notifications:
       - cibuilds@duracloud.org
     on_success: change
     on_failure: always
-  slack: duraspace:vOBySuKUwM95j2kfbwh0SNxq
+  slack: lyrasis:ctcQAEKjVcDFe9bTyMfH6PtI
 before_install:
   - chmod +x resources/travis/*.sh
   - ./resources/travis/before-install.sh
