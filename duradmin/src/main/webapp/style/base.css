@@ -156,7 +156,7 @@ body > #page-header
 
 .list-browser
 {
-	background:#6e6e6e url(../images/bg_list_browser_header.gif) no-repeat top right;
+	background:#4F4F4F no-repeat top right;
 }
 
 .ui-layout-pane-west
@@ -166,12 +166,13 @@ body > #page-header
 
 .dc-item-list-filter
 {
-	background-color:#6E6E6E;
+	background-color:#4F4F4F;
 	border:1px solid #999;
 	color:#ccc;
 	font-style:italic;
 	padding:2px;
 	width:143px;
+	float: right;
 }
 
 .dc-item-list-wrapper
@@ -179,7 +180,7 @@ body > #page-header
 	background-color:#cbcbcb;
 	border:1px solid #595959;
 	border-top-color:#333;
-	border-bottom-color:#6e6e6e;
+	border-bottom-color:#4F4F4F;
 	color:#000;
 	min-width:250px !important;
 	overflow:auto;
@@ -232,6 +233,10 @@ body > #page-header
 #content-item-list-view .list-header .button span
 {
 	width:130px;
+}
+
+#space-filter {
+    width: 100px;
 }
 
 .item-scroll-action:hover {
@@ -291,8 +296,7 @@ body > #page-header
 
 #spaces-list-view-resizer
 {
-	background-color:#6e6e6e;
-	border-top:1px solid #828282;
+	background-color:#4F4F4F;
 }
 
 #list-browser-resizer
@@ -391,7 +395,7 @@ ul.dc-user-config > li:last-child {
 
 .footer .sep
 {
-	color:#47c1ff;
+	color:#272727;
 }
 
 .hint
@@ -591,6 +595,7 @@ input.dc-check-all
 {
 	background-image:url(../images/logo_top_duracloud.png);
 	width:110px;
+	color: transparent;
 }
 
 #page-header #dc-app-title
@@ -611,8 +616,8 @@ input.dc-check-all
 .outer,
 .outer a
 {
-	color:#4c4c4c;
-	font-size:11px;
+	color:#2c2c2c;
+	font-size:14px;
 }
 
 .outer .icon-link:hover
@@ -670,7 +675,7 @@ input.dc-check-all
 
 h2,.footer-prompt
 {
-    color:#999999;
+    color:#F0F0F0;
 }
 
 .footer-prompt {
@@ -711,7 +716,7 @@ h2,.footer-prompt
 {
 	background:url(../images/bg_segment_header.gif) repeat-x top left;
 	border-bottom:1px solid #333;
-	color:#999;
+	color:#DBDBDB;
 	cursor:pointer;
 	font-size:13px;
 	height:28px;
@@ -917,7 +922,7 @@ span.label,
 
 .provider-widget li a
 {
-	color:#56ffff;
+	color:#ffffff;
 	cursor:pointer;
 	display:block;
 	font-size:11px;
@@ -1277,6 +1282,7 @@ table.dc-acls td:last-child {
 
 .object-name {
 	white-space: nowrap;
+	margin-bottom: 10px !important;
 }
 
 button#enable-streaming {

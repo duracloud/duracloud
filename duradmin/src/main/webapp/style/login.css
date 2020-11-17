@@ -17,7 +17,7 @@
     text-decoration: none;
     margin-top: 10px;
     margin-right: 12px;
-    font-size: 0.85em;
+    font-size: 14px;
 }
 
 #login-links a
@@ -87,6 +87,7 @@
 	color:#fff !important;
 	height:28px;
 	line-height:25px;
+	font-size: 14px;
 }
 
 
@@ -112,7 +113,7 @@
 
 #login-content label
 {
-	width:100px;
+    text-align: right;
 }
 
 #login-content .form-fields .field

@@ -27,7 +27,7 @@
             this.element.addClass("history-panel");
             var content = this.getContent();
             
-            content.append("<h6 class='summaries-title'>Cumulative Byte and File Counts Over Time</h6>");
+            content.append("<h3 class='summaries-title'>Cumulative Byte and File Counts Over Time</h3>");
             content.append(that._createDiv(this._SUMMARIES_GRAPH_ELEMENT));
             content.append(that._createDiv("summaries-legend"));
             content.append(that._createDiv(this._DETAIL_GRAPH_ELEMENT));

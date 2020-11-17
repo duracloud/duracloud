@@ -55,11 +55,11 @@ button,
 button,
 .button
 {	
-	background-color:#515151;
-	background: -moz-linear-gradient(top, #797979, #515151);
-	background: -webkit-gradient(linear, left top, left bottom, from(#797979), to(#515151)); 	/* For WebKit (Safari, Google Chrome etc) */
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF797979, endColorstr=#FF515151); /* For Internet Explorer 5.5 - 7 */
-	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF797979, endColorstr=#FF515151)";	/* For Internet Explorer 8 */
+	background-color:#313131;
+	background: -moz-linear-gradient(top, #595959, #313131);
+	background: -webkit-gradient(linear, left top, left bottom, from(#595959), to(#313131)); 	/* For WebKit (Safari, Google Chrome etc) */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF595959, endColorstr=#FF313131); /* For Internet Explorer 5.5 - 7 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF59595, endColorstr=#FF313131)";	/* For Internet Explorer 8 */
 	cursor:pointer;
 	height:25px;
 	margin-right:2px !important;
@@ -94,7 +94,7 @@ button.primary,
 	background: -webkit-gradient(linear, left top, left bottom, from(#37a9de), to(#2375b2)); 	/* For WebKit (Safari, Google Chrome etc) */
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF37a9de, endColorstr=#FF2375b2); /* For Internet Explorer 5.5 - 7 */
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF37a9de, endColorstr=#FF2375b2)";	/* For Internet Explorer 8 */
-	color:#56ffff !important;
+	color:#ffffff !important;
     width:122px;
 }
 
@@ -193,7 +193,10 @@ span.switch i.post
 	padding-right:5px;
 }
 
-.icon-only .pre { margin-right:0; }
+.icon-only .pre {
+    margin-right:0;
+    color: transparent;
+}
 
 
 /* SWTICHES *****************************************************/

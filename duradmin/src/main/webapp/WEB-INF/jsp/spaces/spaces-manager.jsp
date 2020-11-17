@@ -164,7 +164,9 @@
                 <h2>Spaces</h2>
               </div>
               <div class="header-section">
-                <span class="float-r"><input
+                <span class="float-r">
+                <input
+                  aria-label="Filter"
                   id="space-filter"
                   class="dc-item-list-filter "
                   value=""
@@ -178,7 +180,8 @@
                   <input
                   id="check-all-spaces"
                   class="dc-check-all"
-                  type="checkbox" />
+                  type="checkbox"
+                  aria-label="Check all"/>
                 </c:if>
                 <span
                   id="space-list-status"
@@ -218,15 +221,17 @@
                 <h2>Content Items</h2>
               </div>
               <div class="header-section">
-                <span class="float-r"> <input
+                <input
                   id="content-item-filter"
+                  aria-label="Prefix"
                   class="dc-item-list-filter"
                   value=""
                   placeholder="type prefix"
                   type="text" /> </span> <input
                   id="check-all-content-items"
                   class="dc-check-all"
-                  type="checkbox" /> <span
+
+                  type="checkbox" aria-label="Check all" /> <span
                   id="content-item-list-status"
                   class="dc-status"></span> <span
                   id="content-item-list-controls"
@@ -284,7 +289,7 @@
           style="display: none">
           <div class="north header">
             <h1>Space Detail</h1>
-            <h3 class="object-name">Space Name Here</h3>
+            <h2 class="object-name">Space Name Here</h2>
             <div class="button-bar">
               <!--
                             <button class="featured add-content-item-button"><i class="pre plus"></i>Add One Item</button>
@@ -416,12 +421,12 @@
           style="display: none">
           <div class="north header">
             <h1>Content Detail</h1>
-            <h3>
+            <h2>
               <a
                 class="durastore-link"
                 title="Links directly to content in DuraStore. This link will be publicly available only when the space is 'Open'.">
                 <span class="object-name">Object Name here</span> </a>
-            </h3>
+            </h2>
             <div
               class="mime-type"
               id="mime-image">
@@ -484,7 +489,7 @@
                     for="spacename">Space ID</label><input
                     type="text"
                     name="spaceId"
-                    id="spaceId"
+                    id="spacename"
                     class="field" />
                   </li>
                   <li class="row clearfix"><label for="publicFlag">Public
@@ -520,10 +525,10 @@
               <fieldset>
                 <ul>
                   <li class="row clearfix first-of-type"><label
-                    for="spacename">Space Name</label><input
+                    for="spaceName">Space Name</label><input
                     type="text"
                     name="spaceId"
-                    id="spaceId"
+                    id="spaceName"
                     class="field" />
                   </li>
                 </ul>
@@ -560,17 +565,17 @@
               <fieldset>
                 <ul>
                   <li class="row clearfix first-of-type"><label
-                    for="contentId">Item Id</label><input
+                    for="addContentId">Item Id</label><input
                     type="text"
                     name="contentId"
-                    id="contentId"
+                    id="addContentId"
                     class="field" />
                   </li>
-                  <li class="row clearfix"><label for="contentMimetype">Mime
+                  <li class="row clearfix"><label for="addContentMimetype">Mime
                       Type</label><input
                     type="text"
                     name="contentMimetype"
-                    id="contentMimetype"
+                    id="addContentMimetype"
                     class="field" />
                   </li>
                   <li class="row clearfix"><label for="file">File</label><input
@@ -610,7 +615,7 @@
 
               <fieldset>
                 <ul>
-                  <li class="row clearfix"><label for="mimetype">Description</label>
+                  <li class="row clearfix"><label for="description">Description</label>
                   <textarea cols="50" rows="5"
                     name="description"
                     id="description"
@@ -647,11 +652,11 @@
               <fieldset>
 
                 <ul>
-                  <li class="row clearfix"><label for="mimetype">Mime
+                  <li class="row clearfix"><label for="editContentMimetype">Mime
                       Type</label><input
                     type="text"
                     name="contentMimetype"
-                    id="contentMimetype"
+                    id="editContentMimetype"
                     class="field" />
                   </li>
                 </ul>
@@ -701,15 +706,15 @@
                     </select></li>
                   </c:if>
 
-                  <li class="row clearfix"><label for="spaceId">Space</label>
+                  <li class="row clearfix"><label for="copySpaceId">Space</label>
                     <select
-                    id="spaceId"
+                    id="copySpaceId"
                     name="spaceId"></select></li>
-                  <li class="row clearfix"><label for="contentId">Content
+                  <li class="row clearfix"><label for="copyContentId">Content
                       Name</label> <input
                     type="text"
                     name="contentId"
-                    id="contentId"
+                    id="copyContentId"
                     class="field"
                     style="width: 325px" /></li>
                   <li class="row clearfix"><label for="deleteAfterCopy">Delete

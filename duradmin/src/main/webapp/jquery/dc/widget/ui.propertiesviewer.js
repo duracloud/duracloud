@@ -16,6 +16,7 @@ $.widget("ui.propertiesviewer",
 				if(form.children().length == 0){
 					form = $(document.createElement("form"));
 					var table = $(document.createElement("table"));
+					table.attr("role", "presentation");
 					form.append(table);
 					this.getContent().prepend(form);
 					
@@ -163,13 +164,13 @@ $.widget("ui.propertiesviewer",
 				controls.append(
 					$(document.createElement("td"))
 						.addClass("name")
-						.html("<div><input name='name' type='text' placeholder='[name]' class='name-txt' size='20'/></div>")
+						.html("<div><label for='name'>Name </label><input id='name' name='name' type='text' placeholder='[name]' class='name-txt' size='20'/></div>")
 				);
 
 				controls.append(
 						$(document.createElement("td"))
 							.addClass("value")
-							.html("<div><input name='value' type='text' placeholder='[value]' class='value-txt' size='20'/><input type='button' value='+'/><div class='dc-expando-status'></div></div>")
+							.html("<div><label for='value'>Value </label><input id='value' name='value' type='text' placeholder='[value]' class='value-txt' size='20'/><input type='button' value='Add'/><div class='dc-expando-status'></div></div>")
 					);
 				
 				return controls;

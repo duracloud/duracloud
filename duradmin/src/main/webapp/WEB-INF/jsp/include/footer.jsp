@@ -1,5 +1,5 @@
 <div class="float-r" id="logo-ds"></div>
-Duracloud Administrator Release v${project.version} rev:${buildNumber} <span class="sep">|</span>
+DuraCloud Administrator v${project.version} rev:${buildNumber} <span class="sep">|</span>
 &copy;<script type="text/javascript">document.write(new Date().getFullYear());</script>
 
 <jsp:useBean id="duradminConfig"

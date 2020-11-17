@@ -116,7 +116,9 @@ $.widget("ui.tabularexpandopanel",
 				$("."+tableClass, this.element).remove();
 				if(data != null){
 					var table = dc.createTable(data, ["label", "value"]);
-					$(table).addClass(tableClass);
+					$(table).addClass(tableClass)
+					        .attr("role", "presentation");
+
 					this.append(table);
 				}
 

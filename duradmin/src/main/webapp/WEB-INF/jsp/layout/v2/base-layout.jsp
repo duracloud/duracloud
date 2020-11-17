@@ -2,7 +2,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <div id="page-header" class="outer">
 	<div id="left" class="float-l">
-		<div id="dc-logo-panel"><a href="/duradmin/spaces" id="dc-logo"></a></div>
+		<div id="dc-logo-panel"><a href="/duradmin/spaces" id="dc-logo">DURACLOUD</a></div>
 		<div id="dc-tabs-panel">
 		    <ul class="horizontal-list dc-main-tabs flex clearfix">
 		    	<tiles:importAttribute name="mainTab" />
@@ -15,7 +15,7 @@
 		</div>
 	</div>	
 	<div id="right" class="float-r">
-		<img class="float-r" id="dc-partner-logo" src="/duradmin/partnerlogo"/>
+		<img class="float-r" id="dc-partner-logo" src="/duradmin/partnerlogo" alt="Partner Logo"/>
 		<div id="dc-user" class="float-r">
       ${pageContext.request.userPrincipal.name}
       <ul
@@ -57,7 +57,7 @@
 	</div>
 </div>
 <div id="message-dialog" class="dialog" style="display:none">
-	<h2 id="message-dialog-title"></h2>
+	<h2 id="message-dialog-title">title</h2>
 	<div id="message-dialog-content">
 	
 	</div>

@@ -22,10 +22,9 @@
 		<form id="loginForm" action="${pageContext.request.contextPath}/login"  method="post" onsubmit="return false;" >
 			<div id="login-wrapper">
 				<div id="login-header" class="outer clearfix">
-					<div id="dc-logo-panel"><a href="/duradmin/spaces" id="dc-logo"></a></div>
+					<div id="dc-logo-panel"><a href="/duradmin/spaces" id="dc-logo"><img src="images/logo_top_duracloud_lg.png" alt="DURACLOUD"/></a></div>
 				</div>
 				<div id="login-content" class="pane-L1-body clearfix">
-					<h1 id="title" class="float-l">Login</h1>
 					<div id="form-fields" class="form-fields float-r">
 						<div id="msg-error" class="error" style="display:none">Username/Password combination not valid. Please try again.</div>
 

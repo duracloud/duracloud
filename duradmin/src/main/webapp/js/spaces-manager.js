@@ -1404,7 +1404,7 @@ $(function() {
 
       listBrowserLayout = $('#' + that._listBrowserId).layout({
         enableCursorHotkey : false,
-        west__size : 350,
+        west__size : 290,
         west__minSize : 260,
         west__paneSelector : "#" + that._spacesListViewId,
         center__paneSelector : "#" + that._contentItemListViewId,
@@ -1855,7 +1855,7 @@ $(function() {
       var that = this, node, actions, content, deleteButton, copyButton;
       actions = $.fn.create("div");
       copyButton = $("<button title='copy content item' class='copy-button icon-only'>" +
-                     "<i class='pre copy'></i>" +
+                     "<i class='pre copy'>Copy</i>" +
                      "</button>")
                      .click(function(evt) {
                         evt.stopPropagation();
@@ -1868,7 +1868,7 @@ $(function() {
 
       if (!readOnly) {
         deleteButton = $("<button title='delete content item' class='delete-space-button icon-only'>" +
-                         "<i class='pre trash'></i>" + "</button>")
+                         "<i class='pre trash'>Delete</i>" + "</button>")
                          .click(function(evt) {
                            that._deleteContentItem(evt, contentItem);
                          });
@@ -2368,7 +2368,7 @@ $(function() {
     },
 
     _setObjectName : function(name) {
-      $(".object-name", this.element).empty().prepend(name).attr("title", name);
+      $(".object-name", this.element).empty().prepend(name);
     },
 
     _getStoreId : function() {
