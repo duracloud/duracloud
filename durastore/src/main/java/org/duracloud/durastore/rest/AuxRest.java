@@ -71,7 +71,7 @@ public class AuxRest extends BaseRest {
             for (String cookieKey : cookies.keySet()) {
                 responseCookies.add(new NewCookie(cookieKey,
                                                   cookies.get(cookieKey),
-                                                  "/",
+                                                  "/;SameSite=None",
                                                   streamingHost,
                                                   "Supports HLS",
                                                   -1,
