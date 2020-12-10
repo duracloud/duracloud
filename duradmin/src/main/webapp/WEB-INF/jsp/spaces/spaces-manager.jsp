@@ -485,11 +485,12 @@
               class="form-fields">
               <fieldset>
                 <ul>
-                  <li class="row clearfix first-of-type"><label
-                    for="spacename">Space ID</label><input
+                  <li class="row clearfix first-of-type"><label id="spaceIdLbl"
+                    for="spaceId">Space ID</label><input
                     type="text"
                     name="spaceId"
-                    id="spacename"
+                    id="spaceId"
+                    aria-labelledby="spaceIdLbl"
                     class="field" />
                   </li>
                   <li class="row clearfix"><label for="publicFlag">Public
@@ -706,15 +707,14 @@
                     </select></li>
                   </c:if>
 
-                  <li class="row clearfix"><label for="copySpaceId">Space</label>
-                    <select
-                    id="copySpaceId"
-                    name="spaceId"></select></li>
-                  <li class="row clearfix"><label for="copyContentId">Content
+                  <li class="row clearfix"><label for="spaceId" id="copySpaceIdLbl">Space</label>
+                    <select id="spaceId" name="spaceId" aria-labelledby="copySpaceIdLbl"></select></li>
+                  <li class="row clearfix"><label for="contentId" id="copyContentIdLbl">Content
                       Name</label> <input
                     type="text"
                     name="contentId"
-                    id="copyContentId"
+                    id="contentId"
+                    aria-labelledby="copyContentIdLbl"
                     class="field"
                     style="width: 325px" /></li>
                   <li class="row clearfix"><label for="deleteAfterCopy">Delete
