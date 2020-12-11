@@ -2,6 +2,8 @@
 # DuraCloud Sync Tool
 #####################################
 
+Note:  This tool requires Java 11 both to build and run.
+
 1. To build and run the application run:
 
  mvn clean jetty:run
