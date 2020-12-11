@@ -4,14 +4,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>common-cli</artifactId>
-  <version>6.2.0</version>
+  <version>6.2.1</version>
   <name>DuraCloud Common Command Line Helpers</name>
   <description>Some useful framework classes for building commandline tools</description>
 
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>6.2.0</version>
+    <version>6.2.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

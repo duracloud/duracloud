@@ -5,14 +5,14 @@
   <groupId>org.duracloud</groupId>
   <artifactId>ROOT</artifactId>
   <packaging>war</packaging>
-  <version>6.2.0</version>
+  <version>6.2.1</version>
   <name>DuraCloud Rewrite War</name>
   <url>http://localhost:8080/${project.artifactId}</url>
 
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>6.2.0</version>
+    <version>6.2.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

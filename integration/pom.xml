@@ -6,13 +6,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>integration</artifactId>
   <packaging>jar</packaging>
-  <version>6.2.0</version>
+  <version>6.2.1</version>
   <name>Integration</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>6.2.0</version>
+    <version>6.2.1</version>
   </parent>
 
   <profiles>
