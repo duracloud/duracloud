@@ -10,6 +10,7 @@ package org.duracloud.common.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class DateUtil {
 
@@ -29,7 +30,7 @@ public class DateUtil {
         private final SimpleDateFormat format;
 
         DateFormat(String pattern) {
-            this.format = new SimpleDateFormat(pattern);
+            this.format = new SimpleDateFormat(pattern, Locale.ENGLISH);
             this.format.setLenient(false);
         }
 
