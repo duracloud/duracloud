@@ -18,7 +18,10 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.net.InetAddresses;
+import org.apache.commons.lang3.StringUtils;
 import org.duracloud.common.constant.Constants;
+import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.s3storage.StringDataStore;
 import org.duracloud.s3storage.StringDataStoreFactory;
 import org.duracloud.s3storageprovider.dto.SignedCookieData;
@@ -83,7 +86,20 @@ public class AuxRest extends BaseRest {
             String html = "<html><head><meta http-equiv='refresh' content='0;URL=\"" +
                           redirectUrl + "\"' /></head></html>";
 
+            // Capture the originating host from the request,
+            // pass it back in the CORS header in the response, defaults to "*"
+            String origin = "*";
+            String requestingHost = request.getHeader(HttpHeaders.X_FORWARDED_FOR);
+            if (StringUtils.isEmpty(requestingHost)) {
+                requestingHost = request.getRemoteHost();
+            }
+            if (!InetAddresses.isInetAddress(requestingHost) && // Use only hosts, not IPs
+                !StringUtils.isEmpty(requestingHost)) {
+                origin = "https://" + requestingHost;
+            }
+
             return Response.ok(html, MediaType.TEXT_HTML_TYPE)
+                           .header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
                            .cookie(responseCookies.toArray(new NewCookie[responseCookies.size()])).build();
         } catch (Exception e) {
             return responseBad(e);

@@ -21,10 +21,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import com.google.common.net.InetAddresses;
-import org.apache.commons.lang3.StringUtils;
 import org.duracloud.StorageTaskConstants;
-import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.util.SerializationUtil;
@@ -142,18 +139,7 @@ public class TaskRest extends BaseRest {
     private Response responseOk(String msg, String text) {
         log.debug(msg);
 
-        // Capture the host from the request to use with CORS header in response, defaults to "*"
-        String origin = "*";
-        String requestingHost = request.getHeader(HttpHeaders.X_FORWARDED_FOR);
-        if (StringUtils.isEmpty(requestingHost)) {
-            requestingHost = request.getRemoteHost();
-        }
-        if (!InetAddresses.isInetAddress(requestingHost) && // Don't use an IP
-            !StringUtils.isEmpty(requestingHost)) {
-            origin = "https://" + requestingHost;
-        }
-
-        return Response.ok(text, TEXT_PLAIN).header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin) .build();
+        return Response.ok(text, TEXT_PLAIN).build();
     }
 
     private Response responseOkXml(String msg, String text) {

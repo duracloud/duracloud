@@ -14,9 +14,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
+import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.s3storage.StringDataStore;
 import org.duracloud.s3storage.StringDataStoreFactory;
 import org.duracloud.s3storageprovider.dto.SignedCookieData;
@@ -45,6 +47,9 @@ public class AuxRestTest extends EasyMockSupport {
     private StringDataStoreFactory stringDataStoreFactory;
 
     @Mock
+    private HttpServletRequest request;
+
+    @Mock
     private StringDataStore stringDataStore;
 
     private String token = "token-uuid";
@@ -57,6 +62,7 @@ public class AuxRestTest extends EasyMockSupport {
             stringDataStore);
         this.auxRest = new AuxRest();
         this.auxRest.setStringDataStoreFactory(stringDataStoreFactory);
+        this.auxRest.request = request;
     }
 
     @After
@@ -78,7 +84,12 @@ public class AuxRestTest extends EasyMockSupport {
 
         String data = signedCookieData.serialize();
         expect(stringDataStore.retrieveData(token)).andReturn(data);
+
+        expect(request.getHeader(HttpHeaders.X_FORWARDED_FOR)).andReturn("");
+        expect(request.getRemoteHost()).andReturn("www.example.com");
+
         replayAll();
+
         Response response = this.auxRest.getCookies(token);
         assertEquals("200 response expected", 200, response.getStatus());
         assertEquals("2 cookies expected", 2, response.getCookies().size());
@@ -93,6 +104,8 @@ public class AuxRestTest extends EasyMockSupport {
         String html = response.getEntity().toString();
         assertTrue("response body must contain redirect url", html.contains("URL=\"" + myUrl + "\""));
         assertTrue("response must include refresh meta tag", html.contains("meta http-equiv='refresh'"));
+        assertEquals("https://www.example.com",
+                     response.getHeaders().get(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN).get(0));
     }
 
 }
