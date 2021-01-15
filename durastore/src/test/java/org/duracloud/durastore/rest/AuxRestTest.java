@@ -85,8 +85,7 @@ public class AuxRestTest extends EasyMockSupport {
         String data = signedCookieData.serialize();
         expect(stringDataStore.retrieveData(token)).andReturn(data);
 
-        expect(request.getHeader(HttpHeaders.X_FORWARDED_FOR)).andReturn("");
-        expect(request.getRemoteHost()).andReturn("www.example.com");
+        expect(request.getHeader(HttpHeaders.ORIGIN)).andReturn("https://www.example.com");
 
         replayAll();
 
