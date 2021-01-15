@@ -84,7 +84,6 @@ public class AuxRestTest extends EasyMockSupport {
 
         String data = signedCookieData.serialize();
         expect(stringDataStore.retrieveData(token)).andReturn(data);
-
         expect(request.getHeader(HttpHeaders.ORIGIN)).andReturn("https://www.example.com");
 
         replayAll();
@@ -103,6 +102,7 @@ public class AuxRestTest extends EasyMockSupport {
         String html = response.getEntity().toString();
         assertTrue("response body must contain redirect url", html.contains("URL=\"" + myUrl + "\""));
         assertTrue("response must include refresh meta tag", html.contains("meta http-equiv='refresh'"));
+        assertEquals(1, response.getHeaders().get(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN).size());
         assertEquals("https://www.example.com",
                      response.getHeaders().get(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN).get(0));
     }

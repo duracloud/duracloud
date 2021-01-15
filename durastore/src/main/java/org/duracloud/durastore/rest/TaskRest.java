@@ -138,7 +138,6 @@ public class TaskRest extends BaseRest {
 
     private Response responseOk(String msg, String text) {
         log.debug(msg);
-
         return Response.ok(text, TEXT_PLAIN).build();
     }
 
