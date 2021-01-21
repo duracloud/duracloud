@@ -95,6 +95,7 @@ public class AuxRest extends BaseRest {
 
             return Response.ok(html, MediaType.TEXT_HTML_TYPE)
                            .header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
+                           .header(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true")
                            .header(HttpHeaders.VARY, HttpHeaders.ORIGIN)
                            .cookie(responseCookies.toArray(new NewCookie[responseCookies.size()])).build();
         } catch (Exception e) {

@@ -105,6 +105,8 @@ public class AuxRestTest extends EasyMockSupport {
         assertEquals(1, response.getHeaders().get(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN).size());
         assertEquals("https://www.example.com",
                      response.getHeaders().get(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN).get(0));
+        assertEquals("true",
+                     response.getHeaders().get(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS).get(0));
     }
 
 }
