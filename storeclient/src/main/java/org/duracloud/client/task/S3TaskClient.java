@@ -12,7 +12,6 @@ import org.duracloud.s3storageprovider.dto.DeleteStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.DisableStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.GetSignedCookiesUrlTaskResult;
-import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskResult;
 
 /**
@@ -42,71 +41,6 @@ public interface S3TaskClient {
      * @throws ContentStoreException on erro
      */
     public DisableStreamingTaskResult disableStreaming(String spaceId)
-        throws ContentStoreException;
-
-    /**
-     * Deletes a streaming distribution for a space. This ensures that content that
-     * was available for streaming will no longer be available.
-     *
-     * @param spaceId the ID of the space where streaming will be disabled
-     * @return resulting status
-     * @throws ContentStoreException on error
-     */
-    public DeleteStreamingTaskResult deleteStreaming(String spaceId)
-        throws ContentStoreException;
-
-    /**
-     * Retrieves a URL for a media file that is streamed via an open distribution
-     *
-     * @param spaceId        name of the space where the content to be streamed is stored
-     * @param contentId      name of the content item to be streamed
-     * @param resourcePrefix a prefix on the content item which may be required by
-     *                       the streaming viewer/player (may be null)
-     * @return RTMP streaming URL
-     * @throws ContentStoreException on error
-     */
-    public GetUrlTaskResult getUrl(String spaceId,
-                                   String contentId,
-                                   String resourcePrefix)
-        throws ContentStoreException;
-
-    /**
-     * Retrieves a signed URL for a media file that is streamed through a secure
-     * distribution; uses default minutes to expire (480) and allows streaming to
-     * any IP address
-     *
-     * @param spaceId        name of the space where the content to be streamed is stored
-     * @param contentId      name of the content item to be streamed
-     * @param resourcePrefix a prefix on the content item which may be required by
-     *                       the streaming viewer/player (may be null)
-     * @return RTMP streaming URL
-     * @throws ContentStoreException on error
-     */
-    public GetSignedUrlTaskResult getSignedUrl(String spaceId,
-                                               String contentId,
-                                               String resourcePrefix)
-        throws ContentStoreException;
-
-    /**
-     * Retrieves a signed URL for a media file that is streamed through a secure
-     * distribution
-     *
-     * @param spaceId         name of the space where the content to be streamed is stored
-     * @param contentId       name of the content item to be streamed
-     * @param resourcePrefix  a prefix on the content item which may be required by
-     *                        the streaming viewer/player
-     * @param minutesToExpire number of minutes that the stream should be available
-     *                        for viewing through the retrieved URL
-     * @param ipAddress       ip address range where requests to stream must originate, in
-     *                        CIDR notation (e.g. 1.2.3.4/32)
-     * @return RTMP streaming URL
-     * @throws ContentStoreException on error
-     */
-    public GetSignedUrlTaskResult getSignedUrl(String spaceId,
-                                               String contentId,
-                                               String resourcePrefix,
-                                               int minutesToExpire,
-                                               String ipAddress)
         throws ContentStoreException;
 
     /**

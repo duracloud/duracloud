@@ -81,20 +81,6 @@ var dc;
         });       
     };
 	
-
-    dc.store.UpdateSpaceStreaming = function(storeId, spaceId, /*bool*/enable){
-        var jqxhr = dc.ajax2({
-            url: "/duradmin/spaces/mediastreamer/rtmp?storeId="+storeId+"&spaceId="
-                            + encodeURIComponent(spaceId) 
-                            + "&enable=" + enable,
-            type: "post",
-            cache: false,
-        }).fail(function(){
-            dc.displayErrorDialog(jqxhr);  
-        });
-        return jqxhr;
-    };
-
     dc.store.UpdateSpaceHlsStreaming = function(storeId, spaceId, /*bool*/enable){
         var jqxhr = dc.ajax2({
             url: "/duradmin/spaces/mediastreamer/hls?storeId="+storeId+"&spaceId="
@@ -318,27 +304,6 @@ var dc;
             contentUrl = contentUrl.replace("http://", "https://");}
         return j2kViewerBaseURL + "/viewer.html?rft_id=" + encodeURIComponent(contentUrl);
 	};
-
-    /**
-     * Retrieves an RTMP streaming URL for a given content item in a given space.
-     * The URL will be either signed or unsigned, depending on the streaming type.
-     */
-    dc.store.GetStreamingUrl = function(contentItem, streamingType, callback){
-        return dc.ajax({
-            url: "/duradmin/spaces/content/streaming-url",
-            data: "storeId="+contentItem.storeId+
-                  "&spaceId="+encodeURIComponent(contentItem.spaceId)+
-                  "&contentId="+encodeURIComponent(contentItem.contentId)+
-                  "&streamingType="+streamingType,
-            cache: false,
-            success: function(data){
-                callback.success(data.streamingUrl);
-            },
-            failure: function(data){
-                callback.failure(data);
-            }
-        },callback);
-    };
 
     /**
      * Retrieves an HLS streaming URL for a given content item in a given space.

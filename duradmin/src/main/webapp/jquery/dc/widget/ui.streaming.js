@@ -67,59 +67,11 @@
                 var panel = $.fn.create("div");
                 panel.empty();
 
-                var rtmpSwitchControl = $.fn.create("div").attr("id", "rtmpSwitchControl")
-                                            .append(this._createSwitchHolder("rtmpSwitchHolder", "RTMP Streaming"))
-                                            .append("<div><p>Enables Streaming using RTMP (Real-Time Messaging Protocol) for this space.</p></div>");
-                panel.append(rtmpSwitchControl);
-
-                var props = [];
-
-                if (space.properties.streamingHost) {
-                    props.push([ 'RTMP Host', space.properties.streamingHost ]);
-                }
-
-                if (space.properties.streamingType) {
-                    props.push([ 'RTMP Type', space.properties.streamingType ]);
-                }
-
-                if(props.length > 0){
-                    panel.append(dc.createTable(props));
-                }
-
-                // deploy/undeploy switch
-                // definition and bindings
-                $(".streaming-switch",rtmpSwitchControl).onoffswitch({
-                    initialState : space.streamingEnabled ? "on" : "off",
-                    onStateClass : "on left",
-                    onIconClass : "checkbox",
-                    offStateClass : "right",
-                    offIconClass : "x",
-                    onText : "On",
-                    offText : "Off"
-                }).bind("turnOff", function(evt, future) {
-                    rtmpSwitchControl.busy();
-                    $.when(dc.store.UpdateSpaceStreaming(space.storeId, space.spaceId, false)).done(function() {
-                        future.success();
-                    }).always(function() {
-                        rtmpSwitchControl.idle();
-                        that._refresh();
-                    });
-                }).bind("turnOn", function(evt, future) {
-                    rtmpSwitchControl.busy();
-                    $.when(dc.store.UpdateSpaceStreaming(space.storeId, space.spaceId, true)).done(function() {
-                        future.success();
-                    }).always(function() {
-                        rtmpSwitchControl.idle();
-                        that._refresh();
-                    });
-                });
-
                 var hlsSwitchControl = $.fn.create("div").attr("id", "hlsSwitchControl")
                     .append(this._createSwitchHolder("hlsSwitchHolder", "HLS Streaming"))
                     .append("<div><p>Enables HTTP Live Streaming (HLS) for this space. Note: in order for HLS to work" +
                         " your content must be transcoded specifically for display in HLS compliant viewers. </p></div>");
                 panel.append(hlsSwitchControl);
-
 
                 $(".streaming-switch",hlsSwitchControl).onoffswitch({
                     initialState : space.hlsEnabled ? "on" : "off",
@@ -147,8 +99,7 @@
                     });
                 });
 
-                props = [];
-
+                var props = [];
                 if (space.properties.hlsStreamingHost) {
                     props.push([ 'HLS Host', space.properties.hlsStreamingHost ]);
                 }

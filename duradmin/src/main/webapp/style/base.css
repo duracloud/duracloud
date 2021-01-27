@@ -1247,7 +1247,7 @@ table.dc-acls td:last-child {
 	margin-bottom: 20px;
 }
 
-#rtmpSwitchControl, #hlsSwitchControl {
+#hlsSwitchControl {
 	border-bottom: 1px solid #555;
 	padding-bottom:10px;
 	margin-bottom:10px;

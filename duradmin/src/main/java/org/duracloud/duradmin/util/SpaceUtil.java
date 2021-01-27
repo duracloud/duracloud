@@ -61,7 +61,6 @@ public class SpaceUtil {
                                       Authentication authentication) throws ContentStoreException {
         space.setSpaceId(cloudSpace.getId());
         space.setProperties(getSpaceProperties(cloudSpace.getProperties()));
-        space.setStreamingEnabled(StringUtils.isNotBlank(space.getProperties().getStreamingHost()));
         space.setHlsEnabled(StringUtils.isNotBlank(space.getProperties().getHlsStreamingHost()));
 
         space.setExtendedProperties(cloudSpace.getProperties());
@@ -98,8 +97,6 @@ public class SpaceUtil {
         spaceProperties.setCount(spaceProps.remove(ContentStore.SPACE_COUNT));
         spaceProperties.setSize(spaceProps.remove(ContentStore.SPACE_SIZE));
         spaceProperties.setTags(TagUtil.parseTags(spaceProps.remove(TagUtil.TAGS)));
-        spaceProperties.setStreamingHost(spaceProps.get(ContentStore.STREAMING_HOST));
-        spaceProperties.setStreamingType(spaceProps.get(ContentStore.STREAMING_TYPE));
         spaceProperties.setHlsStreamingHost(spaceProps.get(ContentStore.HLS_STREAMING_HOST));
         spaceProperties.setHlsStreamingType(spaceProps.get(ContentStore.HLS_STREAMING_TYPE));
 

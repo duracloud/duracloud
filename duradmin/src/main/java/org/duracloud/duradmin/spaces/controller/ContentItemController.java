@@ -88,40 +88,6 @@ public class ContentItemController {
         }
     }
 
-    @RequestMapping(value = "streaming-url", method = RequestMethod.GET)
-    public ModelAndView getStreamingUrl(HttpServletRequest request,
-                                        HttpServletResponse response,
-                                        ContentItem contentItem,
-                                        BindingResult result) throws Exception {
-        try {
-            String streamingType = request.getParameter("streamingType");
-            S3TaskClient taskClient = getTaskClient(contentItem);
-            String urlToStream;
-            if ("SECURE".equals(streamingType)) {
-                urlToStream =
-                    taskClient.getSignedUrl(contentItem.getSpaceId(),
-                                            contentItem.getContentId(), null, 20, null)
-                              .getSignedUrl();
-            } else {
-                urlToStream =
-                    taskClient.getUrl(contentItem.getSpaceId(),
-                                      contentItem.getContentId(), null)
-                              .getStreamUrl();
-            }
-
-            Map<String, String> responseMap = new HashMap<>();
-            int breakPoint = urlToStream.indexOf("/cfx/st") + 7;
-            responseMap.put("prefix", urlToStream.substring(0, breakPoint));
-            responseMap.put("suffix",
-                            urlToStream.substring(breakPoint + 1, urlToStream.length()));
-            return new ModelAndView("jsonView", "streamingUrl", responseMap);
-        } catch (ContentStoreException ex) {
-            ex.printStackTrace();
-            response.setStatus(HttpStatus.SC_NOT_FOUND);
-            return new ModelAndView("jsonView", "streamingUrl", null);
-        }
-    }
-
     @RequestMapping(value = "hls-url", method = RequestMethod.GET)
     public ModelAndView getHlsUrl(HttpServletRequest request,
                                            HttpServletResponse response,

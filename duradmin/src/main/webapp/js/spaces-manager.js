@@ -4127,25 +4127,8 @@ $(function() {
         storeId : contentItem.storeId,
         spaceId : contentItem.spaceId
       })).done(function(result) {
-        var streamingHost = result.space.properties.streamingHost;
-        var streamingType = result.space.properties.streamingType;
         var hlsStreamingHost = result.space.properties.hlsStreamingHost;
         var hlsStreamingType = result.space.properties.hlsStreamingType;
-
-        if (streamingHost != null && streamingHost.trim() != "" && streamingHost.indexOf("null") == -1) {
-          if (streamingType == "OPEN") {
-            dc.store.GetStreamingUrl(contentItem, streamingType, {
-              success: function (streamingUrl) {
-                that._writeMediaTag(streamingUrl);
-              },
-              failure: function (data) {
-                viewer.append("<p>Unable to stream file</p>");
-              }
-            });
-          } else {
-            viewer.append("<p>Streaming preview unavailable for secure streams</p>");
-          }
-        }
 
         if (hlsStreamingHost != null && hlsStreamingHost.trim() != "" && hlsStreamingHost.indexOf("null") == -1) {
           if (hlsStreamingType == "OPEN") {
@@ -4174,9 +4157,8 @@ $(function() {
           }
         }
 
-        //if neither streaming host is available, display message
-        if ((streamingHost == null || streamingHost.trim() == "" || streamingHost.indexOf("null") > -1) &&
-          (hlsStreamingHost == null || hlsStreamingHost.trim() == "" || hlsStreamingHost.indexOf("null") >   -1)) {
+        //if streaming host is available, display message
+        if (hlsStreamingHost == null || hlsStreamingHost.trim() == "" || hlsStreamingHost.indexOf("null") > -1) {
             contentPane.append("<p>Turn on streaming for this space to enable playback</p>");
         }
 
