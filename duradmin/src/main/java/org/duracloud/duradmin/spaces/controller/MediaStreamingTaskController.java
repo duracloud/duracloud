@@ -56,7 +56,7 @@ public class MediaStreamingTaskController {
                 } catch (ContentStoreException e) {
                     log.warn("failed to enable streaming on space " + spaceId + ": due to " + e.getMessage(), e);
                     log.info("attempting to enable secure hls streaming.");
-                    taskClient.enableStreaming(spaceId, true);
+                    taskClient.enableHlsStreaming(spaceId, true);
                     log.info("successfully enabled secure hls streaming.");
 
                 }

@@ -36,35 +36,6 @@ public class S3TaskClientImpl implements S3TaskClient {
         this.contentStore = contentStore;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public EnableStreamingTaskResult enableStreaming(String spaceId, boolean secure)
-        throws ContentStoreException {
-        EnableStreamingTaskParameters taskParams = new EnableStreamingTaskParameters();
-        taskParams.setSpaceId(spaceId);
-        taskParams.setSecure(secure);
-
-        return EnableStreamingTaskResult.deserialize(
-            contentStore.performTask(StorageTaskConstants.ENABLE_STREAMING_TASK_NAME,
-                                     taskParams.serialize()));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DisableStreamingTaskResult disableStreaming(String spaceId)
-        throws ContentStoreException {
-        DisableStreamingTaskParameters taskParams = new DisableStreamingTaskParameters();
-        taskParams.setSpaceId(spaceId);
-
-        return DisableStreamingTaskResult.deserialize(
-            contentStore.performTask(StorageTaskConstants.DISABLE_STREAMING_TASK_NAME,
-                                     taskParams.serialize()));
-    }
-
    /**
      * {@inheritDoc}
      */

@@ -102,7 +102,7 @@ public class GetHlsSignedCookiesUrlTaskRunner extends BaseHlsTaskRunner {
             throw new UnsupportedTaskException(TASK_NAME,
                                                "The " + TASK_NAME + " task can only be used after a space " +
                                                "has been configured to enable secure streaming. Use " +
-                                               StorageTaskConstants.ENABLE_STREAMING_TASK_NAME +
+                                               StorageTaskConstants.ENABLE_HLS_TASK_NAME +
                                                " to enable secure streaming on this space.");
         }
         String domainName = existingDist.getDomainName();

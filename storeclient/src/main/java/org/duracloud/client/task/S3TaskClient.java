@@ -23,27 +23,6 @@ import org.duracloud.s3storageprovider.dto.GetUrlTaskResult;
 public interface S3TaskClient {
 
     /**
-     * Enables streaming on a space. Streaming can be either open or secure.
-     *
-     * @param spaceId the ID of the space where streaming will be enabled
-     * @param secure  true if signed URLs should be required to stream space content
-     * @return resulting status and streaming host value
-     * @throws ContentStoreException on error
-     */
-    public EnableStreamingTaskResult enableStreaming(String spaceId, boolean secure)
-        throws ContentStoreException;
-
-    /**
-     * Disables streaming on a space.
-     *
-     * @param spaceId the ID of the space where streaming will be disabled
-     * @return resulting status
-     * @throws ContentStoreException on erro
-     */
-    public DisableStreamingTaskResult disableStreaming(String spaceId)
-        throws ContentStoreException;
-
-    /**
      * Enables HLS streaming on a space. Streaming can be either open or secure.
      *
      * @param spaceId the ID of the space where streaming will be enabled

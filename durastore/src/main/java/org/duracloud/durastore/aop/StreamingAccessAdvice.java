@@ -54,8 +54,8 @@ public class StreamingAccessAdvice implements MethodBeforeAdvice, Ordered {
         throws Throwable {
         String taskName = (String) args[0];
 
-        if (!taskName.matches(StorageTaskConstants.GET_URL_TASK_NAME) &&
-            !taskName.matches(StorageTaskConstants.GET_SIGNED_URL_TASK_NAME)) {
+        if (!taskName.matches(StorageTaskConstants.GET_HLS_URL_TASK_NAME) &&
+            !taskName.matches(StorageTaskConstants.GET_SIGNED_COOKIES_URL_TASK_NAME)) {
             return;
         }
 

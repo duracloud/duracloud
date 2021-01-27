@@ -58,37 +58,6 @@ public class S3TaskClientImplTest {
     }
 
     @Test
-    public void testEnableStreaming() throws Exception {
-        String taskName = StorageTaskConstants.ENABLE_STREAMING_TASK_NAME;
-        String streamingHost = "streaming-host";
-
-        EnableStreamingTaskResult preparedResult = new EnableStreamingTaskResult();
-        preparedResult.setResult(completionResult);
-        preparedResult.setStreamingHost(streamingHost);
-
-        setupMock(taskName, preparedResult.serialize());
-        replayMocks();
-
-        EnableStreamingTaskResult result = taskClient.enableStreaming(spaceId, secure);
-        assertThat(completionResult, equalTo(result.getResult()));
-        assertThat(streamingHost, equalTo(result.getStreamingHost()));
-    }
-
-    @Test
-    public void testDisableStreaming() throws Exception {
-        String taskName = StorageTaskConstants.DISABLE_STREAMING_TASK_NAME;
-
-        DisableStreamingTaskResult preparedResult = new DisableStreamingTaskResult();
-        preparedResult.setResult(completionResult);
-
-        setupMock(taskName, preparedResult.serialize());
-        replayMocks();
-
-        DisableStreamingTaskResult result = taskClient.disableStreaming(spaceId);
-        assertThat(completionResult, equalTo(result.getResult()));
-    }
-
-    @Test
     public void testEnableHlsStreaming() throws Exception {
         String taskName = StorageTaskConstants.ENABLE_HLS_TASK_NAME;
         String streamingHost = "streaming-host";
