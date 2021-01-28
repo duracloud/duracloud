@@ -66,7 +66,7 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
     }
 
     private String[] getArgs() {
-        return getArgs(StorageTaskConstants.GET_URL_TASK_NAME);
+        return getArgs(StorageTaskConstants.GET_HLS_URL_TASK_NAME);
     }
 
     private String[] getArgs(String taskName) {
@@ -78,12 +78,12 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
 
     @Test
     public void testSuccessUserAuthorizedGetUrl() throws Throwable {
-        testSuccessUserAuthorized(StorageTaskConstants.GET_URL_TASK_NAME);
+        testSuccessUserAuthorized(StorageTaskConstants.GET_HLS_URL_TASK_NAME);
     }
 
     @Test
     public void testSuccessUserAuthorizedGetSignedUrl() throws Throwable {
-        testSuccessUserAuthorized(StorageTaskConstants.GET_SIGNED_URL_TASK_NAME);
+        testSuccessUserAuthorized(StorageTaskConstants.GET_SIGNED_COOKIES_URL_TASK_NAME);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
         setupTaskProvider();
         replayAll();
         advice = new StreamingAccessAdvice(helper);
-        advice.before(null, getArgs(StorageTaskConstants.GET_URL_TASK_NAME), taskProvider);
+        advice.before(null, getArgs(StorageTaskConstants.GET_SIGNED_COOKIES_URL_TASK_NAME), taskProvider);
     }
 
     protected void setupTaskProvider() {
@@ -130,7 +130,7 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
     }
 
     protected void invokeAdvice() throws Throwable {
-        advice.before(null, getArgs(StorageTaskConstants.GET_URL_TASK_NAME), taskProvider);
+        advice.before(null, getArgs(StorageTaskConstants.GET_HLS_URL_TASK_NAME), taskProvider);
     }
 
     protected void invokeAdvice(String taskName) throws Throwable {
@@ -163,7 +163,7 @@ public class StreamingAccessAdviceTest extends EasyMockSupport {
 
         replayAll();
         try {
-            invokeAdvice(StorageTaskConstants.GET_SIGNED_URL_TASK_NAME);
+            invokeAdvice(StorageTaskConstants.GET_SIGNED_COOKIES_URL_TASK_NAME);
         } catch (UnauthorizedException ex) {
             assertTrue("expected failure", true);
         }

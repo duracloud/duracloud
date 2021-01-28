@@ -92,8 +92,6 @@ public interface ContentStore {
     public static final String CONTENT_FILE_MODIFIED =
         StorageProvider.PROPERTIES_CONTENT_FILE_MODIFIED;
 
-    public static final String STREAMING_HOST = StorageProvider.PROPERTIES_STREAMING_HOST;
-    public static final String STREAMING_TYPE = StorageProvider.PROPERTIES_STREAMING_TYPE;
     public static final String HLS_STREAMING_HOST = StorageProvider.PROPERTIES_HLS_STREAMING_HOST;
     public static final String HLS_STREAMING_TYPE = StorageProvider.PROPERTIES_HLS_STREAMING_TYPE;
 

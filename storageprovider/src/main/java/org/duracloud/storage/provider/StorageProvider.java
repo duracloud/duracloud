@@ -68,10 +68,6 @@ public interface StorageProvider {
 
     public static final long DEFAULT_MAX_RESULTS = 10000;
 
-    /* RTMP Streaming space properties */
-    public static final String PROPERTIES_STREAMING_HOST = "streaming-host";
-    public static final String PROPERTIES_STREAMING_TYPE = "streaming-type";
-
     /* HLS Streaming space properties */
     public static final String PROPERTIES_HLS_STREAMING_HOST = "hls-streaming-host";
     public static final String PROPERTIES_HLS_STREAMING_TYPE = "hls-streaming-type";

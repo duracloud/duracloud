@@ -31,8 +31,6 @@ public class Space implements Serializable {
 
     private List<Acl> acls;
 
-    private boolean streamingEnabled = false;
-
     private boolean hlsEnabled = false;
 
     private String action;
@@ -155,14 +153,6 @@ public class Space implements Serializable {
      */
     public void setHlsEnabled(boolean hlsEnabled) {
         this.hlsEnabled = hlsEnabled;
-    }
-
-    public boolean isStreamingEnabled() {
-        return streamingEnabled;
-    }
-
-    public void setStreamingEnabled(boolean streamingEnabled) {
-        this.streamingEnabled = streamingEnabled;
     }
 
     public boolean isPrimaryStorageProvider() {

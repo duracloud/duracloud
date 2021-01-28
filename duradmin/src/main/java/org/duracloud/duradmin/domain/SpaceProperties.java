@@ -26,10 +26,6 @@ public class SpaceProperties
 
     private int queryCount;
 
-    private String streamingHost;
-
-    private String streamingType;
-
     private String hlsStreamingHost;
 
     private String hlsStreamingType;
@@ -79,22 +75,6 @@ public class SpaceProperties
 
     public int getQueryCount() {
         return queryCount;
-    }
-
-    public String getStreamingHost() {
-        return streamingHost;
-    }
-
-    public void setStreamingHost(String streamingHost) {
-        this.streamingHost = streamingHost;
-    }
-
-    public String getStreamingType() {
-        return streamingType;
-    }
-
-    public void setStreamingType(String streamingType) {
-        this.streamingType = streamingType;
     }
 
     public String getHlsStreamingHost() {

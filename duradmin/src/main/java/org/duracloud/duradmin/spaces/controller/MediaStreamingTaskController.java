@@ -41,42 +41,6 @@ public class MediaStreamingTaskController {
         this.contentStoreManager = contentStoreManager;
     }
 
-    @RequestMapping(value = "rtmp", method = RequestMethod.POST)
-    public ModelAndView enableRtmpStreaming(@RequestParam(required = true) String storeId,
-                             @RequestParam(required = true) String spaceId,
-                             @RequestParam(required = true) boolean enable)
-        throws Exception {
-        try {
-            ContentStore store = this.contentStoreManager.getContentStore(storeId);
-            S3TaskClient taskClient = new S3TaskClientImpl(store);
-
-            if (enable) {
-                try {
-                    taskClient.enableStreaming(spaceId, false);
-                } catch (ContentStoreException e) {
-                    log.warn("failed to enable streaming on space " + spaceId + ": due to " + e.getMessage(), e);
-                    log.info("attempting to enable secure streaming.");
-                    taskClient.enableStreaming(spaceId, true);
-                    log.info("successfully enabled secure streaming.");
-
-                }
-            } else {
-                taskClient.disableStreaming(spaceId);
-            }
-
-            log.info("successfully "
-                     + (enable ? "enabled" : "disabled")
-                     + " the stream service for space (" + spaceId
-                     + ") on storage provider (" + storeId + ")");
-            ModelAndView mav =
-                new ModelAndView("jsonView", STREAMING_ENABLED_KEY, enable);
-            return mav;
-
-        } catch (Exception ex) {
-            throw new DuraCloudRuntimeException(ex);
-        }
-    }
-
     @RequestMapping(value = "hls", method = RequestMethod.POST)
     public ModelAndView enableHlsStreaming(@RequestParam(required = true) String storeId,
                              @RequestParam(required = true) String spaceId,
@@ -92,7 +56,7 @@ public class MediaStreamingTaskController {
                 } catch (ContentStoreException e) {
                     log.warn("failed to enable streaming on space " + spaceId + ": due to " + e.getMessage(), e);
                     log.info("attempting to enable secure hls streaming.");
-                    taskClient.enableStreaming(spaceId, true);
+                    taskClient.enableHlsStreaming(spaceId, true);
                     log.info("successfully enabled secure hls streaming.");
 
                 }
