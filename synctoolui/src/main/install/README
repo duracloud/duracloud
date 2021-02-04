@@ -3,11 +3,11 @@ ${project.name} v${project.version}.${buildNumber}
 Thank you for installing the DuraCloud Sync Tool.  To get going right away, simply launch the Sync Tool application and follow the instructions in the setup wizard.
 
 More information about the Sync Tool can be found here:
-https://wiki.duraspace.org/display/duraclouddoc/DuraCloud+Sync+Tool
+https://wiki.lyrasis.org/display/duraclouddoc/DuraCloud+Sync+Tool
 
 More information about DuraCloud can be found on the DuraCloud website:
 http://www.duracloud.org
 or the project wiki:
-https://wiki.duraspace.org/display/duracloud
+https://wiki.lyrasis.org/display/duracloud
 
 -The DuraCloud Development Team
