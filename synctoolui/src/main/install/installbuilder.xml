@@ -175,9 +175,7 @@
   <preInstallationActionList>
     <autodetectJava>
       <abortOnError>0</abortOnError>
-      <customErrorMessage>This program requires Java 1.7.0 or above. Click next and you will be taken to the java
-        downloads page.
-      </customErrorMessage>
+      <customErrorMessage>The DuraCloud SyncTool requires Java 11 or above. Click "OK" and you will be taken to the java downloads page.</customErrorMessage>
       <explanation>Checking for valid java version...</explanation>
       <promptUser>0</promptUser>
       <selectionOrder>newest</selectionOrder>
@@ -185,7 +183,7 @@
         <validVersion>
           <bitness></bitness>
           <maxVersion></maxVersion>
-          <minVersion>1.7.0</minVersion>
+          <minVersion>11.0.0</minVersion>
           <requireJDK>0</requireJDK>
           <vendor></vendor>
         </validVersion>
@@ -195,7 +193,7 @@
       </ruleList>
     </autodetectJava>
     <launchBrowser>
-      <url>http://java.com/en/download/index.jsp</url>
+      <url>https://www.oracle.com/java/technologies/javase-downloads.html</url>
       <ruleList>
         <ruleGroup ruleEvaluationLogic="and">
           <ruleList>
@@ -210,9 +208,7 @@
       </ruleList>
     </launchBrowser>
     <showInfo>
-      <text>Once you have finished downloading and installing java, click "OK" to continue with the Sync Tool
-        installation.
-      </text>
+      <text>Once you have finished downloading and installing java, click "OK" to continue with the Sync Tool installation.</text>
       <ruleList>
         <ruleGroup ruleEvaluationLogic="and">
           <ruleList>
@@ -232,7 +228,7 @@
         <validVersion>
           <bitness></bitness>
           <maxVersion></maxVersion>
-          <minVersion>1.7.0</minVersion>
+          <minVersion>11.0.0</minVersion>
           <requireJDK>0</requireJDK>
           <vendor></vendor>
         </validVersion>
@@ -268,7 +264,7 @@
             <validVersion>
               <bitness></bitness>
               <maxVersion></maxVersion>
-              <minVersion>1.7.0</minVersion>
+              <minVersion>11.0.0</minVersion>
               <requireJDK>0</requireJDK>
               <vendor></vendor>
             </validVersion>
