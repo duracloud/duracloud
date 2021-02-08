@@ -5,13 +5,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>retrievaltool</artifactId>
   <packaging>jar</packaging>
-  <version>7.0.0</version>
+  <version>7.1.0-SNAPSHOT</version>
   <name>Retrieval Tool</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>7.0.0</version>
+    <version>7.1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

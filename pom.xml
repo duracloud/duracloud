@@ -5,7 +5,7 @@
   <groupId>org.duracloud</groupId>
   <artifactId>duracloud</artifactId>
   <packaging>pom</packaging>
-  <version>7.0.0</version>
+  <version>7.1.0-SNAPSHOT</version>
   <name>DuraCloud</name>
   <description>Cloud-based digital content preservation system</description>
   <url>https://duracloud.org</url>

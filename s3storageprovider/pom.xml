@@ -3,13 +3,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>s3storageprovider</artifactId>
-  <version>7.0.0</version>
+  <version>7.1.0-SNAPSHOT</version>
   <name>S3 Storage Provider</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>7.0.0</version>
+    <version>7.1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

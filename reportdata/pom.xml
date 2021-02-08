@@ -3,14 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>reportdata</artifactId>
-  <version>7.0.0</version>
+  <version>7.1.0-SNAPSHOT</version>
   <name>DuraCloud Report Data</name>
   <url>http://localhost:8080/${project.artifactId}</url>
 
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>7.0.0</version>
+    <version>7.1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
