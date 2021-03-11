@@ -193,7 +193,7 @@
       </ruleList>
     </autodetectJava>
     <launchBrowser>
-      <url>https://www.oracle.com/java/technologies/javase-downloads.html</url>
+      <url>https://adoptopenjdk.net/</url>
       <ruleList>
         <ruleGroup ruleEvaluationLogic="and">
           <ruleList>
