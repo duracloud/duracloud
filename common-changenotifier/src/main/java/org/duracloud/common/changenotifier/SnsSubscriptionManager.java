@@ -19,9 +19,8 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.CreateQueueResult;
 import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
-import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.Message;
-import com.amazonaws.services.sqs.model.QueueNameExistsException;
+import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SetQueueAttributesRequest;
 import org.duracloud.common.error.DuraCloudRuntimeException;
@@ -72,14 +71,13 @@ public class SnsSubscriptionManager implements SubscriptionManager {
         attributes.put("ReceiveMessageWaitTimeSeconds", "20");
         request.setAttributes(attributes);
         CreateQueueResult result;
-        try {
+
+        this.queueUrl = getQueueUrl(this.queueName);
+        if (this.queueUrl == null) {
             result = sqsClient.createQueue(request);
             this.queueUrl = result.getQueueUrl();
             log.info("sqs queue created: {}", this.queueUrl);
-        } catch (QueueNameExistsException ex) {
-            log.info("queue with name {} already exists.");
-            GetQueueUrlResult queueUrlResult = sqsClient.getQueueUrl(this.queueName);
-            this.queueUrl = queueUrlResult.getQueueUrl();
+        } else {
             log.info("sqs queue url retrieved: {}", this.queueUrl);
         }
 
@@ -108,6 +106,14 @@ public class SnsSubscriptionManager implements SubscriptionManager {
 
         startPolling();
 
+    }
+
+    private String getQueueUrl(final String queueName) {
+        try {
+            return this.sqsClient.getQueueUrl(this.queueName).getQueueUrl();
+        } catch (QueueDoesNotExistException ex) {
+            return null;
+        }
     }
 
     private String generateSqsPolicyForTopic(String queueArn, String topicArn) {
