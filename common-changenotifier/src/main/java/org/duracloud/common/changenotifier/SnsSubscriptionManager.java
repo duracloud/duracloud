@@ -7,6 +7,8 @@
  */
 package org.duracloud.common.changenotifier;
 
+import static java.lang.String.format;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,14 +19,14 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.model.SubscribeResult;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
-import com.amazonaws.services.sqs.model.CreateQueueResult;
 import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SetQueueAttributesRequest;
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.common.util.WaitUtil;
+import org.duracloud.common.retry.Retriable;
+import org.duracloud.common.retry.Retrier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,19 +66,29 @@ public class SnsSubscriptionManager implements SubscriptionManager {
             throw new DuraCloudRuntimeException("this manager is already connected");
         }
 
-        //create sqs queue
-        log.info("creating sqs queue");
-        CreateQueueRequest request = new CreateQueueRequest(this.queueName);
-        Map<String, String> attributes = new HashMap<String, String>();
-        attributes.put("ReceiveMessageWaitTimeSeconds", "20");
-        request.setAttributes(attributes);
-        CreateQueueResult result;
-
         this.queueUrl = getQueueUrl(this.queueName);
+
         if (this.queueUrl == null) {
-            result = sqsClient.createQueue(request);
-            this.queueUrl = result.getQueueUrl();
-            log.info("sqs queue created: {}", this.queueUrl);
+            //create sqs queue
+            try {
+                final var queueName = this.queueName;
+                this.queueUrl = new Retrier(3, 20, 1).execute(new Retriable() {
+                    @Override
+                    public Object retry() throws Exception {
+                        log.info("creating sqs queue");
+                        CreateQueueRequest request = new CreateQueueRequest(queueName);
+                        Map<String, String> attributes = new HashMap<String, String>();
+                        attributes.put("ReceiveMessageWaitTimeSeconds", "20");
+                        request.setAttributes(attributes);
+                        final var result = sqsClient.createQueue(request);
+                        final var queueUrl = result.getQueueUrl();
+                        log.info("sqs queue created: queueName={}, queueUrl {}",  queueName, queueUrl);
+                        return queueUrl;
+                    }
+                });
+            } catch (Exception ex) {
+                throw new RuntimeException(format("Unable to create queue %s", this.queueName), ex);
+            }
         } else {
             log.info("sqs queue url retrieved: {}", this.queueUrl);
         }
@@ -194,7 +206,6 @@ public class SnsSubscriptionManager implements SubscriptionManager {
         this.initialized = false;
         //Redeploys will fail due to amazon sqs requirement to wait
         //60 seconds before recreating a queue exit without waiting.
-        WaitUtil.wait(60);
         log.info("disconnection complete");
     }
 }
