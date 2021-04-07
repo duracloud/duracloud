@@ -200,8 +200,6 @@ public class SnsSubscriptionManager implements SubscriptionManager {
         this.sqsClient.deleteQueue(this.queueUrl);
         log.info("deleted queue {}", this.subscriptionArn);
         this.initialized = false;
-        //Redeploys will fail due to amazon sqs requirement to wait
-        //60 seconds before recreating a queue exit without waiting.
         log.info("disconnection complete");
     }
 }
