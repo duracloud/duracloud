@@ -25,7 +25,6 @@ import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SetQueueAttributesRequest;
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,19 +71,16 @@ public class SnsSubscriptionManager implements SubscriptionManager {
             //create sqs queue
             try {
                 final var queueName = this.queueName;
-                this.queueUrl = new Retrier(3, 20, 1).execute(new Retriable() {
-                    @Override
-                    public Object retry() throws Exception {
-                        log.info("creating sqs queue");
-                        CreateQueueRequest request = new CreateQueueRequest(queueName);
-                        Map<String, String> attributes = new HashMap<String, String>();
-                        attributes.put("ReceiveMessageWaitTimeSeconds", "20");
-                        request.setAttributes(attributes);
-                        final var result = sqsClient.createQueue(request);
-                        final var queueUrl = result.getQueueUrl();
-                        log.info("sqs queue created: queueName={}, queueUrl {}",  queueName, queueUrl);
-                        return queueUrl;
-                    }
+                this.queueUrl = new Retrier(3, 20, 2).execute(() -> {
+                    log.info("creating sqs queue");
+                    CreateQueueRequest request = new CreateQueueRequest(queueName);
+                    Map<String, String> attributes = new HashMap<String, String>();
+                    attributes.put("ReceiveMessageWaitTimeSeconds", "20");
+                    request.setAttributes(attributes);
+                    final var result = sqsClient.createQueue(request);
+                    final var queueUrl = result.getQueueUrl();
+                    log.info("sqs queue created: queueName={}, queueUrl {}", queueName, queueUrl);
+                    return queueUrl;
                 });
             } catch (Exception ex) {
                 throw new RuntimeException(format("Unable to create queue %s", this.queueName), ex);
