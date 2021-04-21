@@ -22,7 +22,7 @@
 		<form id="loginForm" action="${pageContext.request.contextPath}/login"  method="post" onsubmit="return false;" >
 			<div id="login-wrapper">
 				<div id="login-header" class="outer clearfix">
-					<div id="dc-logo-panel"><a href="/duradmin/spaces" id="dc-logo"><img src="images/logo_top_duracloud_lg.png" alt="DURACLOUD"/></a></div>
+					<div id="dc-logo-panel"><a href="${pageContext.request.contextPath}/spaces" id="dc-logo"><img src="${pageContext.request.contextPath}/images/logo_top_duracloud_lg.png" alt="DURACLOUD"/></a></div>
 				</div>
 				<div id="login-content" class="pane-L1-body clearfix">
 					<div id="form-fields" class="form-fields float-r">
