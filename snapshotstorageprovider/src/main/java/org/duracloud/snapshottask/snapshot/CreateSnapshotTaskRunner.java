@@ -135,22 +135,35 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
         // Create URL for call to bridge app
         String snapshotURL = buildSnapshotURL(snapshotId);
 
+        RestHttpHelper restHelper = createRestHelper();
+
         String callResult;
         try {
             // Create body for call to bridge app
             String snapshotBody = buildSnapshotBody(taskParams);
 
             // Make call to the bridge ingest app to kick off transfer
-            callResult =
-                callBridge(createRestHelper(), snapshotURL, snapshotBody);
+            callResult = callBridge(restHelper, snapshotURL, snapshotBody);
         } catch (Exception e) {
-            // Bridge call did not complete successfully, clean up!
-            try {
-                removeSnapshotProps(spaceId);
-                removeSnapshotIdFromSpaceProps(spaceId);
-            } catch (Exception ex) {
-                log.error("Failed to fully clean up snapshot props for " +
-                          spaceId + ": " + ex.getMessage(), ex);
+            // Bridge call did not complete successfully
+            log.error("Call to Bridge to create snapshot {} failed due to: {}", snapshotId, e.getMessage());
+
+            // Wait to give the Bridge time to initiate the snapshot
+            wait(7);
+
+            // Check if snapshot exists
+            if (snapshotExists(restHelper, snapshotURL)) {
+                log.info("Create snapshot call appeared to fail, but snapshot exists. " +
+                         "Cleanup is being skipped to avoid removing files from an active snapshot.");
+            } else {
+                try {
+                    // Clean up snapshot details
+                    removeSnapshotProps(spaceId);
+                    removeSnapshotIdFromSpaceProps(spaceId);
+                } catch (Exception ex) {
+                    log.error("Failed to fully clean up snapshot props for " +
+                              spaceId + ": " + ex.getMessage(), ex);
+                }
             }
 
             if (!(e instanceof TaskException)) {
@@ -230,8 +243,7 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
     protected String callBridge(RestHttpHelper restHelper,
                                 String snapshotURL,
                                 String snapshotBody) throws Exception {
-        log.info("Making SNAPSHOT call to URL {} with body {}",
-                 snapshotURL, snapshotBody);
+        log.info("Making Create SNAPSHOT call to URL {} with body {}", snapshotURL, snapshotBody);
 
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaders.CONTENT_TYPE, "application/json");
@@ -239,6 +251,8 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
         int statusCode = response.getStatusCode();
         if (statusCode != 200 && statusCode != 201) {
             String responseStr = response.getResponseBody();
+            log.warn("Create SNAPSHOT call returned an unexpected result, code: {}, body: {}",
+                      statusCode, responseStr);
 
             try {
                 String m = getMessageValue(responseStr);
@@ -257,5 +271,28 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
 
         }
         return response.getResponseBody();
+    }
+
+    /**
+     * Attempts to retrieve details about the snapshot, primarily to determine if it was created properly
+     *
+     * @return true if 200 response, false otherwise
+     */
+    protected boolean snapshotExists(RestHttpHelper restHelper,
+                                     String snapshotURL) {
+        log.info("Making Get SNAPSHOT call to URL {}", snapshotURL);
+
+        try {
+            RestHttpHelper.HttpResponse response = restHelper.get(snapshotURL);
+
+            int statusCode = response.getStatusCode();
+            if (statusCode != 200) {
+                log.info("Get SNAPSHOT call returned a non-200 result code: {}", statusCode);
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
