@@ -102,4 +102,17 @@ public abstract class AbstractSnapshotTaskRunner implements TaskRunner {
         return getValueFromJson(json, "message");
     }
 
+    /**
+     * Pause execution
+     *
+     * @param seconds to wait
+     */
+    protected void wait(int seconds) {
+        try {
+            Thread.sleep(1000 * seconds);
+        } catch (InterruptedException e) {
+            // Exit sleep on interruption
+        }
+    }
+
 }
