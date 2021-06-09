@@ -16,6 +16,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.duracloud.account.db.model.GlobalProperties;
+import org.duracloud.account.db.model.RabbitMQConfig;
 import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.changenotifier.AccountChangeNotifier;
 import org.duracloud.common.changenotifier.NotifierType;
@@ -34,11 +35,11 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
 
     private AmazonSNS snsClient;
 
-    private Channel rabbitMqChannel;
+    private Channel rabbitMQChannel;
 
-    private String rabbitmqExchange;
+    private String rabbitMQExchange;
 
-    private String rabbitmqVhost;
+    private String rabbitMQVhost;
 
     private NotifierType notifierType;
 
@@ -61,19 +62,26 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
         }
         log.info("Notifier-Type: {}", notifierType.toString());
         if (notifierType == NotifierType.RABBITMQ) {
-            rabbitmqExchange = props.getRabbitmqExchange();
-            rabbitmqVhost = props.getRabbitmqVhost();
+            rabbitMQExchange = props.getRabbitmqExchange();
+
+            RabbitMQConfig rabbitMQConfig = props.getRabbitmqConfig();
+            String rabbitMQHost = rabbitMQConfig.getHost();
+            Integer rabbitMQPort = rabbitMQConfig.getPort();
+            rabbitMQVhost = rabbitMQConfig.getVhost();
+            String rabbitMQUsername = rabbitMQConfig.getUsername();
+            String rabbitMQPassword = rabbitMQConfig.getPassword();
+
             ConnectionFactory factory = new ConnectionFactory();
-            factory.setUsername(props.getRabbitmqUsername());
-            factory.setPassword(props.getRabbitmqPassword());
-            factory.setVirtualHost(rabbitmqVhost);
-            factory.setHost(props.getRabbitmqHost());
-            factory.setPort(props.getRabbitmqPort());
-            log.info("RabbitMQ Host: {}, Vhost: {}, Exchange: {}", props.getRabbitmqHost(),
-                     rabbitmqVhost, rabbitmqExchange);
+            factory.setHost(rabbitMQHost);
+            factory.setPort(rabbitMQPort);
+            factory.setVirtualHost(rabbitMQVhost);
+            factory.setUsername(rabbitMQUsername);
+            factory.setPassword(rabbitMQPassword);
+            log.info("RabbitMQ Host: {}, Vhost: {}, Exchange: {}",
+                     rabbitMQHost, rabbitMQVhost, rabbitMQExchange);
             try {
                 Connection conn = factory.newConnection();
-                rabbitMqChannel = conn.createChannel();
+                rabbitMQChannel = conn.createChannel();
             } catch (Exception e) {
                 log.error("Failed to connect to RabbitMQ because: " + e.getMessage(), e);
             }
@@ -107,10 +115,10 @@ public class AccountChangeNotifierImpl implements AccountChangeNotifier {
         try {
             log.debug("publishing event={}", event);
             if (notifierType == NotifierType.RABBITMQ) {
-                rabbitMqChannel.basicPublish(rabbitmqExchange, "", null,
+                rabbitMQChannel.basicPublish(rabbitMQExchange, "", null,
                                              AccountChangeEvent.serialize(event).getBytes());
                 log.info("published event via RabbitMQ, vhost={}, exchange={}, event={}",
-                         rabbitmqVhost, rabbitmqExchange, event);
+                         rabbitMQVhost, rabbitMQExchange, event);
             } else {
                 GlobalProperties props = globalPropertiesRepo.findAll().get(0);
                 this.snsClient.publish(props.getInstanceNotificationTopicArn(),

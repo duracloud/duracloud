@@ -232,7 +232,7 @@
     <instrumentedTests>**/*Test*__*.class</instrumentedTests>
     <innerClasses>**/*$*</innerClasses>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <duracloud.db.version>7.0.0</duracloud.db.version>
+    <duracloud.db.version>7.1.0-SNAPSHOT</duracloud.db.version>
     <duraspace-codestyle.version>1.1.0</duraspace-codestyle.version>
     <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
     <org.springframework.security.version>4.0.4.RELEASE</org.springframework.security.version>

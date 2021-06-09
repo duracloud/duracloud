@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.duracloud.account.db.model.GlobalProperties;
+import org.duracloud.account.db.model.RabbitMQConfig;
 import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.cache.AccountComponentCache;
 import org.duracloud.common.changenotifier.MessageListener;
@@ -59,13 +60,14 @@ public class SubscriptionManagerConfig {
 
             if (notifierType == NotifierType.RABBITMQ) {
                 //RabbitMQ
+                RabbitMQConfig rabbitMQConfig = props.getRabbitmqConfig();
                 subscriptionManager =
-                    new RabbitMQSubscriptionManager(props.getRabbitmqHost(),
-                                                    props.getRabbitmqPort(),
-                                                    props.getRabbitmqVhost(),
+                    new RabbitMQSubscriptionManager(rabbitMQConfig.getHost(),
+                                                    rabbitMQConfig.getPort(),
+                                                    rabbitMQConfig.getVhost(),
                                                     props.getRabbitmqExchange(),
-                                                    props.getRabbitmqUsername(),
-                                                    props.getRabbitmqPassword(),
+                                                    rabbitMQConfig.getUsername(),
+                                                    rabbitMQConfig.getPassword(),
                                                     queueName);
             } else {
                 //SNS
