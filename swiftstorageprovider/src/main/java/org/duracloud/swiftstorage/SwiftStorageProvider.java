@@ -60,6 +60,9 @@ public class SwiftStorageProvider extends S3StorageProvider {
         super(s3Client, accessKey, null);
     }
 
+    private static String[] SWIFT_METADATA_LIST =
+        {Headers.ETAG, Headers.CONTENT_LENGTH, Headers.DATE, Headers.LAST_MODIFIED, Headers.CONTENT_TYPE};
+
     /**
      * {@inheritDoc}
      */
@@ -264,8 +267,11 @@ public class SwiftStorageProvider extends S3StorageProvider {
             try {
                 if (!isSwiftMetadata(metaName)) {
                     Object metaValue = responseMeta.get(metaName);
-                    if (metaName.trim().equalsIgnoreCase(Headers.ETAG)) {
-                        metaName = Headers.ETAG;
+                    // Remove extra Swift metadata from user properties section
+                    for (String swiftMetaName : SWIFT_METADATA_LIST) {
+                        if (metaName.trim().equalsIgnoreCase(swiftMetaName)) {
+                            metaName = swiftMetaName;
+                        }
                     }
                     contentProperties.put(metaName, String.valueOf(metaValue));
                 }
