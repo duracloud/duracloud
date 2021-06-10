@@ -120,7 +120,15 @@ public class FileStitcherImpl implements FileStitcher {
         // sort chunks by their index.
         Map<Integer, String> sortedChunkIds = new TreeMap<Integer, String>();
         for (ChunksManifestBean.ManifestEntry entry : manifest.getEntries()) {
-            sortedChunkIds.put(entry.getIndex(), entry.getChunkId());
+            int parsedIndex = manifest.parseIndex(entry.getChunkId());
+
+            if (entry.getIndex() == parsedIndex) {
+                sortedChunkIds.put(entry.getIndex(), entry.getChunkId());
+            } else {
+                log.info("The entry in the chunk manifest for chunk {} is missing an index field; using the index" +
+                         " from the filename instead.", entry.getChunkId());
+                sortedChunkIds.put(parsedIndex, entry.getChunkId());
+            }
         }
 
         // collect ordered sequence of chunk streams.

@@ -72,7 +72,7 @@ public class ChunksManifest extends ChunksManifestBean {
                                            chunkSize));
     }
 
-    private int parseIndex(String chunkId) {
+    public int parseIndex(String chunkId) {
         String prefix = getHeader().getSourceContentId() + chunkSuffix;
         String num = chunkId.substring(prefix.length());
         try {
