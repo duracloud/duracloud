@@ -37,10 +37,10 @@ import org.junit.runner.RunWith;
  * Date: 2020.02.12
  */
 @RunWith(EasyMockRunner.class)
-public class RabbitMQTaskQueueTest extends EasyMockSupport {
+public class RabbitmqTaskQueueTest extends EasyMockSupport {
 
     private Connection connection;
-    private RabbitMQTaskQueue queue;
+    private RabbitmqTaskQueue queue;
     private Channel channel;
     private String queueName = "test-queue";
     private String exchange = "test-exchange";
@@ -49,7 +49,7 @@ public class RabbitMQTaskQueueTest extends EasyMockSupport {
     public void setup() {
     }
 
-    private void setupRabbitMQClient() throws IOException {
+    private void setupRabbitmqClient() throws IOException {
         connection = createMock("Connection", Connection.class);
         channel = createMock("Channel", Channel.class);
         InetAddress address = InetAddress.getByName("127.0.0.1");
@@ -68,12 +68,12 @@ public class RabbitMQTaskQueueTest extends EasyMockSupport {
     }
 
     private void createSubject() {
-        queue = new RabbitMQTaskQueue(connection, exchange, queueName);
+        queue = new RabbitmqTaskQueue(connection, exchange, queueName);
     }
 
     @Test
     public void testMarshallTask() throws IOException {
-        setupRabbitMQClient();
+        setupRabbitmqClient();
         replayAll();
         createSubject();
 
@@ -83,11 +83,11 @@ public class RabbitMQTaskQueueTest extends EasyMockSupport {
 
         Task task = queue.marshallTask(msgBody, 0, queueName, exchange);
 
-        assertThat(task.getProperty(RabbitMQTaskQueue.MsgProp.DELIVERY_TAG.name()),
+        assertThat(task.getProperty(RabbitmqTaskQueue.MsgProp.DELIVERY_TAG.name()),
                    is(equalTo("0")));
-        assertThat(task.getProperty(RabbitMQTaskQueue.MsgProp.EXCHANGE.name()),
+        assertThat(task.getProperty(RabbitmqTaskQueue.MsgProp.EXCHANGE.name()),
                    is(equalTo("test-exchange")));
-        assertThat(task.getProperty(RabbitMQTaskQueue.MsgProp.ROUTING_KEY.name()),
+        assertThat(task.getProperty(RabbitmqTaskQueue.MsgProp.ROUTING_KEY.name()),
                    is(equalTo("test-queue")));
         assertThat(task.getType(), is(equalTo(Task.Type.DUP)));
         assertThat(task.getProperty("key1"), is(equalTo("value1")));
@@ -97,7 +97,7 @@ public class RabbitMQTaskQueueTest extends EasyMockSupport {
 
     @Test
     public void testUnmarshallTask() throws IOException {
-        setupRabbitMQClient();
+        setupRabbitmqClient();
         replayAll();
         createSubject();
 
@@ -115,7 +115,7 @@ public class RabbitMQTaskQueueTest extends EasyMockSupport {
 
     @Test
     public void testPut() throws IOException {
-        setupRabbitMQClient();
+        setupRabbitmqClient();
         replayAll();
         createSubject();
 
@@ -132,7 +132,7 @@ public class RabbitMQTaskQueueTest extends EasyMockSupport {
 
     @Test
     public void testPutMuliple() throws IOException {
-        setupRabbitMQClient();
+        setupRabbitmqClient();
         replayAll();
         createSubject();
         Set<Task> tasks = new HashSet<>();
