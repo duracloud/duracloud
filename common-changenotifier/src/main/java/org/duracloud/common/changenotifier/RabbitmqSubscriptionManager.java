@@ -28,8 +28,8 @@ import org.slf4j.LoggerFactory;
  * @author Shibo Liu
  * Feb 29, 2020
  */
-public class RabbitMQSubscriptionManager implements SubscriptionManager {
-    private Logger log = LoggerFactory.getLogger(RabbitMQSubscriptionManager.class);
+public class RabbitmqSubscriptionManager implements SubscriptionManager {
+    private Logger log = LoggerFactory.getLogger(RabbitmqSubscriptionManager.class);
     private Channel mqChannel;
     private String mqHost;
     private Integer mqPort;
@@ -42,7 +42,7 @@ public class RabbitMQSubscriptionManager implements SubscriptionManager {
     private String consumerName;
     private boolean initialized = false;
     private List<MessageListener> messageListeners = new ArrayList<>();
-    public RabbitMQSubscriptionManager(String host, Integer port, String vhost,
+    public RabbitmqSubscriptionManager(String host, Integer port, String vhost,
                                        String exchange, String username, String password,
                                        String queueName) {
         mqHost = host;

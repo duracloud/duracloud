@@ -22,11 +22,12 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.duracloud.account.db.model.GlobalProperties;
+import org.duracloud.account.db.model.RabbitmqConfig;
 import org.duracloud.account.db.repo.GlobalPropertiesRepo;
 import org.duracloud.common.cache.AccountComponentCache;
 import org.duracloud.common.changenotifier.MessageListener;
 import org.duracloud.common.changenotifier.NotifierType;
-import org.duracloud.common.changenotifier.RabbitMQSubscriptionManager;
+import org.duracloud.common.changenotifier.RabbitmqSubscriptionManager;
 import org.duracloud.common.changenotifier.SnsSubscriptionManager;
 import org.duracloud.common.changenotifier.SubscriptionManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
@@ -59,13 +60,14 @@ public class SubscriptionManagerConfig {
 
             if (notifierType == NotifierType.RABBITMQ) {
                 //RabbitMQ
+                RabbitmqConfig rabbitmqConfig = props.getRabbitmqConfig();
                 subscriptionManager =
-                    new RabbitMQSubscriptionManager(props.getRabbitmqHost(),
-                                                    props.getRabbitmqPort(),
-                                                    props.getRabbitmqVhost(),
+                    new RabbitmqSubscriptionManager(rabbitmqConfig.getHost(),
+                                                    rabbitmqConfig.getPort(),
+                                                    rabbitmqConfig.getVhost(),
                                                     props.getRabbitmqExchange(),
-                                                    props.getRabbitmqUsername(),
-                                                    props.getRabbitmqPassword(),
+                                                    rabbitmqConfig.getUsername(),
+                                                    rabbitmqConfig.getPassword(),
                                                     queueName);
             } else {
                 //SNS

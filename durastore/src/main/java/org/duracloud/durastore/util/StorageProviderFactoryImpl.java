@@ -19,7 +19,7 @@ import org.duracloud.common.queue.QueueType;
 import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.common.queue.aws.SQSTaskQueue;
 import org.duracloud.common.queue.noop.NoopTaskQueue;
-import org.duracloud.common.queue.rabbitmq.RabbitMQTaskQueue;
+import org.duracloud.common.queue.rabbitmq.RabbitmqTaskQueue;
 import org.duracloud.common.rest.DuraCloudRequestContextUtil;
 import org.duracloud.common.util.UserUtil;
 import org.duracloud.durastore.test.MockRetryStorageProvider;
@@ -150,7 +150,7 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
                     String password = auditConfig.getRabbitmqPassword();
                     log.info("Configuring Audit queue with host: {}, port: {}, vhost: {}, exchange: {}, queue: {}",
                              host, port, vhost, exchange, queueName);
-                    this.auditQueue = new RabbitMQTaskQueue(host, port, vhost, exchange, username, password, queueName);
+                    this.auditQueue = new RabbitmqTaskQueue(host, port, vhost, exchange, username, password, queueName);
                 } else {
                     //AWS - SQS
                     this.auditQueue = new SQSTaskQueue(queueName);

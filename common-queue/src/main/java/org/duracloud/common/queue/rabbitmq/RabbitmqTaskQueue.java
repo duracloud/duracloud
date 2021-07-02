@@ -39,8 +39,8 @@ import org.slf4j.LoggerFactory;
  * @author Shibo Liu
  * Date: 07/03/19
  */
-public class RabbitMQTaskQueue implements TaskQueue {
-    private static Logger log = LoggerFactory.getLogger(RabbitMQTaskQueue.class);
+public class RabbitmqTaskQueue implements TaskQueue {
+    private static Logger log = LoggerFactory.getLogger(RabbitmqTaskQueue.class);
 
     private Channel mqChannel;
     private String queueName;
@@ -57,7 +57,7 @@ public class RabbitMQTaskQueue implements TaskQueue {
      * Creates RabbitMQ task queue, a RabbitMQ server is needed and a DIRECT exchange must be created and bound to
      * the queue name provided (routing key must be the same as the queue name)
      */
-    public RabbitMQTaskQueue(String host, Integer port, String vhost, String exchange, String username, String password,
+    public RabbitmqTaskQueue(String host, Integer port, String vhost, String exchange, String username, String password,
                              String queueName) {
         try {
             this.exchangeName = exchange;
@@ -79,7 +79,7 @@ public class RabbitMQTaskQueue implements TaskQueue {
         }
     }
 
-    public RabbitMQTaskQueue(Connection conn, String exchange, String queueName) {
+    public RabbitmqTaskQueue(Connection conn, String exchange, String queueName) {
         try {
             this.exchangeName = exchange;
             mqChannel = conn.createChannel();

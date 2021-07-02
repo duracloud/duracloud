@@ -8,6 +8,7 @@
 package org.duracloud.durastore.util;
 
 import org.duracloud.account.db.model.DuracloudMill;
+import org.duracloud.account.db.model.RabbitmqConfig;
 import org.duracloud.account.db.repo.DuracloudMillRepo;
 import org.duracloud.common.queue.QueueType;
 import org.duracloud.storage.domain.AuditConfig;
@@ -25,15 +26,16 @@ public class AuditConfigBuilder {
     public AuditConfig build() {
         AuditConfig config = new AuditConfig();
         DuracloudMill mill = millRepo.findAll().get(0);
+        RabbitmqConfig rmqConf = mill.getRabbitmqConfig();
         config.setAuditLogSpaceId(mill.getAuditLogSpaceId());
         config.setAuditQueueName(mill.getAuditQueue());
         config.setQueueType(QueueType.fromString(mill.getQueueType()));
-        config.setRabbitmqHost(mill.getRabbitmqHost());
-        config.setRabbitmqPort(mill.getRabbitmqPort());
-        config.setRabbitmqVhost(mill.getRabbitmqVhost());
+        config.setRabbitmqHost(rmqConf.getHost());
+        config.setRabbitmqPort(rmqConf.getPort());
+        config.setRabbitmqVhost(rmqConf.getVhost());
         config.setRabbitmqExchange(mill.getRabbitmqExchange());
-        config.setRabbitmqUsername(mill.getRabbitmqUsername());
-        config.setRabbitmqPassword(mill.getRabbitmqPassword());
+        config.setRabbitmqUsername(rmqConf.getUsername());
+        config.setRabbitmqPassword(rmqConf.getPassword());
         return config;
     }
 
