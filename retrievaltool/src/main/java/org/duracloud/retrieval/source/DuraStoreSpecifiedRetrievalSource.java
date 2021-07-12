@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.chunk.manifest.ChunksManifest;
+import org.duracloud.chunk.util.ChunkUtil;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.error.DuraCloudRuntimeException;
@@ -49,8 +50,9 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
     private final Logger log = LoggerFactory.getLogger(
         DuraStoreSpecifiedRetrievalSource.class);
 
-
     private Iterator<String> specifiedContentIds;
+
+    private ChunkUtil chunkUtil = null;
 
     public DuraStoreSpecifiedRetrievalSource(ContentStore store,
                                              List<String> singleSpaceList,
@@ -67,17 +69,18 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
                                                 "DuraStoreSpecifiedRetrievelSource must contain only 1 space ID.");
         }
 
+        this.chunkUtil = new ChunkUtil();
         this.specifiedContentIds = specifiedContentIds;
         this.reviewSpecifiedContentIdsForChunkedContent(singleSpaceList);
     }
 
     protected void reviewSpecifiedContentIdsForChunkedContent(List<String> singleSpaceList) {
-        log.debug("enter remediateSpecifiedContentIds()");
+        log.debug("enter reviewSpecifiedContentIdsForChunkedContent()");
 
         List<String> retrievalContentIds = new ArrayList<String>();
         while (specifiedContentIds.hasNext()) {
-            String temp = specifiedContentIds.next();
-            retrievalContentIds.add(temp);
+            String specifiedContentId = specifiedContentIds.next();
+            retrievalContentIds.add(specifiedContentId);
         }
         log.debug("total contentIds in list-file: " + retrievalContentIds.size());
 
@@ -116,15 +119,13 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
                         String contentId = item.getContentId();
 
                         // search for chunks or chunk manifests for contentId
-                        String tempContentId = contentId;
-                        if (contentId.endsWith(ChunksManifest.manifestSuffix)) {
-                            tempContentId = StringUtils.removeEnd(contentId, ChunksManifest.manifestSuffix);
-                        } else if (contentId.contains(ChunksManifest.chunkSuffix)) {
-                            tempContentId = contentId.substring(0, contentId.indexOf(ChunksManifest.chunkSuffix));
+                        String manifestContentId = contentId;
+                        if (chunkUtil.isChunkManifest(contentId)) {
+                            manifestContentId = StringUtils.removeEnd(contentId, ChunksManifest.manifestSuffix);
                         }
 
-                        if (retrievalContentIds.contains(tempContentId)) {
-                            log.debug("found chunked content for contentId in list-file: " + contentId);
+                        if (retrievalContentIds.contains(manifestContentId)) {
+                            log.debug("found chunked content manifest for contentId in list-file: " + contentId);
                             retrievalSpaceContentIds.add(contentId);
                         }
                     }
