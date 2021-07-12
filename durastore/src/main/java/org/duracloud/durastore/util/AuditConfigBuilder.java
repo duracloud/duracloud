@@ -26,16 +26,19 @@ public class AuditConfigBuilder {
     public AuditConfig build() {
         AuditConfig config = new AuditConfig();
         DuracloudMill mill = millRepo.findAll().get(0);
-        RabbitmqConfig rmqConf = mill.getRabbitmqConfig();
         config.setAuditLogSpaceId(mill.getAuditLogSpaceId());
         config.setAuditQueueName(mill.getAuditQueue());
         config.setQueueType(QueueType.fromString(mill.getQueueType()));
-        config.setRabbitmqHost(rmqConf.getHost());
-        config.setRabbitmqPort(rmqConf.getPort());
-        config.setRabbitmqVhost(rmqConf.getVhost());
-        config.setRabbitmqExchange(mill.getRabbitmqExchange());
-        config.setRabbitmqUsername(rmqConf.getUsername());
-        config.setRabbitmqPassword(rmqConf.getPassword());
+
+        RabbitmqConfig rmqConf = mill.getRabbitmqConfig();
+        if (null != rmqConf) {
+            config.setRabbitmqHost(rmqConf.getHost());
+            config.setRabbitmqPort(rmqConf.getPort());
+            config.setRabbitmqVhost(rmqConf.getVhost());
+            config.setRabbitmqExchange(mill.getRabbitmqExchange());
+            config.setRabbitmqUsername(rmqConf.getUsername());
+            config.setRabbitmqPassword(rmqConf.getPassword());
+        }
         return config;
     }
 
