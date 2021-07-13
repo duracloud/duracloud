@@ -49,19 +49,25 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
             }
         }
 
+        this.spaceIds = verifySpaceIds(spaces);
+    }
+
+    protected Iterator<String> verifySpaceIds(List<String> spaces) throws RuntimeException {
+        Iterator<String> spaceIds = null;
+
         if (spaces != null && spaces.size() > 0) {
             try {
                 // check if provided spaces exist
-                List<String> spaceList = store.getSpaces();
-                List<String> nonExistantSpaces = new ArrayList<String>();
+                List<String> spaceList = this.contentStore.getSpaces();
+                List<String> nonExistentSpaces = new ArrayList<String>();
                 for (String space : spaces) {
                     if (!spaceList.contains(space)) {
-                        nonExistantSpaces.add(space);
+                        nonExistentSpaces.add(space);
                     }
                 }
-                if (!nonExistantSpaces.isEmpty()) {
+                if (!nonExistentSpaces.isEmpty()) {
                     String error = "The following provided spaces do not exist: " +
-                                   StringUtils.join(nonExistantSpaces, ", ");
+                                   StringUtils.join(nonExistentSpaces, ", ");
                     throw new DuraCloudRuntimeException(error);
                 }
 
@@ -73,6 +79,8 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
             throw new RuntimeException("Spaces list is empty, there is " +
                                        "no content to retrieve");
         }
+
+        return spaceIds;
     }
 
     @Override
