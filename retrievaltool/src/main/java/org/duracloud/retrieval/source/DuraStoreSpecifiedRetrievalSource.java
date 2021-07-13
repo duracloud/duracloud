@@ -14,8 +14,10 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.chunk.manifest.ChunksManifest;
@@ -84,7 +86,7 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
         }
         log.debug("total contentIds in list-file: " + retrievalContentIds.size());
 
-        List<String> retrievalSpaceContentIds = new ArrayList<String>();
+        Map<String, String> retrievalSpaceContentIds = new HashMap<String, String>();
 
         Iterator<String> retrievalSpaceIds = verifySpaceIds(singleSpaceList);
         if (retrievalSpaceIds.hasNext()) {
@@ -116,17 +118,15 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
                             throw new IOException(e);
                         }
 
-                        String contentId = item.getContentId();
+                        String spaceContentId = item.getContentId();
 
-                        // search for chunks or chunk manifests for contentId
-                        String manifestContentId = contentId;
-                        if (chunkUtil.isChunkManifest(contentId)) {
-                            manifestContentId = StringUtils.removeEnd(contentId, ChunksManifest.manifestSuffix);
-                        }
-
-                        if (retrievalContentIds.contains(manifestContentId)) {
-                            log.debug("found chunked content manifest for contentId in list-file: " + contentId);
-                            retrievalSpaceContentIds.add(contentId);
+                        // check if spaceContentId is for chunk manifest
+                        if (chunkUtil.isChunkManifest(spaceContentId)) {
+                            String rootContentId = StringUtils.removeEnd(spaceContentId, ChunksManifest.manifestSuffix);
+                            log.debug("found chunk manifest for contentId from list-file: " + spaceContentId);
+                            retrievalSpaceContentIds.put(rootContentId, spaceContentId);
+                        } else {
+                            retrievalSpaceContentIds.put(spaceContentId, null);
                         }
                     }
                 } catch (IOException ex) {
@@ -138,12 +138,29 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
             }
         }
 
-        if (!retrievalSpaceContentIds.isEmpty()) {
-            Collections.sort(retrievalSpaceContentIds);
-            log.debug("List of contentIds to retrieve has increased from " + retrievalContentIds.size() + " to " +
-                     retrievalSpaceContentIds.size() + " after chunked content is included.");
-            this.specifiedContentIds = retrievalSpaceContentIds.iterator();
+        // check if contentIds in list-file are in space manifest, potentially as chunk manifests
+        List<String> retrievalContentIdsFinal = new ArrayList<String>();
+        Iterator<String> retrievalContentIdsIterator = retrievalContentIds.iterator();
+        while (retrievalContentIdsIterator.hasNext()) {
+            String retrievalContentId = retrievalContentIdsIterator.next();
+            if (retrievalSpaceContentIds.containsKey(retrievalContentId)) {
+                if (null != retrievalSpaceContentIds.get(retrievalContentId)) {
+                    // add chunk-manifest contentId
+                    String chunkManifestContentId = retrievalSpaceContentIds.get(retrievalContentId);
+                    log.debug("replacing {} with chunk manifest {} in list of contentIds to retrieve.",
+                              retrievalContentId, chunkManifestContentId);
+                    retrievalContentIdsFinal.add(chunkManifestContentId);
+                } else {
+                    // silently add contentId since it matches
+                    retrievalContentIdsFinal.add(retrievalContentId);
+                }
+            } else {
+                log.warn("Content ID {} in list-file is not present in the retrieval space manifest.",
+                         retrievalContentId);
+                retrievalContentIdsFinal.add(retrievalContentId);
+            }
         }
+        this.specifiedContentIds = retrievalContentIdsFinal.iterator();
     }
 
     @Override
