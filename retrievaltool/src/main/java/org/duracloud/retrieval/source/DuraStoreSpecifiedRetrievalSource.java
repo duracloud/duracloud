@@ -13,26 +13,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.util.ChunkUtil;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.common.model.ContentItem;
-import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.manifest.ManifestFormatter;
 import org.duracloud.manifest.impl.ManifestFormatterFactory;
 import org.duracloud.mill.db.model.ManifestItem;
-import org.duracloud.retrieval.mgmt.RetrievalListener;
-import org.duracloud.stitch.error.MissingContentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +71,7 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
 
     protected void reviewSpecifiedContentIdsForChunkedContent(List<String> singleSpaceList) {
         log.debug("enter reviewSpecifiedContentIdsForChunkedContent()");
+        System.out.println("Reviewing space manifest for content IDs in list-file.");
 
         List<String> retrievalContentIds = new ArrayList<String>();
         while (specifiedContentIds.hasNext()) {
@@ -122,7 +116,7 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
 
                         // check if spaceContentId is for chunk manifest
                         if (chunkUtil.isChunkManifest(spaceContentId)) {
-                            String rootContentId = StringUtils.removeEnd(spaceContentId, ChunksManifest.manifestSuffix);
+                            String rootContentId = chunkUtil.preChunkedContentId(spaceContentId);
                             log.debug("found chunk manifest for contentId from list-file: " + spaceContentId);
                             retrievalSpaceContentIds.put(rootContentId, spaceContentId);
                         } else {
@@ -151,7 +145,7 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
                               retrievalContentId, chunkManifestContentId);
                     retrievalContentIdsFinal.add(chunkManifestContentId);
                 } else {
-                    // silently add contentId since it matches
+                    // silently add contentId since it exists in space manifest
                     retrievalContentIdsFinal.add(retrievalContentId);
                 }
             } else {
@@ -160,6 +154,8 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
                 retrievalContentIdsFinal.add(retrievalContentId);
             }
         }
+
+        System.out.println("Finished reviewing space manifest for contentIDs in list-file.\n");
         this.specifiedContentIds = retrievalContentIdsFinal.iterator();
     }
 
