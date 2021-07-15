@@ -283,7 +283,7 @@ public class ACLStorageProviderTest {
     @Test
     public void testClearCache() throws InterruptedException {
         String spaceId = "ACLStorageProvider-cache";
-        createMockStorageProvider(3);
+        createMockStorageProvider(2);
 
         expect(mockProvider.getSpaceACLs(spaceId))
             .andReturn(new HashMap<String, AclType>());

@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.duracloud.common.util.IOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,7 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
                 }
                 inStream = syncFile.getStream();
                 outStream = new FileOutputStream(syncToFile);
-                IOUtils.copy(inStream, outStream);
+                IOUtil.copy(inStream, outStream);
                 success = true;
             } catch (IOException e) {
                 logger.error("Unable to sync updated file " +

@@ -103,13 +103,23 @@ public class S3ProviderUtil {
                 } else {
                     awsRegion = System.getProperty(OPTS.AWS_REGION.name());
                 }
-                // Construct a normal client that connects to AWS.
-                log.debug("Creating AWS S3 Client.");
-                s3Client = AmazonS3ClientBuilder
-                    .standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                    .withRegion(awsRegion)
-                    .build();
+
+                if (null == awsRegion) {
+                    // Construct an AWS client with no region set (the provider chain will be consulted)
+                    log.debug("Creating AWS S3 Client with no explicit region.");
+                    s3Client = AmazonS3ClientBuilder
+                        .standard()
+                        .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                        .build();
+                } else {
+                    // Construct an AWS client with a specified region
+                    log.debug("Creating AWS S3 Client with region: " + awsRegion);
+                    s3Client = AmazonS3ClientBuilder
+                        .standard()
+                        .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                        .withRegion(awsRegion)
+                        .build();
+                }
             } else {
                 // Construct a client that will work with S3+Swift
                 log.debug("Creating Swift S3 client.");
