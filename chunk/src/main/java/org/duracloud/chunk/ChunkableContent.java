@@ -168,6 +168,10 @@ public class ChunkableContent implements Iterable<ChunkInputStream>, Iterator<Ch
             StringBuilder sb = new StringBuilder("Error: ");
             sb.append("Previous chunk not fully read: ");
             sb.append(currentChunk.getChunkId());
+            sb.append(" Chunk size: ");
+            sb.append(currentChunk.getChunkSize());
+            sb.append(", Bytes read: ");
+            sb.append(currentChunk.numBytesRead());
             log.error(sb.toString());
             throw new DuraCloudRuntimeException(sb.toString());
         }

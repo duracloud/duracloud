@@ -31,6 +31,9 @@ import org.duracloud.common.error.DuraCloudRuntimeException;
  */
 public class IOUtil {
 
+    // Maintain default buffer size from commons-io prior to v2.7 (where it changed to 8192)
+    private static final int COPY_BUFFER_SIZE = 4096;
+
     private IOUtil() {
         // Ensures no instances are made of this class, as there are only static members.
     }
@@ -60,7 +63,7 @@ public class IOUtil {
 
     public static void copy(InputStream input, OutputStream output) {
         try {
-            IOUtils.copy(input, output);
+            IOUtils.copy(input, output, COPY_BUFFER_SIZE);
         } catch (IOException e) {
             throw new DuraCloudRuntimeException(e);
         }
@@ -95,7 +98,7 @@ public class IOUtil {
             if (gzip) {
                 outStream = new GZIPOutputStream(outStream);
             }
-            IOUtils.copy(inStream, outStream);
+            IOUtils.copy(inStream, outStream, COPY_BUFFER_SIZE);
         } catch (IOException e) {
             String err = "Error writing stream to file: " + e.getMessage();
 

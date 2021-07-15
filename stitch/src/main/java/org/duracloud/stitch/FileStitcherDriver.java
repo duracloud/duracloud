@@ -27,6 +27,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.util.IOUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.stitch.datasource.DataSource;
@@ -105,7 +106,7 @@ public class FileStitcherDriver {
 
             // Write content
             outputStream = new FileOutputStream(outFile);
-            IOUtils.copyLarge(content.getStream(), outputStream);
+            IOUtil.copy(content.getStream(), outputStream);
 
         } catch (IOException e) {
             StringBuilder msg = new StringBuilder();

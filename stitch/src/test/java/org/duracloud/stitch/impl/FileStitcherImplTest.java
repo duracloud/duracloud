@@ -25,9 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.manifest.xml.ManifestDocumentBinding;
+import org.duracloud.common.util.IOUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.stitch.FileStitcher;
 import org.duracloud.stitch.FileStitcherListener;
@@ -171,7 +171,7 @@ public class FileStitcherImplTest {
         Assert.assertNotNull(contentStream);
 
         OutputStream outputStream = new ByteArrayOutputStream();
-        IOUtils.copy(contentStream, outputStream);
+        IOUtil.copy(contentStream, outputStream);
 
         String fullContent = outputStream.toString();
         contentStream.close();

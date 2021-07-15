@@ -518,9 +518,8 @@ public class SyncToolConfigParser {
         String[] config = null;
         if (configBackupFile.exists()) {
             ArrayList<String> args = new ArrayList<String>();
-            try {
-                BufferedReader backupReader =
-                    new BufferedReader(new FileReader(configBackupFile));
+            try (BufferedReader backupReader =
+                     new BufferedReader(new FileReader(configBackupFile))) {
                 String line = backupReader.readLine();
                 while (line != null) {
                     args.add(line);

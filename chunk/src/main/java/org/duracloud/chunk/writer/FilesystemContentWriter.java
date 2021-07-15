@@ -25,6 +25,7 @@ import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.stream.ChunkInputStream;
 import org.duracloud.chunk.stream.KnownLengthInputStream;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.util.IOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -159,11 +160,7 @@ public class FilesystemContentWriter implements ContentWriter {
                                                        contentSize);
         result.setState(AddContentResult.State.SUCCESS);
         try {
-            if (contentSize > TWO_GB) {
-                copyLarge(inputStream, outStream);
-            } else {
-                copy(inputStream, outStream);
-            }
+            copy(inputStream, outStream);
         } catch (Exception e) {
             result.setState(AddContentResult.State.ERROR);
         }
@@ -174,20 +171,10 @@ public class FilesystemContentWriter implements ContentWriter {
         return result;
     }
 
-    private void copyLarge(InputStream chunk, OutputStream outStream) {
-        try {
-            IOUtils.copyLarge(chunk, outStream);
-        } catch (IOException e) {
-            String msg = "Error in copy: " + chunk.toString() + ": ";
-            log.error(msg, e);
-            throw new DuraCloudRuntimeException(msg + e.getMessage(), e);
-        }
-    }
-
     private void copy(InputStream chunk, OutputStream outStream) {
         try {
-            IOUtils.copy(chunk, outStream);
-        } catch (IOException e) {
+            IOUtil.copy(chunk, outStream);
+        } catch (DuraCloudRuntimeException e) {
             String msg = "Error in copy: " + chunk.toString() + ": ";
             log.error(msg, e);
             throw new DuraCloudRuntimeException(msg + e.getMessage(), e);
