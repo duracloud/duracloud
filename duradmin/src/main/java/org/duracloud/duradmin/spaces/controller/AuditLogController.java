@@ -14,11 +14,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.util.DateUtil.DateFormat;
+import org.duracloud.common.util.IOUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
 import org.slf4j.Logger;
@@ -66,7 +66,7 @@ public class AuditLogController {
                                       + ".tsv");
             contentDisposition.append("\"");
             response.setHeader("Content-Disposition", contentDisposition.toString());
-            IOUtils.copy(is, response.getOutputStream());
+            IOUtil.copy(is, response.getOutputStream());
         } catch (NotFoundException ex) {
             response.setStatus(HttpStatus.SC_NOT_FOUND);
 

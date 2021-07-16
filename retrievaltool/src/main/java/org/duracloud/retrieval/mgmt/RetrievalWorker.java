@@ -21,13 +21,13 @@ import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.duracloud.chunk.util.ChunkUtil;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.common.retry.Retrier;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
+import org.duracloud.common.util.IOUtil;
 import org.duracloud.retrieval.source.ContentStream;
 import org.duracloud.retrieval.source.RetrievalSource;
 import org.duracloud.stitch.error.MissingContentException;
@@ -249,7 +249,7 @@ public class RetrievalWorker implements Runnable {
             InputStream inStream = contentStream.getStream();
             OutputStream outStream = new FileOutputStream(localFile);
         ) {
-            IOUtils.copyLarge(inStream, outStream);
+            IOUtil.copy(inStream, outStream);
         } catch (IOException e) {
             try {
                 deleteFile(localFile);

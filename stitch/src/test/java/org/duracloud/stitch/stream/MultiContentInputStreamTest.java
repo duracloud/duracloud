@@ -14,8 +14,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.duracloud.common.model.ContentItem;
+import org.duracloud.common.util.IOUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.stitch.datasource.DataSource;
 import org.easymock.EasyMock;
@@ -69,7 +69,7 @@ public class MultiContentInputStreamTest {
         OutputStream out = new ByteArrayOutputStream();
 
         multiStream = new MultiContentInputStream(dataSource, contentItems);
-        IOUtils.copy(multiStream, out);
+        IOUtil.copy(multiStream, out);
         Assert.assertEquals(text, out.toString());
         out.close();
     }
@@ -85,7 +85,7 @@ public class MultiContentInputStreamTest {
 
         OutputStream out = new ByteArrayOutputStream();
         multiStream = new MultiContentInputStream(dataSource, contentItems, listener);
-        IOUtils.copy(multiStream, out);
+        IOUtil.copy(multiStream, out);
         Assert.assertEquals(text, out.toString());
         out.close();
     }
