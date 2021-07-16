@@ -18,27 +18,27 @@ import org.duracloud.snapshot.error.SnapshotDataException;
  * @author Nicholas Woodward
  * Date: 7/15/21
  */
-public class GetSnapshotCountBridgeResult extends BaseDTO {
+public class GetSnapshotTotalCountBridgeResult extends BaseDTO {
 
     /**
      * The details of the current status
      */
     @XmlValue
-    private Long count;
+    private Long totalCount;
 
-    public GetSnapshotCountBridgeResult() {
+    public GetSnapshotTotalCountBridgeResult() {
     }
 
-    public GetSnapshotCountBridgeResult(Long count) {
-        this.count = count;
+    public GetSnapshotTotalCountBridgeResult(Long totalCount) {
+        this.totalCount = totalCount;
     }
 
-    public long getCount() {
-        return count;
+    public long getTotalCount() {
+        return totalCount;
     }
 
-    public void setCount(Long count) {
-        this.count = count;
+    public void setTotalCount(Long totalCount) {
+        this.totalCount = totalCount;
     }
 
     /**
@@ -47,8 +47,8 @@ public class GetSnapshotCountBridgeResult extends BaseDTO {
      * @return JSON formatted bridge info
      */
     public String serialize() {
-        JaxbJsonSerializer<GetSnapshotCountBridgeResult> serializer =
-            new JaxbJsonSerializer<>(GetSnapshotCountBridgeResult.class);
+        JaxbJsonSerializer<GetSnapshotTotalCountBridgeResult> serializer =
+            new JaxbJsonSerializer<>(GetSnapshotTotalCountBridgeResult.class);
         try {
             return serializer.serialize(this);
         } catch (IOException e) {
@@ -62,9 +62,9 @@ public class GetSnapshotCountBridgeResult extends BaseDTO {
      *
      * @param bridgeResult - JSON formatted set of properties
      */
-    public static GetSnapshotCountBridgeResult deserialize(String bridgeResult) {
-        JaxbJsonSerializer<GetSnapshotCountBridgeResult> serializer =
-            new JaxbJsonSerializer<>(GetSnapshotCountBridgeResult.class);
+    public static GetSnapshotTotalCountBridgeResult deserialize(String bridgeResult) {
+        JaxbJsonSerializer<GetSnapshotTotalCountBridgeResult> serializer =
+            new JaxbJsonSerializer<>(GetSnapshotTotalCountBridgeResult.class);
         try {
             return serializer.deserialize(bridgeResult);
         } catch (IOException e) {
