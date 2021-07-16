@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.ContentItem;
+import org.duracloud.common.util.IOUtil;
 import org.duracloud.domain.Content;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
@@ -127,7 +127,7 @@ public class DuraStoreRetrievalSourceTest {
         assertEquals(checksum, contentStream.getChecksum());
 
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        IOUtils.copy(contentStream.getStream(), outStream);
+        IOUtil.copy(contentStream.getStream(), outStream);
         assertEquals(value, outStream.toString("UTF-8"));
     }
 

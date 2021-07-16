@@ -27,6 +27,7 @@ import org.duracloud.chunk.stream.ChunkInputStream;
 import org.duracloud.chunk.stream.KnownLengthInputStream;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.IOUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -90,7 +91,7 @@ public class ChunkableContentTest {
             chunkFiles.add(f);
 
             out = new FileOutputStream(f);
-            IOUtils.copy(chunk, out);
+            IOUtil.copy(chunk, out);
 
             IOUtils.closeQuietly(chunk);
             IOUtils.closeQuietly(out);
