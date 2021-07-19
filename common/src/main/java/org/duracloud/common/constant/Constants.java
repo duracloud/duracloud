@@ -82,4 +82,9 @@ public class Constants {
      * Header used to expire objects in Swift.
      */
     public static final String SWIFT_EXPIRE_OBJECT_HEADER = "X-Delete-After";
+
+    /**
+     * The default DuraCloud domain.
+     */
+    public static final String DEFAULT_DOMAIN = "duracloud.org";
 }
