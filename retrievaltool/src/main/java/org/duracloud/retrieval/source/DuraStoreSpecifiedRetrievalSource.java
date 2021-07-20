@@ -69,7 +69,7 @@ public class DuraStoreSpecifiedRetrievalSource extends DuraStoreStitchingRetriev
         this.reviewSpecifiedContentIdsForChunkedContent(singleSpaceList);
     }
 
-    protected void reviewSpecifiedContentIdsForChunkedContent(List<String> singleSpaceList) {
+    private void reviewSpecifiedContentIdsForChunkedContent(List<String> singleSpaceList) {
         log.debug("enter reviewSpecifiedContentIdsForChunkedContent()");
         System.out.println("Reviewing space manifest for content IDs in list-file.");
 
