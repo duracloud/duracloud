@@ -53,7 +53,7 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
     }
 
     protected Iterator<String> verifySpaceIds(List<String> spaces) throws RuntimeException {
-        Iterator<String> spaceIds = null;
+        Iterator<String> verifiedSpaceIds = null;
 
         if (spaces != null && spaces.size() > 0) {
             try {
@@ -71,7 +71,7 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
                     throw new DuraCloudRuntimeException(error);
                 }
 
-                spaceIds = spaces.iterator();
+                verifiedSpaceIds = spaces.iterator();
             } catch (ContentStoreException cse) {
                 throw new DuraCloudRuntimeException("Error retrieving spaces list", cse);
             }
@@ -80,7 +80,7 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
                                        "no content to retrieve");
         }
 
-        return spaceIds;
+        return verifiedSpaceIds;
     }
 
     @Override
