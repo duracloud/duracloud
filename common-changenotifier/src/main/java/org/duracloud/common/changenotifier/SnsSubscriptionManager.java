@@ -71,7 +71,7 @@ public class SnsSubscriptionManager implements SubscriptionManager {
             //create sqs queue
             try {
                 final var queueName = this.queueName;
-                this.queueUrl = new Retrier(3, 20, 2).execute(() -> {
+                this.queueUrl = new Retrier(7, 2000, 2).execute(() -> {
                     log.info("creating sqs queue");
                     CreateQueueRequest request = new CreateQueueRequest(queueName);
                     Map<String, String> attributes = new HashMap<String, String>();
