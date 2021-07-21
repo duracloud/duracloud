@@ -14,15 +14,21 @@
 
   <developers>
     <developer>
-      <name>Branan, Bill</name>
-      <email>bbranan@duraspace.org</email>
-      <organization>DuraSpace</organization>
+      <name>Bill Branan</name>
+      <email>bill.branan@lyrasis.org</email>
+      <organization>LYRASIS</organization>
     </developer>
 
     <developer>
-      <name>Bernstein, Danny</name>
-      <email>dbernstein@duraspace.org</email>
-      <organization>DuraSpace</organization>
+      <name>Danny Bernstein</name>
+      <email>daniel.bernstein@lyrasis.org</email>
+      <organization>LYRASIS</organization>
+    </developer>
+
+    <developer>
+      <name>Nicholas Woodward</name>
+      <email>njw@austin.utexas.edu</email>
+      <organization>Texas Digital Library</organization>
     </developer>
   </developers>
 
