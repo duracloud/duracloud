@@ -8,15 +8,28 @@
 package org.duracloud.retrieval.source;
 
 import static org.duracloud.retrieval.source.DuraStoreSpecifiedRetrievalSourceTest.ContentType.BASIC;
+import static org.duracloud.retrieval.source.DuraStoreSpecifiedRetrievalSourceTest.ContentType.CHUNK;
+import static org.duracloud.retrieval.source.DuraStoreSpecifiedRetrievalSourceTest.ContentType.MANIFEST;
+import static org.easymock.EasyMock.expect;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.AssertionFailedError;
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.ContentItem;
+import org.duracloud.manifest.ManifestFormatter;
+import org.duracloud.manifest.impl.TsvManifestFormatter;
+import org.duracloud.mill.db.model.ManifestItem;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,6 +45,8 @@ public class DuraStoreSpecifiedRetrievalSourceTest {
     private ContentStore store;
     private List<String> spaces;
     private List<String> specifiedContentIds;
+    private List<String> manifestContentIds;
+    private List<String> verifiedContentIds;
 
     private final static String spaceId0 = "space-0";
     private final static String spaceId1 = "space-1";
@@ -41,13 +56,46 @@ public class DuraStoreSpecifiedRetrievalSourceTest {
     public void setUp() throws Exception {
         spaces = new ArrayList<String>();
         spaces.add(spaceId0);
+
         store = EasyMock.createMock("ContentStore", ContentStore.class);
-        EasyMock.expect(store.getSpaces()).andReturn(spaces).times(1);
+        EasyMock.expect(store.getSpaces()).andReturn(spaces).times(2);
 
         specifiedContentIds = new ArrayList<String>();
         specifiedContentIds.add(BASIC.getContentId(0));
         specifiedContentIds.add(BASIC.getContentId(1));
+        specifiedContentIds.add(BASIC.getContentId(2));
         specifiedContentIds.add(BASIC.getContentId(4));
+
+        manifestContentIds = new ArrayList<String>();
+        manifestContentIds.add(BASIC.getContentId(0));
+        manifestContentIds.add(BASIC.getContentId(1));
+        manifestContentIds.add(BASIC.getContentId(2));
+        manifestContentIds.add(CHUNK.getContentId(2));
+        manifestContentIds.add(CHUNK.getContentId(2));
+        manifestContentIds.add(MANIFEST.getContentId(2));
+        manifestContentIds.add(BASIC.getContentId(4));
+
+        TsvManifestFormatter formatter = new TsvManifestFormatter();
+        File unstitchedManifest = File.createTempFile("unstitched", "tsv");
+        unstitchedManifest.deleteOnExit();
+
+        BufferedWriter writer =
+            new BufferedWriter(new OutputStreamWriter(new FileOutputStream(unstitchedManifest)));
+        writer.write(formatter.getHeader() + "\n");
+
+        for (String manifestContentId : manifestContentIds) {
+            write(writer, formatter, spaceId0, manifestContentId);
+        }
+
+        writer.close();
+
+        expect(store.getManifest(spaceId0, ManifestFormat.TSV)).andReturn(new FileInputStream(unstitchedManifest));
+
+        verifiedContentIds = new ArrayList<String>();
+        verifiedContentIds.add(BASIC.getContentId(0));
+        verifiedContentIds.add(BASIC.getContentId(1));
+        verifiedContentIds.add(MANIFEST.getContentId(2));
+        verifiedContentIds.add(BASIC.getContentId(4));
     }
 
     @Test
@@ -63,7 +111,7 @@ public class DuraStoreSpecifiedRetrievalSourceTest {
         retrievalSource = new DuraStoreSpecifiedRetrievalSource(store,
                                                                 spaces,
                                                                 specifiedContentIds.iterator());
-        verifyContents(spaceId0, specifiedContentIds);
+        verifyContents(spaceId0, verifiedContentIds);
 
         ContentItem item = retrievalSource.getNextContentItem();
         Assert.assertNull(item);
@@ -82,7 +130,7 @@ public class DuraStoreSpecifiedRetrievalSourceTest {
                                                                 specifiedContentIds.iterator());
     }
 
-    private void verifyContents(String spaceId, List<String> specifiedContentIds) {
+    private void verifyContents(String spaceId, List<String> verifiedContentIds) {
         ContentItem item = null;
         List<ContentItem> retrievedItems = new ArrayList<ContentItem>();
         int i = 0;
@@ -90,14 +138,25 @@ public class DuraStoreSpecifiedRetrievalSourceTest {
             retrievedItems.add(item);
             Assert.assertNotNull(item);
             Assert.assertEquals(spaceId, item.getSpaceId());
-            Assert.assertEquals(specifiedContentIds.get(i), item.getContentId());
+            Assert.assertEquals(verifiedContentIds.get(i), item.getContentId());
             i++;
         }
-        Assert.assertEquals(specifiedContentIds.size(), retrievedItems.size());
+        Assert.assertEquals(verifiedContentIds.size(), retrievedItems.size());
     }
 
     private void replayMocks() {
         EasyMock.replay(store);
+    }
+
+    private void write(BufferedWriter writer,
+                       ManifestFormatter formatter,
+                       String spaceId,
+                       String contentId) throws IOException {
+        ManifestItem item = new ManifestItem();
+        item.setContentChecksum("checksum-md5");
+        item.setContentId(contentId);
+        item.setSpaceId(spaceId);
+        writer.write(formatter.formatLine(item) + "\n");
     }
 
     /**
