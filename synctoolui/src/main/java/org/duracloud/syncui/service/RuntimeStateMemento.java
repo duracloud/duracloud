@@ -56,7 +56,10 @@ public class RuntimeStateMemento {
             try (InputStream is = new FileInputStream(stateFile)) {
                 log.debug("retrieving state from {}",
                           stateFile.getAbsolutePath());
+
                 XStream xstream = new XStream();
+                xstream.allowTypes(new Class[] {RuntimeStateMemento.class});
+
                 //FileInputStream fis = new FileInputStream(stateFile);
                 return (RuntimeStateMemento) xstream.fromXML(is);
             } catch (IOException e) {
