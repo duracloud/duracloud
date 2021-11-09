@@ -40,6 +40,7 @@ public class SyncToolConfigSerializer {
     }
 
     private static void configure(XStream xstream) {
+        xstream.allowTypes(new Class[] {SyncToolConfig.class});
         xstream.alias("syncToolConfig", SyncToolConfig.class);
     }
 
