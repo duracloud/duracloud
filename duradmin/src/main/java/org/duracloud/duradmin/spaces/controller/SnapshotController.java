@@ -149,6 +149,18 @@ public class SnapshotController {
         }
     }
 
+    @RequestMapping(value = "/spaces/snapshots/totals/{storeId}", method = RequestMethod.GET)
+    @ResponseBody
+    public String getSnapshotTotals(@PathVariable("storeId") String storeId,
+                                    @RequestParam(value = "status", required = false) String status) {
+        try {
+            return getTaskClient(storeId).getSnapshotsTotals(status).serialize();
+        } catch (ContentStoreException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
     @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId:.+}", method = RequestMethod.GET)
     @ResponseBody
     public String getSnapshot(@PathVariable("storeId") String storeId,

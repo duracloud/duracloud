@@ -21,6 +21,7 @@ import org.duracloud.snapshottask.snapshot.GetSnapshotContentsTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetSnapshotHistoryTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetSnapshotsTaskRunner;
+import org.duracloud.snapshottask.snapshot.GetSnapshotsTotalsTaskRunner;
 import org.duracloud.snapshottask.snapshot.RequestRestoreSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.RestartSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.RestoreSnapshotTaskRunner;
@@ -84,6 +85,13 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                 bridgeUser,
                                                 bridgePass,
                                                 snapshotProvider));
+        taskList.add(new GetSnapshotsTotalsTaskRunner(dcHost,
+                                                      dcStoreId,
+                                                      bridgeHost,
+                                                      bridgePort,
+                                                      bridgeUser,
+                                                      bridgePass,
+                                                      snapshotProvider));
         taskList.add(new GetSnapshotContentsTaskRunner(bridgeHost,
                                                        bridgePort,
                                                        bridgeUser,
