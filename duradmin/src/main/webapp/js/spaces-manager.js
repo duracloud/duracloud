@@ -2978,11 +2978,12 @@ $(function() {
     load : function(storeId) {
       this._storeId = storeId;
 
-      if (this._isAdmin() && this._isSnapshot(storeId))  {
-        var totalsDiv = $.fn.create("div").addClass("totals-table");
-        this._appendToCenter(totalsDiv);
-
-        this._loadSnapshotsTotals(totalsDiv);
+      if (this._isAdmin())  {
+        if (this._isSnapshot(storeId)) {
+            var totalsDiv = $.fn.create("div").addClass("totals-table");
+            this._appendToCenter(totalsDiv);
+            this._loadSnapshotsTotals(totalsDiv);
+        }
 
         var history = $.fn.create("div");
         this._appendToCenter(history);
