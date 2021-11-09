@@ -2978,7 +2978,7 @@ $(function() {
     load : function(storeId) {
       this._storeId = storeId;
 
-      if (this._isAdmin())  {
+      if (this._isAdmin()) {
         if (this._isSnapshot(storeId)) {
             var totalsDiv = $.fn.create("div").addClass("totals-table");
             this._appendToCenter(totalsDiv);
