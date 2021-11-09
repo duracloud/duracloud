@@ -8,7 +8,6 @@
 package org.duracloud.durastore.rest;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -57,7 +56,7 @@ public class StorageStatsResource {
             this.spaceStatsRepo.getByAccountIdAndStoreIdAndSpaceId(accountId, storeId, spaceId, start, end, interval);
         List<SpaceStatsDTO> dtos = new ArrayList<>(list.size());
         for (Object[] s : list) {
-            dtos.add(new SpaceStatsDTO(new Date(((BigInteger) s[0]).longValue() * 1000),
+            dtos.add(new SpaceStatsDTO(new Date(((Number) s[0]).longValue() * 1000),
                                        s[1].toString(),
                                        s[2].toString(),
                                        s[3].toString(),
@@ -93,7 +92,7 @@ public class StorageStatsResource {
         List<Object[]> list = this.spaceStatsRepo.getByAccountIdAndStoreId(account, storeId, start, end, interval);
         List<StoreStatsDTO> dtos = new ArrayList<>(list.size());
         for (Object[] s : list) {
-            dtos.add(new StoreStatsDTO(new Date(((BigInteger) s[0]).longValue() * 1000),
+            dtos.add(new StoreStatsDTO(new Date(((Number) s[0]).longValue() * 1000),
                                        s[1].toString(),
                                        s[2].toString(),
                                        ((BigDecimal) s[3]).longValue(),
