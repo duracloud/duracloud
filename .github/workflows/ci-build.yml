@@ -54,10 +54,10 @@ jobs:
         server-password: SONATYPE_PASSWORD # env variable for sonatype password
         gpg-private-key: ${{ secrets.CODESIGN_GPG_KEY }} # Value of the GPG private key to import
         gpg-passphrase: CODESIGN_GPG_PASSPHRASE # env variable for GPG private key passphrase
-    # ONLY on push to master branch (using Sonatype releases repo)
+    # ONLY on push to main branch (using Sonatype releases repo)
     - name: Set up for deploy to Sonatype
       uses: actions/setup-java@v2
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       with:
         java-version: 11
         distribution: adopt
@@ -67,9 +67,9 @@ jobs:
         gpg-private-key: ${{ secrets.CODESIGN_GPG_KEY }} # Value of the GPG private key to import
         gpg-passphrase: CODESIGN_GPG_PASSPHRASE # env variable for GPG private key passphrase
 
-    # Execute deployment to sonatype (only on push to develop or master branches)
+    # Execute deployment to sonatype (only on push to develop or main branches)
     - name: Publish to Sonatype
-      if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master')
+      if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main')
       run: mvn deploy -DreleaseBuild -DskipTests -DskipDeploy --batch-mode
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
