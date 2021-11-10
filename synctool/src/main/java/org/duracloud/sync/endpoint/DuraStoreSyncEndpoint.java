@@ -101,25 +101,9 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     }
 
     private void ensureSpaceExists() {
-        boolean spaceExists = false;
-        for (int i = 0; i < 10; i++) {
-            if (spaceExists()) {
-                spaceExists = true;
-                break;
-            }
-            sleep(300);
-        }
-        if (!spaceExists) {
+        if (!spaceExists()) {
             throw new RuntimeException("Could not connect to space with ID '" +
                                        spaceId + "'.");
-        }
-    }
-
-    private void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            // Exit sleep on interruption
         }
     }
 
