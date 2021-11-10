@@ -38,7 +38,7 @@ jobs:
 
     # Run build and execute tests
     - name: Build and Run unit tests
-      run: mvn clean install -DskipIntTests --batch-mode
+      run: mvn clean install -DskipIntTests -DskipDeploy --batch-mode
 
     # https://github.com/actions/setup-java
     # Sets up Java again, preparing the settings.xml to deploy to Sonatype (Maven)
@@ -70,7 +70,7 @@ jobs:
     # Execute deployment to sonatype (only on push to develop or master branches)
     - name: Publish to Sonatype
       if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master')
-      run: mvn deploy -DreleaseBuild -DskipTests --batch-mode
+      run: mvn deploy -DreleaseBuild -DskipTests -DskipDeploy --batch-mode
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
