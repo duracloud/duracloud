@@ -75,39 +75,3 @@ jobs:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         CODESIGN_GPG_PASSPHRASE: ${{ secrets.CODESIGN_GPG_PASSPHRASE }}
-
-    # https://github.com/marketplace/actions/send-email
-    - name: Send result email
-      uses: dawidd6/action-send-mail@v3
-      if: always()
-      with:
-        # smtp settings
-        server_address: ${{ secrets.SMTP_SERVER_HOST }}
-        server_port: ${{ secrets.SMTP_SERVER_PORT }}
-        username: ${{ secrets.SMTP_USERNAME }}
-        password: ${{ secrets.SMTP_PASSWORD }}
-        secure: true
-        # email subject
-        subject: CI build for ${{ github.repository }} result - ${{ job.status }}
-        # email body
-        body: >
-          A CI Build in ${{ github.repository }} was triggerd by a ${{ github.event_name }} event on
-          branch (or tag) ${{ github.ref }}.
-
-          The result was: ${{ job.status }}
-
-          More details are available here: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        # to emails (comma-separated string)
-        to: cibuilds@duracloud.org
-        # from email
-        from: DuraCloud CI Builder <notifications@duracloud.org>
-
-    # https://github.com/marketplace/actions/action-slack
-    - name: Send slack alert on failure
-      uses: 8398a7/action-slack@v3
-      if: failure()
-      with:
-        status: ${{ job.status }}
-        fields: repo,message,commit,author,eventName,workflow,ref,took
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
