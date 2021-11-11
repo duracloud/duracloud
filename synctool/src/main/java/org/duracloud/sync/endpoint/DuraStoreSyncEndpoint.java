@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.event.EventListenerSupport;
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.ContentIdUtil;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
@@ -110,14 +111,8 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     private boolean spaceExists() {
         try {
             try {
-                Iterator<String> contents =
-                    contentStore.getSpaceContents(spaceId);
-                if (contents.hasNext()) {
-                    logger.warn("The specified space '" + spaceId +
-                                "' is not empty. If this space is being used for an " +
-                                "activity other than sync there is the possibility " +
-                                "of data loss.");
-                }
+                Map<String, AclType> acls =
+                    contentStore.getSpaceACLs(spaceId);
                 return true;
             } catch (NotFoundException e) {
                 contentStore.createSpace(spaceId);
