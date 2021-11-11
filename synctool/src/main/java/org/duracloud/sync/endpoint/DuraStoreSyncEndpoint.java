@@ -21,7 +21,6 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.ContentIdUtil;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.NotFoundException;
 import org.duracloud.storage.util.StorageProviderUtil;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.slf4j.Logger;
@@ -101,25 +100,11 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     }
 
     private void ensureSpaceExists() {
-        if (!spaceExists()) {
+        try {
+            contentStore.getSpaceACLs(spaceId);
+        } catch (ContentStoreException e) {
             throw new RuntimeException("Could not connect to space with ID '" +
                                        spaceId + "'.");
-        }
-    }
-
-    private boolean spaceExists() {
-        try {
-            try {
-                contentStore.getSpaceACLs(spaceId);
-                return true;
-            } catch (NotFoundException e) {
-                contentStore.createSpace(spaceId);
-                return false;
-            }
-        } catch (ContentStoreException e) {
-            logger.warn("Could not connect to space with ID '" + spaceId +
-                        "' due to error: " + e.getMessage(), e);
-            return false;
         }
     }
 
