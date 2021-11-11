@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.model.AclType;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.sync.endpoint.MonitoredFile;
@@ -135,6 +137,10 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         expect(contentStoreManager.getPrimaryContentStore())
             .andReturn(contentStore).times(times);
         expect(this.contentStore.getStoreId()).andReturn("0").anyTimes();
+
+        expect(contentStore.getSpaceACLs(isA(String.class)))
+            .andReturn(new HashMap<String, AclType>())
+            .anyTimes();
 
         expect(this.contentStore.getSpaceContents(isA(String.class)))
             .andAnswer(new IAnswer<Iterator<String>>() {

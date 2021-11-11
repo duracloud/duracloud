@@ -104,9 +104,11 @@ public class DuraStoreChunkSyncEndpointTest {
     private void createGetFilesListMocks(List<String> contents)
         throws ContentStoreException {
 
+        EasyMock.expect(contentStore.getSpaceACLs(spaceId))
+                .andReturn(new HashMap<String, AclType>());
+
         EasyMock.expect(contentStore.getSpaceContents(spaceId))
-                .andReturn(contents.iterator())
-                .times(2);
+                .andReturn(contents.iterator());
 
     }
 
@@ -139,8 +141,6 @@ public class DuraStoreChunkSyncEndpointTest {
             new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
         String checksum = checksumUtil.generateChecksum(contentFile);
 
-        EasyMock.expect(contentStore.getSpaceContents(spaceId))
-                .andReturn(new ArrayList<String>().iterator());
         EasyMock.expect(contentStore.getSpaceACLs(spaceId))
                 .andReturn(new HashMap<String, AclType>())
                 .anyTimes();
@@ -182,8 +182,6 @@ public class DuraStoreChunkSyncEndpointTest {
             new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
         String checksum = checksumUtil.generateChecksum(contentFile);
 
-        EasyMock.expect(contentStore.getSpaceContents(spaceId))
-                .andReturn(new ArrayList<String>().iterator());
         EasyMock.expect(contentStore.getSpaceACLs(spaceId))
                 .andReturn(new HashMap<String, AclType>())
                 .anyTimes();
@@ -256,8 +254,6 @@ public class DuraStoreChunkSyncEndpointTest {
         File tmpFile = File.createTempFile("test", "txt");
         tmpFile.deleteOnExit();
 
-        EasyMock.expect(contentStore.getSpaceContents(spaceId))
-                .andReturn(new ArrayList<String>().iterator()).times(1);
         EasyMock.expect(contentStore.getSpaceACLs(spaceId))
                 .andReturn(new HashMap<String, AclType>())
                 .anyTimes();

@@ -11,11 +11,12 @@ import static junit.framework.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.ChecksumUtil;
 import org.easymock.Capture;
 import org.easymock.CaptureType;
@@ -42,8 +43,8 @@ public class DuraStoreSyncEndpointTest {
         spaceId = "spaceId";
         contentStore = EasyMock.createMock(ContentStore.class);
 
-        EasyMock.expect(contentStore.getSpaceContents(EasyMock.isA(String.class)))
-                .andReturn(new ArrayList<String>().iterator())
+        EasyMock.expect(contentStore.getSpaceACLs(EasyMock.isA(String.class)))
+                .andReturn(new HashMap<String, AclType>())
                 .anyTimes();
 
         EasyMock.expect(contentStore.getStoreId())

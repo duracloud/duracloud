@@ -21,7 +21,6 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.ContentIdUtil;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.NotFoundException;
 import org.duracloud.storage.util.StorageProviderUtil;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.slf4j.Logger;
@@ -101,48 +100,11 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     }
 
     private void ensureSpaceExists() {
-        boolean spaceExists = false;
-        for (int i = 0; i < 10; i++) {
-            if (spaceExists()) {
-                spaceExists = true;
-                break;
-            }
-            sleep(300);
-        }
-        if (!spaceExists) {
+        try {
+            contentStore.getSpaceACLs(spaceId);
+        } catch (ContentStoreException e) {
             throw new RuntimeException("Could not connect to space with ID '" +
                                        spaceId + "'.");
-        }
-    }
-
-    private void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            // Exit sleep on interruption
-        }
-    }
-
-    private boolean spaceExists() {
-        try {
-            try {
-                Iterator<String> contents =
-                    contentStore.getSpaceContents(spaceId);
-                if (contents.hasNext()) {
-                    logger.warn("The specified space '" + spaceId +
-                                "' is not empty. If this space is being used for an " +
-                                "activity other than sync there is the possibility " +
-                                "of data loss.");
-                }
-                return true;
-            } catch (NotFoundException e) {
-                contentStore.createSpace(spaceId);
-                return false;
-            }
-        } catch (ContentStoreException e) {
-            logger.warn("Could not connect to space with ID '" + spaceId +
-                        "' due to error: " + e.getMessage(), e);
-            return false;
         }
     }
 
