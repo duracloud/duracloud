@@ -10,6 +10,7 @@ package org.duracloud.client.task;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.snapshot.SnapshotConstants;
+import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CompleteRestoreTaskParameters;
@@ -138,7 +139,7 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
     public GetSnapshotsTotalsTaskResult getSnapshotsTotals(String status)
         throws ContentStoreException {
         if (null == status) {
-            status = "SNAPSHOT_COMPLETE";
+            status = SnapshotStatus.SNAPSHOT_COMPLETE.name();
         }
 
         GetSnapshotsTotalsTaskParameters taskParams =
