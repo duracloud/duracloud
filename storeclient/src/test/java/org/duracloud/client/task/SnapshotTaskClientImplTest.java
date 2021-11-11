@@ -8,6 +8,7 @@
 package org.duracloud.client.task;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotsTotalsTaskResult;
 import org.duracloud.snapshot.dto.task.RequestRestoreSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
 import org.easymock.EasyMock;
@@ -67,6 +69,7 @@ public class SnapshotTaskClientImplTest {
     private String completionResult = "result";
     private String historyValue = "history";
     private int daysToExpire = 30;
+    private String status = "SNAPSHOT_COMPLETE";
 
     @Before
     public void setup() {
@@ -194,6 +197,27 @@ public class SnapshotTaskClientImplTest {
         assertThat(storeId, equalTo(resultSummary.getSourceStoreId()));
         assertThat(spaceId, equalTo(resultSummary.getSourceSpaceId()));
 
+    }
+
+    @Test
+    public void testGetSnapshotsTotals() throws Exception {
+        String taskName = SnapshotConstants.GET_SNAPSHOTS_TOTALS_TASK_NAME;
+
+        long totalCount = 1L;
+        long totalSize = 100L;
+        long totalFiles = 1000L;
+
+        GetSnapshotsTotalsTaskResult preparedResult =
+            new GetSnapshotsTotalsTaskResult(totalCount, totalSize, totalFiles);
+
+        setupMock(taskName, preparedResult.serialize());
+        replayMocks();
+
+        GetSnapshotsTotalsTaskResult result = taskClient.getSnapshotsTotals(status);
+
+        assertEquals(totalCount, result.getTotalCount());
+        assertEquals(totalSize, result.getTotalSize());
+        assertEquals(totalFiles, result.getTotalFiles());
     }
 
     @Test

@@ -10,6 +10,7 @@ package org.duracloud.client.task;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.snapshot.SnapshotConstants;
+import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CompleteRestoreTaskParameters;
@@ -27,6 +28,8 @@ import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotsTotalsTaskParameters;
+import org.duracloud.snapshot.dto.task.GetSnapshotsTotalsTaskResult;
 import org.duracloud.snapshot.dto.task.RequestRestoreSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
@@ -127,6 +130,26 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
             contentStore.performTask(SnapshotConstants.GET_SNAPSHOTS_TASK_NAME, "");
 
         return GetSnapshotListTaskResult.deserialize(taskResult);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public GetSnapshotsTotalsTaskResult getSnapshotsTotals(String status)
+        throws ContentStoreException {
+        if (null == status) {
+            status = SnapshotStatus.SNAPSHOT_COMPLETE.name();
+        }
+
+        GetSnapshotsTotalsTaskParameters taskParams =
+            new GetSnapshotsTotalsTaskParameters();
+        taskParams.setStatus(status);
+
+        String taskResult =
+            contentStore.performTask(SnapshotConstants.GET_SNAPSHOTS_TOTALS_TASK_NAME, taskParams.serialize());
+
+        return GetSnapshotsTotalsTaskResult.deserialize(taskResult);
     }
 
     /**

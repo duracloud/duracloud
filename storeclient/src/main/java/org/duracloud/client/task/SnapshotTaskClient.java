@@ -17,6 +17,7 @@ import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotsTotalsTaskResult;
 import org.duracloud.snapshot.dto.task.RequestRestoreSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
 
@@ -87,6 +88,16 @@ public interface SnapshotTaskClient {
      * @throws ContentStoreException on error
      */
     public GetSnapshotListTaskResult getSnapshots()
+        throws ContentStoreException;
+
+    /**
+     * Gets the total count, size (in bytes) and files of snapshots which are accessible to this account
+     *
+     * @param status
+     * @return results
+     * @throws ContentStoreException on error
+     */
+    public GetSnapshotsTotalsTaskResult getSnapshotsTotals(String status)
         throws ContentStoreException;
 
     /**

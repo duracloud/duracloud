@@ -495,7 +495,16 @@ var dc;
             type: "get",
         });
     };
-    
+
+    dc.store.GetSnapshotTotals = function(storeId, status) {
+        return dc.ajax2({
+            url: "/duradmin/spaces/snapshots/totals/" + storeId + "?status=" + status,
+            async: true,
+            dataType: 'json',
+            type: "get",
+        });
+    };
+
     dc.store.GetSnapshot = function(params){
         
         return dc.ajax2({

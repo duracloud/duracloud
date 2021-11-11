@@ -2979,6 +2979,12 @@ $(function() {
       this._storeId = storeId;
 
       if (this._isAdmin()) {
+        if (this._isSnapshot(storeId)) {
+            var totalsDiv = $.fn.create("div").addClass("totals-table");
+            this._appendToCenter(totalsDiv);
+            this._loadSnapshotsTotals(totalsDiv);
+        }
+
         var history = $.fn.create("div");
         this._appendToCenter(history);
         history.historypanel({
@@ -2986,6 +2992,34 @@ $(function() {
         });
       }
 
+    },
+
+    _loadSnapshotsTotals : function(totalsDiv) {
+      $.when(this._getTotals()).done(function(result) {
+        var totals = result;
+
+        var props = [];
+
+        props.push([ 'Snapshots', totals.totalCount ]);
+
+        size_formatted = dc.formatBytes(totals.totalSize, true);
+        props.push([ 'Size', size_formatted ]);
+
+        props.push([ 'Files', totals.totalFiles ]);
+
+        totalsDiv.tabularexpandopanel({
+          title : "Snapshot Totals",
+          data : props
+        });
+      }).fail(function(err){
+        alert("Failed to retrieve snapshot totals.");
+      });
+    },
+
+    _getTotals: function() {
+        return dc.store.GetSnapshotTotals(
+            this._storeId,
+            'SNAPSHOT_COMPLETE');
     },
   }));
 
