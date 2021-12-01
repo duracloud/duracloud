@@ -240,9 +240,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <duracloud.db.version>7.1.0-SNAPSHOT</duracloud.db.version>
     <duraspace-codestyle.version>1.1.0</duraspace-codestyle.version>
-    <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
-    <org.springframework.security.version>4.0.4.RELEASE</org.springframework.security.version>
+    <org.springframework.version>4.3.30.RELEASE</org.springframework.version>
+    <org.springframework.security.version>4.2.20.RELEASE</org.springframework.security.version>
     <org.springframework.webflow.version>2.4.2.RELEASE</org.springframework.webflow.version>
+    <org.springframework.data.version>1.13.23.RELEASE</org.springframework.data.version>
     <hibernate.version>5.4.3.Final</hibernate.version>
     <aws.sdk.version>1.12.24</aws.sdk.version>
     <jersey.version>2.5.1</jersey.version>
@@ -1470,13 +1471,13 @@
       <dependency>
         <groupId>org.springframework.data</groupId>
         <artifactId>spring-data-commons</artifactId>
-        <version>1.12.1.RELEASE</version>
+        <version>${org.springframework.data.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-orm</artifactId>
-        <version>3.2.9.RELEASE</version>
+        <version>${org.springframework.version}</version>
       </dependency>
 
       <dependency>
