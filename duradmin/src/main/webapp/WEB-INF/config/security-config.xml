@@ -7,7 +7,7 @@
                http://www.springframework.org/schema/aop
                http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
                http://www.springframework.org/schema/security
-               http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+               http://www.springframework.org/schema/security/spring-security-4.2.xsd">
 
   <beans:bean id="authenticationProcessingFilter"
               class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
