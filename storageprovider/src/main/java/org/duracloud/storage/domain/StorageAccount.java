@@ -28,13 +28,6 @@ public interface StorageAccount {
         // Swift
         SWIFT_S3_ENDPOINT,
         SWIFT_S3_SIGNER_TYPE,
-        // iRODS below
-        ZONE,
-        PORT,
-        HOST,
-        BASE_DIRECTORY,
-        RESOURCE,
-        TEMP_PATH,
         // Snapshot below
         SNAPSHOT_USER,
         BRIDGE_HOST,
