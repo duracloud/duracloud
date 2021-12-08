@@ -100,5 +100,11 @@
   <beans:bean id="webexpressionHandler"
               class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler"/>
 
+  <beans:bean id="allowCharactersHttpFirewall"
+              class="org.springframework.security.web.firewall.StrictHttpFirewall">
+    <beans:property name="allowUrlEncodedPercent" value="true"/>
+    <beans:property name="allowSemicolon" value="true"/>
+  </beans:bean>
+  <http-firewall ref="allowCharactersHttpFirewall"/>
 
 </beans:beans>
