@@ -3008,11 +3008,11 @@ $(function() {
         props.push([ 'Files', totals.totalFiles ]);
 
         totalsDiv.tabularexpandopanel({
-          title : "Snapshot Totals",
+          title : "Completed Snapshot Totals",
           data : props
         });
       }).fail(function(err){
-        alert("Failed to retrieve snapshot totals.");
+        alert("Failed to retrieve completed snapshot totals.");
       });
     },
 
