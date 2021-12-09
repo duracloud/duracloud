@@ -60,8 +60,14 @@ public class SwiftStorageProvider extends S3StorageProvider {
         super(s3Client, accessKey, null);
     }
 
-    private static String[] SWIFT_METADATA_LIST =
-        {Headers.ETAG, Headers.CONTENT_LENGTH, Headers.DATE, Headers.LAST_MODIFIED, Headers.CONTENT_TYPE};
+    private static String[] SWIFT_METADATA_LIST = {
+        Headers.ETAG,
+        Headers.CONTENT_LENGTH,
+        Headers.CONTENT_TYPE,
+        Headers.CONTENT_RANGE,
+        Headers.DATE,
+        Headers.LAST_MODIFIED,
+    };
 
     /**
      * {@inheritDoc}
