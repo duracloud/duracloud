@@ -24,12 +24,12 @@
         <li id="getstarted"><a
           target="_blank"
           class="icon-link"
-          href="https://wiki.duraspace.org/display/DURACLOUDDOC/Getting+Started+with+DuraCloud"><i
+          href="https://wiki.lyrasis.org/display/DURACLOUDDOC/Getting+Started+with+DuraCloud"><i
             class="pre getstarted"></i>Getting Started</a></li>
         <li id="help"><a
           target="_blank"
           class="icon-link"
-          href="https://wiki.duraspace.org/display/DURACLOUD/DuraCloud+Help+Center"><i
+          href="https://wiki.lyrasis.org/display/DURACLOUD/DuraCloud+Help+Center"><i
             class="pre help"></i>Help</a></li>
         <li><a
           class="icon-link"

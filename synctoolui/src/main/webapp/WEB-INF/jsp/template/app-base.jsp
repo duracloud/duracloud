@@ -32,7 +32,7 @@
     <ul>
       <li>DuraCloud Sync v<spring:message code="version"/> rev <spring:message code="revision"/></li>
       <li><a href="http://www.duracloud.org">DuraCloud</a></li>
-      <li><a href="http://www.duraspace.org">DuraSpace</a></li>
+      <li><a href="http://www.lyrasis.org">Lyrasis</a></li>
     </ul>
   </div>
 </div>
