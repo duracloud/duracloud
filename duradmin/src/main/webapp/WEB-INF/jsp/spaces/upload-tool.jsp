@@ -46,7 +46,7 @@
           <h2 style="margin-bottom:10px">
             Upload to ${space.spaceId} in  ${storageProviderName}
             <a class="upload-tool-help"
-               href="https://wiki.duraspace.org/display/DURACLOUDDOC/Upload+Tool+Help"
+               href="https://wiki.lyrasis.org/display/DURACLOUDDOC/Upload+Tool+Help"
                target="_blank">Help</a>
           </h2>
           
