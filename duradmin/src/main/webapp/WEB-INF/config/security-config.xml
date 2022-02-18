@@ -104,6 +104,7 @@
               class="org.springframework.security.web.firewall.StrictHttpFirewall">
     <beans:property name="allowUrlEncodedPercent" value="true"/>
     <beans:property name="allowSemicolon" value="true"/>
+    <beans:property name="allowUrlEncodedSlash" value="true"/>
   </beans:bean>
   <http-firewall ref="allowCharactersHttpFirewall"/>
 
