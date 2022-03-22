@@ -35,36 +35,34 @@ cp synctoolui/target/duracloudsync*.run $targetDir
 cp synctoolui/target/duracloudsync*.zip $targetDir
 
 # build install package only for tagged releases    
-if [ ! -z "$RELEASE_VERSION" ]; then 
-  LOCAL_INSTALL=$targetDir/install
-  mkdir -p  $LOCAL_INSTALL
-  echo "Staging install package"
-  cp resources/readme.txt ${LOCAL_INSTALL}/
-  cp $targetDir/durastore.war ${LOCAL_INSTALL}/
-  cp $targetDir/duradmin.war ${LOCAL_INSTALL}/
-  cp $targetDir/ROOT.war ${LOCAL_INSTALL}/
-  echo "Zipping installation package"
-  package="installation-package-${projectVersion}.zip"
-  zip -r -j $targetDir/${package} $LOCAL_INSTALL/
-  rm -rf ${LOCAL_INSTALL}
-  
-  # generate javadocs only for tagged releases
-  echo "Generating  javadocs..."
-  # the irodsstorageprovider is excluded due to maven complaining about it. This exclusion will likely be temporary.
-  # same goes for duradmin and synctoolui due to dependencies on unconventional setup of org.duracloud:jquery* dependencies.
-  mvn javadoc:aggregate -Dadditionalparam="-Xdoclint:none" -Pjava8-disable-strict-javadoc  -pl \!irodsstorageprovider,\!duradmin,\!synctoolui --batch-mode
-  cd $targetDir/site/apidocs
-  zipFile=duracloud-${projectVersion}-apidocs.zip
-  echo "Zipping javadocs..."
-  zip -r ${zipFile} .
-  mv ${zipFile} $targetDir/
-  cd $targetDir
-  rm -rf install site javadoc-bundle-options
-  
-  # generate signed checksum file
-  checksumFile="sha512sum-$projectVersion.txt"
-  sha512sum * > ${checksumFile}
-  echo $GPG_PASSPHRASE | gpg --passphrase-fd 0 --clearsign ${checksumFile}
- 
-  rm -rf *.war .ebextensions .platform *.xml checkstyle* *.pom* nexus-staging 
-fi
+LOCAL_INSTALL=$targetDir/install
+mkdir -p  $LOCAL_INSTALL
+echo "Staging install package"
+cp resources/readme.txt ${LOCAL_INSTALL}/
+cp $targetDir/durastore.war ${LOCAL_INSTALL}/
+cp $targetDir/duradmin.war ${LOCAL_INSTALL}/
+cp $targetDir/ROOT.war ${LOCAL_INSTALL}/
+echo "Zipping installation package"
+package="installation-package-${projectVersion}.zip"
+zip -r -j $targetDir/${package} $LOCAL_INSTALL/
+rm -rf ${LOCAL_INSTALL}
+
+# generate javadocs only for tagged releases
+echo "Generating  javadocs..."
+# the irodsstorageprovider is excluded due to maven complaining about it. This exclusion will likely be temporary.
+# same goes for duradmin and synctoolui due to dependencies on unconventional setup of org.duracloud:jquery* dependencies.
+mvn javadoc:aggregate -Dadditionalparam="-Xdoclint:none" -Pjava8-disable-strict-javadoc  -pl \!irodsstorageprovider,\!duradmin,\!synctoolui --batch-mode
+cd $targetDir/site/apidocs
+zipFile=duracloud-${projectVersion}-apidocs.zip
+echo "Zipping javadocs..."
+zip -r ${zipFile} .
+mv ${zipFile} $targetDir/
+cd $targetDir
+rm -rf install site javadoc-bundle-options
+
+# generate signed checksum file
+checksumFile="sha512sum-$projectVersion.txt"
+sha512sum * > ${checksumFile}
+echo $GPG_PASSPHRASE | gpg --passphrase-fd 0 --clearsign ${checksumFile}
+
+rm -rf *.war .ebextensions .platform *.xml checkstyle* *.pom* nexus-staging 
