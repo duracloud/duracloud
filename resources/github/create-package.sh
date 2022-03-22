@@ -9,7 +9,7 @@ generateBeanstalkZip ()
    mvn process-resources --non-recursive
    cd target
    zip -r ${zipFile} duradmin.war durastore.war ROOT.war .ebextensions .platforms
-   rm -rf *.war .ebextensions .platforms 
+   rm -rf *.war .ebextensions .platform
    cd ..
 }
 
@@ -66,5 +66,5 @@ if [ ! -z "$RELEASE_VERSION" ]; then
   sha512sum * > ${checksumFile}
   echo $GPG_PASSPHRASE | gpg --passphrase-fd 0 --clearsign ${checksumFile}
  
-  rm -rf *.war .ebextensions .platforms *.xml checkstyle* *.pom* nexus-staging 
+  rm -rf *.war .ebextensions .platform *.xml checkstyle* *.pom* nexus-staging 
 fi
