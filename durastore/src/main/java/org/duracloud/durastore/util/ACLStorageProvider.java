@@ -270,11 +270,9 @@ public class ACLStorageProvider implements StorageProvider {
         // clear and reload cache if deleting: "aclstorageprovider-cache"
         if ((getClass().getSimpleName() + "-cache").equalsIgnoreCase(spaceId)) {
             log.info("cycling cache.");
-
             this.spaceACLMap.clear();
             this.loaded = false;
-
-            new Thread(new CacheLoader()).start();
+            this.cacheLoaderThread = null;
         }
 
         if (null != storageException) {
@@ -298,7 +296,6 @@ public class ACLStorageProvider implements StorageProvider {
 
         if (spaceACLMap.containsKey(spaceId)) {
             return spaceACLMap.get(spaceId);
-
         } else {
             Map<String, AclType> acls = targetProvider.getSpaceACLs(spaceId);
             spaceACLMap.put(spaceId, acls);
