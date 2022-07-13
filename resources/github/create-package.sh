@@ -8,7 +8,7 @@ generateBeanstalkZip ()
    echo "stage beanstalk package"
    mvn process-resources --non-recursive
    cd target
-   zip -r ${zipFile} duradmin.war durastore.war ROOT.war .ebextensions .platforms
+   zip -r ${zipFile} duradmin.war durastore.war ROOT.war .ebextensions .platform
    rm -rf *.war .ebextensions .platform
    cd ..
 }
