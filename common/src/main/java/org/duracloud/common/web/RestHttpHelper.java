@@ -25,6 +25,8 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -338,6 +340,9 @@ public class RestHttpHelper {
         if (method.equals(Method.HEAD)) {
             builder.disableContentCompression();
         }
+
+        // Set CookieSpec to STANDARD for RFC 6265 compliant policy
+        builder.setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build());
 
         return builder.build();
     }
