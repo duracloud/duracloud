@@ -69,8 +69,12 @@ var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); 
       if (options.preventLinkAction) {
         event.preventDefault();
       }
+
+      jqft.container.find('li').removeClass('selected');
+
       if ($ev.parent().hasClass('directory')) {
         if ($ev.parent().hasClass('collapsed')) {
+          $ev.parent().addClass('selected');
           if (!options.multiFolder) {
             $ev.parent().parent().find('UL').slideUp({
               duration: options.collapseSpeed,
@@ -82,7 +86,8 @@ var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); 
           $ev.parent().find('UL').remove();
           return _this.showTree($ev.parent(), $ev.attr('rel'), function() {
             _this._trigger('filetreeexpanded', _this.data);
-            return callback != null;
+            // return callback != null;
+            return typeof callback === "function" ? callback($ev.attr('rel')) : void 0;
           });
         } else {
           return $ev.parent().find('UL').slideUp({
@@ -100,7 +105,7 @@ var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); 
         }
       } else {
         if (!options.multiSelect) {
-          jqft.container.find('li').removeClass('selected');
+          // jqft.container.find('li').removeClass('selected');
           $ev.parent().addClass('selected');
         } else {
           if ($ev.parent().find('input').is(':checked')) {
