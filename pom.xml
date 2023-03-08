@@ -237,17 +237,17 @@
     <instrumentedTests>**/*Test*__*.class</instrumentedTests>
     <innerClasses>**/*$*</innerClasses>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <duracloud.db.version>7.1.0</duracloud.db.version>
+    <duracloud.db.version>7.2.0-SNAPSHOT</duracloud.db.version>
     <duraspace-codestyle.version>1.1.0</duraspace-codestyle.version>
-    <org.springframework.version>4.3.30.RELEASE</org.springframework.version>
-    <org.springframework.security.version>4.2.20.RELEASE</org.springframework.security.version>
-    <org.springframework.webflow.version>2.4.2.RELEASE</org.springframework.webflow.version>
-    <org.springframework.data.version>1.13.23.RELEASE</org.springframework.data.version>
-    <hibernate.version>5.4.3.Final</hibernate.version>
+    <org.springframework.version>5.3.27</org.springframework.version>
+    <org.springframework.security.version>5.8.3</org.springframework.security.version>
+    <org.springframework.webflow.version>2.5.1.RELEASE</org.springframework.webflow.version>
+    <org.springframework.data.version>2.7.7</org.springframework.data.version>
+    <hibernate.validator.version>5.4.3.Final</hibernate.validator.version>
     <aws.sdk.version>1.12.122</aws.sdk.version>
     <jersey.version>2.5.1</jersey.version>
     <jackson.version>2.12.3</jackson.version>
-    <tiles.version>2.2.2</tiles.version>
+    <tiles.version>3.0.1</tiles.version>
     <selenium.version>2.53.1</selenium.version>
     <slf4j.version>1.7.32</slf4j.version>
     <jetty.version>9.4.48.v20220622</jetty.version>
@@ -768,7 +768,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.1</version>
+        <version>3.12.0</version>
       </dependency>
 
       <dependency>
@@ -1442,8 +1442,7 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>${hibernate.version}</version>
-        <scope>compile</scope>
+        <version>${hibernate.validator.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.jboss.logging</groupId>
