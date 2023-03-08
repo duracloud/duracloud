@@ -84,7 +84,7 @@ public class BitIntegrityReportRest extends BaseRest {
         String account = getSubdomain();
 
         log.info("getting bit integrity report log for account:{}, storeId:{}, spaceId:{}",
-                 new Object[] {account, storeId, spaceId});
+                 account, storeId, spaceId);
 
         if (StringUtils.isBlank(storeId)) {
             for (StorageAccount storageAccount : this.storageProviderFactory.getStorageAccounts()) {
@@ -100,7 +100,7 @@ public class BitIntegrityReportRest extends BaseRest {
         }
 
         try {
-            PageRequest pageRequest = new PageRequest(0, 1);
+            PageRequest pageRequest = PageRequest.of(0, 1);
             Page<BitIntegrityReport> page =
                 repo.findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(storeId, spaceId, pageRequest);
 
