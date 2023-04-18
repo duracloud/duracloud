@@ -86,7 +86,7 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
             CleanupSnapshotTaskParameters.deserialize(taskParameters);
         final String spaceId = taskParams.getSpaceId();
         final String userId =
-            SecurityContextHolder.getContext().getAuthentication().getName();
+            SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication().getName();
 
         String bucketName = unwrappedSnapshotProvider.getBucketName(spaceId);
 

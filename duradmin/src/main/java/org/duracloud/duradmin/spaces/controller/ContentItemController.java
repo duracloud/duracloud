@@ -237,9 +237,9 @@ public class ContentItemController {
         throws ContentStoreException,
         MalformedURLException {
 
-        Authentication auth =
-            (Authentication) SecurityContextHolder.getContext()
-                                                  .getAuthentication();
+        Authentication auth = SecurityContextHolder.getContextHolderStrategy()
+                                                   .getContext()
+                                                   .getAuthentication();
 
         SpaceUtil.populateContentItem(getBaseURL(request),
                                       result,

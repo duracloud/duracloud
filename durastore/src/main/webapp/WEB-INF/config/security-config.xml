@@ -5,11 +5,11 @@
              xmlns="http://www.springframework.org/schema/security"
              xsi:schemaLocation="
            http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+           http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/aop
-           http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+           http://www.springframework.org/schema/aop/spring-aop.xsd
            http://www.springframework.org/schema/security
-           http://www.springframework.org/schema/security/spring-security-4.2.xsd">
+           http://www.springframework.org/schema/security/spring-security-5.8.xsd">
 
   <!--
     A lot of Spring conventions here.
@@ -102,7 +102,9 @@
     <authentication-provider user-service-ref="userDetailsSvc">
       <password-encoder ref="passwordEncoder"/>
     </authentication-provider>
-    <authentication-provider user-service-ref="userDetailsSvc"/>
+    <authentication-provider user-service-ref="userDetailsSvc">
+      <password-encoder ref="noopEncoder"/>
+    </authentication-provider>
   </authentication-manager>
 
   <beans:bean id="userDetailsServiceCache" class="org.duracloud.security.impl.UserDetailsServiceCache">
@@ -116,11 +118,13 @@
     <aop:scoped-proxy/>
   </beans:bean>
 
-
   <beans:bean id="passwordEncoder"
-              class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
-    <beans:constructor-arg value="256"/>
+              class="org.springframework.security.crypto.password.MessageDigestPasswordEncoder">
+    <beans:constructor-arg value="SHA-256"/>
   </beans:bean>
+
+  <beans:bean id="noopEncoder"
+              class="org.springframework.security.crypto.password.NoOpPasswordEncoder" factory-method="getInstance"/>
 
   <beans:bean id="allowCharactersHttpFirewall"
               class="org.springframework.security.web.firewall.StrictHttpFirewall">

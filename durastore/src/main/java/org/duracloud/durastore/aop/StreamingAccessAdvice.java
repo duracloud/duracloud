@@ -63,7 +63,7 @@ public class StreamingAccessAdvice implements MethodBeforeAdvice, Ordered {
         String storeId = taskProvider.getStoreId();
 
         Authentication auth =
-            SecurityContextHolder.getContext().getAuthentication();
+            SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication();
 
         if (this.authHelper.hasAdmin(auth)) {
             return;

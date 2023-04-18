@@ -56,13 +56,13 @@ public class SpacesController {
 
         try {
             String writeableOnlyStr = request.getParameter("writeableOnly");
-            boolean writeableOnly = Boolean.valueOf(writeableOnlyStr);
+            boolean writeableOnly = Boolean.parseBoolean(writeableOnlyStr);
             String storeId = request.getParameter("storeId");
             ContentStore c = contentStoreManager.getContentStore(storeId);
             List<String> spaceIds = c.getSpaces();
             List<Space> spaces = new LinkedList<Space>();
 
-            Authentication a = SecurityContextHolder.getContext().getAuthentication();
+            Authentication a = SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication();
 
             ContentStore contentStoreWithoutRetries = contentStoreManager.getContentStore(storeId, 0);
 
