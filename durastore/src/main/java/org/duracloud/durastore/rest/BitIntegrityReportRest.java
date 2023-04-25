@@ -58,7 +58,6 @@ public class BitIntegrityReportRest extends BaseRest {
                                   StorageProviderFactory storageProviderFactory) {
         this.repo = repo;
         this.storageProviderFactory = storageProviderFactory;
-        log.info("created: {}, {}.", this.repo, this.storageProviderFactory);
     }
 
     @Path("/{spaceId}")
