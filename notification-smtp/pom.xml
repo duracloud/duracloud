@@ -6,13 +6,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>notification-smtp</artifactId>
-  <version>7.2.0-SNAPSHOT</version>
+  <version>7.1.3</version>
   <name>Email SMTP</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>7.2.0-SNAPSHOT</version>
+    <version>7.1.3</version>
   </parent>
 
   <dependencies>
