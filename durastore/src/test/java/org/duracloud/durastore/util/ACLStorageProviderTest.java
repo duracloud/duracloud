@@ -64,14 +64,13 @@ public class ACLStorageProviderTest {
 
     @Before
     public void setUp() throws Exception {
-
+        SecurityContextHolder.clearContext();
         requestContextUtil = createMock("DuraCloudRequestContextUtil", DuraCloudRequestContextUtil.class);
         notifier = createMock("AccountChangeNotifier", AccountChangeNotifier.class);
         context = createMock("SecurityContext", SecurityContext.class);
 
-        authorities = new GrantedAuthority[] {new SimpleGrantedAuthority(
-            "ROLE_USER")};
-        groups = new ArrayList<String>();
+        authorities = new GrantedAuthority[] {new SimpleGrantedAuthority("ROLE_USER")};
+        groups = new ArrayList<>();
         groups.add(groupA);
     }
 
