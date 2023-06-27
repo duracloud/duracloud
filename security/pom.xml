@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>security</artifactId>
-  <version>7.1.3</version>
+  <version>7.2.0-SNAPSHOT</version>
   <name>Security</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>7.1.3</version>
+    <version>7.2.0-SNAPSHOT</version>
   </parent>
 
   <build>
