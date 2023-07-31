@@ -250,7 +250,7 @@
     <tiles.version>3.0.1</tiles.version>
     <selenium.version>2.53.1</selenium.version>
     <slf4j.version>1.7.32</slf4j.version>
-    <jetty.version>9.4.48.v20220622</jetty.version>
+    <jetty.version>9.4.51.v20230217</jetty.version>
     <jaxb.api.version>2.3.1</jaxb.api.version>
     <jaxb.runtime.version>2.3.1</jaxb.runtime.version>
   </properties>
