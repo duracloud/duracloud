@@ -188,7 +188,7 @@ public class SpaceController {
     }
 
     private Authentication getAuthentication() {
-        return (Authentication) SecurityContextHolder.getContext().getAuthentication();
+        return SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication();
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)

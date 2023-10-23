@@ -104,9 +104,9 @@ public class ContentItemUploadController {
 
                     task.execute();
                     ContentItem result = new ContentItem();
-                    Authentication auth =
-                        (Authentication) SecurityContextHolder.getContext()
-                                                              .getAuthentication();
+                    Authentication auth = SecurityContextHolder.getContextHolderStrategy()
+                                                               .getContext()
+                                                               .getAuthentication();
                     SpaceUtil.populateContentItem(ContentItemController.getBaseURL(request),
                                                   result,
                                                   ci.getSpaceId(),

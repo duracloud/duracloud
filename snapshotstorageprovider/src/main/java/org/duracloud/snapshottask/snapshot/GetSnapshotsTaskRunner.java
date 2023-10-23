@@ -64,7 +64,7 @@ public class GetSnapshotsTaskRunner extends AbstractSnapshotTaskRunner {
         String result = callBridge(createRestHelper(), buildBridgeURL());
 
         //if the caller has only user privs
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth = SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication();
 
         if (!auth.getAuthorities().contains(Role.ROLE_ADMIN.authority())) {
             //deserialize results

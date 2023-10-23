@@ -22,6 +22,9 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.format.support.DefaultFormattingConversionService;
+import org.springframework.format.support.FormattingConversionService;
+import org.springframework.validation.Validator;
+import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.bind.support.ConfigurableWebBindingInitializer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
@@ -64,8 +67,13 @@ public class AppConfig extends WebMvcConfigurationSupport {
 
     @Override
     @Bean
-    public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {
-        RequestMappingHandlerAdapter adapter = super.requestMappingHandlerAdapter();
+    public RequestMappingHandlerAdapter requestMappingHandlerAdapter(
+        ContentNegotiationManager contentNegotiationManager,
+        FormattingConversionService formattingConversionService,
+        Validator validator) {
+        RequestMappingHandlerAdapter adapter = super.requestMappingHandlerAdapter(contentNegotiationManager,
+                                                                                  formattingConversionService,
+                                                                                  validator);
         ConfigurableWebBindingInitializer initializer =
             (ConfigurableWebBindingInitializer) adapter.getWebBindingInitializer();
 

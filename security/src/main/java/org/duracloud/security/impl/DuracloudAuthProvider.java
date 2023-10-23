@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
@@ -33,7 +34,7 @@ public class DuracloudAuthProvider extends DaoAuthenticationProvider {
         LoggerFactory.getLogger(DuracloudAuthProvider.class);
 
     public DuracloudAuthProvider(DuracloudUserDetailsService userDetailsService,
-                                 Object passwordEncoder) {
+                                 PasswordEncoder passwordEncoder) {
         super.setUserDetailsService(userDetailsService);
         super.setPasswordEncoder(passwordEncoder);
     }

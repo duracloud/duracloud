@@ -14,7 +14,7 @@ import org.easymock.EasyMock;
 import org.junit.Test;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
+import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 /**
@@ -34,7 +34,7 @@ public class DuracloudAuthProviderTest {
 
     private boolean testIpAuthChecks(String remoteAddress) {
         DuracloudAuthProvider authProvider =
-            new DuracloudAuthProvider(null, new ShaPasswordEncoder(256));
+            new DuracloudAuthProvider(null, new MessageDigestPasswordEncoder("SHA-256"));
 
         String username = "user";
         String password = "pass";
@@ -86,7 +86,7 @@ public class DuracloudAuthProviderTest {
     @Test
     public void testIpInRange() {
         DuracloudAuthProvider authProvider =
-            new DuracloudAuthProvider(null, new ShaPasswordEncoder(256));
+            new DuracloudAuthProvider(null, new MessageDigestPasswordEncoder("SHA-256"));
 
         assertTrue(authProvider.ipInRange("1.2.3.4", "1.1.1.1/0"));
         assertTrue(authProvider.ipInRange("1.2.3.4", "1.2.3.4/32"));

@@ -8,8 +8,8 @@
 package org.duracloud.duradmin.view;
 
 import org.apache.tiles.AttributeContext;
-import org.apache.tiles.context.TilesRequestContext;
 import org.apache.tiles.preparer.ViewPreparer;
+import org.apache.tiles.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public class BaseViewPreparer implements ViewPreparer {
 
     private Logger log = LoggerFactory.getLogger(BaseViewPreparer.class);
 
-    public void execute(TilesRequestContext tilesRequestContext,
+    public void execute(Request tilesRequestContext,
                         AttributeContext attributeContext) {
 
     }

@@ -60,7 +60,7 @@ public class SnapshotAccessAdvice implements MethodBeforeAdvice, Ordered {
         }
 
         Authentication auth =
-            SecurityContextHolder.getContext().getAuthentication();
+            SecurityContextHolder.getContextHolderStrategy().getContext().getAuthentication();
 
         if (this.authHelper.hasAdmin(auth)) {
             return;

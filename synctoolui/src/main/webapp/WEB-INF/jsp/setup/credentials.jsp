@@ -15,7 +15,8 @@ file="../include/libraries.jsp"%>
 
   <tiles:putAttribute
    name="panelMessage"
-   cascade="true"> </tiles:putAttribute>
+   cascade="true"
+   value="" />
 
   <tiles:putAttribute
    name="panelContent"
