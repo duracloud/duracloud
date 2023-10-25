@@ -136,6 +136,7 @@ public class RetrievalManager implements Runnable {
         logger.info("Closing Retrieval Manager");
         workerPool.shutdown();
 
+        logger.info("Waiting for retrievals to complete, this may take some time...");
         phaser.arriveAndAwaitAdvance();
 
         complete = true;
