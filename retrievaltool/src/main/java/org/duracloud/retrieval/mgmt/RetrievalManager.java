@@ -8,6 +8,8 @@
 package org.duracloud.retrieval.mgmt;
 
 import java.io.File;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Phaser;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -40,6 +42,7 @@ public class RetrievalManager implements Runnable {
     private boolean createSpaceDir;
     private boolean applyTimestamps;
     private boolean complete;
+    private Phaser phaser;
 
     public RetrievalManager(RetrievalSource source,
                             File contentDir,
@@ -57,6 +60,7 @@ public class RetrievalManager implements Runnable {
         this.outWriter = outWriter;
         this.createSpaceDir = createSpaceDir;
         this.applyTimestamps = applyTimestamps;
+        this.phaser = new Phaser();
 
         // Create thread pool for retrieval workers
         workerPool =
@@ -72,6 +76,7 @@ public class RetrievalManager implements Runnable {
      * Begins the content retrieval process
      */
     public void run() {
+        phaser.register();
 
         try {
             while (!complete) {
@@ -113,9 +118,12 @@ public class RetrievalManager implements Runnable {
                                                          outWriter,
                                                          createSpaceDir,
                                                          applyTimestamps);
-            workerPool.execute(worker);
+            phaser.register();
+            CompletableFuture.runAsync(worker, workerPool)
+                             .thenRun(phaser::arriveAndDeregister);
             return true;
         } catch (RejectedExecutionException e) {
+            phaser.arriveAndDeregister();
             return false;
         }
     }
@@ -128,11 +136,8 @@ public class RetrievalManager implements Runnable {
         logger.info("Closing Retrieval Manager");
         workerPool.shutdown();
 
-        try {
-            workerPool.awaitTermination(30, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-            // Exit wait on interruption
-        }
+        logger.info("Waiting for retrievals to complete, this may take some time...");
+        phaser.arriveAndAwaitAdvance();
 
         complete = true;
     }
