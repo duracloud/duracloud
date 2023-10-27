@@ -47,7 +47,7 @@ jobs:
       uses: actions/setup-java@v2
       if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
       with:
-        java-version: 11
+        java-version: 17
         distribution: adopt
         server-id: sonatype-snapshots # Value of the distributionManagement/repository/id field of the pom.xml
         server-username: SONATYPE_USERNAME # env variable for sonatype username
@@ -59,7 +59,7 @@ jobs:
       uses: actions/setup-java@v2
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       with:
-        java-version: 11
+        java-version: 17
         distribution: adopt
         server-id: sonatype-releases # Value of the distributionManagement/repository/id field of the pom.xml
         server-username: SONATYPE_USERNAME # env variable for sonatype username
