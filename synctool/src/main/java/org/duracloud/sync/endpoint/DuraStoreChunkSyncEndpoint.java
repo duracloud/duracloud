@@ -238,7 +238,7 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
                         //then we can expect the new file is unchunked
                         //look for any chunked content matching path
                         //delete all.
-                        chunkedContentIds.stream().forEach(content -> {
+                        chunkedContentIds.forEach(content -> {
                             deleteContent(spaceId, content, store);
                         });
                         log.info("Deleted manifest and all chunks associated with {}/{} " +
@@ -252,7 +252,7 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
                         //resolve the set of the chunks in the manifest
                         ChunksManifest manifest = getManifest(spaceId, contentId);
                         Set<String> manifestChunks = new HashSet<>();
-                        manifest.getEntries().stream().forEach(entry -> manifestChunks.add(entry.getChunkId()));
+                        manifest.getEntries().forEach(entry -> manifestChunks.add(entry.getChunkId()));
                         //for each chunk in storage, delete if not in the manifest.
                         chunkedContentIds.stream()
                                          .filter(chunkedContentId -> !chunkedContentId.endsWith(manifestSuffix))
