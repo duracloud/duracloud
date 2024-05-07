@@ -35,87 +35,78 @@ public interface ContentStore {
     /**
      * Basic space properties: Created date
      */
-    public static final String SPACE_CREATED =
-        StorageProvider.PROPERTIES_SPACE_CREATED;
+    String SPACE_CREATED = StorageProvider.PROPERTIES_SPACE_CREATED;
 
     /**
      * Basic space properties: Count of items in a space
      */
-    public static final String SPACE_COUNT =
-        StorageProvider.PROPERTIES_SPACE_COUNT;
+    String SPACE_COUNT = StorageProvider.PROPERTIES_SPACE_COUNT;
 
     /**
      * Basic space properties: Size of space
      */
-    public static final String SPACE_SIZE =
-        StorageProvider.PROPERTIES_SPACE_SIZE;
+    String SPACE_SIZE = StorageProvider.PROPERTIES_SPACE_SIZE;
 
     /**
      * Basic content properties: MIME type
      */
-    public static final String CONTENT_MIMETYPE =
-        StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
+    String CONTENT_MIMETYPE = StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
 
     /**
      * Basic content properties: Size
      */
-    public static final String CONTENT_SIZE =
-        StorageProvider.PROPERTIES_CONTENT_SIZE;
+    String CONTENT_SIZE = StorageProvider.PROPERTIES_CONTENT_SIZE;
 
     /**
      * Basic content properties: MD5 checksum
      */
-    public static final String CONTENT_CHECKSUM =
-        StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
+    String CONTENT_CHECKSUM = StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
 
     /**
      * Basic content properties: Last modified date
      */
-    public static final String CONTENT_MODIFIED =
-        StorageProvider.PROPERTIES_CONTENT_MODIFIED;
+    String CONTENT_MODIFIED = StorageProvider.PROPERTIES_CONTENT_MODIFIED;
 
     /**
      * Original content file properties: Creation date
      */
-    public static final String CONTENT_FILE_CREATED =
-        StorageProvider.PROPERTIES_CONTENT_FILE_CREATED;
+    String CONTENT_FILE_CREATED = StorageProvider.PROPERTIES_CONTENT_FILE_CREATED;
 
     /**
      * Original content file properties: Last accessed date
      */
-    public static final String CONTENT_FILE_ACCESSED =
-        StorageProvider.PROPERTIES_CONTENT_FILE_LAST_ACCESSED;
+    String CONTENT_FILE_ACCESSED = StorageProvider.PROPERTIES_CONTENT_FILE_LAST_ACCESSED;
 
     /**
      * Original content file properties: Last modified date
      */
-    public static final String CONTENT_FILE_MODIFIED =
-        StorageProvider.PROPERTIES_CONTENT_FILE_MODIFIED;
+    String CONTENT_FILE_MODIFIED = StorageProvider.PROPERTIES_CONTENT_FILE_MODIFIED;
 
-    public static final String HLS_STREAMING_HOST = StorageProvider.PROPERTIES_HLS_STREAMING_HOST;
-    public static final String HLS_STREAMING_TYPE = StorageProvider.PROPERTIES_HLS_STREAMING_TYPE;
+    String HLS_STREAMING_HOST = StorageProvider.PROPERTIES_HLS_STREAMING_HOST;
+    String HLS_STREAMING_TYPE = StorageProvider.PROPERTIES_HLS_STREAMING_TYPE;
 
     /**
      * Gets the base URL pointing to the DuraCloud DuraStore REST API
      */
-    public String getBaseURL();
+    String getBaseURL();
 
     /**
      * Gets the ID of this content store
      */
-    public String getStoreId();
+    String getStoreId();
 
     /**
      * Indicates whether or not the content store is writable by non root users.
+     *
      * @return
      */
-    public boolean isWritable();
+    boolean isWritable();
 
     /**
      * Gets the storage provider type
      * {@link org.duracloud.storage.domain.StorageProviderType}
      */
-    public String getStorageProviderType();
+    String getStorageProviderType();
 
     /**
      * Provides a listing of all spaces IDs.
@@ -123,7 +114,7 @@ public interface ContentStore {
      * @return Iterator listing spaceIds
      * @throws ContentStoreException if an error occurs
      */
-    public List<String> getSpaces() throws ContentStoreException;
+    List<String> getSpaces() throws ContentStoreException;
 
     /**
      * Retrieves the complete list of content items within a space. For spaces
@@ -137,8 +128,7 @@ public interface ContentStore {
      * @throws NotFoundException     if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public Iterator<String> getSpaceContents(String spaceId)
-        throws ContentStoreException;
+    Iterator<String> getSpaceContents(String spaceId) throws ContentStoreException;
 
     /**
      * Retrieves the complete list of content items within a space. For spaces
@@ -152,8 +142,7 @@ public interface ContentStore {
      * @throws NotFoundException     if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public Iterator<String> getSpaceContents(String spaceId, String prefix)
-        throws ContentStoreException;
+    Iterator<String> getSpaceContents(String spaceId, String prefix) throws ContentStoreException;
 
     /**
      * Provides a space, including the id and properties of the space as well as
@@ -168,11 +157,7 @@ public interface ContentStore {
      * @throws NotFoundException     if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public Space getSpace(String spaceId,
-                          String prefix,
-                          long maxResults,
-                          String marker)
-        throws ContentStoreException;
+    Space getSpace(String spaceId, String prefix, long maxResults, String marker) throws ContentStoreException;
 
     /**
      * Creates a new space. Depending on the storage implementation, the spaceId
@@ -185,8 +170,7 @@ public interface ContentStore {
      * @throws InvalidIdException    if the space ID is not valid
      * @throws ContentStoreException if the space already exists or cannot be created
      */
-    public void createSpace(String spaceId)
-        throws ContentStoreException;
+    void createSpace(String spaceId) throws ContentStoreException;
 
     /**
      * Deletes a space.
@@ -195,7 +179,7 @@ public interface ContentStore {
      * @throws NotFoundException     if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public void deleteSpace(String spaceId) throws ContentStoreException;
+    void deleteSpace(String spaceId) throws ContentStoreException;
 
     /**
      * Retrieves the properties associated with a space.
@@ -205,8 +189,7 @@ public interface ContentStore {
      * @throws NotFoundException     if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public Map<String, String> getSpaceProperties(String spaceId)
-        throws ContentStoreException;
+    Map<String, String> getSpaceProperties(String spaceId) throws ContentStoreException;
 
     /**
      * Retrieves the ACLs associated with a space.
@@ -216,8 +199,7 @@ public interface ContentStore {
      * @throws NotFoundException     if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public Map<String, AclType> getSpaceACLs(String spaceId)
-        throws ContentStoreException;
+    Map<String, AclType> getSpaceACLs(String spaceId) throws ContentStoreException;
 
     /**
      * Sets the ACLs associated with a space. Only values included in the ACLs
@@ -228,8 +210,7 @@ public interface ContentStore {
      * @throws NotFoundException     if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs)
-        throws ContentStoreException;
+    void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs) throws ContentStoreException;
 
     /**
      * Determines if a space exists
@@ -238,7 +219,7 @@ public interface ContentStore {
      * @return true if the space exists, false otherwise
      * @throws ContentStoreException if an error occurs
      */
-    public boolean spaceExists(String spaceId) throws ContentStoreException;
+    boolean spaceExists(String spaceId) throws ContentStoreException;
 
     /**
      * Adds content to a space. The contentId of the new content item can
@@ -258,13 +239,13 @@ public interface ContentStore {
      * @throws NotFoundException     if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public String addContent(String spaceId,
-                             String contentId,
-                             InputStream content,
-                             long contentSize,
-                             String contentMimeType,
-                             String contentChecksum,
-                             Map<String, String> contentProperties)
+    String addContent(String spaceId,
+                      String contentId,
+                      InputStream content,
+                      long contentSize,
+                      String contentMimeType,
+                      String contentChecksum,
+                      Map<String, String> contentProperties)
         throws ContentStoreException;
 
     /**
@@ -278,10 +259,8 @@ public interface ContentStore {
      * @return MD5 checksum of destination content item
      * @throws ContentStoreException on error
      */
-    public String copyContent(String srcSpaceId,
-                              String srcContentId,
-                              String destSpaceId,
-                              String destContentId) throws ContentStoreException;
+    String copyContent(String srcSpaceId, String srcContentId, String destSpaceId, String destContentId)
+        throws ContentStoreException;
 
     /**
      * This method provides a way to copy a content item to another content provider.
@@ -294,11 +273,11 @@ public interface ContentStore {
      * @return MD5 checksum of destination content item
      * @throws ContentStoreException on error
      */
-    public String copyContent(String srcSpaceId,
-                              String srcContentId,
-                              String destStoreId,
-                              String destSpaceId,
-                              String destContentId) throws ContentStoreException;
+    String copyContent(String srcSpaceId,
+                       String srcContentId,
+                       String destStoreId,
+                       String destSpaceId,
+                       String destContentId) throws ContentStoreException;
 
     /**
      * This method moves the content item found in source-space with the id of
@@ -311,10 +290,8 @@ public interface ContentStore {
      * @return MD5 checksum of destination content item
      * @throws ContentStoreException on error
      */
-    public String moveContent(String srcSpaceId,
-                              String srcContentId,
-                              String destSpaceId,
-                              String destContentId) throws ContentStoreException;
+    String moveContent(String srcSpaceId, String srcContentId, String destSpaceId, String destContentId)
+        throws ContentStoreException;
 
     /**
      * This method moves the content item found in source-space with the id of
@@ -328,11 +305,11 @@ public interface ContentStore {
      * @return MD5 checksum of destination content item
      * @throws ContentStoreException on error
      */
-    public String moveContent(String srcSpaceId,
-                              String srcContentId,
-                              String destStoreId,
-                              String destSpaceId,
-                              String destContentId) throws ContentStoreException;
+    String moveContent(String srcSpaceId,
+                       String srcContentId,
+                       String destStoreId,
+                       String destSpaceId,
+                       String destContentId) throws ContentStoreException;
 
     /**
      * Gets content from a space.
@@ -343,8 +320,7 @@ public interface ContentStore {
      * @throws NotFoundException     if the space or content does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public Content getContent(String spaceId, String contentId)
-        throws ContentStoreException;
+    Content getContent(String spaceId, String contentId) throws ContentStoreException;
 
     /**
      * Gets a byte range of a content item from a space.
@@ -354,14 +330,13 @@ public interface ContentStore {
      *
      * @param spaceId   the identifier of the DuraCloud Space
      * @param contentId the identifier of the content item
-     * @param startByte   the starting byte of the range.
-     * @param endByte  The end byte of the range.
+     * @param startByte the starting byte of the range.
+     * @param endByte   The end byte of the range.
      * @return the content stream
      * @throws NotFoundException     if the space or content does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public Content getContent(String spaceId, String contentId, Long startByte, Long endByte)
-        throws ContentStoreException;
+    Content getContent(String spaceId, String contentId, Long startByte, Long endByte) throws ContentStoreException;
 
     /**
      * Removes content from a space.
@@ -371,8 +346,7 @@ public interface ContentStore {
      * @throws NotFoundException     if the space or content does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public void deleteContent(String spaceId, String contentId)
-        throws ContentStoreException;
+    void deleteContent(String spaceId, String contentId) throws ContentStoreException;
 
     /**
      * Sets the properties associated with content. This effectively removes all
@@ -387,9 +361,9 @@ public interface ContentStore {
      * @throws NotFoundException     if the space or content does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public void setContentProperties(String spaceId,
-                                     String contentId,
-                                     Map<String, String> contentProperties)
+    void setContentProperties(String spaceId,
+                              String contentId,
+                              Map<String, String> contentProperties)
         throws ContentStoreException;
 
     /**
@@ -403,9 +377,7 @@ public interface ContentStore {
      * @throws NotFoundException     if the space or content does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public Map<String, String> getContentProperties(String spaceId,
-                                                    String contentId)
-        throws ContentStoreException;
+    Map<String, String> getContentProperties(String spaceId, String contentId) throws ContentStoreException;
 
     /**
      * Determines if a content item exists in a given space
@@ -415,8 +387,7 @@ public interface ContentStore {
      * @return true if the content item exists, false otherwise
      * @throws ContentStoreException if an error occurs
      */
-    public boolean contentExists(String spaceId, String contentId)
-        throws ContentStoreException;
+    boolean contentExists(String spaceId, String contentId) throws ContentStoreException;
 
     /**
      * Checks a space ID to ensure that it conforms to all restrictions
@@ -424,7 +395,7 @@ public interface ContentStore {
      * @param spaceId ID to validate
      * @throws InvalidIdException if the space ID is invalid
      */
-    public void validateSpaceId(String spaceId) throws InvalidIdException;
+    void validateSpaceId(String spaceId) throws InvalidIdException;
 
     /**
      * Checks a content ID to ensure that it conforms to all restrictions
@@ -432,7 +403,7 @@ public interface ContentStore {
      * @param contentId ID to validate
      * @throws InvalidIdException if the content ID is invalid
      */
-    public void validateContentId(String contentId) throws InvalidIdException;
+    void validateContentId(String contentId) throws InvalidIdException;
 
     /**
      * Gets a listing of the supported tasks. A task is an activity which is
@@ -441,8 +412,7 @@ public interface ContentStore {
      *
      * @return the return value of the task
      */
-    public List<String> getSupportedTasks()
-        throws ContentStoreException;
+    List<String> getSupportedTasks() throws ContentStoreException;
 
     /**
      * Perform a task (with retries on failure) which is outside of the standard set of storage activities
@@ -454,8 +424,7 @@ public interface ContentStore {
      *                       task-specific
      * @return the return value of the task
      */
-    public String performTask(String taskName, String taskParameters)
-        throws ContentStoreException;
+    String performTask(String taskName, String taskParameters) throws ContentStoreException;
 
     /**
      * Perform a task (without retrying on failure) which is outside of the standard set of storage activities
@@ -467,15 +436,14 @@ public interface ContentStore {
      *                       task-specific
      * @return the return value of the task
      */
-    public String performTaskWithNoRetries(String taskName, String taskParameters)
-        throws ContentStoreException;
+    String performTaskWithNoRetries(String taskName, String taskParameters) throws ContentStoreException;
 
     /**
      * Sets the Exception Handler which will be used to process any Exceptions
      * that are thrown when an action fails but will be retried. The default
      * Exception handler logs the exception messages at the WARN level.
      */
-    public void setRetryExceptionHandler(ExceptionHandler retryExceptionHandler);
+    void setRetryExceptionHandler(ExceptionHandler retryExceptionHandler);
 
     /**
      * Gets a manifest for the specific space if one exists.  If the space does not
@@ -486,8 +454,7 @@ public interface ContentStore {
      * @return
      * @throws ContentStoreException
      */
-    public InputStream getManifest(String spaceId, ManifestFormat format)
-        throws ContentStoreException;
+    InputStream getManifest(String spaceId, ManifestFormat format) throws ContentStoreException;
 
     /**
      * Gets an audit log for the specific space if one exists.  If the space does not
@@ -497,8 +464,7 @@ public interface ContentStore {
      * @return
      * @throws ContentStoreException
      */
-    public InputStream getAuditLog(String spaceId)
-        throws ContentStoreException;
+    InputStream getAuditLog(String spaceId) throws ContentStoreException;
 
     /**
      * Returns the most recent bit integrity report.
@@ -508,8 +474,7 @@ public interface ContentStore {
      * @return
      * @throws ContentStoreException
      */
-    public BitIntegrityReport getBitIntegrityReport(String spaceId)
-        throws ContentStoreException;
+    BitIntegrityReport getBitIntegrityReport(String spaceId) throws ContentStoreException;
 
     /**
      * Returns the properties associated with the most recent bit integrity report.
@@ -519,8 +484,7 @@ public interface ContentStore {
      * @return
      * @throws ContentStoreException
      */
-    public BitIntegrityReportProperties getBitIntegrityReportProperties(String spaceId)
-        throws ContentStoreException;
+    BitIntegrityReportProperties getBitIntegrityReportProperties(String spaceId) throws ContentStoreException;
 
     /**
      * Returns a space stats time series for presenting in a graph.
@@ -531,7 +495,7 @@ public interface ContentStore {
      * @return
      * @throws ContentStoreException
      */
-    public SpaceStatsDTOList getSpaceStats(String spaceId, Date from, Date to) throws ContentStoreException;
+    SpaceStatsDTOList getSpaceStats(String spaceId, Date from, Date to) throws ContentStoreException;
 
     /**
      * Returns a base based series of stats for all spaces within a storage provider for the
@@ -542,8 +506,7 @@ public interface ContentStore {
      * @return
      * @throws ContentStoreException
      */
-    public SpaceStatsDTOList getStorageProviderStats(Date from, Date to)
-        throws ContentStoreException;
+    SpaceStatsDTOList getStorageProviderStats(Date from, Date to) throws ContentStoreException;
 
     /**
      * Returns stats for all spaces within a storage provider for a particular
@@ -553,6 +516,5 @@ public interface ContentStore {
      * @return
      * @throws ContentStoreException
      */
-    public SpaceStatsDTOList getStorageProviderStatsByDay(Date date)
-        throws ContentStoreException;
+    SpaceStatsDTOList getStorageProviderStatsByDay(Date date) throws ContentStoreException;
 }
