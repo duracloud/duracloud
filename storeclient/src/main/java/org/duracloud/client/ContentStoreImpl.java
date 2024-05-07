@@ -400,8 +400,13 @@ public class ContentStoreImpl implements ContentStore {
         execute(new Retriable() {
             @Override
             public Boolean retry() throws ContentStoreException {
-                // The actual method being executed
-                doCreateSpace(spaceId);
+                // First check if space exists
+                try {
+                    getSpace(spaceId, null, 0, null);
+                } catch (NotFoundException e) {
+                    // Try creating the space if it doesn't exist
+                    doCreateSpace(spaceId);
+                }
                 return true;
             }
         });
