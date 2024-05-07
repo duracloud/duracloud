@@ -41,17 +41,26 @@ import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.DeletePublicAccessBlockRequest;
+import com.amazonaws.services.s3.model.DeletePublicAccessBlockResult;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.Owner;
+import com.amazonaws.services.s3.model.PublicAccessBlockConfiguration;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.SetBucketOwnershipControlsRequest;
+import com.amazonaws.services.s3.model.SetBucketOwnershipControlsResult;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
+import com.amazonaws.services.s3.model.ownership.ObjectOwnership;
+import com.amazonaws.services.s3.model.ownership.OwnershipControls;
+import com.amazonaws.services.s3.model.ownership.OwnershipControlsRule;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -672,7 +681,7 @@ public class S3StorageProviderTest {
 
         S3StorageProvider provider = getProvider();
         Bucket bucket = createMock(Bucket.class);
-        expect(bucket.getName()).andReturn(bucketName);
+        expect(bucket.getName()).andReturn(bucketName).times(2);
         expect(bucket.getCreationDate()).andReturn(new Date());
         expect(this.s3Client.createBucket(bucketName)).andReturn(bucket);
 
@@ -684,6 +693,13 @@ public class S3StorageProviderTest {
                                                  capture(lifecycleConfigCapture));
         EasyMock.expectLastCall().once();
 
+        final Capture<DeletePublicAccessBlockRequest> deleteRequest =
+            Capture.newInstance(CaptureType.FIRST);
+        expect(s3Client.deletePublicAccessBlock(capture(deleteRequest))).andReturn(new DeletePublicAccessBlockResult());
+
+        final Capture<SetBucketOwnershipControlsRequest> bucketOwnerShipRequest =
+            Capture.newInstance(CaptureType.FIRST);
+        expect(s3Client.setBucketOwnershipControls(capture(bucketOwnerShipRequest))).andReturn(new SetBucketOwnershipControlsResult());
         expect(this.s3Client.listBuckets()).andReturn(Arrays.asList(bucket));
 
         List<String> spaceIds2 = new LinkedList<>(spaceIds);
@@ -707,6 +723,12 @@ public class S3StorageProviderTest {
             lifecycleConfig.getRules().get(0).getTransitions().get(0);
         assertEquals(30, transition.getDays());
         assertEquals(StorageClass.StandardInfrequentAccess, transition.getStorageClass());
+
+        assertEquals(bucketName, deleteRequest.getValue().getBucketName());
+        final var ownershipControlsRequest = bucketOwnerShipRequest.getValue();
+        assertEquals(bucketName, ownershipControlsRequest.getBucketName());
+        assertEquals(ObjectOwnership.ObjectWriter.toString(),
+            ownershipControlsRequest.getOwnershipControls().getRules().get(0).getOwnership());
 
         verify(s3Client, bucket);
     }
