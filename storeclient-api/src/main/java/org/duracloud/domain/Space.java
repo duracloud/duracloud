@@ -19,8 +19,8 @@ import java.util.Map;
  */
 public class Space {
     private String id;
-    private Map<String, String> properties = new HashMap<String, String>();
-    private List<String> contentIds = new ArrayList<String>();
+    private Map<String, String> properties = new HashMap<>();
+    private List<String> contentIds = new ArrayList<>();
 
     /**
      * <p>Getter for the field <code>id</code>.</p>

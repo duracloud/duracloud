@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class Content {
     private String id;
-    private Map<String, String> properties = new HashMap<String, String>();
+    private Map<String, String> properties = new HashMap<>();
     private InputStream stream = null;
 
     /**
