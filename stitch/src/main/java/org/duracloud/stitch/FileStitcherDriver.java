@@ -22,16 +22,11 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.chunk.FileChunker;
-import org.duracloud.client.ContentStore;
-import org.duracloud.client.ContentStoreManager;
-import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.domain.Content;
-import org.duracloud.error.ContentStoreException;
 import org.duracloud.stitch.datasource.DataSource;
-import org.duracloud.stitch.datasource.impl.DuraStoreDataSource;
 import org.duracloud.stitch.impl.FileStitcherImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -210,7 +205,11 @@ public class FileStitcherDriver {
 
     /**
      * Main
-     */
+     *
+     * TODO: Temporarily disabled while shuffling classes
+     *
+     * @param args
+     * @throws IOException
     public static void main(String[] args) {
         CommandLine cmd = parseArgs(args);
 
@@ -257,6 +256,7 @@ public class FileStitcherDriver {
         }
         return new DuraStoreDataSource(contentStore);
     }
+     */
 
     private static Credential getCredentials(String username, String password) {
         if (null == username || null == password) {
