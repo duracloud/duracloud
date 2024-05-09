@@ -115,6 +115,27 @@ var dc;
 	 * @param Object callback The callback must implement success and failure methods. options begin method is supported.
 	 */
 	dc.store.AddSpace = function(space, publicFlag, callback){
+            // Check if space already exists
+            var exists = false;
+            dc.ajax({
+                url: "/duradmin/spaces/json",
+                data: "storeId=" + space.storeId,
+                cache: false,
+                async: false,
+                success: function (data) {
+                    $.each(data.spaces, function (index, current_space) {
+                        if (space.spaceId == current_space.spaceId) {
+                            exists = true;
+                        }
+                    });
+                },
+                failure: {},
+            });
+            if (exists) {
+                return callback.failure('The space already exists.');
+            }
+
+            // Add space
 		dc.ajax(
 			{
 				url: "/duradmin/spaces/space", 

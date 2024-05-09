@@ -906,7 +906,10 @@ $(function() {
               $("#spaces-list").selectablelist("setCurrentItemById", space.spaceId);
               that._spacesListPane.spaceslistpane("scrollToCurrentSpace");
             }
-
+          },
+          failure : function(message) {
+            dc.done();
+            alert("Error: " + message);
           },
         });
         this._addSpaceDialog.dialog("close");
