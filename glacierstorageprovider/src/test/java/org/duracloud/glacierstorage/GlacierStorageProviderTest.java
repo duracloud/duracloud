@@ -7,6 +7,8 @@
  */
 package org.duracloud.glacierstorage;
 
+import static org.easymock.EasyMock.capture;
+import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -24,8 +26,12 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.DeletePublicAccessBlockRequest;
+import com.amazonaws.services.s3.model.DeletePublicAccessBlockResult;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.SetBucketOwnershipControlsRequest;
+import com.amazonaws.services.s3.model.SetBucketOwnershipControlsResult;
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
@@ -105,6 +111,16 @@ public class GlacierStorageProviderTest {
         s3Client.setBucketLifecycleConfiguration(EasyMock.isA(String.class),
                                                  EasyMock.capture(lcConfigCap));
         EasyMock.expectLastCall().once();
+
+        final Capture<DeletePublicAccessBlockRequest> deleteRequest =
+            Capture.newInstance(CaptureType.FIRST);
+        expect(s3Client.deletePublicAccessBlock(capture(deleteRequest))).andReturn(new DeletePublicAccessBlockResult());
+
+        final Capture<SetBucketOwnershipControlsRequest> bucketOwnerShipRequest =
+            Capture.newInstance(CaptureType.FIRST);
+        expect(s3Client.setBucketOwnershipControls(capture(bucketOwnerShipRequest)))
+            .andReturn(new SetBucketOwnershipControlsResult());
+
         EasyMock.replay(s3Client);
 
         // Actually make the call to kick off a space creation
