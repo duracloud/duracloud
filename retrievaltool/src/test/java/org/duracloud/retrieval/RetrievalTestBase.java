@@ -8,8 +8,10 @@
 package org.duracloud.retrieval;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.retrieval.mgmt.OutputWriter;
 import org.easymock.EasyMock;
@@ -26,7 +28,7 @@ public abstract class RetrievalTestBase {
 
     @Before
     public void setUp() throws Exception {
-        tempDir = new File("target/" + this.getClass().getName());
+        tempDir = new File("target/" + this.getClass().getName() + RandomStringUtils.random(10));
         tempDir.mkdir();
     }
 
@@ -38,14 +40,19 @@ public abstract class RetrievalTestBase {
     protected OutputWriter createMockOutputWriter() {
         OutputWriter outWriter = EasyMock.createMock(OutputWriter.class);
         outWriter.writeSuccess(EasyMock.isA(ContentItem.class),
-                               EasyMock.isA(String.class),
-                               EasyMock.anyInt());
+            EasyMock.isA(String.class),
+            EasyMock.anyInt());
         EasyMock.expectLastCall().anyTimes();
         outWriter.writeFailure(EasyMock.isA(ContentItem.class),
-                               EasyMock.isA(String.class),
-                               EasyMock.anyInt());
+            EasyMock.isA(String.class),
+            EasyMock.anyInt());
         EasyMock.expectLastCall().anyTimes();
         EasyMock.replay(outWriter);
         return outWriter;
+    }
+
+    protected File createTempFile(String prefix) throws IOException {
+        final var file = new File(this.tempDir, prefix + RandomStringUtils.random(20) + ".tmp");
+        return file;
     }
 }

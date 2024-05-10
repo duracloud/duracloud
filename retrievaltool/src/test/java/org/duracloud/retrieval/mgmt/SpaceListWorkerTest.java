@@ -24,11 +24,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.retrieval.RetrievalTestBase;
 import org.easymock.EasyMock;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,13 +39,6 @@ public class SpaceListWorkerTest extends RetrievalTestBase {
     private List<String> contents1;
     private List<String> contents2;
     private ContentStore contentStore;
-
-    @Override
-    @After
-    public void tearDown() throws Exception {
-        // Delete the tempDir
-        FileUtils.deleteDirectory(new File("target/" + SpaceListWorkerTest.class.getName()));
-    }
 
     @Override
     @Before
