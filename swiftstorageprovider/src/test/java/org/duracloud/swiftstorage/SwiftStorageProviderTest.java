@@ -27,11 +27,15 @@ import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.DeletePublicAccessBlockRequest;
+import com.amazonaws.services.s3.model.DeletePublicAccessBlockResult;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.SetBucketOwnershipControlsRequest;
+import com.amazonaws.services.s3.model.SetBucketOwnershipControlsResult;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.util.DateUtil;
@@ -138,6 +142,15 @@ public class SwiftStorageProviderTest {
             propsBucketName, spaceId, "{space-created=" + formattedDate(date) + "}"
         )).andReturn(new PutObjectResult());
 
+        final Capture<DeletePublicAccessBlockRequest> deleteRequest =
+            Capture.newInstance(CaptureType.FIRST);
+        expect(s3Client.deletePublicAccessBlock(capture(deleteRequest))).andReturn(new DeletePublicAccessBlockResult());
+
+        final Capture<SetBucketOwnershipControlsRequest> bucketOwnerShipRequest =
+            Capture.newInstance(CaptureType.FIRST);
+        expect(s3Client.setBucketOwnershipControls(capture(bucketOwnerShipRequest)))
+            .andReturn(new SetBucketOwnershipControlsResult());
+
         replay(s3Client, bucket, propsBucket);
 
         provider.createSpace(spaceId);
@@ -155,9 +168,9 @@ public class SwiftStorageProviderTest {
 
         expect(
             s3Client.listObjects(EasyMock.isA(ListObjectsRequest.class)))
-                .andReturn(objectListing);
+            .andReturn(objectListing);
         expect(objectListing.getObjectSummaries())
-                .andReturn(objectSummaries);
+            .andReturn(objectSummaries);
     }
 
     @Test
@@ -188,7 +201,7 @@ public class SwiftStorageProviderTest {
         assertEquals("value2", spaceProps.get("key2"));
         assertEquals("value@3", spaceProps.get("key3"));
         assertEquals(String.valueOf(1),
-                     spaceProps.get(StorageProvider.PROPERTIES_SPACE_COUNT));
+            spaceProps.get(StorageProvider.PROPERTIES_SPACE_COUNT));
 
         verify(s3Client, bucket, propsBucket, objectListing);
     }
@@ -203,7 +216,7 @@ public class SwiftStorageProviderTest {
             "{key1=value1, key2=value2, key3=value+3}";
         String propsWithDate =
             "{key1=value1, key2=value2, space-created=" +
-            formattedDate(date) + ", key3=value+3}";
+                formattedDate(date) + ", key3=value+3}";
 
         Date mockDate = createMock(Date.class);
 
@@ -290,12 +303,12 @@ public class SwiftStorageProviderTest {
         Bucket bucket = createMock(Bucket.class);
         expect(bucket.getName()).andReturn(bucketName).anyTimes();
 
-        Map<String,Object> rawMetadata = new HashMap<>();
+        Map<String, Object> rawMetadata = new HashMap<>();
         rawMetadata.put(Constants.SWIFT_EXPIRE_OBJECT_HEADER, seconds);
 
         ObjectMetadata objectMetadata = createMock("ObjectMetadata", ObjectMetadata.class);
         expect(s3Client.getObjectMetadata(
-               EasyMock.isA(String.class), EasyMock.isA(String.class))).andReturn(objectMetadata);
+            EasyMock.isA(String.class), EasyMock.isA(String.class))).andReturn(objectMetadata);
         expect(objectMetadata.getRawMetadata()).andReturn(rawMetadata).anyTimes();
         objectMetadata.setHeader(Constants.SWIFT_EXPIRE_OBJECT_HEADER, seconds);
         EasyMock.expectLastCall();
@@ -320,7 +333,7 @@ public class SwiftStorageProviderTest {
         assertEquals(contentId, copyRequest.getSourceKey());
         assertEquals(originalACL, copyRequest.getAccessControlList());
         assertTrue(copyRequest.getNewObjectMetadata().getRawMetadata().
-                containsKey(Constants.SWIFT_EXPIRE_OBJECT_HEADER));
+            containsKey(Constants.SWIFT_EXPIRE_OBJECT_HEADER));
         assertTrue(resultMetadata.getRawMetadata().containsKey(Constants.SWIFT_EXPIRE_OBJECT_HEADER));
         assertEquals(resultMetadata, copyRequest.getNewObjectMetadata());
 
