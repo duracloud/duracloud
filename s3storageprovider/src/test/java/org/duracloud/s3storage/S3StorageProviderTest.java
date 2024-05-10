@@ -47,8 +47,6 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.Owner;
-import com.amazonaws.services.s3.model.PublicAccessBlockConfiguration;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
@@ -59,8 +57,6 @@ import com.amazonaws.services.s3.model.SetBucketOwnershipControlsResult;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
 import com.amazonaws.services.s3.model.ownership.ObjectOwnership;
-import com.amazonaws.services.s3.model.ownership.OwnershipControls;
-import com.amazonaws.services.s3.model.ownership.OwnershipControlsRule;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.storage.domain.RetrievedContent;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -690,7 +686,7 @@ public class S3StorageProviderTest {
         Capture<BucketLifecycleConfiguration> lifecycleConfigCapture =
             Capture.newInstance(CaptureType.FIRST);
         s3Client.setBucketLifecycleConfiguration(eq(bucketName),
-                                                 capture(lifecycleConfigCapture));
+            capture(lifecycleConfigCapture));
         EasyMock.expectLastCall().once();
 
         final Capture<DeletePublicAccessBlockRequest> deleteRequest =
@@ -699,20 +695,21 @@ public class S3StorageProviderTest {
 
         final Capture<SetBucketOwnershipControlsRequest> bucketOwnerShipRequest =
             Capture.newInstance(CaptureType.FIRST);
-        expect(s3Client.setBucketOwnershipControls(capture(bucketOwnerShipRequest))).andReturn(new SetBucketOwnershipControlsResult());
+        expect(s3Client.setBucketOwnershipControls(capture(bucketOwnerShipRequest)))
+            .andReturn(new SetBucketOwnershipControlsResult());
         expect(this.s3Client.listBuckets()).andReturn(Arrays.asList(bucket));
 
         List<String> spaceIds2 = new LinkedList<>(spaceIds);
         spaceIds2.add(spaceId);
         addListBucketsMock(2, spaceIds2);
         expect(s3Client.getBucketTaggingConfiguration(bucketName))
-                .andReturn(new BucketTaggingConfiguration());
+            .andReturn(new BucketTaggingConfiguration());
         s3Client.setBucketTaggingConfiguration(eq(bucketName),
-                                               EasyMock.isA(BucketTaggingConfiguration.class));
+            EasyMock.isA(BucketTaggingConfiguration.class));
         EasyMock.expectLastCall().once();
 
         expect(s3Client.listObjects(EasyMock.isA(ListObjectsRequest.class)))
-                .andReturn(new ObjectListing());
+            .andReturn(new ObjectListing());
 
         replay(s3Client, bucket);
 
