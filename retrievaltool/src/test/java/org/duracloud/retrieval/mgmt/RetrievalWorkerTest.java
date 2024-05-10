@@ -7,16 +7,17 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
@@ -143,7 +144,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
     @Test
     public void testChecksumsMatch() throws Exception {
         RetrievalWorker worker = createRetrievalWorker(true);
-        File localFile = new File(tempDir, "checksum-test");
+        File localFile = createTempFile("checksum-test");
 
         FileUtils.writeStringToFile(localFile, contentValue);
         assertTrue(worker.checksumsMatch(localFile));
@@ -155,7 +156,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
     @Test
     public void testRenameFile() throws Exception {
         RetrievalWorker worker = createRetrievalWorker(true);
-        File localFile = new File(tempDir, "rename-test");
+        File localFile = createTempFile("rename-test");
         String localFilePath = localFile.getAbsolutePath();
         FileUtils.writeStringToFile(localFile, "test");
 
@@ -165,7 +166,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         assertTrue(newFile.exists());
 
         assertEquals(localFile.getAbsolutePath() + "-copy",
-                     newFile.getAbsolutePath());
+            newFile.getAbsolutePath());
 
         FileUtils.writeStringToFile(localFile, "test");
         File newFile2 = worker.renameFile(localFile);
@@ -174,13 +175,13 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         assertTrue(newFile2.exists());
 
         assertEquals(localFile.getAbsolutePath() + "-copy-2",
-                     newFile2.getAbsolutePath());
+            newFile2.getAbsolutePath());
     }
 
     @Test
     public void testDeleteFile() throws Exception {
         RetrievalWorker worker = createRetrievalWorker(true);
-        File localFile = new File(tempDir, "rename-test");
+        File localFile = createTempFile("rename-test");
         FileUtils.writeStringToFile(localFile, "test");
 
         worker.deleteFile(localFile);
@@ -190,9 +191,8 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
     @Test
     public void testRetrieveToFile() throws Exception {
         RetrievalWorker worker = createRetrievalWorker(true);
-        File localFile = new File(tempDir, "retrieve-to-file-test");
+        File localFile = createTempFile("retrieve-to-file-test");
         assertFalse(localFile.exists());
-
         worker.retrieveToFile(localFile, null);
         assertTrue(localFile.exists());
 
@@ -209,8 +209,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
 
         // Test failure
         worker = createBrokenRetrievalWorker(true);
-        localFile = new File(tempDir, "retrieve-to-file-failure-test");
-        assertFalse(localFile.exists());
+        localFile = createTempFile("retrieve-to-file-failure-test");
 
         try {
             worker.retrieveToFile(localFile, null);
@@ -233,8 +232,9 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         ContentStream content =
             new ContentStream(null, props);
 
-        File localFile = new File(tempDir, "timestamp-test");
-        FileUtils.writeStringToFile(localFile, contentValue);
+        File localFile = createTempFile("timestamp-test");
+        assertFalse(localFile.exists());
+        FileUtils.writeStringToFile(localFile, contentValue, Charset.defaultCharset());
 
         // Check that initial timestamps are current
         BasicFileAttributes fileAttributes =
@@ -258,7 +258,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         assertFalse(isTimeClose(lastAccessTime, now));
         assertFalse(isTimeClose(lastModifiedTime, now));
         assertTrue(testTime + 100000 == creationTime || // windows
-                   testTime + 300000 == creationTime);  // linux
+            testTime + 300000 == creationTime);  // linux
         assertEquals(testTime + 200000, lastAccessTime);
         assertEquals(testTime + 300000, lastModifiedTime);
     }
@@ -270,42 +270,42 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
 
     private RetrievalWorker createRetrievalWorker(boolean overwrite) {
         return new RetrievalWorker(new ContentItem(spaceId, contentId),
-                                   new MockRetrievalSource(),
-                                   tempDir,
-                                   overwrite,
-                                   createMockOutputWriter(),
-                                   true,
-                                   true);
+            new MockRetrievalSource(),
+            tempDir,
+            overwrite,
+            createMockOutputWriter(),
+            true,
+            true);
     }
 
     private RetrievalWorker createRetrievalWorkerSingleSpace(boolean overwrite) {
         return new RetrievalWorker(new ContentItem(spaceId, contentId),
-                                   new MockRetrievalSource(),
-                                   tempDir,
-                                   overwrite,
-                                   createMockOutputWriter(),
-                                   false,
-                                   false);
+            new MockRetrievalSource(),
+            tempDir,
+            overwrite,
+            createMockOutputWriter(),
+            false,
+            false);
     }
 
     private RetrievalWorker createBrokenRetrievalWorker(boolean overwrite) {
         return new RetrievalWorker(new ContentItem(spaceId, contentId),
-                                   new BrokenMockRetrievalSource(),
-                                   tempDir,
-                                   overwrite,
-                                   createMockOutputWriter(),
-                                   true,
-                                   false);
+            new BrokenMockRetrievalSource(),
+            tempDir,
+            overwrite,
+            createMockOutputWriter(),
+            true,
+            false);
     }
 
     private RetrievalWorker createInconsistentRetrievalWorker(boolean overwrite) {
         return new RetrievalWorker(new ContentItem(spaceId, contentId),
-                                   new InconsistentMockRetrievalSource(),
-                                   tempDir,
-                                   overwrite,
-                                   createMockOutputWriter(),
-                                   true,
-                                   true);
+            new InconsistentMockRetrievalSource(),
+            tempDir,
+            overwrite,
+            createMockOutputWriter(),
+            true,
+            true);
     }
 
     private class MockRetrievalSource implements RetrievalSource {
@@ -356,7 +356,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
                 new ByteArrayInputStream(contentValue.getBytes());
             Map<String, String> props = new HashMap<>();
             props.put(ContentStore.CONTENT_CHECKSUM,
-                      "invalid-checksum");
+                "invalid-checksum");
             return new ContentStream(stream, props);
         }
     }
