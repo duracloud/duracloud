@@ -185,7 +185,7 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
         setRestHelper(new RestHttpHelper());
     }
 
-    private StorageAccountManager getStorageAccounts()
+    protected StorageAccountManager getStorageAccounts()
         throws ContentStoreException {
         String url = baseURL + "/stores";
         HttpResponse response;
