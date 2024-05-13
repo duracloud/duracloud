@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.retrieval.mgmt.OutputWriter;
 import org.easymock.EasyMock;
@@ -28,7 +27,7 @@ public abstract class RetrievalTestBase {
 
     @Before
     public void setUp() throws Exception {
-        tempDir = new File("target/" + this.getClass().getName() + RandomStringUtils.random(10));
+        tempDir = new File("target/" + this.getClass().getName());
         tempDir.mkdir();
     }
 
@@ -52,7 +51,7 @@ public abstract class RetrievalTestBase {
     }
 
     protected File createTempFile(String prefix) throws IOException {
-        final var file = new File(this.tempDir, prefix + RandomStringUtils.random(20) + ".tmp");
+        final var file = new File(this.tempDir, prefix + ".tmp");
         return file;
     }
 }
