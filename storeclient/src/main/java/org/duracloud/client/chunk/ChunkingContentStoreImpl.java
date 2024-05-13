@@ -7,6 +7,9 @@
  */
 package org.duracloud.client.chunk;
 
+import static java.text.MessageFormat.format;
+import static org.duracloud.chunk.manifest.ChunksManifest.manifestSuffix;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -14,11 +17,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.duracloud.chunk.ChunkableContent;
 import org.duracloud.chunk.FileChunkerOptions;
 import org.duracloud.chunk.manifest.ChunksManifest;
+import org.duracloud.chunk.manifest.ChunksManifestBean;
 import org.duracloud.chunk.stream.ChunkInputStream;
 import org.duracloud.chunk.util.ChunkUtil;
 import org.duracloud.chunk.writer.AddContentResult;
@@ -34,7 +39,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * A ContentStore which can chunk files larger than the maximum file size
  *
+ * @author mikejritter
  */
 public class ChunkingContentStoreImpl extends ContentStoreImpl {
     private static final Logger log = LoggerFactory.getLogger(ChunkingContentStoreImpl.class);
@@ -42,10 +49,34 @@ public class ChunkingContentStoreImpl extends ContentStoreImpl {
     private final FileChunkerOptions options;
     private final ChecksumUtil checksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
 
-    public ChunkingContentStoreImpl(String baseURL, StorageProviderType type, String storeId,
-                                    boolean writable, RestHttpHelper restHelper, int maxRetries) {
+    /**
+     * Create a ChunkingContentStoreImpl with default FileChunkerOptions
+     *
+     * @param baseURL the baseUrl of the content store
+     * @param type the StorageProviderType
+     * @param storeId The spaceId
+     * @param writable whether the store is writable
+     * @param restHelper the RestHttpHelper
+     * @param maxRetries the maximum number of retries
+     */
+    public ChunkingContentStoreImpl(final String baseURL,
+                                    final StorageProviderType type,
+                                    final String storeId,
+                                    final boolean writable,
+                                    final RestHttpHelper restHelper,
+                                    final int maxRetries) {
+        this(baseURL, type, storeId, writable, restHelper, maxRetries, new FileChunkerOptions());
+    }
+
+    public ChunkingContentStoreImpl(final String baseURL,
+                                    final StorageProviderType type,
+                                    final String storeId,
+                                    final boolean writable,
+                                    final RestHttpHelper restHelper,
+                                    final int maxRetries,
+                                    final FileChunkerOptions options) {
         super(baseURL, type, storeId, writable, restHelper, maxRetries);
-        options = new FileChunkerOptions();
+        this.options = options;
     }
 
     /**
@@ -63,57 +94,58 @@ public class ChunkingContentStoreImpl extends ContentStoreImpl {
                              final String contentChecksum,
                              final Map<String, String> contentProperties)
         throws ContentStoreException {
-        return chunkContent(spaceId, contentId, content, contentSize, contentMimeType, contentChecksum,
-                            contentProperties);
+
+        final var maxChunkSize = options.getMaxChunkSize();
+        if (contentSize <= maxChunkSize) {
+            final var md5 = super.addContent(spaceId,
+                                             contentId,
+                                             content,
+                                             contentSize,
+                                             contentMimeType,
+                                             contentChecksum,
+                                             contentProperties);
+            cleanupChunkedContent(spaceId, contentId);
+            return md5;
+        } else {
+            return chunkContent(spaceId, contentId, content, contentSize, contentChecksum, contentProperties);
+        }
     }
 
     private String chunkContent(final String spaceId,
                                 final String contentId,
                                 final InputStream content,
                                 final long contentSize,
-                                final String contentMimeType,
                                 final String contentChecksum,
                                 final Map<String, String> contentProperties) throws ContentStoreException {
-        final var maxChunkSize = options.getMaxChunkSize();
-
         // todo: do we want to keep these boolean values? should they be default true for the client?
+        final var maxChunkSize = options.getMaxChunkSize();
         final var ignoreLargeFiles = options.isIgnoreLargeFiles();
         final var preserveChunkMD5s = options.isPreserveChunkMD5s();
 
-        // log.debug("loading file: " + destContentId + "[" + fileSize + "]");
-        if (contentSize <= maxChunkSize) {
-            super.addContent(spaceId,
-                             contentId,
-                             content,
-                             contentSize,
-                             contentMimeType,
-                             contentChecksum,
-                             contentProperties);
-        } else if (!ignoreLargeFiles) {
-            ChunkableContent chunkedContent = new ChunkableContent(contentId,
-                                                              content,
-                                                              contentSize,
-                                                              maxChunkSize);
+        if (!ignoreLargeFiles) {
+            final var chunkedContent = new ChunkableContent(contentId, content, contentSize, maxChunkSize);
             chunkedContent.setPreserveChunkMD5s(preserveChunkMD5s);
             final var results = addChunkableContent(spaceId, chunkedContent, contentProperties);
+            final var manifest = addChunkManifest(chunkedContent, spaceId, contentProperties, results);
 
-            addChunkManifest(chunkedContent, spaceId, contentProperties, results);
-
-            // todo: return finalChecksum?
+            // before or after finalChecksum verify?
+            cleanupOrphanedChunks(spaceId, contentId, manifest);
 
             // Verify final checksum
-            // Push to ContentStore
+            String finalChecksum = "";
             if (contentChecksum != null) {
-                String finalChecksum = chunkedContent.getManifest().getHeader().getSourceMD5();
+                finalChecksum = chunkedContent.getManifest().getHeader().getSourceMD5();
                 if (!contentChecksum.equals(finalChecksum)) {
                     String err = "Final checksum of chunked content " + finalChecksum +
                                  " does not match provided checksum " + contentChecksum;
                     throw new DuraCloudRuntimeException(err);
                 }
             }
+
+            return finalChecksum;
         } else {
+            // todo: anything to do for ignored files? or do we want to autochunk?
             log.info("Ignoring: [" + contentId + "] (file too large)");
-            // contentWriter.ignore(destSpaceId, destContentId, fileSize);
         }
 
         return "";
@@ -128,7 +160,8 @@ public class ChunkingContentStoreImpl extends ContentStoreImpl {
         for (final ChunkInputStream chunk: content) {
             final var chunkId = chunk.getChunkId();
             final var chunkSize = chunk.getChunkSize();
-            // todo: can we skip writing the file out if we aren't retrying?
+            // todo: this causes the progress of the synctool to increase by the % of the chunk
+            // is there a better way to handle it?
             final var chunkFile = IOUtil.writeStreamToFile(chunk);
 
             try {
@@ -205,7 +238,7 @@ public class ChunkingContentStoreImpl extends ContentStoreImpl {
                     deleteContent(spaceId, contentId);
                 }
             } catch (ContentStoreException e) {
-                log.warn("Failed to delete formerly unchunked content  item {} in space {}.", contentId, spaceId, e);
+                log.warn("Failed to delete formerly unchunked content item {} in space {}.", contentId, spaceId, e);
             }
         }
 
@@ -240,6 +273,53 @@ public class ChunkingContentStoreImpl extends ContentStoreImpl {
             }
         } catch (ContentStoreException e) {
             return false; // File does not exist in DuraCloud
+        }
+    }
+
+    private void cleanupChunkedContent(final String spaceId, final String contentId) throws ContentStoreException {
+        final var chunkedContentIdIt = getSpaceContents(spaceId, contentId + ".dura-");
+        if (chunkedContentIdIt.hasNext()) {
+            log.info("A chunked version was replaced by an unchunked version of {}/{}", spaceId, contentId);
+            chunkedContentIdIt.forEachRemaining(chunkId -> {
+                tryDeleteContent(spaceId, chunkId);
+            });
+            log.info("Deleted manifest and all chunks associated with {}/{} " +
+                     "because the chunked file was replaced by an unchunked file with " +
+                     "the same name.",
+                     spaceId, contentId);
+        }
+    }
+
+    private void cleanupOrphanedChunks(final String spaceId,
+                                       final String contentId,
+                                       final ChunksManifest manifest) throws ContentStoreException {
+        log.debug("Checking for orphaned chunks associated with {}/{}", spaceId, contentId);
+
+        // resolve the set of the chunks in the manifest
+        final var manifestChunks = manifest.getEntries().stream()
+                                           .map(ChunksManifestBean.ManifestEntry::getChunkId)
+                                           .collect(Collectors.toSet());
+
+        // read the chunked content IDs from duracloud and remove chunks not contained in the manifest
+        final var chunkedContentIdIt = getSpaceContents(spaceId, contentId + ".dura-");
+        while (chunkedContentIdIt.hasNext()) {
+            final var chunk = chunkedContentIdIt.next();
+            if (!chunk.endsWith(manifestSuffix) && !manifestChunks.contains(chunk)) {
+                log.debug("Chunk not found in manifest: deleting orphaned chunk ({}/{})", spaceId, chunk);
+                tryDeleteContent(spaceId, chunk);
+            }
+        }
+    }
+
+    private void tryDeleteContent(String spaceId, String contentId) {
+        try {
+            deleteContent(spaceId, contentId);
+            log.debug("Deleted content ({}/{})", spaceId, contentId);
+        } catch (Exception ex) {
+            final String message = format("Failed to delete content ({0}/{1}) due to {2}." +
+                                          " As this is a non-critical failure, processing will " +
+                                          "continue on.", spaceId, contentId, ex.getMessage());
+            log.error(message, ex);
         }
     }
 
