@@ -75,6 +75,8 @@ public class ContentStoreImplTest {
     private String spaceId = "myspace";
     private String contentId = "mycontent";
 
+    private int maxRetries = 3;
+
     @Before
     public void setUp() throws Exception {
         restHelper = EasyMock.createMock("RestHttpHelper",
@@ -82,7 +84,7 @@ public class ContentStoreImplTest {
         response = EasyMock.createMock("HttpResponse",
                                        RestHttpHelper.HttpResponse.class);
 
-        contentStore = new ContentStoreImpl(baseURL, type, storeId, false, restHelper);
+        contentStore = new ContentStoreImpl(baseURL, type, storeId, false, restHelper, maxRetries);
     }
 
     @After
@@ -228,9 +230,17 @@ public class ContentStoreImplTest {
 
     @Test
     public void testCreateSpace() throws Exception {
-        String fullURL = baseURL + "/" + spaceId + "?storeID=" + storeId;
+        // First call is to check if space exists
+        String existsFullURL = baseURL + "/" + spaceId +
+                "?storeID=" + storeId;
+        EasyMock.expect(response.getStatusCode()).andReturn(404).times(4);
+        EasyMock.expect(response.getResponseBody()).andReturn("").times(4);
+        EasyMock.expect(restHelper.get(existsFullURL)).andReturn(response).times(4);
+
+        // Second call is to create space
+        String createFullURL = baseURL + "/" + spaceId + "?storeID=" + storeId;
         EasyMock.expect(response.getStatusCode()).andReturn(201);
-        EasyMock.expect(restHelper.put(fullURL, null, null)).andReturn(response);
+        EasyMock.expect(restHelper.put(createFullURL, null, null)).andReturn(response);
 
         replayMocks();
 
