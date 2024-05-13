@@ -199,7 +199,6 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         // Test timestamps
         BasicFileAttributes fileAttributes =
             Files.readAttributes(localFile.toPath(), BasicFileAttributes.class);
-        assertEquals(testTime, fileAttributes.creationTime().toMillis());
         assertEquals(testTime, fileAttributes.lastAccessTime().toMillis());
         assertEquals(testTime, fileAttributes.lastModifiedTime().toMillis());
 
@@ -225,6 +224,8 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         String time2 = DateUtil.convertToStringLong(testTime + 200000);
         String time3 = DateUtil.convertToStringLong(testTime + 300000);
         Map<String, String> props = new HashMap<>();
+        //we specify the creation time here, but in fact there is no guarantee this value will be recorded by the OS.
+        //so we are not checking it below.
         props.put(ContentStore.CONTENT_FILE_CREATED, time1);
         props.put(ContentStore.CONTENT_FILE_ACCESSED, time2);
         props.put(ContentStore.CONTENT_FILE_MODIFIED, time3);
@@ -237,10 +238,10 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         FileUtils.writeStringToFile(localFile, contentValue, Charset.defaultCharset());
 
         // Check that initial timestamps are current
+        localFile = new File(localFile.getAbsolutePath());
         BasicFileAttributes fileAttributes =
             Files.readAttributes(localFile.toPath(), BasicFileAttributes.class);
         long now = System.currentTimeMillis();
-        assertTrue(isTimeClose(fileAttributes.creationTime().toMillis(), now));
         assertTrue(isTimeClose(fileAttributes.lastAccessTime().toMillis(), now));
         assertTrue(isTimeClose(fileAttributes.lastModifiedTime().toMillis(), now));
 
@@ -250,17 +251,17 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         // Verify that timestamps were set
         fileAttributes =
             Files.readAttributes(localFile.toPath(), BasicFileAttributes.class);
-        long creationTime = fileAttributes.creationTime().toMillis();
         long lastAccessTime = fileAttributes.lastAccessTime().toMillis();
         long lastModifiedTime = fileAttributes.lastModifiedTime().toMillis();
 
-        assertFalse(isTimeClose(creationTime, now));
         assertFalse(isTimeClose(lastAccessTime, now));
         assertFalse(isTimeClose(lastModifiedTime, now));
-        assertTrue(testTime + 100000 == creationTime || // windows
-            testTime + 300000 == creationTime);  // linux
+
         assertEquals(testTime + 200000, lastAccessTime);
         assertEquals(testTime + 300000, lastModifiedTime);
+
+        //We no longer check the create time because its value is platform dependent.
+        //See https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/file/attribute/BasicFileAttributes.html#creationTime()
     }
 
     // Determines if two time values (in millis) are within 10 minutes of each other
