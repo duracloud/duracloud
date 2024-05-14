@@ -71,7 +71,7 @@ public class SpaceListWorker implements Runnable {
                                                   providerType + "-" + DateUtil.nowPlain() + ".txt");
             }
 
-            System.out.println("Writing space '" + spaceId + "' listing to: " +
+            logger.info("Writing space '" + spaceId + "' listing to: " +
                                outputFile.getAbsolutePath());
             Iterator<String> contentIterator = contentStore.getSpaceContents(spaceId);
             try (Writer writer = new BufferedWriter(new OutputStreamWriter(

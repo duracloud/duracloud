@@ -8,6 +8,7 @@
 package org.duracloud.retrieval;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.duracloud.common.model.ContentItem;
@@ -38,14 +39,19 @@ public abstract class RetrievalTestBase {
     protected OutputWriter createMockOutputWriter() {
         OutputWriter outWriter = EasyMock.createMock(OutputWriter.class);
         outWriter.writeSuccess(EasyMock.isA(ContentItem.class),
-                               EasyMock.isA(String.class),
-                               EasyMock.anyInt());
+            EasyMock.isA(String.class),
+            EasyMock.anyInt());
         EasyMock.expectLastCall().anyTimes();
         outWriter.writeFailure(EasyMock.isA(ContentItem.class),
-                               EasyMock.isA(String.class),
-                               EasyMock.anyInt());
+            EasyMock.isA(String.class),
+            EasyMock.anyInt());
         EasyMock.expectLastCall().anyTimes();
         EasyMock.replay(outWriter);
         return outWriter;
+    }
+
+    protected File createTempFile(String prefix) throws IOException {
+        final var file = new File(this.tempDir, prefix + ".tmp");
+        return file;
     }
 }

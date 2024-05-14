@@ -7,16 +7,17 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
@@ -143,7 +144,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
     @Test
     public void testChecksumsMatch() throws Exception {
         RetrievalWorker worker = createRetrievalWorker(true);
-        File localFile = new File(tempDir, "checksum-test");
+        File localFile = createTempFile("checksum-test");
 
         FileUtils.writeStringToFile(localFile, contentValue);
         assertTrue(worker.checksumsMatch(localFile));
@@ -155,7 +156,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
     @Test
     public void testRenameFile() throws Exception {
         RetrievalWorker worker = createRetrievalWorker(true);
-        File localFile = new File(tempDir, "rename-test");
+        File localFile = createTempFile("rename-test");
         String localFilePath = localFile.getAbsolutePath();
         FileUtils.writeStringToFile(localFile, "test");
 
@@ -165,7 +166,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         assertTrue(newFile.exists());
 
         assertEquals(localFile.getAbsolutePath() + "-copy",
-                     newFile.getAbsolutePath());
+            newFile.getAbsolutePath());
 
         FileUtils.writeStringToFile(localFile, "test");
         File newFile2 = worker.renameFile(localFile);
@@ -174,13 +175,13 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         assertTrue(newFile2.exists());
 
         assertEquals(localFile.getAbsolutePath() + "-copy-2",
-                     newFile2.getAbsolutePath());
+            newFile2.getAbsolutePath());
     }
 
     @Test
     public void testDeleteFile() throws Exception {
         RetrievalWorker worker = createRetrievalWorker(true);
-        File localFile = new File(tempDir, "rename-test");
+        File localFile = createTempFile("rename-test");
         FileUtils.writeStringToFile(localFile, "test");
 
         worker.deleteFile(localFile);
@@ -190,16 +191,14 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
     @Test
     public void testRetrieveToFile() throws Exception {
         RetrievalWorker worker = createRetrievalWorker(true);
-        File localFile = new File(tempDir, "retrieve-to-file-test");
+        File localFile = createTempFile("retrieve-to-file-test");
         assertFalse(localFile.exists());
-
         worker.retrieveToFile(localFile, null);
         assertTrue(localFile.exists());
 
         // Test timestamps
         BasicFileAttributes fileAttributes =
             Files.readAttributes(localFile.toPath(), BasicFileAttributes.class);
-        assertEquals(testTime, fileAttributes.creationTime().toMillis());
         assertEquals(testTime, fileAttributes.lastAccessTime().toMillis());
         assertEquals(testTime, fileAttributes.lastModifiedTime().toMillis());
 
@@ -209,8 +208,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
 
         // Test failure
         worker = createBrokenRetrievalWorker(true);
-        localFile = new File(tempDir, "retrieve-to-file-failure-test");
-        assertFalse(localFile.exists());
+        localFile = createTempFile("retrieve-to-file-failure-test");
 
         try {
             worker.retrieveToFile(localFile, null);
@@ -226,6 +224,8 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         String time2 = DateUtil.convertToStringLong(testTime + 200000);
         String time3 = DateUtil.convertToStringLong(testTime + 300000);
         Map<String, String> props = new HashMap<>();
+        //we specify the creation time here, but in fact there is no guarantee this value will be recorded by the OS.
+        //so we are not checking it below.
         props.put(ContentStore.CONTENT_FILE_CREATED, time1);
         props.put(ContentStore.CONTENT_FILE_ACCESSED, time2);
         props.put(ContentStore.CONTENT_FILE_MODIFIED, time3);
@@ -233,14 +233,15 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         ContentStream content =
             new ContentStream(null, props);
 
-        File localFile = new File(tempDir, "timestamp-test");
-        FileUtils.writeStringToFile(localFile, contentValue);
+        File localFile = createTempFile("timestamp-test");
+        assertFalse(localFile.exists());
+        FileUtils.writeStringToFile(localFile, contentValue, Charset.defaultCharset());
 
         // Check that initial timestamps are current
+        localFile = new File(localFile.getAbsolutePath());
         BasicFileAttributes fileAttributes =
             Files.readAttributes(localFile.toPath(), BasicFileAttributes.class);
         long now = System.currentTimeMillis();
-        assertTrue(isTimeClose(fileAttributes.creationTime().toMillis(), now));
         assertTrue(isTimeClose(fileAttributes.lastAccessTime().toMillis(), now));
         assertTrue(isTimeClose(fileAttributes.lastModifiedTime().toMillis(), now));
 
@@ -250,17 +251,17 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         // Verify that timestamps were set
         fileAttributes =
             Files.readAttributes(localFile.toPath(), BasicFileAttributes.class);
-        long creationTime = fileAttributes.creationTime().toMillis();
         long lastAccessTime = fileAttributes.lastAccessTime().toMillis();
         long lastModifiedTime = fileAttributes.lastModifiedTime().toMillis();
 
-        assertFalse(isTimeClose(creationTime, now));
         assertFalse(isTimeClose(lastAccessTime, now));
         assertFalse(isTimeClose(lastModifiedTime, now));
-        assertTrue(testTime + 100000 == creationTime || // windows
-                   testTime + 300000 == creationTime);  // linux
+
         assertEquals(testTime + 200000, lastAccessTime);
         assertEquals(testTime + 300000, lastModifiedTime);
+
+        //We no longer check the create time because its value is platform dependent.
+        //See https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/file/attribute/BasicFileAttributes.html#creationTime()
     }
 
     // Determines if two time values (in millis) are within 10 minutes of each other
@@ -270,42 +271,42 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
 
     private RetrievalWorker createRetrievalWorker(boolean overwrite) {
         return new RetrievalWorker(new ContentItem(spaceId, contentId),
-                                   new MockRetrievalSource(),
-                                   tempDir,
-                                   overwrite,
-                                   createMockOutputWriter(),
-                                   true,
-                                   true);
+            new MockRetrievalSource(),
+            tempDir,
+            overwrite,
+            createMockOutputWriter(),
+            true,
+            true);
     }
 
     private RetrievalWorker createRetrievalWorkerSingleSpace(boolean overwrite) {
         return new RetrievalWorker(new ContentItem(spaceId, contentId),
-                                   new MockRetrievalSource(),
-                                   tempDir,
-                                   overwrite,
-                                   createMockOutputWriter(),
-                                   false,
-                                   false);
+            new MockRetrievalSource(),
+            tempDir,
+            overwrite,
+            createMockOutputWriter(),
+            false,
+            false);
     }
 
     private RetrievalWorker createBrokenRetrievalWorker(boolean overwrite) {
         return new RetrievalWorker(new ContentItem(spaceId, contentId),
-                                   new BrokenMockRetrievalSource(),
-                                   tempDir,
-                                   overwrite,
-                                   createMockOutputWriter(),
-                                   true,
-                                   false);
+            new BrokenMockRetrievalSource(),
+            tempDir,
+            overwrite,
+            createMockOutputWriter(),
+            true,
+            false);
     }
 
     private RetrievalWorker createInconsistentRetrievalWorker(boolean overwrite) {
         return new RetrievalWorker(new ContentItem(spaceId, contentId),
-                                   new InconsistentMockRetrievalSource(),
-                                   tempDir,
-                                   overwrite,
-                                   createMockOutputWriter(),
-                                   true,
-                                   true);
+            new InconsistentMockRetrievalSource(),
+            tempDir,
+            overwrite,
+            createMockOutputWriter(),
+            true,
+            true);
     }
 
     private class MockRetrievalSource implements RetrievalSource {
@@ -356,7 +357,7 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
                 new ByteArrayInputStream(contentValue.getBytes());
             Map<String, String> props = new HashMap<>();
             props.put(ContentStore.CONTENT_CHECKSUM,
-                      "invalid-checksum");
+                "invalid-checksum");
             return new ContentStream(stream, props);
         }
     }
