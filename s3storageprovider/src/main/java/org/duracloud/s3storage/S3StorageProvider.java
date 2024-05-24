@@ -7,6 +7,7 @@
  */
 package org.duracloud.s3storage;
 
+import static java.util.Arrays.asList;
 import static org.apache.http.HttpHeaders.CONTENT_ENCODING;
 import static org.duracloud.storage.error.StorageException.NO_RETRY;
 import static org.duracloud.storage.error.StorageException.RETRY;
@@ -36,6 +37,7 @@ import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.DeletePublicAccessBlockRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
@@ -44,8 +46,12 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.SetBucketOwnershipControlsRequest;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
+import com.amazonaws.services.s3.model.ownership.ObjectOwnership;
+import com.amazonaws.services.s3.model.ownership.OwnershipControls;
+import com.amazonaws.services.s3.model.ownership.OwnershipControlsRule;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.duracloud.common.model.AclType;
@@ -235,6 +241,18 @@ public class S3StorageProvider extends StorageProviderBase {
             created = new Date();
         }
 
+        // enable ACLs
+        final var bucketName = bucket.getName();
+        s3Client.deletePublicAccessBlock(new DeletePublicAccessBlockRequest()
+            .withBucketName(bucketName));
+
+        final var rule = new OwnershipControlsRule().withOwnership(ObjectOwnership.ObjectWriter);
+        final var ownershipControls = new OwnershipControls().withRules(asList(rule));
+
+        s3Client.setBucketOwnershipControls(new SetBucketOwnershipControlsRequest()
+            .withBucketName(bucketName)
+            .withOwnershipControls(ownershipControls));
+
         // Empty ACL set for new space (no permissions set)
         Map<String, AclType> spaceACLs = new HashMap<>();
 
@@ -285,17 +303,17 @@ public class S3StorageProvider extends StorageProviderBase {
     public String createHiddenSpace(String spaceId, int expirationInDays) {
         String bucketName = getHiddenBucketName(spaceId);
         try {
-            Bucket bucket = s3Client.createBucket(bucketName);
+            final Bucket bucket = s3Client.createBucket(bucketName);
 
             // Apply lifecycle config to bucket
 
-            BucketLifecycleConfiguration.Rule expiresRule = new BucketLifecycleConfiguration.Rule()
+            final BucketLifecycleConfiguration.Rule expiresRule = new BucketLifecycleConfiguration.Rule()
                 .withId("ExpirationRule")
                 .withExpirationInDays(expirationInDays)
                 .withStatus(BucketLifecycleConfiguration.ENABLED);
 
             // Add the rules to a new BucketLifecycleConfiguration.
-            BucketLifecycleConfiguration configuration = new BucketLifecycleConfiguration()
+            final BucketLifecycleConfiguration configuration = new BucketLifecycleConfiguration()
                 .withRules(expiresRule);
 
             s3Client.setBucketLifecycleConfiguration(bucketName, configuration);
