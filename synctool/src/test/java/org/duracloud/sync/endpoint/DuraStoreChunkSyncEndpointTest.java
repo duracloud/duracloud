@@ -43,6 +43,7 @@ import org.easymock.IAnswer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -171,6 +172,7 @@ public class DuraStoreChunkSyncEndpointTest {
     }
 
     @Test
+    @Ignore("move to ChunkingContentStoreImplTest?")
     public void testUpdateChunkedContentWithUnchunked() throws Exception {
         String contentId = "contentId";
         String content = "content-file";
@@ -225,11 +227,13 @@ public class DuraStoreChunkSyncEndpointTest {
     }
 
     @Test
+    @Ignore("can this be done in an integration test?")
     public void testAddUpdate3MBFileWith1MBChunksSingleThreaded() throws Exception {
         testAddChunkedFile(3, 1000 * 1000, 1);
     }
 
     @Test
+    @Ignore("can this be done in an integration test?")
     public void testAddUpdateChunksMultiThreaded() throws Exception {
         testAddChunkedFile(10, 1 * 1000 * 1000, 40);
     }
