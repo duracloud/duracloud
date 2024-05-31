@@ -15,12 +15,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.duracloud.chunk.FileChunker;
 import org.duracloud.chunk.FileChunkerOptions;
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.manifest.ChunksManifestBean;
 import org.duracloud.chunk.util.ChunksManifestVerifier;
-import org.duracloud.chunk.writer.DuracloudContentWriter;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.retry.Retrier;
 import org.duracloud.domain.Content;
@@ -201,18 +199,19 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
         Map<String, String> properties = createProps(syncFile.getAbsolutePath(), getUsername());
         final ContentStore store = getContentStore();
 
-        DuracloudContentWriter contentWriter =
-            new DuracloudContentWriter(store, getUsername(), true, this.jumpStart);
-        FileChunker chunker = new FileChunker(contentWriter, chunkerOptions);
+        // probably switch to retry
         final String spaceId = getSpaceId();
-        chunker.addContent(spaceId,
-                           contentId,
-                           syncFile.getChecksum(),
-                           syncFile.length(),
-                           syncFile.getStream(),
-                           properties);
-
-        cleanup(contentId, syncFile, store, spaceId);
+        try {
+            store.addContent(spaceId,
+                             contentId,
+                             syncFile.getStream(),
+                             syncFile.length(),
+                             syncFile.getMimetype(),
+                             syncFile.getChecksum(),
+                             properties);
+        } catch (ContentStoreException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void cleanup(final String contentId,
