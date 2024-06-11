@@ -171,6 +171,9 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         expect(this.syncConfigurationManager.getPrefix())
             .andReturn(null).times(times);
 
+        expect(this.syncConfigurationManager.getExcludeList())
+                .andReturn(null).times(times);
+
         DuracloudConfiguration dc = createMock(DuracloudConfiguration.class);
         expect(dc.getUsername()).andReturn("testusername").times(times);
         expect(dc.getPassword()).andReturn("testpassword").times(times);

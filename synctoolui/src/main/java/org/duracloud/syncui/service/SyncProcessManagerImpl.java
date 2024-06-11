@@ -332,10 +332,18 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
             RunMode mode = this.syncConfigurationManager.getMode();
 
+            FileExclusionManager fileExclusionManager;
+            File excludeList = this.syncConfigurationManager.getExcludeList();
+            if (excludeList != null) {
+                fileExclusionManager = new FileExclusionManager(excludeList);
+            } else {
+                fileExclusionManager = new FileExclusionManager();
+            }
+
             if (backup < 0) {
-                dirWalker = DirWalker.start(dirs, new FileExclusionManager());
+                dirWalker = DirWalker.start(dirs, fileExclusionManager);
             } else if (mode.equals(RunMode.CONTINUOUS)) {
-                dirWalker = RestartDirWalker.start(dirs, backup, new FileExclusionManager());
+                dirWalker = RestartDirWalker.start(dirs, backup, fileExclusionManager);
             }
 
             startBackupsOnDirWalkerCompletion();
