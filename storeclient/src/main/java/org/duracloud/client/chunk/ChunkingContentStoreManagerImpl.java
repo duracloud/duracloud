@@ -51,6 +51,7 @@ public class ChunkingContentStoreManagerImpl extends ContentStoreManagerImpl {
         return newContentStoreImpl(acct, maxRetries);
     }
 
+    @Override
     protected ContentStore newContentStoreImpl(StorageAccount acct, int maxRetries) {
         log.info("Creating new ChunkingContentStoreImpl");
         return new ChunkingContentStoreImpl(getBaseURL(),
@@ -62,7 +63,4 @@ public class ChunkingContentStoreManagerImpl extends ContentStoreManagerImpl {
                                     options);
     }
 
-    protected void setRestHelper(RestHttpHelper restHelper) {
-        super.setRestHelper(restHelper);
-    }
 }
