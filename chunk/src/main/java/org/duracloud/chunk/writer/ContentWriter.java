@@ -19,7 +19,7 @@ import org.duracloud.chunk.stream.ChunkInputStream;
  * @author Andrew Woods
  * Date: Feb 5, 2010
  */
-@Deprecated
+@Deprecated(since = "8.1.0", forRemoval = true)
 public interface ContentWriter {
 
     /**

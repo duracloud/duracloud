@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * @author Andrew Woods
  * Date: Feb 5, 2010
  */
-@Deprecated
+@Deprecated(since = "8.1.0", forRemoval = true)
 public class DuracloudContentWriter implements ContentWriter {
 
     private final Logger log = LoggerFactory.getLogger(DuracloudContentWriter.class);
