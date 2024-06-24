@@ -280,9 +280,7 @@ public class ChunkingContentStoreImpl extends ContentStoreImpl {
         final var chunkedContentIdIt = getSpaceContents(spaceId, contentId + ".dura-");
         if (chunkedContentIdIt.hasNext()) {
             log.info("A chunked version was replaced by an unchunked version of {}/{}", spaceId, contentId);
-            chunkedContentIdIt.forEachRemaining(chunkId -> {
-                tryDeleteContent(spaceId, chunkId);
-            });
+            chunkedContentIdIt.forEachRemaining(chunkId -> tryDeleteContent(spaceId, chunkId));
             log.info("Deleted manifest and all chunks associated with {}/{} " +
                      "because the chunked file was replaced by an unchunked file with " +
                      "the same name.",
