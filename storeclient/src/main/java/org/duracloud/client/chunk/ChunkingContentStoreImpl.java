@@ -145,7 +145,7 @@ public class ChunkingContentStoreImpl extends ContentStoreImpl {
             return finalChecksum;
         } else {
             // todo: anything to do for ignored files? or do we want to autochunk?
-            log.info("Ignoring: [" + contentId + "] (file too large)");
+            log.info("Ignoring: [{}] (file too large)", contentId);
         }
 
         return "";
@@ -242,7 +242,7 @@ public class ChunkingContentStoreImpl extends ContentStoreImpl {
             }
         }
 
-        log.debug("wrote: " + spaceId + ", " + manifest.getManifestId());
+        log.debug("wrote: {}, {}", spaceId, manifest.getManifestId());
         return manifest;
     }
 
