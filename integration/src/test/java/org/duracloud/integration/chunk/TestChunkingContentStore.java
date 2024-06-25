@@ -67,7 +67,8 @@ public class TestChunkingContentStore {
         TestConfig testConfig = new TestConfigUtil().getTestConfig();
         TestEndPoint endpoint = testConfig.getTestEndPoint();
         smallChunkStoreManager = new ChunkingContentStoreManagerImpl(endpoint.getHost(), endpoint.getPort(), 1000);
-        largeChunkStoreManager = new ChunkingContentStoreManagerImpl(endpoint.getHost(), endpoint.getPort(), 1000*1000);
+        largeChunkStoreManager = new ChunkingContentStoreManagerImpl(endpoint.getHost(), endpoint.getPort(),
+                                                                     1000 * 1000);
         SimpleCredential cred = testConfig.getRootCredential();
         smallChunkStoreManager.login(new Credential(cred.getUsername(), cred.getPassword()));
         largeChunkStoreManager.login(new Credential(cred.getUsername(), cred.getPassword()));
@@ -224,9 +225,7 @@ public class TestChunkingContentStore {
 
     private void verifyManifestAdded(List<String> contents,
                                      String spaceId,
-                                     String contentId)
-        {
-
+                                     String contentId) {
         boolean manifestFound = false;
         long manifestSize = 0;
         for (String id : contents) {

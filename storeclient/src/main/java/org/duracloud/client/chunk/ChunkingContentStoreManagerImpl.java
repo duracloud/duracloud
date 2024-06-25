@@ -10,7 +10,6 @@ package org.duracloud.client.chunk;
 import org.duracloud.chunk.FileChunkerOptions;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManagerImpl;
-import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
