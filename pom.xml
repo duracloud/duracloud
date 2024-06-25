@@ -68,6 +68,7 @@
     <module>common-changenotifier</module>
     <module>common-aop</module>
     <module>storageprovider</module>
+    <module>storeclient-api</module>
     <module>storeclient</module>
     <module>security</module>
     <module>storageproviderdata</module>

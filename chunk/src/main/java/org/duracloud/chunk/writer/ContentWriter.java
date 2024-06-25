@@ -19,6 +19,7 @@ import org.duracloud.chunk.stream.ChunkInputStream;
  * @author Andrew Woods
  * Date: Feb 5, 2010
  */
+@Deprecated(since = "8.1.0", forRemoval = true)
 public interface ContentWriter {
 
     /**
@@ -49,7 +50,7 @@ public interface ContentWriter {
 
     /**
      * This method writes the arg Chunk to the arg space.
-     * It is intended for use when when the arg chunk is actually a complete
+     * It is intended for use when the arg chunk is actually a complete
      * piece of content
      *
      * @param spaceId       destination where arg chunk content will be written
@@ -67,13 +68,12 @@ public interface ContentWriter {
 
     /**
      * This method writes the arg Chunk to the arg space.
-     * It is intended for use when when the arg chunk is actually a complete
+     * It is intended for use when the arg chunk is actually a complete
      * piece of content
      *
      * @param spaceId       destination where arg chunk content will be written
      * @param chunkChecksum md5 checksum of the chunk if known, null otherwise
      * @param chunk         content to be written
-     * @param properties    user-defined properties for the content
      * @return MD5 of content
      * @throws NotFoundException on error
      */

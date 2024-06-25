@@ -30,14 +30,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.OrFileFilter;
-import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.chunk.error.NotFoundException;
 import org.duracloud.chunk.writer.ContentWriter;
-import org.duracloud.chunk.writer.DuracloudContentWriter;
-import org.duracloud.chunk.writer.FilesystemContentWriter;
-import org.duracloud.client.ContentStoreManager;
-import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.Credential;
 
@@ -215,9 +210,10 @@ public class FileChunkerDriver {
     /**
      * Main
      *
+     * Temporarily disabled while shuffling classes
+     *
      * @param args
      * @throws IOException
-     */
     public static void main(String[] args) throws Exception {
 
         CommandLine cmd = parseArgs(args);
@@ -239,6 +235,7 @@ public class FileChunkerDriver {
             String[] vals = cmd.getOptionValues("cloud-store");
             String host = vals[0];
             String port = vals[1];
+            // ContentStoreManager mgr = null;
             ContentStoreManager mgr = new ContentStoreManagerImpl(host, port);
 
             if (credential != null) {
@@ -304,6 +301,7 @@ public class FileChunkerDriver {
             usage();
         }
     }
+    */
 
     private static Credential getCredentials(String username, String password) {
         if (null == username || null == password) {

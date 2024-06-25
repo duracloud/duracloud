@@ -210,6 +210,9 @@ public class FileStitcherDriver {
 
     /**
      * Main
+     *
+     * @param args
+     * @throws IOException
      */
     public static void main(String[] args) {
         CommandLine cmd = parseArgs(args);

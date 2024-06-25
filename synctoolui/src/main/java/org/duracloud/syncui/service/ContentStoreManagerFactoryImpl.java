@@ -8,7 +8,7 @@
 package org.duracloud.syncui.service;
 
 import org.duracloud.client.ContentStoreManager;
-import org.duracloud.client.ContentStoreManagerImpl;
+import org.duracloud.client.chunk.ChunkingContentStoreManagerImpl;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.syncui.domain.DuracloudConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +34,7 @@ public class ContentStoreManagerFactoryImpl
         DuracloudConfiguration dc =
             this.syncConfigurationManager.retrieveDuracloudConfiguration();
         ContentStoreManager csm =
-            new ContentStoreManagerImpl(dc.getHost(),
-                                        String.valueOf(dc.getPort()));
+            new ChunkingContentStoreManagerImpl(dc.getHost(), String.valueOf(dc.getPort()));
         return csm;
 
     }

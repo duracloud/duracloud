@@ -2,7 +2,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.duracloud</groupId>
   <artifactId>chunk</artifactId>
   <version>8.2.0-SNAPSHOT</version>
   <name>Stream Chunking</name>
@@ -45,9 +44,10 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- goal is to remove reliance on this dependency -->
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>storeclient</artifactId>
+      <artifactId>storeclient-api</artifactId>
       <version>${project.version}</version>
     </dependency>
 

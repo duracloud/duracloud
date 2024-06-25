@@ -7,20 +7,19 @@
  */
 package org.duracloud.domain;
 
-import java.util.ArrayList;
+import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * A Space - the container in which content is stored.
+ * Content - a stream of bits and properties to describe the stream.
  *
  * @author Bill Branan
  */
-public class Space {
+public class Content {
     private String id;
-    private Map<String, String> properties = new HashMap<String, String>();
-    private List<String> contentIds = new ArrayList<String>();
+    private Map<String, String> properties = new HashMap<>();
+    private InputStream stream = null;
 
     /**
      * <p>Getter for the field <code>id</code>.</p>
@@ -51,7 +50,7 @@ public class Space {
     }
 
     /**
-     * <p>Adds an item to the space properties map</p>
+     * <p>Adds an item to the content properties map</p>
      *
      * @param name  properties key
      * @param value properties value
@@ -61,38 +60,16 @@ public class Space {
     }
 
     /**
-     * <p>Getter for the field <code>contentIds</code>.</p>
+     * <p>Getter for the field <code>stream</code>.</p>
      */
-    public List<String> getContentIds() {
-        return contentIds;
+    public InputStream getStream() {
+        return stream;
     }
 
     /**
-     * <p>Setter for the field <code>contentIds</code>.</p>
+     * <p>Setter for the field <code>stream</code>.</p>
      */
-    public void setContentIds(List<String> contentIds) {
-        this.contentIds = contentIds;
-    }
-
-    /**
-     * <p>addContentId</p>
-     */
-    public void addContentId(String contentId) {
-        contentIds.add(contentId);
-    }
-
-    /**
-     * <p>Compares one space to another</p>
-     *
-     * @return true if the spaces properties and contents are equal
-     */
-    public boolean equals(Space space) {
-        boolean equals = false;
-        if (getId().equals(space.getId()) &&
-            getProperties().equals(space.getProperties()) &&
-            getContentIds().equals(space.getContentIds())) {
-            equals = true;
-        }
-        return equals;
+    public void setStream(InputStream stream) {
+        this.stream = stream;
     }
 }
