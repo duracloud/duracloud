@@ -3258,6 +3258,7 @@ $(function() {
         // attach delete button listener
         var manifestUrl = "/duradmin/manifest/"+this._storeId+"/"+this._spaceId + "?format="
         $("#manifest-tsv").attr("href", manifestUrl+"tsv");
+        $("#manifest-tsv-extended").attr("href", manifestUrl+"extended_tsv");
         $("#manifest-bagit").attr("href", manifestUrl+"bagit");
       }
 
