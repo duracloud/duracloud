@@ -9,6 +9,7 @@ package org.duracloud.manifest.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -65,7 +66,7 @@ public abstract class ManifestFormatterBase implements ManifestFormatter {
 
     private void write(String line, OutputStream output) {
         try {
-            IOUtils.write(line, output);
+            IOUtils.write(line, output, StandardCharsets.UTF_8);
 
         } catch (IOException e) {
             StringBuilder err = new StringBuilder("Error writing line: '");
