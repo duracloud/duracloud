@@ -61,10 +61,4 @@ public abstract class ManifestFormatterBase implements ManifestFormatter {
 
     protected abstract Logger log();
 
-    public String formatLine(ManifestItem item) {
-        return formatLine(item.getContentChecksum(), item.getSpaceId(), item.getContentId());
-    }
-
-    protected abstract String formatLine(String contentMd5, String spaceId, String contentId);
-
 }
