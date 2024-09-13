@@ -15,6 +15,7 @@ package org.duracloud.common.constant;
  */
 public enum ManifestFormat {
     TSV("text/tab-separated-values"),
+    EXTENDED_TSV("text/tab-separated-values"),
     BAGIT("text/bagit");
 
     private String mimeType;

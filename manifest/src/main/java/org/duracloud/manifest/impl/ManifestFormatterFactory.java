@@ -27,16 +27,14 @@ public class ManifestFormatterFactory {
     public ManifestFormatter create(ManifestFormat format) {
         ManifestFormatter formatter;
         switch (format) {
-            case BAGIT:
-                formatter = new BagitManifestFormatter();
-                break;
-            case TSV:
-                formatter = new TsvManifestFormatter();
-                break;
-            default:
+            case BAGIT -> formatter = new BagitManifestFormatter();
+            case TSV -> formatter = new TsvManifestFormatter();
+            case EXTENDED_TSV -> formatter = new ExtendedTsvManifestFormatter();
+            default -> {
                 String err = "Unexpected format: " + format.name();
                 log.error(err);
                 throw new RuntimeException(err);
+            }
         }
 
         return formatter;
