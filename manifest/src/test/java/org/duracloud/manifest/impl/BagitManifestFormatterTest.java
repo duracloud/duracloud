@@ -34,12 +34,12 @@ public class BagitManifestFormatterTest {
 
     @Test
     public void testGetLine() throws Exception {
-        ManifestItem event = new ManifestItem();
-        event.setSpaceId(spaceId);
-        event.setContentId(contentId);
-        event.setContentChecksum(contentMd5);
+        ManifestItem item = new ManifestItem();
+        item.setSpaceId(spaceId);
+        item.setContentId(contentId);
+        item.setContentChecksum(contentMd5);
 
-        String line = formatter.formatLine(event);
+        String line = formatter.formatLine(item);
         Assert.assertNotNull(line);
 
         String expected = contentMd5 + "  " + spaceId + "/" + contentId;
@@ -48,9 +48,9 @@ public class BagitManifestFormatterTest {
 
     @Test
     public void testGetLineNull() throws Exception {
-        ManifestItem event = new ManifestItem();
+        ManifestItem item = new ManifestItem();
 
-        String line = formatter.formatLine(event);
+        String line = formatter.formatLine(item);
         Assert.assertNotNull(line);
 
         String nil = null;
@@ -60,12 +60,13 @@ public class BagitManifestFormatterTest {
 
     @Test
     public void testParseLine() throws Exception {
-        String checksum = "checksum";
-        String spaceId = "spaceid";
-        String contentId = "contentid";
-        String line = formatter.formatLine(checksum, spaceId, contentId);
+        ManifestItem formatItem = new ManifestItem();
+        formatItem.setContentChecksum(contentMd5);
+        formatItem.setContentChecksum(spaceId);
+        formatItem.setContentChecksum(contentId);
+        String line = formatter.formatLine(formatItem);
         ManifestItem item = formatter.parseLine(line);
-        Assert.assertEquals(checksum, item.getContentChecksum());
+        Assert.assertEquals(contentMd5, item.getContentChecksum());
         Assert.assertEquals(contentId, item.getContentId());
         Assert.assertEquals(spaceId, item.getSpaceId());
     }

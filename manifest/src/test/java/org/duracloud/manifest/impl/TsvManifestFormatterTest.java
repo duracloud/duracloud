@@ -36,12 +36,12 @@ public class TsvManifestFormatterTest {
 
     @Test
     public void testGetLine() {
-        ManifestItem event = new ManifestItem();
-        event.setSpaceId(spaceId);
-        event.setContentId(contentId);
-        event.setContentChecksum(contentMd5);
+        ManifestItem item = new ManifestItem();
+        item.setSpaceId(spaceId);
+        item.setContentId(contentId);
+        item.setContentChecksum(contentMd5);
 
-        String line = formatter.formatLine(event);
+        String line = formatter.formatLine(item);
         Assert.assertNotNull(line);
 
         String expected = spaceId + DELIM + contentId + DELIM + contentMd5;
@@ -50,9 +50,9 @@ public class TsvManifestFormatterTest {
 
     @Test
     public void testGetLineNull() {
-        ManifestItem event = new ManifestItem();
+        ManifestItem item = new ManifestItem();
 
-        String line = formatter.formatLine(event);
+        String line = formatter.formatLine(item);
         Assert.assertNotNull(line);
 
         String nil = null;
@@ -62,12 +62,13 @@ public class TsvManifestFormatterTest {
 
     @Test
     public void testParseLine() throws Exception {
-        String checksum = "checksum-md5";
-        String spaceId = "space-id";
-        String contentId = "content-id";
-        String line = formatter.formatLine(checksum, spaceId, contentId);
+        ManifestItem formatItem = new ManifestItem();
+        formatItem.setContentChecksum(contentMd5);
+        formatItem.setSpaceId(spaceId);
+        formatItem.setContentId(contentId);
+        String line = formatter.formatLine(formatItem);
         ManifestItem item = formatter.parseLine(line);
-        Assert.assertEquals(checksum, item.getContentChecksum());
+        Assert.assertEquals(contentMd5, item.getContentChecksum());
         Assert.assertEquals(contentId, item.getContentId());
         Assert.assertEquals(spaceId, item.getSpaceId());
     }
