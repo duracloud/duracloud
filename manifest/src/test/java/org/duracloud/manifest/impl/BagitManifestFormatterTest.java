@@ -34,10 +34,10 @@ public class BagitManifestFormatterTest {
 
     @Test
     public void testGetLine() throws Exception {
-        ContentMessage event = new ContentMessage();
+        ManifestItem event = new ManifestItem();
         event.setSpaceId(spaceId);
         event.setContentId(contentId);
-        event.setContentMd5(contentMd5);
+        event.setContentChecksum(contentMd5);
 
         String line = formatter.formatLine(event);
         Assert.assertNotNull(line);
@@ -48,7 +48,7 @@ public class BagitManifestFormatterTest {
 
     @Test
     public void testGetLineNull() throws Exception {
-        ContentMessage event = new ContentMessage();
+        ManifestItem event = new ManifestItem();
 
         String line = formatter.formatLine(event);
         Assert.assertNotNull(line);
