@@ -11,7 +11,6 @@ import static org.duracloud.common.util.bulk.ManifestVerifier.DELIM;
 
 import java.text.ParseException;
 
-import org.duracloud.manifest.ContentMessage;
 import org.duracloud.mill.db.model.ManifestItem;
 import org.junit.Assert;
 import org.junit.Before;

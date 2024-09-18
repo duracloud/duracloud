@@ -9,7 +9,6 @@ package org.duracloud.manifest.impl;
 
 import java.text.ParseException;
 
-import org.duracloud.manifest.ContentMessage;
 import org.duracloud.mill.db.model.ManifestItem;
 import org.junit.Assert;
 import org.junit.Before;

@@ -21,7 +21,6 @@ public class ExtendedTsvManifestFormatterTest {
     private final String contentMimeType = "text/plain";
     private final String contentSize = "5";
 
-
     @Before
     public void setUp() throws Exception {
         formatter = new ExtendedTsvManifestFormatter();
