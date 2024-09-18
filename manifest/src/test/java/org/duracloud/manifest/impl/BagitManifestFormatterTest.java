@@ -25,7 +25,7 @@ public class BagitManifestFormatterTest {
 
     private String spaceId = "space-id";
     private String contentId = "content-id";
-    private String contentMd5 = "content-md5";
+    private String contentMd5 = "md5";
 
     @Before
     public void setUp() throws Exception {
@@ -62,8 +62,8 @@ public class BagitManifestFormatterTest {
     public void testParseLine() throws Exception {
         ManifestItem formatItem = new ManifestItem();
         formatItem.setContentChecksum(contentMd5);
-        formatItem.setContentChecksum(spaceId);
-        formatItem.setContentChecksum(contentId);
+        formatItem.setSpaceId(spaceId);
+        formatItem.setContentId(contentId);
         String line = formatter.formatLine(formatItem);
         ManifestItem item = formatter.parseLine(line);
         Assert.assertEquals(contentMd5, item.getContentChecksum());
