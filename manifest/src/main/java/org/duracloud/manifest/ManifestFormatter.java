@@ -9,7 +9,6 @@ package org.duracloud.manifest;
 
 import java.io.OutputStream;
 import java.text.ParseException;
-import java.util.Collection;
 
 import org.duracloud.mill.db.model.ManifestItem;
 
@@ -20,15 +19,6 @@ import org.duracloud.mill.db.model.ManifestItem;
  * Date: 3/29/12
  */
 public interface ManifestFormatter {
-
-    /**
-     * This method writes the arg events to the arg output stream.
-     *
-     * @param events to write
-     * @param output destination of formatted events
-     */
-    public void writeEventsToOutput(Collection<ContentMessage> events,
-                                    OutputStream output);
 
     /**
      * @param item         to write

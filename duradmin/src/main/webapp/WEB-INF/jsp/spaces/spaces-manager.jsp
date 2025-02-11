@@ -806,6 +806,7 @@
                 class="dropdown dropdown-tip">
                 <ul class="dropdown-menu">
                   <li><a id="manifest-tsv" href="">Tab Separated (TSV)</a></li>
+                  <li><a id="manifest-tsv-extended" href="">Tab Separated (TSV) - All Attributes</a></li>
                   <li><a id="manifest-bagit" href="">Bagit</a></li>
                 </ul>
               </div>

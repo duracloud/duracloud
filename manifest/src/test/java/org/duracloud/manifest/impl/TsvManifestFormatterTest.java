@@ -11,7 +11,6 @@ import static org.duracloud.common.util.bulk.ManifestVerifier.DELIM;
 
 import java.text.ParseException;
 
-import org.duracloud.manifest.ContentMessage;
 import org.duracloud.mill.db.model.ManifestItem;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,13 +34,13 @@ public class TsvManifestFormatterTest {
     }
 
     @Test
-    public void testGetLine() throws Exception {
-        ContentMessage event = new ContentMessage();
-        event.setSpaceId(spaceId);
-        event.setContentId(contentId);
-        event.setContentMd5(contentMd5);
+    public void testGetLine() {
+        ManifestItem item = new ManifestItem();
+        item.setSpaceId(spaceId);
+        item.setContentId(contentId);
+        item.setContentChecksum(contentMd5);
 
-        String line = formatter.formatLine(event);
+        String line = formatter.formatLine(item);
         Assert.assertNotNull(line);
 
         String expected = spaceId + DELIM + contentId + DELIM + contentMd5;
@@ -49,10 +48,10 @@ public class TsvManifestFormatterTest {
     }
 
     @Test
-    public void testGetLineNull() throws Exception {
-        ContentMessage event = new ContentMessage();
+    public void testGetLineNull() {
+        ManifestItem item = new ManifestItem();
 
-        String line = formatter.formatLine(event);
+        String line = formatter.formatLine(item);
         Assert.assertNotNull(line);
 
         String nil = null;
@@ -62,12 +61,13 @@ public class TsvManifestFormatterTest {
 
     @Test
     public void testParseLine() throws Exception {
-        String checksum = "checksum-md5";
-        String spaceId = "space-id";
-        String contentId = "content-id";
-        String line = formatter.formatLine(checksum, spaceId, contentId);
+        ManifestItem formatItem = new ManifestItem();
+        formatItem.setContentChecksum(contentMd5);
+        formatItem.setSpaceId(spaceId);
+        formatItem.setContentId(contentId);
+        String line = formatter.formatLine(formatItem);
         ManifestItem item = formatter.parseLine(line);
-        Assert.assertEquals(checksum, item.getContentChecksum());
+        Assert.assertEquals(contentMd5, item.getContentChecksum());
         Assert.assertEquals(contentId, item.getContentId());
         Assert.assertEquals(spaceId, item.getSpaceId());
     }

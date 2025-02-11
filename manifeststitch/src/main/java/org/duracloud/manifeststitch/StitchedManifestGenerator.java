@@ -87,13 +87,13 @@ public class StitchedManifestGenerator {
             throw new IOException(e);
         }
 
-        return new AutoCloseInputStream(new FileInputStream(stitchedManifestFile) {
+        return new AutoCloseInputStream.Builder().setInputStream(new FileInputStream(stitchedManifestFile) {
             @Override
             public void close() throws IOException {
                 super.close();
                 stitchedManifestFile.delete();
             }
-        });
+        }).get();
     }
 
     private void processLine(String line,

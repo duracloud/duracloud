@@ -9,7 +9,6 @@ package org.duracloud.manifest.impl;
 
 import java.text.ParseException;
 
-import org.duracloud.manifest.ContentMessage;
 import org.duracloud.mill.db.model.ManifestItem;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,7 +24,7 @@ public class BagitManifestFormatterTest {
 
     private String spaceId = "space-id";
     private String contentId = "content-id";
-    private String contentMd5 = "content-md5";
+    private String contentMd5 = "md5";
 
     @Before
     public void setUp() throws Exception {
@@ -34,12 +33,12 @@ public class BagitManifestFormatterTest {
 
     @Test
     public void testGetLine() throws Exception {
-        ContentMessage event = new ContentMessage();
-        event.setSpaceId(spaceId);
-        event.setContentId(contentId);
-        event.setContentMd5(contentMd5);
+        ManifestItem item = new ManifestItem();
+        item.setSpaceId(spaceId);
+        item.setContentId(contentId);
+        item.setContentChecksum(contentMd5);
 
-        String line = formatter.formatLine(event);
+        String line = formatter.formatLine(item);
         Assert.assertNotNull(line);
 
         String expected = contentMd5 + "  " + spaceId + "/" + contentId;
@@ -48,9 +47,9 @@ public class BagitManifestFormatterTest {
 
     @Test
     public void testGetLineNull() throws Exception {
-        ContentMessage event = new ContentMessage();
+        ManifestItem item = new ManifestItem();
 
-        String line = formatter.formatLine(event);
+        String line = formatter.formatLine(item);
         Assert.assertNotNull(line);
 
         String nil = null;
@@ -60,12 +59,13 @@ public class BagitManifestFormatterTest {
 
     @Test
     public void testParseLine() throws Exception {
-        String checksum = "checksum";
-        String spaceId = "spaceid";
-        String contentId = "contentid";
-        String line = formatter.formatLine(checksum, spaceId, contentId);
+        ManifestItem formatItem = new ManifestItem();
+        formatItem.setContentChecksum(contentMd5);
+        formatItem.setSpaceId(spaceId);
+        formatItem.setContentId(contentId);
+        String line = formatter.formatLine(formatItem);
         ManifestItem item = formatter.parseLine(line);
-        Assert.assertEquals(checksum, item.getContentChecksum());
+        Assert.assertEquals(contentMd5, item.getContentChecksum());
         Assert.assertEquals(contentId, item.getContentId());
         Assert.assertEquals(spaceId, item.getSpaceId());
     }

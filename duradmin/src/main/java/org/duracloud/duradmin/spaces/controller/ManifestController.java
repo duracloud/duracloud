@@ -59,7 +59,7 @@ public class ManifestController {
             ManifestFormat format = ManifestFormat.valueOf(manifestFormat.toUpperCase());
             InputStream is = contentStore.getManifest(spaceId, format);
             String extension = "txt";
-            if (format.equals(ManifestFormat.TSV)) {
+            if (format.equals(ManifestFormat.TSV) || format.equals(ManifestFormat.EXTENDED_TSV)) {
                 extension = "tsv";
             }
             StringBuffer contentDisposition = new StringBuffer();

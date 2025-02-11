@@ -33,6 +33,9 @@ public class ManifestFormatterFactory {
             case TSV:
                 formatter = new TsvManifestFormatter();
                 break;
+            case EXTENDED_TSV:
+                formatter = new ExtendedTsvManifestFormatter();
+                break;
             default:
                 String err = "Unexpected format: " + format.name();
                 log.error(err);

@@ -24,8 +24,7 @@ import org.slf4j.LoggerFactory;
 public class BagitManifestFormatter extends ManifestFormatterBase {
     private static Pattern LINE_PATTERN = Pattern.compile("(\\w+)\\s+(.*)/(.*)");
 
-    private final Logger log =
-        LoggerFactory.getLogger(BagitManifestFormatter.class);
+    private final Logger log = LoggerFactory.getLogger(BagitManifestFormatter.class);
 
     @Override
     protected Logger log() {
@@ -38,13 +37,13 @@ public class BagitManifestFormatter extends ManifestFormatterBase {
     }
 
     @Override
-    protected String formatLine(String contentChecksum, String spaceId, String contentId) {
+    public String formatLine(ManifestItem item) {
         StringBuilder line = new StringBuilder();
-        line.append(contentChecksum);
+        line.append(item.getContentChecksum());
         line.append("  ");
-        line.append(spaceId);
+        line.append(item.getSpaceId());
         line.append("/");
-        line.append(contentId);
+        line.append(item.getContentId());
 
         return line.toString();
     }

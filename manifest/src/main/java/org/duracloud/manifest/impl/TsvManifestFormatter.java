@@ -30,8 +30,7 @@ public class TsvManifestFormatter extends ManifestFormatterBase {
 
     private static Pattern LINE_PATTERN = Pattern.compile("(.+)" + DELIM + "(.+)" + DELIM + "(.+)");
 
-    private static final String HEADER =
-        "space-id" + DELIM + "content-id" + DELIM + "MD5";
+    private static final String HEADER = "space-id" + DELIM + "content-id" + DELIM + "MD5";
 
     @Override
     protected Logger log() {
@@ -44,13 +43,13 @@ public class TsvManifestFormatter extends ManifestFormatterBase {
     }
 
     @Override
-    protected String formatLine(String contentMd5, String spaceId, String contentId) {
+    public String formatLine(ManifestItem item) {
         StringBuilder line = new StringBuilder();
-        line.append(spaceId);
+        line.append(item.getSpaceId());
         line.append(DELIM);
-        line.append(contentId);
+        line.append(item.getContentId());
         line.append(DELIM);
-        line.append(contentMd5);
+        line.append(item.getContentChecksum());
         return line.toString();
     }
 
