@@ -17,6 +17,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,5 +67,78 @@ public class StorageStatsResourceTest {
         assertEquals("End date should be 00:00:00 GMT of the next day as input date", "2020-01-01T00:00:00Z",
                      dateTimeFormatter.format(end.toInstant()));
 
+    }
+
+    @Test
+    public void testSortsStorageStats() {
+        spaceStatsRepo = mock(JpaSpaceStatsRepo.class);
+        final var accountId = "account-id";
+        final var storeId = "id";
+        final var byteCount = new BigDecimal(10000);
+        final var objectCount = new BigDecimal(100);
+
+        final Date firstDate = Date.from(Instant.from(dateTimeFormatter.parse(("2019-12-31T12:00:00Z"))));
+        final Date lastDate = Date.from(Instant.from(dateTimeFormatter.parse(("2023-12-31T12:00:00Z"))));
+        final var now = Date.from(Instant.now());
+
+        // A few quirks to note from the JpaSpaceStatsRepo:
+        // - The time returned needs to be divided by 1000. See when creating new StoreStatsDTO/SpaceStatsDTO objects
+        // - We get back a BigDecimal for the file and byte counts as they use the aggregate function `avg`
+        final var unsorted = List.of(
+            List.of(lastDate.getTime() / 1000, accountId, storeId, byteCount, objectCount).toArray(),
+            List.of(firstDate.getTime() / 1000, accountId, storeId, byteCount, objectCount).toArray());
+
+        expect(spaceStatsRepo.getByAccountIdAndStoreId(eq(accountId), eq(storeId), eq(firstDate),
+                                                       eq(now), eq(JpaSpaceStatsRepo.INTERVAL_DAY)))
+            .andReturn(unsorted);
+
+        replay(spaceStatsRepo);
+        final var resource = new StorageStatsResource(spaceStatsRepo);
+        final List<StoreStatsDTO> storageProviderStats =
+            resource.getStorageProviderStats(accountId, storeId, firstDate, now, StorageStatsResource.GroupBy.day);
+        verify(spaceStatsRepo);
+
+        assertEquals(2, storageProviderStats.size());
+        assertEquals(firstDate, storageProviderStats.get(0).getTimestamp());
+        assertEquals(lastDate, storageProviderStats.get(1).getTimestamp());
+    }
+
+    @Test
+    public void testSortsSpaceStats() {
+        spaceStatsRepo = mock(JpaSpaceStatsRepo.class);
+        final var accountId = "account-id";
+        final var storeId = "id";
+        final var spaceId = "space-id";
+        final var byteCount = new BigDecimal(10000);
+        final var objectCount = new BigDecimal(100);
+
+        final var firstDate = Date.from(Instant.from(dateTimeFormatter.parse("2019-12-31T12:00:00Z")));
+        final var lastDate = Date.from(Instant.from(dateTimeFormatter.parse("2023-12-31T12:00:00Z")));
+        final var now = Date.from(Instant.now());
+
+        // A few quirks to note from the JpaSpaceStatsRepo:
+        // - The time returned needs to be divided by 1000. See when creating new StoreStatsDTO/SpaceStatsDTO objects
+        // - We get back a BigDecimal for the file and byte counts as they use the aggregate function `avg`
+        // - The final column is the timestamp as a local date format (e.g. 2019-12-31)
+        final List<Object[]> unsorted = List.of(
+            List.of(lastDate.getTime() / 1000, accountId, storeId, spaceId, byteCount, objectCount,
+                    LocalDate.ofInstant(lastDate.toInstant(), ZoneOffset.UTC).toString()).toArray(),
+            List.of(firstDate.getTime() / 1000, accountId, storeId, spaceId, byteCount, objectCount,
+                    LocalDate.ofInstant(firstDate.toInstant(), ZoneOffset.UTC).toString()).toArray());
+
+        expect(spaceStatsRepo.getByAccountIdAndStoreIdAndSpaceId(eq(accountId), eq(storeId), eq(spaceId),
+                                                                 eq(firstDate), eq(now),
+                                                                 eq(JpaSpaceStatsRepo.INTERVAL_DAY)))
+            .andReturn(unsorted);
+
+        replay(spaceStatsRepo);
+        final var resource = new StorageStatsResource(spaceStatsRepo);
+        final var storageProviderStats = resource.getSpaceStats(accountId, storeId, spaceId, firstDate, now,
+                                                                StorageStatsResource.GroupBy.day);
+        verify(spaceStatsRepo);
+
+        assertEquals(2, storageProviderStats.size());
+        assertEquals(firstDate, storageProviderStats.get(0).getTimestamp());
+        assertEquals(lastDate, storageProviderStats.get(1).getTimestamp());
     }
 }
