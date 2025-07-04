@@ -9,6 +9,7 @@ package org.duracloud.durastore.rest;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class StorageStatsResource {
 
     final long ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 
-    public static enum GroupBy {
+    public enum GroupBy {
         day,
         week,
         month;
@@ -64,6 +65,7 @@ public class StorageStatsResource {
                                        ((BigDecimal) s[5]).longValue()));
         }
 
+        dtos.sort(Comparator.comparing(SpaceStatsDTO::getTimestamp));
         return dtos;
     }
 
@@ -99,6 +101,7 @@ public class StorageStatsResource {
                                        ((BigDecimal) s[4]).longValue()));
         }
 
+        dtos.sort(Comparator.comparing(StoreStatsDTO::getTimestamp));
         return dtos;
     }
 
