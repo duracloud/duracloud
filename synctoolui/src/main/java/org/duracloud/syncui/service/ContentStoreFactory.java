@@ -9,7 +9,7 @@ package org.duracloud.syncui.service;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
-import org.duracloud.client.ContentStoreManagerImpl;
+import org.duracloud.client.chunk.ChunkingContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.syncui.domain.DuracloudCredentialsForm;
@@ -54,7 +54,6 @@ public class ContentStoreFactory {
 
     protected ContentStoreManager createContentStoreManager(String host,
                                                             String port) {
-        ContentStoreManager csm = new ContentStoreManagerImpl(host, port);
-        return csm;
+        return new ChunkingContentStoreManagerImpl(host, port);
     }
 }

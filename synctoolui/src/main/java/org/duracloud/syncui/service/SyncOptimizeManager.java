@@ -8,7 +8,6 @@
 package org.duracloud.syncui.service;
 
 import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -82,13 +81,7 @@ public class SyncOptimizeManager {
         List<SyncTestEvent> events = syncTestStatus.getSyncEvents();
 
         if (events.size() > 0) {
-            Collections.sort(events, new Comparator<SyncTestEvent>() {
-                @Override
-                public int compare(SyncTestEvent o1, SyncTestEvent o2) {
-                    return Long.valueOf(o1.getElapsed())
-                               .compareTo(Long.valueOf(o1.getElapsed()));
-                }
-            });
+            events.sort(Comparator.comparingLong(SyncTestEvent::getElapsed));
 
             SyncTestEvent best = events.get(0);
             status =

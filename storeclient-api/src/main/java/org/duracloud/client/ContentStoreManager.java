@@ -26,8 +26,7 @@ public interface ContentStoreManager extends Securable {
      * @return a map of content stores to content store IDs
      * @throws ContentStoreException if the content store list cannot be retrieved
      */
-    public Map<String, ContentStore> getContentStores()
-        throws ContentStoreException;
+    Map<String, ContentStore> getContentStores() throws ContentStoreException;
 
     /**
      * Gets all available content stores.
@@ -36,8 +35,7 @@ public interface ContentStoreManager extends Securable {
      * @return a map of content stores to content store IDs
      * @throws ContentStoreException if the content store list cannot be retrieved
      */
-    public Map<String, ContentStore> getContentStores(int maxRetries)
-        throws ContentStoreException;
+    Map<String, ContentStore> getContentStores(int maxRetries) throws ContentStoreException;
 
     /**
      * Gets a specific content store based on ID.
@@ -47,8 +45,7 @@ public interface ContentStoreManager extends Securable {
      * @return the ContentStore mapped to storeID
      * @throws ContentStoreException if the content store cannot be retrieved
      */
-    public ContentStore getContentStore(String storeID)
-        throws ContentStoreException;
+    ContentStore getContentStore(String storeID) throws ContentStoreException;
 
     /**
      * Gets a specific content store based on ID.
@@ -58,28 +55,25 @@ public interface ContentStoreManager extends Securable {
      * @return the ContentStore mapped to storeID
      * @throws ContentStoreException if the content store cannot be retrieved
      */
-    public ContentStore getContentStore(String storeID, int maxRetries)
-        throws ContentStoreException;
+    ContentStore getContentStore(String storeID, int maxRetries) throws ContentStoreException;
 
     /**
      * Gets the primary content store.
      * Content store uses the default number of retries (3) on call failure.
      *
      * @return the primary ContentStore
-     * @throws if the content store cannot be retrieved
+     * @throws ContentStoreException if the content store cannot be retrieved
      */
-    public ContentStore getPrimaryContentStore()
-        throws ContentStoreException;
+    ContentStore getPrimaryContentStore() throws ContentStoreException;
 
     /**
      * Gets the primary content store.
      *
      * @param maxRetries number of retries to perform if a content store call fails
      * @return the primary ContentStore
-     * @throws if the content store cannot be retrieved
+     * @throws ContentStoreException if the content store cannot be retrieved
      */
-    public ContentStore getPrimaryContentStore(int maxRetries)
-        throws ContentStoreException;
+    ContentStore getPrimaryContentStore(int maxRetries) throws ContentStoreException;
 
     /**
      * Provides access to the primary content store without requiring login().
@@ -89,10 +83,9 @@ public interface ContentStoreManager extends Securable {
      * Content store uses the default number of retries (3) on call failure.
      *
      * @return the primary ContentStore
-     * @throws if the content store cannot be retrieved
+     * @throws ContentStoreException if the content store cannot be retrieved
      */
-    public ContentStore getPrimaryContentStoreAsAnonymous()
-        throws ContentStoreException;
+    ContentStore getPrimaryContentStoreAsAnonymous() throws ContentStoreException;
 
     /**
      * Provides access to the primary content store without requiring login().
@@ -101,10 +94,9 @@ public interface ContentStoreManager extends Securable {
      *
      * @param maxRetries number of retries to perform if a content store call fails
      * @return the primary ContentStore
-     * @throws if the content store cannot be retrieved
+     * @throws ContentStoreException if the content store cannot be retrieved
      */
-    public ContentStore getPrimaryContentStoreAsAnonymous(int maxRetries)
-        throws ContentStoreException;
+    ContentStore getPrimaryContentStoreAsAnonymous(int maxRetries) throws ContentStoreException;
 
     /**
      * <p>reconfigure</p>
@@ -112,9 +104,8 @@ public interface ContentStoreManager extends Securable {
      * @param host    of durastore
      * @param port    of durastore
      * @param context of durastore
-     * @throws ContentStoreException
+     * @throws ContentStoreException if the content store cannot be retrieved
      */
-    public void reinitialize(String host, String port, String context)
-        throws ContentStoreException;
+    void reinitialize(String host, String port, String context) throws ContentStoreException;
 
 }
