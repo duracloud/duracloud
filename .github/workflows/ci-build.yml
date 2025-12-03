@@ -69,6 +69,7 @@ jobs:
 
     # Execute deployment to sonatype (only on push to develop or main branches)
     - name: Publish to Sonatype
+      continue-on-error: true
       if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main')
       run: mvn deploy -DreleaseBuild -DskipTests -DskipDeploy --batch-mode
       env:
