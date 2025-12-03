@@ -9,11 +9,9 @@ package org.duracloud.manifest.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collection;
-import java.util.Iterator;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
-import org.duracloud.manifest.ContentMessage;
 import org.duracloud.manifest.ManifestFormatter;
 import org.duracloud.manifest.error.ManifestFormatterException;
 import org.duracloud.mill.db.model.ManifestItem;
@@ -27,22 +25,6 @@ import org.slf4j.Logger;
  */
 public abstract class ManifestFormatterBase implements ManifestFormatter {
     private boolean headerWasWritten = false;
-
-    @Override
-    public void writeEventsToOutput(Collection<ContentMessage> events,
-                                    OutputStream output) {
-        writeHeader(output);
-
-        Iterator<ContentMessage> itr = events.iterator();
-        while (itr.hasNext()) {
-            ContentMessage event = itr.next();
-            write(formatLine(event), output);
-
-            if (itr.hasNext()) {
-                write("\n", output);
-            }
-        }
-    }
 
     @Override
     public void writeManifestItemToOutput(ManifestItem item,
@@ -65,7 +47,7 @@ public abstract class ManifestFormatterBase implements ManifestFormatter {
 
     private void write(String line, OutputStream output) {
         try {
-            IOUtils.write(line, output);
+            IOUtils.write(line, output, StandardCharsets.UTF_8);
 
         } catch (IOException e) {
             StringBuilder err = new StringBuilder("Error writing line: '");
@@ -78,15 +60,5 @@ public abstract class ManifestFormatterBase implements ManifestFormatter {
     }
 
     protected abstract Logger log();
-
-    public String formatLine(ContentMessage event) {
-        return formatLine(event.getContentMd5(), event.getSpaceId(), event.getContentId());
-    }
-
-    public String formatLine(ManifestItem item) {
-        return formatLine(item.getContentChecksum(), item.getSpaceId(), item.getContentId());
-    }
-
-    protected abstract String formatLine(String contentMd5, String spaceId, String contentId);
 
 }

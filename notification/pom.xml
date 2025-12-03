@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>notification</artifactId>
-  <version>8.1.0</version>
+  <version>8.2.0</version>
   <name>Email</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>8.1.0</version>
+    <version>8.2.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

@@ -148,8 +148,8 @@ public class S3StorageProvider extends StorageProviderBase {
         try {
             return s3Client.listBuckets();
         } catch (AmazonClientException e) {
-            String err = "Could not retrieve list of S3 buckets due to error: "
-                         + e.getMessage();
+            String err = "Could not retrieve list of S3 buckets for Access Key '" + accessKeyId +
+                         "' due to error: '" + e.getMessage() + "'";
             throw new StorageException(err, e, RETRY);
         }
     }
