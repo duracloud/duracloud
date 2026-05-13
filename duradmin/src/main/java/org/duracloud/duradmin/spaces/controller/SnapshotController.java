@@ -17,21 +17,19 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import org.apache.http.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.task.SnapshotTaskClient;
 import org.duracloud.client.task.SnapshotTaskClientManager;
 import org.duracloud.common.constant.Constants;
-import org.duracloud.error.ContentStateException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.dto.SnapshotHistoryItem;
-import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
@@ -71,35 +69,10 @@ public class SnapshotController {
 
     @RequestMapping(value = "/spaces/snapshot", method = RequestMethod.POST)
     @ResponseBody
-    public String create(HttpServletRequest request,
-                         HttpServletResponse response,
-                         @RequestParam String spaceId,
-                         @RequestParam String storeId,
-                         @RequestParam String description) throws Exception {
-
-        ContentStore store = getContentStore(storeId);
-        // check that a snapshot is not already being generated.
+    public String create(HttpServletResponse response) {
         response.setHeader("Content-Type", MediaType.APPLICATION_JSON);
-
-        if (isSnapshotInProgress(store, spaceId)) {
-            response.setStatus(HttpStatus.SC_METHOD_FAILURE);
-            return "{\"result\":\"Snapshot already in progress.\"}";
-        } else {
-
-            String username = getUsername(request);
-            String userEmail = getUserEmail(username);
-
-            SnapshotTaskClient taskClient = getTaskClient(storeId);
-            try {
-                CreateSnapshotTaskResult result = taskClient.createSnapshot(spaceId, description, userEmail);
-                response.setStatus(HttpStatus.SC_ACCEPTED);
-                return result.serialize();
-
-            } catch (ContentStateException ex) {
-                response.setStatus(HttpStatus.SC_CONFLICT);
-                return ex.getMessage();
-            }
-        }
+        response.setStatus(Response.Status.GONE.getStatusCode());
+        return "{\"error\": \"Snapshots are disabled\"}";
     }
 
     protected String getUserEmail(String username) {

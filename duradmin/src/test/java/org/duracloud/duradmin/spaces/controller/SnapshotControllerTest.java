@@ -132,11 +132,7 @@ public class SnapshotControllerTest extends EasyMockSupport {
 
         replayAll();
         SnapshotController controller = createController();
-        Assert.assertNotNull(controller.create(request,
-                                               response,
-                                               "spaceId",
-                                               storeId,
-                                               "description"));
+        Assert.assertNotNull(controller.create(response));
     }
 
     @Test
