@@ -110,25 +110,10 @@ public class SnapshotControllerTest extends EasyMockSupport {
     }
 
     @Test
-    public void testCreateSnapshot() throws Exception {
-
-        String spaceId = "spaceId";
-        String description = "description";
-
-        setupGetContentStore();
-        setupGetTaskClient(storeId);
-        EasyMock.expect(store.getSpaceProperties(EasyMock.isA(String.class)))
-                .andReturn(new HashMap<String, String>());
-
-        EasyMock.expect(taskClient.createSnapshot(spaceId,
-                                                  description,
-                                                  userEmail))
-                .andReturn(new CreateSnapshotTaskResult());
-
-        response.setStatus(HttpStatus.SC_ACCEPTED);
+    public void testCreateSnapshot() {
+        response.setStatus(HttpStatus.SC_GONE);
         EasyMock.expectLastCall().once();
         response.setHeader("Content-Type", "application/json");
-        setupUserDetails();
 
         replayAll();
         SnapshotController controller = createController();
