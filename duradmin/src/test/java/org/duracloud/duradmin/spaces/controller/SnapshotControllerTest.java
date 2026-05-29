@@ -37,7 +37,6 @@ import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.dto.SnapshotHistoryItem;
-import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
