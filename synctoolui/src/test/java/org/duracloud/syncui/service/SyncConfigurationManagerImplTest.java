@@ -12,7 +12,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import org.duracloud.syncui.AbstractTest;
 import org.duracloud.syncui.domain.DirectoryConfigs;
@@ -126,4 +131,60 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
         }
     }
 
+    @Test
+    public void testGetSetExcludeList() {
+        File excludeList = new File(System.getProperty("java.io.tmpdir")
+                + File.separator + "excludeList.txt");
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("test1.txt");
+        stringBuilder.append(System.getProperty("line.separator"));
+        stringBuilder.append("path/to/test2.txt");
+
+        String excludeListContent = stringBuilder.toString();
+
+        writeExcludeList(excludeList, excludeListContent);
+
+        this.syncConfigurationManager.setExcludeList(excludeList);
+        setupConfigurationManager();
+
+        File secondExcludeList = this.syncConfigurationManager.getExcludeList();
+
+        assertEquals(excludeListContent, readExcludeList(secondExcludeList));
+        if (excludeList.exists()) {
+            excludeList.delete();
+        }
+    }
+
+    private void writeExcludeList(File excludeList, String content) {
+        try {
+            BufferedWriter backupWriter =
+                    new BufferedWriter(new FileWriter(excludeList));
+            backupWriter.write(content);
+            backupWriter.flush();
+            backupWriter.close();
+        } catch (IOException e ) {
+            throw new RuntimeException("Unable to write sample exclude list file " +
+                    "due to: " + e.getMessage(), e);
+        }
+    }
+
+    private String readExcludeList(File excludeList) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(excludeList));
+            StringBuilder stringBuilder = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+                stringBuilder.append(System.getProperty("line.separator"));
+            }
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+            reader.close();
+
+            return stringBuilder.toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to read sample exclude list file " +
+                    "due to: " + e.getMessage(), e);
+        }
+    }
 }

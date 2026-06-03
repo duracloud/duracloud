@@ -230,6 +230,17 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     }
 
     @Override
+    public File getExcludeList() {
+        return this.syncToolConfig.getExcludeList();
+    }
+
+    @Override
+    public void setExcludeList(File excludeList) {
+        this.syncToolConfig.setExcludeList(excludeList);
+        persistSyncToolConfig();
+    }
+
+    @Override
     public int getThreadCount() {
         return this.syncToolConfig.getNumThreads();
 

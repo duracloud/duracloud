@@ -7,6 +7,7 @@
  */
 package org.duracloud.syncui.controller;
 
+import java.io.File;
 import javax.validation.Valid;
 
 import org.duracloud.syncui.domain.AdvancedForm;
@@ -15,6 +16,7 @@ import org.duracloud.syncui.domain.DirectoryConfigForm;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudConfiguration;
 import org.duracloud.syncui.domain.DuracloudCredentialsForm;
+import org.duracloud.syncui.domain.ExcludeForm;
 import org.duracloud.syncui.domain.ModeForm;
 import org.duracloud.syncui.domain.PrefixForm;
 import org.duracloud.syncui.domain.SyncProcessState;
@@ -229,6 +231,30 @@ public class ConfigurationController {
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
 
+    @ModelAttribute("excludeForm")
+    public ExcludeForm excludeForm() {
+        ExcludeForm e = new ExcludeForm();
+        e.setExcludeListPath(String.valueOf(this.syncConfigurationManager.getExcludeList()));
+        return e;
+    }
+
+    @RequestMapping(value = {"/exclude"}, method = RequestMethod.POST)
+    public View updateExcludeList(ExcludeForm form, RedirectAttributes redirectAttributes) {
+        String excludeListPath = form.getExcludeListPath();
+        log.debug("updating exclude list file path to : {}", excludeListPath);
+
+        File excludeList = null;
+        try {
+            excludeList = new File(excludeListPath);
+        } catch (NullPointerException e) {
+            log.error("unable to read exclude list path into a file.");
+        }
+        if (excludeList != null) {
+            this.syncConfigurationManager.setExcludeList(excludeList);
+        }
+        return createConfigUpdatedRedirectView(redirectAttributes);
+    }
+
     @RequestMapping(value = {"/optimize"}, method = RequestMethod.GET)
     public String optimize() {
         return "optimize";
@@ -240,7 +266,7 @@ public class ConfigurationController {
 
         if (!syncProcessManager.getProcessState()
                                .equals(SyncProcessState.STOPPED)) {
-            throw new IllegalStateException("The  optimizer cannot run when the sync process is running.");
+            throw new IllegalStateException("The optimizer cannot run when the sync process is running.");
         }
 
         this.syncOptimizeManager.start(new SyncOptimizeManagerResultCallBack() {

@@ -77,6 +77,10 @@ public interface SyncConfigurationManager {
 
     public void setPrefix(String prefix);
 
+    public File getExcludeList();
+
+    public void setExcludeList(File excludeList);
+
     public int getThreadCount();
 
     public void setThreadCount(int threadCount);

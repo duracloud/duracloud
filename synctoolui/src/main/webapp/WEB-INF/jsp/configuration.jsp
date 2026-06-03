@@ -181,6 +181,27 @@
               </fieldset>
 
               <fieldset>
+                <legend>Exclude Files List</legend>
+                <form:form
+                  method="post"
+                  modelAttribute="excludeForm"
+                  action="${pageContext.request.contextPath}/configuration/exclude">
+
+                    <label for="exclude">Optionally include a full path to a file which specifies a set
+                                of exclusion rules. The purpose of the exclusion rules is
+                                to indicate that certain files or directories should not be
+                                transferred to DuraCloud. The rules must be listed one per
+                                line in the file. The rules will match only on the name of
+                                a file or directory, not an entire path, so path separators
+                                should not be included in rules. Rules are not case sensitive
+                                (so a rule "test.log" will match a file "test.LOG"). The rules
+                                may include wildcard characters ? and *. The ? matches a single
+                                character, while * matches 0 or more characters.</label>
+                    <form:input size="50%" placeholder="your/excluded/files/path/here" path="excludeListPath"/>
+                </form:form>
+              </fieldset>
+
+              <fieldset>
                 <legend>Transfer Rate (Thread count)</legend>
               
                 <form:form
@@ -238,15 +259,8 @@
                       </c:otherwise>
                     </c:choose>
                     </div>
-                  
-                  
-                  
-
                 </form:form>
-                    
-                    
               </fieldset>
-
             </div>
           </div>
         </div>
